@@ -1,0 +1,136 @@
+---
+import "@fontsource/lato";
+import "@fontsource/lato/700.css";
+import "@fontsource/montserrat-alternates";
+import "@styles/root.scss";
+import "@styles/theme.scss";
+import "@styles/TheatrePlayer.scss";
+import "@styles/Service.scss";
+import HatBeta from "@icons/hat-beta.svg?react";
+import HatDev from "@icons/hat-dev.svg?react";
+import HatPlain from "@icons/hat.svg?react";
+import categories from "@lib/gameCategories";
+import styles from "@styles/Navigation.module.scss";
+import Menu from "@icons/menu_24dp.svg?svgmin";
+import Settings from "@icons/settings_24dp.svg?svgmin";
+import HomeOutlined from "@icons/home_24dp_outlined.svg?react";
+import Home from "@icons/home_24dp.svg?react";
+import WebAsset from "@icons/web_asset_24dp.svg?react";
+import QuestionMark from "@icons/question_mark_24dp.svg?react";
+import Apps from "@icons/apps_24dp.svg?react";
+import StarOutline from "@icons/star_outline_24dp.svg?react";
+import Star from "@icons/star_24dp.svg?react";
+import List from "@icons/list_24dp.svg?react";
+import SortRounded from "@icons/sort_24dp.svg?react";
+import clsx from "clsx";
+import MenuTab from "@components/MenuTab.astro";
+import Footer from "@components/Footer.astro";
+
+function Hat() {
+  switch (import.meta.env.VITE_HAT_BADGE) {
+    case "DEV":
+      return HatDev;
+    case "BETA":
+      return HatBeta;
+    default:
+      return HatPlain;
+  }
+}
+---
+
+<html lang="en" data-theme={Astro.locals.theme}>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <slot name="head" />
+  </head>
+  <body>
+    <script src="@lib/nav.ts"></script>
+    <nav class={styles.nav}>
+      <button class={styles.button} id="toggle-nav">
+        <Menu class="icon" />
+      </button>
+      <a
+        href="/"
+        class={clsx(styles.entry, styles.logo)}
+        title="Home"
+        set:html={Hat()}
+      />
+      <div class={styles.shiftRight}></div>
+      {
+        /* we want the user to tab into the button, not the link so it looks right */
+      }
+      <a href="/settings/appearance" title="Home" tabindex="-1">
+        <button class={styles.button}>
+          <Settings class="icon" />
+        </button>
+      </a>
+    </nav>
+    <div class={styles.content}>
+      <div tabindex="-1" class:list={[styles.cover, "menuitem"]}></div>
+      <div class={styles.menu}>
+        <div class={styles.top}>
+          <div class={clsx(styles.button, "menuitem")}>
+            <Menu class="icon" />
+          </div>
+          <a
+            href="/"
+            class:list={[styles.entry, "menuitem", styles.logo]}
+            title="Home"
+            set:html={Hat()}
+          />
+        </div>
+        <div class={styles.menuList}>
+          <MenuTab
+            href="/"
+            name="Home"
+            iconFilled={Home}
+            iconOutlined={HomeOutlined}
+          />
+          <MenuTab href="/proxy" name="Proxy" iconFilled={WebAsset} />
+          <MenuTab href="/faq" name="FAQ" iconFilled={QuestionMark} />
+
+          <div class={styles.bar}></div>
+
+          <MenuTab href="/theatre/apps" name="Apps" iconFilled={Apps} />
+
+          <MenuTab
+            href="/theatre/favorites"
+            name="Favorites"
+            iconFilled={Star}
+            iconOutlined={StarOutline}
+          />
+
+          <div class={styles.bar}></div>
+
+          <div class={styles.title}>Games</div>
+
+          <MenuTab
+            href="/theatre/games/"
+            name="Popular"
+            iconFilled={SortRounded}
+          />
+          <MenuTab href="/theatre/games/all" name="All" iconFilled={List} />
+          <div class={styles.title}>Genre</div>
+          <div class={styles.genres}>
+            {
+              categories.map((category) => (
+                <a
+                  href={`/theatre/category/${category.id}`}
+                  title={category.name}
+                  class={clsx(styles.entry, "menuitem", styles.text)}
+                >
+                  {category.name}
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+      <slot />
+      <Footer />
+    </div>
+  </body>
+</html>

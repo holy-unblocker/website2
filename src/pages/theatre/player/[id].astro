@@ -1,0 +1,10 @@
+---
+import ClientAPIs from "@components/ClientAPIs.astro";
+import TheatrePlayer from "@components/TheatrePlayer";
+import MainLayout from "@layouts/MainLayout.astro";
+---
+
+<MainLayout>
+  <TheatrePlayer id={Astro.params.id!} client:only="preact" />
+</MainLayout>
+<ClientAPIs />

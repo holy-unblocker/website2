@@ -1,0 +1,31 @@
+---
+import styles from "@styles/Navigation.module.scss";
+
+type Props = Record<string, any> & {
+  href?: string;
+  class?: string;
+  name: string;
+  iconFilled: string;
+  iconOutlined?: string;
+  tabIndex?: number;
+  isNew?: boolean;
+};
+
+const { href, name, iconFilled, iconOutlined, isNew } = Astro.props;
+
+const selected = Astro.url.pathname === href;
+---
+
+<a
+  href={href}
+  data-selected={Number(selected)}
+  class:list={[styles.entry, Astro.props.class, "menuitem", Astro.props.class]}
+  title={name}
+>
+  <span
+    class={styles.icon}
+    set:html={(selected && iconFilled) || iconOutlined || iconFilled}
+  />
+  <span class={styles.name}>{name}</span>
+  {isNew && <span class={styles.new}>new</span>}
+</a>

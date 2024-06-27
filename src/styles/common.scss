@@ -1,0 +1,63 @@
+/**
+ * Common utils
+ * This file should only contain SCSS mixins and variables
+ */
+
+// Fonts and fallbacks
+$MontserratAlternates: 'Montserrat Alternates', 'Arial', 'sans-serif';
+$Lato: 'Lato', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';
+
+$scrollbar-width: 16px;
+$fixed-width: calc(100vw - $scrollbar-width);
+
+$nav-height: 70px;
+$nav-height-border: 71px;
+
+@function offsetHex($color, $ness) {
+	@return 'rgb(' + (red($color) + $ness) + ', ' + (green($color) + $ness) + ', ' +
+		(blue($color) + $ness) + ')';
+}
+
+@mixin screenMobile {
+	@media only screen and (max-width: 650px) {
+		@content;
+	}
+}
+
+@mixin screenDesktop {
+	@media only screen and (min-width: 650px) {
+		@content;
+	}
+}
+
+@mixin shimmer($width, $name) {
+	@keyframes #{$name} {
+		0% {
+			background-position: -#{calc($width / 2)} 0px;
+		}
+
+		to {
+			background-position: #{calc($width / 2)} 0px;
+		}
+	}
+}
+
+@mixin newShimmerSmall() {
+	@include shimmer(240px, shimmerSmall);
+}
+
+@mixin newShimmerCard() {
+	@include shimmer(470px, shimmerCard);
+}
+
+@mixin newShimmerLarge() {
+	@include shimmer(940px, shimmerLarge);
+}
+
+@mixin newShimmerLarger() {
+	@include shimmer(1880px, shimmerLarger);
+}
+
+@mixin newShimmerWide() {
+	@include shimmer(200vw, shimmerWide);
+}

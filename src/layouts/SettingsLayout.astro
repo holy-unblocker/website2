@@ -1,0 +1,40 @@
+---
+import MainLayout from "@layouts/MainLayout.astro";
+import styles from "@styles/Settings.module.scss";
+import Brush from "@icons/brush_24dp.svg?react";
+import BrushOutlined from "@icons/brush_24dp_outline.svg?react";
+import DriveFileRenameOutline from "@icons/drive_file_rename_outline_24dp.svg?react";
+import Public from "@icons/public_24dp.svg?react";
+import navStyles from "@styles/Navigation.module.scss";
+import MenuTab from "@components/MenuTab.astro";
+---
+
+<MainLayout>
+  <Fragment slot="head"><slot name="head" /></Fragment>
+  <main class={styles.main}>
+    <div class:list={["menu", styles.menu]}>
+      <div class:list={[navStyles.menuList, styles.menuList]}>
+        <MenuTab
+          class={styles.entry}
+          href="/settings/appearance"
+          name="Appearance"
+          iconFilled={Brush}
+          iconOutlined={BrushOutlined}
+        />
+        <MenuTab
+          class={styles.entry}
+          href="/settings/proxy"
+          name="Proxy"
+          iconFilled={Public}
+        />
+        <MenuTab
+          class={styles.entry}
+          href="/settings/tabcloak"
+          name="Tab Mask"
+          iconFilled={DriveFileRenameOutline}
+        />
+      </div>
+    </div>
+    <slot />
+  </main>
+</MainLayout>

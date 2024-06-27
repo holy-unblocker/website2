@@ -1,0 +1,29 @@
+---
+import { appConfig } from "@config/config";
+---
+
+<script define:vars={{ apis: appConfig.apis }}>
+  function format(env) {
+    const { host, hostname, protocol } = globalThis.location;
+
+    return env
+      .replace("%{location.host}", host)
+      .replace("%{location.hostname}", hostname)
+      .replace("%{location.protocol}", protocol)
+      .replace(
+        "%{location.wsprotocol}",
+        protocol === "https:" ? "wss:" : "ws:"
+      );
+  }
+
+  // import.meta.env.NODE_ENV !== "production" ||
+
+  window.has_serviceworkers =
+    location.protocol === "https:" ||
+    location.hostname === "localhost" ||
+    location.hostname === "127.0.0.1";
+
+  window.db_api = format(apis.db);
+  window.wisp_api = format(apis.wisp);
+  window.theatre_cdn = format(apis.theatre);
+</script>

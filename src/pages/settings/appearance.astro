@@ -1,0 +1,39 @@
+---
+// import { useGlobalSettings } from "../../Layout";
+import ThemeSelect from "@components/ThemeSelect.astro";
+import SettingsLayout from "@layouts/SettingsLayout.astro";
+import styles from "@styles/Settings.module.scss";
+---
+
+<SettingsLayout>
+  <Fragment slot="head">
+    <title>Appearance Settings</title>
+  </Fragment>
+  <section>
+    <div>
+      <p>Theme:</p>
+      <ThemeSelect
+        class={styles.ThemeSelect}
+        value={Astro.locals.theme}
+        id="themeSwitcher"
+        options={[
+          { name: "Day", value: "Day" },
+          {
+            name: "Night",
+            value: "night",
+          },
+        ]}
+      />
+    </div>
+  </section>
+</SettingsLayout>
+<script>
+  import { setTheme } from "@lib/cookies";
+
+  const themeSwitcher =
+    document.querySelector<HTMLInputElement>("#themeSwitcher")!;
+
+  themeSwitcher.addEventListener("change", () => {
+    setTheme(themeSwitcher.value);
+  });
+</script>

@@ -1,0 +1,112 @@
+@import "./common.scss";
+
+html {
+  background-color: var(--background);
+}
+
+body {
+  margin: 0px;
+  font-family: $Lato;
+}
+
+button {
+  user-select: none;
+}
+
+h1,
+h2,
+h3 {
+  font-family: $MontserratAlternates;
+}
+
+:focus-visible {
+  outline: none;
+}
+
+svg {
+  user-select: none;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  fill: currentColor;
+  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+}
+
+html[data-tab="1"] {
+  a:not([tabIndex="-1"]):focus {
+    outline: var(--action) solid 1px;
+    border-radius: 5px;
+  }
+}
+
+* {
+  scrollbar-color: var(--text-placeholder);
+
+  // 12px wide
+
+  &::-webkit-scrollbar {
+    width: $scrollbar-width;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    height: 56px;
+    border: 4px solid transparent;
+    border-radius: 8px;
+    background-clip: content-box;
+    background-color: var(--text-placeholder);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-disabled);
+  }
+}
+
+/*@include screenMobile {
+	body {
+		width: 100%;
+	}
+
+	.fixed-wide {
+		width: 100vw;
+	}
+}*/
+
+body {
+  width: $fixed-width;
+  font-family: $Lato;
+  font-weight: 400;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+}
+
+main {
+  padding: 0px 5%;
+  margin: 20px 0px;
+  flex: none;
+
+  &.error {
+    pre {
+      white-space: break-spaces;
+    }
+  }
+}
+
+input {
+  font-family: inherit;
+
+  &::placeholder {
+    color: var(--text-placeholder);
+  }
+}
+
+a {
+  text-decoration: inherit;
+  color: inherit;
+}
+
+.icon-contents {
+  display: contents;
+}

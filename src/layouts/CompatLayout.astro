@@ -1,0 +1,21 @@
+---
+import "@fontsource/lato";
+import "@fontsource/lato/700.css";
+import "@fontsource/montserrat-alternates";
+import "@styles/root.scss";
+import "@styles/theme.scss";
+import "@styles/TheatrePlayer.scss";
+---
+
+<html lang="en" data-theme={Astro.locals.theme}>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

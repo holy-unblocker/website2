@@ -1,0 +1,23 @@
+---
+import { themeStyles } from "@components/ThemeElements";
+import MainLayout from "@layouts/MainLayout.astro";
+---
+
+<MainLayout>
+  <main>
+    <Fragment slot="head">
+      <title>Not Found</title>
+      <meta name="description" content="Page not found." />
+    </Fragment>
+    <h1>The page you are looking for is not available.</h1>
+    <hr />
+    <p>
+      If you typed in the URL yourself, please double-check the spelling.
+      <br />
+      If you got here from a link within our site, please <a
+        href="/contact"
+        class={themeStyles.themeLink}>Contact Us</a
+      >.
+    </p>
+  </main>
+</MainLayout>

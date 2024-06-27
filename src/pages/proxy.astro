@@ -1,0 +1,65 @@
+---
+import { appConfig } from "@config/config";
+import ProxyOmnibox from "@components/ProxyOmnibox";
+import styles from "@styles/Proxy.module.scss";
+import MainLayout from "@layouts/MainLayout.astro";
+import { themeStyles } from "@components/ThemeElements";
+import ClientAPIs from "@components/ClientAPIs.astro";
+
+/*const ProxyMeta = () => (
+  <Meta
+    title="Proxy"
+    description="Bypass blocks on your internet traffic with Holy Unblocker's web proxy."
+    faq={[
+      {
+        name: "What web proxies does Holy Unblocker have?",
+        acceptedAnswer: {
+          text: "Ultraviolet and Rammerhead. You can change the default proxy in your settings.",
+        },
+      },
+    ]}
+    actions={[
+      {
+        target: {
+          urlTemplate:
+            new URL(getHot("proxy").path, globalThis.location.toString()) +
+            "?q={search_term_string}",
+        },
+        "query-input": "required name=search_term_string",
+      },
+    ]}
+  />
+);*/
+---
+
+<MainLayout>
+  <Fragment slot="head">
+    <title>Proxy</title>
+    <meta
+      name="description"
+      content="Bypass blocks on your internet traffic with Holy Unblocker's web proxy."
+    />
+  </Fragment>
+  <main class={styles.main}>
+    <ClientAPIs />
+    <ProxyOmnibox client:only="preact" />
+    <p>
+      If you're having issues with the proxy, try troubleshooting your problem
+      by looking at the <a href="/faq">FAQ</a>.
+    </p>
+    <p>
+      This is a free service paid for by our Patreons. If you want faster
+      servers, donate to Holy Unblocker on <a
+        class={themeStyles.themeLink}
+        href={appConfig.links.patreon}>Patreon</a
+      >.
+    </p>
+    <p>
+      <a
+        class={themeStyles.themeLink}
+        href={appConfig.links.discord.holyunblocker}
+        >Join the TitaniumNetwork Discord</a
+      > for access to more Holy Unblocker links.
+    </p>
+  </main>
+</MainLayout>

@@ -1,0 +1,31 @@
+---
+import MainLayout from "@layouts/MainLayout.astro";
+import categories from "@lib/gameCategories";
+import TheatreCategory from "@components/TheatreCategory.astro";
+
+const id = Astro.params.id!;
+const category = categories.find((category) => category.id === id);
+---
+
+<MainLayout>
+  {
+    category ? (
+      <>
+        <Fragment slot="head">
+          <title>{category.name}</title>
+          <meta
+            name="description"
+            content={`Find ${category.name} games on Holy Unblocker.`}
+          />
+        </Fragment>
+        <TheatreCategory
+          name={category.name}
+          category={id}
+          placeholder="Search by game name"
+        />
+      </>
+    ) : (
+      <></>
+    )
+  }
+</MainLayout>

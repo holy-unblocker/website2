@@ -1,0 +1,53 @@
+---
+import CompatLayout from "@layouts/CompatLayout.astro";
+import styles from "@styles/CompatFlash.module.scss";
+import { getCompatDest } from "@lib/compat";
+
+interface RufflePlayerElement extends HTMLElement {
+  load(data: { url: string }): void;
+  remove(): void;
+}
+
+declare const RufflePlayer: {
+  newest(): {
+    createPlayer(): RufflePlayerElement;
+  };
+};
+
+const container = document.querySelector<HTMLElement>("main")!;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  let player: RufflePlayerElement | undefined;
+  let errorCause: string | undefined;
+
+  try {
+    errorCause = "An error occurred while loading Ruffle";
+    // await ruffleBundle.current.promise;
+    errorCause = undefined;
+
+    const ruffle = RufflePlayer.newest();
+    player = ruffle.createPlayer();
+    container.append(player);
+
+    player.addEventListener("loadeddata", () => {
+      container.setAttribute("data-loaded", "1");
+    });
+
+    player.addEventListener("error", (event) => {
+      throw event.error;
+    });
+
+    player.load({
+      url: getCompatDest(),
+    });
+  } catch (err) {
+    // compatLayout.current!.report(err, errorCause, "Rammerhead");
+  }
+});
+---
+
+<CompatLayout>
+  <main class={styles.main}>
+    <script src="/ruffle/ruffle.js" is:inline></script>
+  </main>
+</CompatLayout>

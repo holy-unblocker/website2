@@ -1,0 +1,41 @@
+---
+import { themeStyles } from "@components/ThemeElements";
+import MainLayout from "@layouts/MainLayout.astro";
+---
+
+<MainLayout>
+  <Fragment slot="head">
+    <title>Privacy Policy</title>
+    <meta name="description" content="Holy Unblocker's privacy policy." />
+  </Fragment>
+  <main>
+    <h1>Privacy Policy</h1>
+    <p>
+      By using this website and our proxy servers, mentioned below as "Holy
+      Unblocker", "service", "we", "us" you agree to the following:
+    </p>
+    <h2>Data Collection</h2>
+    <p>
+      We use Google Analytics to collect information about your use of our
+      website, such as the timestamps of pages accessed and internet protocol
+      (IP) addresses. This information is used for analyzing trends,
+      administering the site, tracking users' movement on the website, and
+      gathering demographic information. We do not collect any personal data,
+      and any information collected is not linked to personally identifiable
+      information.
+    </p>
+    <h2>Data Protection</h2>
+    <p>
+      We take the protection of your data seriously and implement appropriate
+      measures to secure any information we collect. If you would like any
+      information to be removed, please{" "}
+      <a class={themeStyles.themeLink} href="/contact">contact us</a> and we will
+      promptly comply with your request.
+    </p>
+    <h2>Contact Us</h2>
+    <p>
+      If you have any questions about our Privacy Policy, please{" "}
+      <a class={themeStyles.themeLink} href="/contact">Contact Us</a>.
+    </p>
+  </main>
+</MainLayout>

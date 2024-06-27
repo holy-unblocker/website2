@@ -1,0 +1,66 @@
+---
+import { themeStyles } from "@components/ThemeElements";
+import { appConfig } from "@config/config";
+import MainLayout from "@layouts/MainLayout.astro";
+---
+
+<MainLayout>
+  <Fragment slot="head">
+    <title>Credits</title>
+  </Fragment>
+  <main>
+    <h2>Credits</h2>
+
+    <h4>Operations</h4>
+
+    <ul>
+      <li>Eli - NFT/Bitcoin specialist</li>
+      <li>Incoming - Accountant</li>
+    </ul>
+
+    <h4>Sponsors</h4>
+
+    <ul>
+      <li>
+        <a href={appConfig.links.patreon}>Patreon</a>
+      </li>
+      <li>
+        <a>The Kingdom of Saudi Arabia</a>
+      </li>
+      <li>Jeff Bezos - Server hosting</li>
+    </ul>
+
+    <h4>Development</h4>
+    <ul>
+      <li>sexyduceduce - Frontend Developer, Ultraviolet</li>
+      <li>OlyB - Frontend Developer, WebRetro</li>
+      <li>luphoria - Backend Developer</li>
+      <li>Ender - Backend Developer</li>
+      <li>011011000110111101101100 - Rammerhead</li>
+    </ul>
+
+    <h4>Community</h4>
+    <ul>
+      <li>Aub - Community Manager</li>
+      <li>Degenerate - Chat Moderator</li>
+      <li>Simon - Chat Moderator</li>
+    </ul>
+
+    <h2>Proxy Scripts</h2>
+    <ul>
+      <li>
+        Rammerhead: <a
+          href="https://github.com/binary-person/rammerhead"
+          title="Git repository">https://github.com/binary-person/rammerhead</a
+        >
+      </li>
+      <li>
+        Ultraviolet: <a
+          href="https://github.com/titaniumnetwork-dev/Ultraviolet"
+          title="Git repository"
+          >https://github.com/titaniumnetwork-dev/Ultraviolet</a
+        >
+      </li>
+    </ul>
+  </main>
+</MainLayout>

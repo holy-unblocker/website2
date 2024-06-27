@@ -1,0 +1,21 @@
+---
+import { themeStyles } from "@components/ThemeElements";
+import Waves from "@icons/waves.svg?svgmin";
+import styles from "@styles/Footer.module.scss";
+---
+
+<footer class={styles.footer}>
+  <Waves />
+  <div class={styles.background}>
+    <div class={styles.content}>
+      <a class={themeStyles.themeLink} href="/contact">Contact</a>
+      <a class={themeStyles.themeLink} href="/credits">Credits</a>
+      <a class={themeStyles.themeLink} href="/privacy">Privacy</a>
+      <a class={themeStyles.themeLink} href="/terms">
+        <span class={styles.long}>Terms of Use</span>
+        <span class={styles.short}>Terms</span>
+      </a>
+      <div>&copy; Holy Unblocker {new Date().getUTCFullYear()}</div>
+    </div>
+  </div>
+</footer>

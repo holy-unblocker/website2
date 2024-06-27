@@ -1,0 +1,74 @@
+---
+import ClientAPIs from "@components/ClientAPIs.astro";
+import CompatLayout from "@layouts/CompatLayout.astro";
+---
+
+<CompatLayout>
+  <main></main>
+  <ClientAPIs />
+  <script src="/baremux/bare.cjs" is:inline async></script>
+  <script src="/epoxy/index.js" is:inline async></script>
+  <script src="/uv/uv.bundle.js" is:inline></script>
+  <script src="/uv/uv.config.js" is:inline></script>
+</CompatLayout>
+<script>
+  import { getCompatDest, reportCompatError } from "@lib/compat";
+
+  type UVEncode = (encoded: string) => string;
+  type UVDecode = (encoded: string) => string;
+
+  interface UVConfig {
+    bare: string;
+    prefix: string;
+    handler: string;
+    bundle: string;
+    config: string;
+    sw: string;
+    encodeUrl: UVEncode;
+    decodeUrl: UVDecode;
+  }
+
+  declare const __uv$config: UVConfig;
+
+  declare const BareMux: any;
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    let errorCause: string | undefined;
+
+    try {
+      if (!window.has_serviceworkers) {
+        errorCause = "HTTPS must be enabled to use this proxy.";
+        throw new Error(errorCause);
+      }
+
+      if (!navigator.serviceWorker) {
+        errorCause = "Your browser doesn't support service workers.";
+        throw new Error(errorCause);
+      }
+
+      const config = __uv$config;
+
+      // register sw
+      errorCause = "Failure registering the service worker.";
+      await navigator.serviceWorker.register(`/uv/sw.js`, {
+        scope: config.prefix,
+        updateViaCache: "none",
+      });
+      errorCause = undefined;
+
+      // Register the EpoxyClient transport to be used for network requests
+      await BareMux.SetTransport("EpxMod.EpoxyClient", {
+        wisp: window.wisp_api,
+      });
+
+      location.replace(
+        new URL(
+          config.encodeUrl(getCompatDest()),
+          new URL(config.prefix, location.toString())
+        )
+      );
+    } catch (err) {
+      reportCompatError(err, errorCause, "Ultraviolet");
+    }
+  });
+</script>

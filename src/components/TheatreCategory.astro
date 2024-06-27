@@ -1,0 +1,14 @@
+---
+import { Category } from "./TheatreCategoryView";
+import ClientAPIs from "./ClientAPIs.astro";
+
+interface Props {
+  name: string;
+  category: string;
+  placeholder?: string;
+  showCategory?: boolean;
+}
+---
+
+<Category {...Astro.props} client:only="preact" />
+<ClientAPIs />

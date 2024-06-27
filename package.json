@@ -4,14 +4,34 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
+    "start": "node dist/server/entry.mjs",
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^4.10.2",
     "@astrojs/check": "^0.7.0",
-    "typescript": "^5.4.5"
+    "@astrojs/node": "^8.3.0",
+    "@astrojs/preact": "^3.5.0",
+    "@fontsource/catamaran": "^5.0.20",
+    "@fontsource/lato": "^5.0.21",
+    "@fontsource/montserrat-alternates": "^5.0.13",
+    "@mercuryworkshop/bare-mux": "^1.1.0",
+    "@mercuryworkshop/epoxy-transport": "^1.1.0",
+    "@ruffle-rs/ruffle": "^0.1.0-nightly.2023.9.6",
+    "@titaniumnetwork-dev/ultraviolet": "^3.1.2",
+    "@types/crypto-js": "^4.2.2",
+    "@types/effective-domain-name-parser": "^0.0.2",
+    "@types/node": "^20.14.2",
+    "astro": "^4.10.2",
+    "crypto-js": "^4.2.0",
+    "effective-domain-name-parser": "^0.0.11",
+    "pg": "^8.12.0",
+    "preact": "^10.22.0",
+    "sass": "^1.77.5",
+    "svgo": "^3.3.2",
+    "typescript": "^5.4.5",
+    "vite-plugin-static-copy": "^1.0.5",
+    "wisp-server-node": "^1.1.0"
   }
 }

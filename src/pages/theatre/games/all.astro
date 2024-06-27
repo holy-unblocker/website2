@@ -1,0 +1,18 @@
+---
+import TheatreCategory from "@components/TheatreCategory.astro";
+import categories from "@lib/gameCategories";
+import MainLayout from "@layouts/MainLayout.astro";
+---
+
+<MainLayout>
+  <Fragment slot="head">
+    <meta name="title" content="Find games on Holy Unblocker." />
+    <title>Games</title>
+  </Fragment>
+  <TheatreCategory
+    name="All Games"
+    showCategory
+    category={categories.map((category) => category.id).join(",")}
+    placeholder="Search by game name"
+  />
+</MainLayout>

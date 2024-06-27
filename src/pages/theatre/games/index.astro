@@ -1,0 +1,89 @@
+---
+import CommonError from "@components/CommonError.astro";
+import type {
+  LoadingTheatreEntry,
+  TheatreEntry,
+} from "@components/TheatreCommon";
+import { ItemList } from "@components/TheatreCommon";
+import SearchBar from "@components/TheatreSearchBar";
+import { themeStyles } from "@components/ThemeElements";
+import categories from "@lib/gameCategories";
+import type { Category } from "@lib/gameCategories";
+import styles from "@styles/TheatreCategory.module.scss";
+import ArrowForward from "@icons/arrow_forward_24dp.svg?svgmin";
+import MainLayout from "@layouts/MainLayout.astro";
+import { theatreAPI } from "@lib/db";
+
+const entryLimit = 8;
+
+const categoryQuery = categories.map((category) => category.id).join(",");
+
+let data;
+let error: string | undefined;
+try {
+  data = await theatreAPI.list({
+    sort: "plays",
+    category: categoryQuery,
+    limitPerCategory: entryLimit,
+  });
+} catch (err) {
+  console.error(err);
+  error = String(err);
+}
+
+const _categories: Record<
+  string,
+  { entries: (TheatreEntry | LoadingTheatreEntry)[]; category: Category }
+> = {};
+
+for (const category of categories)
+  _categories[category.id] = {
+    entries: [],
+    category: category,
+  };
+
+if (data)
+  for (const item of data.entries)
+    _categories[item.category[0]].entries.push(item);
+---
+
+<MainLayout>
+  {
+    error ? (
+      <CommonError error={error} message="Popular Games" />
+    ) : (
+      <>
+        <Fragment slot="head">
+          <meta name="description" content="Popular games on Holy Unblocker." />
+          <title>Popular Games</title>
+        </Fragment>
+        <main class={styles.main}>
+          <SearchBar
+            showCategory
+            category={categoryQuery}
+            placeholder="Search by game name"
+          />
+          {Object.values(_categories).map((section) => (
+            <section class={styles.expand}>
+              <div class={styles.name}>
+                <h1>{section.category.name}</h1>
+                <a
+                  class={themeStyles.themeLink}
+                  href={`/theatre/games/category/${section.category.id}`}
+                  class={styles.seeAll}
+                >
+                  See All
+                  <ArrowForward />
+                </a>
+              </div>
+              <ItemList
+                class:list={[styles.items, styles.flex]}
+                items={section.entries}
+              />
+            </section>
+          ))}
+        </main>
+      </>
+    )
+  }
+</MainLayout>

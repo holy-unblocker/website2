@@ -1,0 +1,55 @@
+---
+import MainLayout from "@layouts/MainLayout.astro";
+import { themeStyles } from "@components/ThemeElements";
+import { appConfig } from "@config/config";
+
+/*faq={["
+{name: "What is Holy Unblocker's GitHub?",
+	acceptedAnswer: {
+	text: "https://github.com/holy-unblocker",
+	},
+}}
+]}*/
+---
+
+<MainLayout>
+  <Fragment slot="head">
+    <meta
+      name="description"
+      content="If you need help or need to contact Holy Unblocker, you can contact us here."
+    />
+    <title>Contact Us</title>
+  </Fragment>
+  <main>
+    <h1>Contact Us</h1>
+    <table>
+      <tbody>
+        <tr>
+          <td>GitHub:</td>
+          <td>
+            <a
+              class={themeStyles.themeLink}
+              href={appConfig.links.github.org}
+              title="Git repository"
+              set:text={appConfig.links.github.org}
+            />
+          </td>
+        </tr>
+        <tr>
+          <td>Email:</td>
+          <td>
+            <a
+              class={themeStyles.themeLink}
+              href={"mailto:" + appConfig.emails.support}
+              title="Email address"
+              set:text={appConfig.emails.support}
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p
+      set:text="Please do not contact us from your school email! Although we try to read and respond to emails, we will simply ignore emails coming from student email addresses to avoid any legal problems."
+    />
+  </main>
+</MainLayout>
