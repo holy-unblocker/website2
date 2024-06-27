@@ -92,9 +92,9 @@ export class TheatreAPI extends DatabaseAPI {
     return await this.fetch<TheatreEntry>(`./theatre/${id}/`);
   }
   async plays(id: string) {
-    /*return await this.fetch<TheatreEntry>(`./theatre/${id}/plays`, {
+    return await this.fetch<TheatreEntry>(`./theatre/${id}/plays`, {
       method: "PUT",
-    });*/
+    });
   }
   async category(params: {
     leastGreatest?: boolean;
@@ -140,9 +140,10 @@ export function LoadingItem() {
 
 export function ItemList({
   items,
-  ...attributes
-}: JSX.IntrinsicElements["div"] & {
+  className,
+}: {
   items: (TheatreEntry | LoadingTheatreEntry)[];
+  className?: string;
 }) {
   const children = [];
 
@@ -154,5 +155,5 @@ export function ItemList({
     }
   }
 
-  return <div>{children}</div>;
+  return <div className={className}>{children}</div>;
 }
