@@ -9,7 +9,7 @@ const ANIMATION = 0.3e3;
 // notifications container
 const noticon = document.createElement("div");
 noticon.className = styles.notifications;
-document.documentElement.append(noticon);
+document.body.append(noticon);
 
 interface IconThing {
   icon: string;
@@ -45,7 +45,7 @@ export function createNotification(data: {
 
   const icon = resolveIcon(data.type || "info");
   e.insertAdjacentHTML("afterbegin", icon.icon);
-  e.children[0].className = `${styles.icon} ${icon.class}`;
+  e.children[0].setAttribute("class", `${styles.icon} ${icon.class}`);
 
   const content = document.createElement("div");
   content.className = styles.content;
