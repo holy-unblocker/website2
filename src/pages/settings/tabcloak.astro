@@ -37,6 +37,7 @@ import Check from "@icons/check_24dp.svg?svgmin";
   </section>
   <script>
     import { extractData } from "@lib/mask";
+    import { createNotification } from "@lib/notifications";
     import { globalCloakSettings } from "@lib/storage";
 
     const input = document.querySelector<HTMLInputElement>("#cloakinput")!;
@@ -56,30 +57,29 @@ import Check from "@icons/check_24dp.svg?svgmin";
     const form = document.querySelector<HTMLFormElement>("#form")!;
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
+      createNotification({
+        description: "Loading mask...",
+        type: "info",
+      });
       try {
-        /*layout.current!.notifications.current!({
-          description: "Loading mask...",
-          type: "info",
-        });*/
-
         const data = await extractData(input.value);
         input.value = data.url;
         globalCloakSettings.set("icon", data.icon);
         globalCloakSettings.set("title", data.title);
         globalCloakSettings.set("url", data.url);
 
-        /*layout.current!.notifications.current!({
+        createNotification({
           description: "Mask successfully set.",
           type: "success",
-        });*/
+        });
       } catch (err) {
         console.error(err);
 
-        /*layout.current!.notifications.current!({
+        createNotification({
           title: "Failure loading mask.",
           description: err instanceof Error ? err.message : "Unknown Error",
           type: "error",
-        });*/
+        });
       }
     });
   </script>

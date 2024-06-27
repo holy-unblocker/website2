@@ -6,6 +6,8 @@ import Public from "@icons/public_24dp.svg?react";
 import { useRef } from "preact/hooks";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { sillyfetch } from "@lib/sillyfetch";
+import { createNotification } from "@lib/notifications";
+import { isError } from "@lib/isAbortError";
 
 export type ServiceFrameSrc = [src: string, proxySrc: string];
 
@@ -41,11 +43,11 @@ const ServiceFrame = ({
         setLastSrc(src[1]);
       } catch (err) {
         console.error(err);
-        /*layout.current!.notifications.current!({
+        createNotification({
           title: "Unable to find a compatible proxy",
           description: isError(err) ? err.message : String(err),
           type: "error",
-        });*/
+        });
       }
     } else {
       if (!iframe.current || !iframe.current.contentWindow) return;
@@ -56,7 +58,6 @@ const ServiceFrame = ({
       setLastSrc("about:blank");
     }
   }, [iframe, src]);
-  // , layout
 
   useEffect(() => {
     function focusListener() {

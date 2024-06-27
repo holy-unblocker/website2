@@ -108,7 +108,7 @@ const ProxyOmnibox = ({
         } catch (err) {
           if (!isAbortError(err) && !isFailedToFetch(err)) {
             // likely abort error
-            console.error("Error fetching Bare server.");
+            console.error("Error fetching silly server.");
           } else {
             throw err;
           }
@@ -131,17 +131,18 @@ const ProxyOmnibox = ({
 
     setInputFocused(false);
 
+    const proxy = globalSettings.get("proxy");
+    const s = await resolveProxy(src, proxy);
+
     switch (globalSettings.get("proxyMode")) {
       case "embedded":
-        setSrc([src, await resolveProxy(src, globalSettings.get("proxy"))]);
+        setSrc([src, s]);
         break;
       case "redirect":
-        window.location.assign(
-          await resolveProxy(src, globalSettings.get("proxy"))
-        );
+        window.location.assign(s);
         break;
       case "about:blank":
-        presentAboutBlank(await resolveProxy(src, globalSettings.get("proxy")));
+        presentAboutBlank(s);
         break;
     }
 
