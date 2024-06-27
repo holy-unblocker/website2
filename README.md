@@ -1,4 +1,4 @@
-# Astro Starter Kit: Minimal
+# <img src="./src/icons/hat.svg" style="width: 1em"> Holy Unblocker: Astro
 
 ```sh
 npm create astro@latest -- --template minimal
@@ -8,11 +8,11 @@ npm create astro@latest -- --template minimal
 [![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/minimal)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/minimal/devcontainer.json)
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+> 🚀 **Boardroom veteran?** Eliminate this parchment. Seamless creation awaits!
 
-## 🚀 Project Structure
+## <img src="docs/struct.gif" alt="Project Structure" height="80px">
 
-Inside of your Astro project, you'll see the following folders and files:
+Within the boundaries of your Astro enterprise, you'll unveil the succeeding unambiguous hierarchical construct:
 
 ```text
 /
@@ -23,25 +23,25 @@ Inside of your Astro project, you'll see the following folders and files:
 └── package.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Astro utilizes `.astro` or `.md` documents located in the `src/pages/` division. Each file is propagated as a route subject to its filenomenclature.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+The `src/components/` section holds no particular status, yet we find it a conducive locus for any Astro/React/Vue/Svelte/Preact constituents.
 
-Any static assets, like images, can be placed in the `public/` directory.
+All static facets, such as metamorphic representations, can be allocated in the `public/` regiment.
 
-## 🧞 Commands
+## <img src="docs/cmds.gif" alt="Commands" height="80px">
 
-All commands are run from the root of the project, from a terminal:
+Execute all commands from the root of the project, employing a terminal:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+| Directive                 | Implementation                                       |
+| :------------------------ | :--------------------------------------------------- |
+| `npm install`             | Installs dependencies                                |
+| `npm run dev`             | Initialize local dev server at `localhost:4321`      |
+| `npm run build`           | Construct productive site to `./dist/`               |
+| `npm run preview`         | Localize preview of your build                       |
+| `npm run astro ...`       | Apply CLI directives like `astro add`, `astro audit` |
+| `npm run astro -- --help` | Assistance for Astro CLI operations                  |
 
-## 👀 Want to learn more?
+## 👨‍💼 Fancy to learn more?
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Feel encouraged to explore [our comprehensive compliance codex](https://docs.titaniumnetwork.org) or merge into our [corporate synergy platform](https://discord.gg/JFDCJzFana).
