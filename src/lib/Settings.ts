@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 
-const settingsUpdates = new EventTarget();
+export const settingsUpdates = new EventTarget();
 
 export default class Settings<T> {
   private defaultSettings: T;
-  private key: string;
+  key: string;
   value!: T;
   constructor(key: string, defaultSettings: T) {
     this.key = key;
@@ -83,11 +83,8 @@ export default class Settings<T> {
 }
 
 export function useSettings<T>(
-  key: string,
-  create: () => T
+  settings: Settings<T>
 ): [T, (state: T | ((prevState: T) => T)) => void] {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const settings = useMemo(() => new Settings(key, create()), []);
   const [current, setCurrent] = useState<{ [K in keyof T]: T[K] }>({
     ...settings.value,
   });
@@ -106,12 +103,12 @@ export function useSettings<T>(
       setCurrent(newValue);
     };
 
-    settingsUpdates.addEventListener(key, listener);
+    settingsUpdates.addEventListener(settings.key, listener);
 
     return () => {
-      settingsUpdates.removeEventListener(key, listener);
+      settingsUpdates.removeEventListener(settings.key, listener);
     };
-  }, [key, settings]);
+  }, [settings]);
 
   return [current, setCurrent];
 }

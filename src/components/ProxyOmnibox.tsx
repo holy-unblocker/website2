@@ -73,49 +73,48 @@ const ProxyOmnibox = ({
 
   async function onInput() {
     const v = input.current!.value;
-    if (inputValue.current !== v) {
-      inputValue.current = v;
+    if (inputValue.current === v) return;
+    inputValue.current = v;
 
-      const entries: string[] = [];
+    const entries: string[] = [];
 
-      if (v.trim() === "")
-        try {
-          abort.current.abort();
-          abort.current = new AbortController();
+    if (v.trim() === "")
+      try {
+        abort.current.abort();
+        abort.current = new AbortController();
 
-          const outgoing = await sillyfetch(
-            "https://www.bing.com/AS/Suggestions?" +
-              new URLSearchParams({
-                qry: v,
-                cvid: "\u0001",
-                bareServer: "",
-              }),
-            {
-              signal: abort.current.signal,
-            }
-          );
-
-          if (!outgoing.ok) {
-            throw await outgoing.text();
+        const outgoing = await sillyfetch(
+          "https://www.bing.com/AS/Suggestions?" +
+            new URLSearchParams({
+              qry: v,
+              cvid: "\u0001",
+              bareServer: "",
+            }),
+          {
+            signal: abort.current.signal,
           }
+        );
 
-          const text = await outgoing.text();
-
-          for (const [, phrase] of text.matchAll(
-            /<span class="sa_tm_text">(.*?)<\/span>/g
-          ))
-            entries.push(phrase);
-        } catch (err) {
-          if (!isAbortError(err) && !isFailedToFetch(err)) {
-            // likely abort error
-            console.error("Error fetching silly server.");
-          } else {
-            throw err;
-          }
+        if (!outgoing.ok) {
+          throw await outgoing.text();
         }
 
-      setOmniboxEntries(entries);
-    }
+        const text = await outgoing.text();
+
+        for (const [, phrase] of text.matchAll(
+          /<span class="sa_tm_text">(.*?)<\/span>/g
+        ))
+          entries.push(phrase);
+      } catch (err) {
+        if (!isAbortError(err) && !isFailedToFetch(err)) {
+          // likely abort error
+          console.error("Error fetching silly server.");
+        } else {
+          throw err;
+        }
+      }
+
+    setOmniboxEntries(entries);
   }
 
   async function searchSubmit() {
@@ -189,6 +188,9 @@ const ProxyOmnibox = ({
               onInput();
               setInputFocused(true);
               setLastSelect(-1);
+            }}
+            onBlur={() => {
+              setInputFocused(false);
             }}
             onClick={() => {
               onInput();

@@ -1,5 +1,5 @@
 ---
-import { themeStyles } from "./ThemeElements";
+import themeStyles from "@styles/ThemeElements.module.scss";
 
 interface Props {
   cause?: string | null;
@@ -21,9 +21,9 @@ interface Props {
     )
   }
   <p>
-    <a class={themeStyles.themeLink} href="i:" id="reload">
+    <span class={themeStyles.themeLink} onclick="location.reload()">
       Try again by clicking here.
-    </a>
+    </span>
     <br />
     If this problem still occurs, check our{" "}
     <a class={themeStyles.themeLink} href="/faq" target="_parent"> FAQ </a>{" "}
@@ -33,12 +33,4 @@ interface Props {
     </a>
     .
   </p>
-  <script>
-    document
-      .querySelector<HTMLAnchorElement>("#reload")!
-      .addEventListener("click", (event) => {
-        event.preventDefault();
-        location.reload();
-      });
-  </script>
 </main>

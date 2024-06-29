@@ -45,3 +45,7 @@ Execute all commands from the root of the project, employing a terminal:
 ## 👨‍💼 Fancy to learn more?
 
 Feel encouraged to explore [our comprehensive compliance codex](https://docs.titaniumnetwork.org) or merge into our [corporate synergy platform](https://discord.gg/JFDCJzFana).
+
+# account system
+
+- first account created will be given admin for convenience

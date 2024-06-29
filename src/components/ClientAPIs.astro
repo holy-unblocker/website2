@@ -2,8 +2,26 @@
 import { appConfig } from "@config/config";
 ---
 
-<script define:vars={{ apis: appConfig.apis }}>
-  function format(env) {
+<div
+  id="apis"
+  data-db={appConfig.apis.db}
+  data-theatre={appConfig.apis.theatre}
+  data-wisp={appConfig.apis.wisp}
+>
+</div>
+<script>
+  const apis = document.querySelector("#apis")!;
+
+  window.has_serviceworkers =
+    location.protocol === "https:" ||
+    location.hostname === "localhost" ||
+    location.hostname === "127.0.0.1";
+
+  window.db_api = format(apis.getAttribute("data-db")!);
+  window.wisp_api = format(apis.getAttribute("data-wisp")!);
+  window.theatre_cdn = format(apis.getAttribute("data-theatre")!);
+
+  function format(env: string) {
     const { host, hostname, protocol } = globalThis.location;
 
     return env
@@ -15,13 +33,4 @@ import { appConfig } from "@config/config";
         protocol === "https:" ? "wss:" : "ws:"
       );
   }
-
-  window.has_serviceworkers =
-    location.protocol === "https:" ||
-    location.hostname === "localhost" ||
-    location.hostname === "127.0.0.1";
-
-  window.db_api = format(apis.db);
-  window.wisp_api = format(apis.wisp);
-  window.theatre_cdn = format(apis.theatre);
 </script>

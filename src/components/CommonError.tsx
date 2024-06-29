@@ -1,4 +1,4 @@
-import { themeStyles } from "./ThemeElements";
+import themeStyles from "@styles/ThemeElements.module.scss";
 
 const CommonError = ({
   cause,

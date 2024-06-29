@@ -28,8 +28,11 @@ const SearchBar = ({
   const [lastSelect, setLastSelect] = useState(-1);
   const [inputFocused, setInputFocused] = useState(false);
   const searchAbort = useRef(new AbortController());
+  const lastQuery = useRef<string | null>(null);
 
   async function search(query: string) {
+    if (lastQuery.current === query) return;
+    lastQuery.current = query;
     searchAbort.current.abort();
     searchAbort.current = new AbortController();
 
@@ -80,6 +83,9 @@ const SearchBar = ({
             setLastSelect(-1);
             search(input.current!.value);
           }}
+          onBlur={() => {
+            setInputFocused(false);
+          }}
           onClick={() => {
             setInputFocused(true);
             setLastSelect(-1);
@@ -127,7 +133,7 @@ const SearchBar = ({
                   if (entry) {
                     input.current!.blur();
                     setInputFocused(false);
-                    location.href = `/theatre/player/${entry.id}`;
+                    location.href = `/theatre/play?id=${entry.id}`;
                   }
                 }
                 break;
@@ -141,7 +147,7 @@ const SearchBar = ({
               event.preventDefault();
             }
           }}
-          onChange={(event) => {
+          onInput={(event) => {
             search((event.target as HTMLInputElement).value);
             setLastSelect(-1);
           }}
@@ -160,7 +166,7 @@ const SearchBar = ({
               key={entry.id}
               onClick={() => setInputFocused(false)}
               onMouseOver={() => setLastSelect(i)}
-              href={`/theatre/player/${entry.id}`}
+              href={`/theatre/play?id=${entry.id}`}
               title={entry.name}
               className={clsx(styles.option, i === lastSelect && styles.hover)}
             >

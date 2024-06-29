@@ -1,0 +1,57 @@
+---
+// this page will only be reached if the user is signed in
+// this is a dashboard
+// they can edit their profile, subscribe, check their subscription status and cancel it
+import "@styles/donator.scss";
+import MainLayout from "@layouts/MainLayout.astro";
+import { getTierName, getUserPayment } from "@lib/util";
+import themeStyles from "@styles/ThemeElements.module.scss";
+import Banner from "@components/Banner.astro";
+
+const { user, acc } = Astro.locals;
+if (await acc.isBanned()) return acc.toBan();
+if (!user) return acc.toLogin();
+if (!user.email_verified) return acc.toVerifyEmail();
+
+const payment = await getUserPayment(user.id);
+
+const newEmailConfirmed = Astro.url.searchParams.has("newEmailConfirmed");
+const welcome = Astro.url.searchParams.has("welcome");
+---
+
+{
+  (newEmailConfirmed || welcome) && (
+    <script>history.pushState({}, "", "/donate/dashboard")</script>
+  )
+}
+<MainLayout user={user}>
+  <main>
+    <h1 class="page-title">Dashboard for {user.email}</h1>
+    {newEmailConfirmed && <Banner success="Email changed." />}
+    {welcome && <Banner success="Email verified." />}
+    <div class="user-card">
+      <h3>Account Actions:</h3>
+      <p>
+        <a class={themeStyles.themeLink} href="/donate/change-password"
+          >Change Password</a
+        >
+      </p>
+      <p>
+        <a class={themeStyles.themeLink} href="/donate/change-email"
+          >Change Email</a
+        >
+      </p>
+      <p>
+        <a class={themeStyles.themeLink} href="/donate/logout">Log Out</a>
+      </p>
+    </div>
+    <div class="user-card" style="padding-bottom:10px;">
+      <h3>Subscription</h3>
+      <p>Current tier: {getTierName(payment?.tier)}</p>
+      <p>You can donate on the tiers page:</p>
+      <a href="/donate/pricing">
+        <input type="button" class="prettysubmit" value="See Tiers" />
+      </a>
+    </div>
+  </main>
+</MainLayout>

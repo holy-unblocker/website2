@@ -1,0 +1,408 @@
+/* a lot of this is still being adapted */
+@import "./common.scss";
+
+/*
+main {
+  padding: 15px 8vw;
+  margin-bottom: 200px;
+}
+
+main {
+  box-sizing: border-box;
+  padding: 15px 8vw;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+}
+*/
+
+.prettyinput[readonly] {
+  cursor: default;
+  border-color: transparent;
+  background-color: #eee;
+}
+
+.prettyinput,
+.prettytextarea {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #333;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  box-sizing: border-box;
+  border: 1px solid hsl(210, 13.8%, 88.6%);
+  border-radius: 5px;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  // for entering email verify code
+  &.code {
+    width: 250px;
+    display: inline-block;
+  }
+
+  &[disabled] {
+    background-color: #e9ecef;
+  }
+
+  &.invalid {
+    border-color: red;
+    box-shadow: 0 0 0 0.15rem #ff00883f;
+  }
+
+  &:not([readonly]):focus {
+    border-color: var(--action);
+    outline: 0;
+    box-shadow: 0 0 0 0.15rem #0056ff3f;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prettyinput {
+    transition: none;
+  }
+}
+
+.prettyselect {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  border-radius: 5px;
+  color: #333;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23333' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  border: 1px solid #dee2e6;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prettyselect {
+    transition: none;
+  }
+}
+
+.prettyselect:focus {
+  border-color: var(--action);
+  outline: 0;
+  box-shadow: 0 0 0 0.15rem #0056ff3f;
+}
+
+.prettytextarea {
+  min-height: calc(1.5em + 0.75rem + 2px);
+}
+
+hr {
+  border-color: #eee;
+}
+
+.prettybanner {
+  font-size: 15px;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+
+  &.error {
+    color: #b94a48;
+    background-color: #f2dede;
+    border-color: #eed3d7;
+  }
+
+  &.success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+  }
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  font-size: 29px;
+  font-family: $MontserratAlternates;
+
+  &.sub {
+    line-height: 29px;
+  }
+
+  .back-button {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 10px;
+    cursor: pointer;
+  }
+}
+
+.manage-field {
+  display: block;
+  margin-bottom: 10px;
+  // label for the input
+  div {
+    margin-bottom: 2px;
+  }
+}
+
+//
+.user-card {
+  padding: 5px 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  background-color: var(--background-accent-deep-1);
+}
+
+.change-form {
+  padding: 20px 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+
+  &.user {
+    background-color: var(--background-accent-deep-1);
+  }
+}
+
+// login/register form
+.login-form {
+  margin: auto;
+  width: 100%;
+  max-width: 450px;
+  background-color: var(--background-accent-deep-1);
+  border-radius: 10px;
+  box-sizing: border-box;
+  padding: 0px 15px;
+  padding-bottom: 2px;
+
+  .form-title {
+    font-family: $MontserratAlternates;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 60px;
+  }
+}
+
+@media (max-width: 1000px) {
+  main {
+    padding: 15px 2vw;
+    flex-direction: column;
+  }
+
+  .first {
+    flex-direction: column-reverse;
+    align-items: center;
+  }
+
+  .login-form {
+    max-width: 500px;
+  }
+}
+
+.prettyfile::file-selector-button,
+.prettysubmit {
+  background-color: var(--action);
+  height: 45px;
+  border-radius: 5px;
+  font-size: 16px;
+  padding: 0 20px;
+  cursor: pointer;
+  /* if this is a <button> (prefer <input type="button" */
+  border: 0px;
+  color: white;
+  /* <a> */
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+  padding: 0 15px;
+  height: 38px;
+
+  // for tiers
+  // already purchased
+  &.owned {
+    background-color: var(--action);
+  }
+
+  &:focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.15rem #0056ff3f;
+  }
+
+  &.login {
+    margin-top: 13px;
+  }
+}
+
+.anchor {
+  text-decoration: none;
+  display: contents;
+}
+
+.prettysubmit.center {
+  display: flex;
+  margin: 0 auto;
+}
+
+.prettysubmit.wide {
+  display: flex;
+  width: 100%;
+}
+
+.prettyfile.inline {
+  display: inline-block;
+}
+
+.prettyfile.inline::file-selector-button .prettyinput.inline {
+  width: 100%;
+  max-width: 300px;
+  display: inline-block;
+}
+
+.prettysubmit[disabled],
+.prettyfile[disabled]::file-selector-button {
+  background-color: #194fb9;
+  color: #ccc;
+  cursor: default;
+}
+
+main {
+  padding: 0;
+}
+
+main > .register {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 50px 5vw;
+  gap: 15px;
+  box-sizing: border-box;
+
+  .description {
+    width: 100%;
+  }
+
+  .login-form {
+    max-width: 350px;
+    flex: none;
+  }
+}
+
+@media (max-width: 700px) {
+  main > .register {
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+
+    .login-form {
+      margin: 0;
+      margin-top: 10px;
+      max-width: none;
+    }
+  }
+}
+
+main.pricing {
+  width: 100%;
+  padding: 50px 5vw;
+  padding-bottom: 0;
+  gap: 15px;
+  box-sizing: border-box;
+
+  .description {
+    width: 100%;
+  }
+
+  .tiers {
+    .page-title {
+      margin-bottom: 10px;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      > div {
+        display: flex;
+        flex-direction: column;
+        width: 220px;
+        height: 250px;
+        padding: 0 10px;
+        padding-top: 30px;
+        padding-bottom: 10px;
+        border-radius: 10px;
+        background-color: var(--background-accent);
+
+        .title,
+        .price {
+          text-align: center;
+          font-family: $MontserratAlternates;
+        }
+
+        .title {
+          white-space: pre;
+          font-size: 20px;
+          font-weight: 700;
+        }
+
+        .price {
+          font-size: 17px;
+        }
+
+        .features {
+          margin-top: 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+
+          > div {
+            font-size: 15px;
+            line-height: 35px;
+            padding: 2px 10px;
+            background-color: var(--background-accent-deep-2);
+            border-radius: 5px;
+            white-space: pre;
+
+            .icon {
+              &.disc svg {
+                height: 16px;
+              }
+
+              display: contents;
+              svg {
+                display: inline-block;
+                width: 26px;
+                height: 24px;
+                vertical-align: middle;
+                margin-right: 2px;
+              }
+            }
+          }
+        }
+
+        .buy {
+          margin-top: auto;
+
+          .prettysubmit {
+            font-size: 15px;
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+}

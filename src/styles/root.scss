@@ -29,7 +29,12 @@ svg {
   height: 1em;
   display: inline-block;
   fill: currentColor;
-  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  // transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+
+  &.patreon {
+    width: 20px !important;
+    height: 20px !important;
+  }
 }
 
 html[data-tab="1"] {

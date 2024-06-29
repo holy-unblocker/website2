@@ -9,6 +9,14 @@
   }
 }
 
+input.themeLink {
+  appearance: none;
+  border: none;
+  background: none;
+  font: inherit;
+  margin: none;
+}
+
 .ThemeInputBar[data-disabled="1"],
 .ThemeInput[disabled],
 .ThemeButton[disabled] {
@@ -188,12 +196,15 @@ html[data-tab="1"] {
     cursor: pointer;
     align-items: center;
 
-    > svg {
-      margin-left: 6px;
-      width: 24px;
-      height: 24px;
-      margin-left: auto;
-      line-height: inherit;
+    > div {
+      display: contents;
+      svg {
+        margin-left: 6px;
+        width: 24px;
+        height: 24px;
+        margin-left: auto;
+        line-height: inherit;
+      }
     }
   }
 

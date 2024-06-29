@@ -1,5 +1,3 @@
-import engines from "@lib/engines";
-
 function getCookie(name: string, defaultValue?: string) {
   for (const cookie of document.cookie.split("; ")) {
     const c = cookie.split("=");

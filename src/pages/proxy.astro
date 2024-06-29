@@ -3,7 +3,7 @@ import { appConfig } from "@config/config";
 import ProxyOmnibox from "@components/ProxyOmnibox";
 import styles from "@styles/Proxy.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
-import { themeStyles } from "@components/ThemeElements";
+import themeStyles from "@styles/ThemeElements.module.scss";
 import ClientAPIs from "@components/ClientAPIs.astro";
 
 /*const ProxyMeta = () => (
@@ -48,10 +48,10 @@ import ClientAPIs from "@components/ClientAPIs.astro";
       by looking at the <a href="/faq">FAQ</a>.
     </p>
     <p>
-      This is a free service paid for by our Patreons. If you want faster
-      servers, donate to Holy Unblocker on <a
+      This is a free service paid for by our Patreons. If you want to help us
+      maintain our servers and get access to exclusive features, <a
         class={themeStyles.themeLink}
-        href={appConfig.links.patreon}>Patreon</a
+        href="/donate/pricing">donate to Holy Unblocker</a
       >.
     </p>
     <p>

@@ -1,0 +1,130 @@
+---
+// this is the register page
+import "@styles/donator.scss";
+import MainLayout from "@layouts/MainLayout.astro";
+import themeStyles from "@styles/ThemeElements.module.scss";
+import InputPassword from "@components/InputPassword.astro";
+import Banner from "@components/Banner.astro";
+import { db } from "@lib/db";
+import {
+  m,
+  createSession,
+  validateEmail,
+  validatePassword,
+  generateVerificationCode,
+  hashPassword,
+  sendEmailVerification,
+} from "@lib/util";
+
+const { ip, user, acc } = Astro.locals;
+// redirect to dashboard if they're signed in
+if (user) return acc.toDash();
+
+let error: string | undefined;
+
+let email: string | undefined;
+let password: string | undefined;
+
+// only check if they're banned when they submit the form
+
+if (Astro.request.method === "POST") {
+  if (await acc.isBanned()) return acc.toBan();
+
+  try {
+    const data = await Astro.request.formData();
+    email = data.get("email")?.toString().trim() || "";
+    password = data.get("password")?.toString() || "";
+
+    // const token = data.get("g-recaptcha-response")?.toString();
+    error = validateEmail(email) || validatePassword(password);
+
+    if (!error) {
+      const verificationCode = generateVerificationCode();
+
+      try {
+        const user = (
+          await db.query<m.UserModel>(
+            "INSERT INTO users(email,email_verification_code,password_hash,signup_ip) VALUES($1,$2,$3,$4) RETURNING *;",
+            [email, verificationCode, await hashPassword(password), ip]
+          )
+        ).rows[0];
+
+        await sendEmailVerification(user);
+
+        const session = await createSession(ip, user.id);
+        Astro.locals.setSession(session.secret);
+        return acc.toVerifyEmail();
+      } catch (err) {
+        if (
+          // @ts-ignore
+          err?.message ===
+          'duplicate key value violates unique constraint "users_email_key"'
+        ) {
+          error = "Email already exists. Did you mean to login?";
+        } else {
+          console.error("caught err:");
+          console.error(err);
+        }
+      }
+    }
+  } catch (err) {
+    console.error("caught err:");
+    console.error(err);
+  }
+}
+---
+
+<MainLayout>
+  <main>
+    <div class="register">
+      <div class="description">
+        <h1 class="page-title">Donator Dashboard</h1>
+        <p>
+          In order to donate, change account settings, or access donator perks
+          such as the virtual browser, you need a donator account.
+        </p>
+        <h3>Do I have to sign up?</h3>
+        <p>
+          We welcome anyone to donate money to Holy Unblocker, and we greatly
+          benefit from your support, but giving us money is entirely optional.
+        </p>
+        <h3>What are the perks?</h3>
+        <p>You can check out our list of tiers to learn more:</p>
+        <a href="/donate/pricing">
+          <input type="button" class="prettysubmit" value="See Tiers" />
+        </a>
+      </div>
+      <form class="login-form" method="post">
+        <div class="form-title">Create an account</div>
+        {error && <script>history.pushState({}, "")</script>}
+        <Banner error={error} />
+        <label class="manage-field">
+          <div>Email</div>
+          <input
+            type="text"
+            name="email"
+            class="prettyinput"
+            required
+            value={email}
+          />
+        </label>
+        <label class="manage-field">
+          <div>Password</div>
+          <InputPassword
+            id="password"
+            name="password"
+            value={password}
+            validate
+          />
+        </label>
+        <input class="prettysubmit wide login" type="submit" value="Sign up" />
+        <p>
+          Already have an account? <a
+            class={themeStyles.themeLink}
+            href="/donate/login">Login</a
+          >
+        </p>
+      </form>
+    </div>
+  </main>
+</MainLayout>

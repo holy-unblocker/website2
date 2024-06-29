@@ -164,11 +164,8 @@ export function ThemeSelect({
       >
         {options.map((option, i) => (
           <div
-            className={clsx(
-              styles.plainOption,
-              i === lastSelect && styles.hover,
-              option.disabled && styles.disabled
-            )}
+            data-hover={i === lastSelect ? "1" : undefined}
+            data-disabled={option.disabled ? "1" : undefined}
             key={i}
             onClick={() => {
               if (!option.disabled) {

@@ -1,0 +1,207 @@
+---
+import "@styles/donator.scss";
+import MainLayout from "@layouts/MainLayout.astro";
+import Banner from "@components/Banner.astro";
+import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
+import { getUserPayment, getTierName } from "@lib/util";
+import { appConfig } from "@config/config";
+import Discord from "@icons/discord.svg?react";
+import Arcade from "@icons/sports_esports_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
+import Public from "@icons/public_24dp.svg?react";
+import WebAsset from "@icons/web_asset_24dp.svg?react";
+import DeviceHub from "@icons/device_hub_24dp_FILL0_wght400_GRAD0_opsz24.svg?react";
+import { stripe } from "@lib/util";
+
+const { user } = Astro.locals;
+
+let error: string | undefined;
+
+if (Astro.request.method === "POST")
+  try {
+    const data = await Astro.request.formData();
+    const tier = Number(data.get("tier")?.toString());
+    // create an invoice
+    let priceId: string | undefined;
+
+    switch (tier) {
+      case 1:
+        // official supporter
+        priceId = appConfig.stripe?.priceIds.official;
+        break;
+      case 2:
+        // ultimate supporter
+        priceId = appConfig.stripe?.priceIds.ultimate;
+        break;
+    }
+
+    if (priceId === undefined) {
+      Astro.response.status = 400;
+      error = "Invalid tier ID";
+    } else if (!user) {
+      Astro.response.status = 400;
+      error = "You need an account";
+    } else if (user.stripe_customer === null) {
+      // this should never happen!
+      Astro.response.status = 500;
+      error = "ermm";
+      console.log(user);
+    } else if (!error)
+      try {
+        // create the invoice and redirect
+
+        // https://docs.stripe.com/billing/subscriptions/build-subscriptions
+        const session = await stripe!.checkout.sessions.create({
+          mode: "subscription",
+          customer: user.stripe_customer,
+          line_items: [
+            {
+              price: priceId,
+              // For metered billing, do not pass quantity
+              quantity: 1,
+            },
+          ],
+          success_url: `https://${Astro.url.host}/donate/paid?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `https://${Astro.url.host}/donate/pricing`,
+        });
+
+        console.log("session created", session);
+
+        return Astro.redirect(session.url, 303);
+      } catch (err) {
+        console.error("STRIPE ERROR", err);
+        Astro.response.status = 500;
+        error = "We were unable to create an invoice!";
+      }
+  } catch (err) {
+    console.error(err);
+  }
+
+const payment = user ? await getUserPayment(user.id) : undefined;
+
+const exclusiveError = Astro.url.searchParams.has("vm");
+
+if (!error && exclusiveError) {
+  error = "This feature is exclusive to official & ultimate supporters!";
+}
+---
+
+{
+  exclusiveError && (
+    <script>history.pushState({}, "", "/donate/pricing")</script>
+  )
+}
+<MainLayout>
+  <main class="pricing">
+    <Banner error={error} />
+    <div class="tiers">
+      <div class="page-title">
+        {
+          user && (
+            <a
+              class="back-button"
+              href="/donate/dashboard"
+              set:html={ArrowBackIcon}
+            />
+          )
+        }Donation Tiers
+      </div>
+      <div class="list">
+        <div>
+          <div class="title">Free</div>
+          <div class="price">$0</div>
+          <div class="features">
+            <div>
+              <span class="icon" set:html={Public} />
+              <span>All Site Features</span>
+            </div>
+            <div>
+              <span class="icon" set:html={WebAsset} />
+              <span>Ultraviolet</span>
+            </div>
+            <div>
+              <span class="icon" set:html={Arcade} />
+              <span>Arcade</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="title">Official Supporter</div>
+          <div class="price">$3/month</div>
+          <div class="features">
+            <div>
+              <span class="icon" set:html={DeviceHub} />
+              <span>Virtual Browser</span>
+            </div>
+            <div>
+              <span class="disc icon" set:html={Discord} />
+              <span>Discord Role</span>
+            </div>
+          </div>
+          <form class="buy" method="post">
+            <input type="text" name="tier" value="1" hidden />
+            <input
+              type="submit"
+              class:list={[
+                "prettysubmit",
+                payment && payment.tier < 1 && "owned",
+              ]}
+              value={!payment || payment.tier < 1 ? "Buy" : "You have this"}
+              disabled={!user ||
+                user.stripe_customer === null ||
+                payment?.tier === 1}
+            />
+          </form>
+        </div>
+        <div>
+          <div class="title">Ultimate Supporter</div>
+          <div class="price">$10/month</div>
+          <div class="features">
+            <div>
+              <span>All Official Supporter Perks</span>
+            </div>
+            <div><span>TYSM :D</span></div>
+          </div>
+          <form class="buy" method="post">
+            <input type="text" name="tier" value="2" hidden />
+            <input
+              type="submit"
+              class:list={[
+                "prettysubmit",
+                payment && payment.tier < 2 && "owned",
+              ]}
+              value={!payment || payment.tier < 2 ? "Buy" : "You have this"}
+              disabled={!user ||
+                user.stripe_customer === null ||
+                payment?.tier === 2}
+            />
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="description">
+      {
+        user ? (
+          <>
+            <p>Current tier: {getTierName(payment?.tier)}</p>
+            <p>
+              You will be asked for your payment details when you make a
+              purchase.
+            </p>
+            <p>Payments are handled by Stripe.</p>
+          </>
+        ) : (
+          <>
+            <p>In order to donate, you need to create an account.</p>
+            <a href="/donate/">
+              <input
+                type="button"
+                class="prettysubmit"
+                value="Create an account"
+              />
+            </a>
+          </>
+        )
+      }
+    </div>
+  </main>
+</MainLayout>

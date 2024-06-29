@@ -1,6 +1,6 @@
 ---
-import { themeStyles } from "@components/ThemeElements";
-import ExpandMore from "@icons/expand_more_24dp.svg?svgmin";
+import themeStyles from "@styles/ThemeElements.module.scss";
+import ExpandMore from "@icons/expand_more_24dp.svg?react";
 
 interface Props {
   options: {
@@ -199,7 +199,7 @@ for (const child of Astro.props.options) {
   <input readonly hidden name={Astro.props.name} />
   <div data-ts-toggle class={themeStyles.toggle}>
     <span data-ts-name>{Astro.props.options[defaultSelected].name}</span>
-    <ExpandMore />
+    <div set:html={ExpandMore} />
   </div>
   <div class={themeStyles.list} data-ts-list>
     {

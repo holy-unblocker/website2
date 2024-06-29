@@ -1,0 +1,333 @@
+import { db } from "@lib/db";
+import { randomBytes } from "node:crypto";
+import { hash } from "@lib/bcrypt";
+import nodemailer from "nodemailer";
+import { appConfig } from "@config/config.js";
+import * as m from "@lib/models";
+import { Stripe } from "stripe";
+
+export { m };
+
+// stripe integration, only if configuration is set
+export const stripe = appConfig.stripe
+  ? new Stripe(appConfig.stripe.secret)
+  : undefined;
+
+const transporter = nodemailer.createTransport(appConfig.smtpTransport);
+
+export async function createSession(ip: string, userId: number) {
+  return (
+    await db.query<m.SessionModel>(
+      `INSERT INTO session(secret,ip,user_id) VALUES ($1,$2,$3) RETURNING *;`,
+      [randomBytes(16).toString("hex"), ip, userId]
+    )
+  ).rows[0];
+}
+
+export async function IpBan(ip: string, reason: string, expires: Date | null) {
+  return (
+    await db.query<m.IpBanModel>(
+      "INSERT INTO ipban(expires,reason,ip) VALUES($1,$2,$3);",
+      [expires, reason, ip]
+    )
+  ).rows[0];
+}
+
+export async function BanUser(
+  userId: number,
+  reason: string,
+  expires: Date | null
+) {
+  if (reason === "") reason = "No reason specified.";
+
+  return (
+    await db.query<m.BanModel>(
+      "INSERT INTO ban(expires,reason,user_id) VALUES($1,$2,$3) RETURNING *;",
+      [expires, reason, userId]
+    )
+  ).rows[0];
+}
+
+export async function IpBanUser(
+  ip: string,
+  userId: number,
+  expires: Date | null,
+  reason: string
+) {
+  if (reason === "") reason = "No reason specified.";
+
+  return {
+    ipban: (
+      await db.query<m.IpBanModel>(
+        "INSERT INTO ipban(expires,reason,ip,user_id) VALUES($1,$2,$3,$4);",
+        [expires, reason, ip, userId]
+      )
+    ).rows[0],
+    ban: await BanUser(userId, reason, expires),
+  };
+}
+
+export async function isIPBanned(
+  ip: string
+): Promise<m.IpBanModel | undefined> {
+  const ban = (
+    await db.query<m.IpBanModel>(
+      "SELECT * FROM ipban WHERE ip = $1 AND (expires IS NULL OR expires > NOW())",
+      [ip]
+    )
+  ).rows[0];
+
+  return ban;
+}
+
+export async function isUserBanned(
+  userId: number
+): Promise<m.BanModel | undefined> {
+  const ban = (
+    await db.query<m.IpBanModel>(
+      "SELECT * FROM ban WHERE user_id = $1 AND (expires IS NULL OR expires > NOW())",
+      [userId]
+    )
+  ).rows[0];
+
+  return ban;
+}
+
+/**
+ * hash a password with bcrypt
+ */
+export async function hashPassword(password: string) {
+  return await hash(password, 10);
+}
+
+export function generateVerificationCode() {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let randomCode = "";
+
+  for (let i = 0; i < 8; i++) {
+    let randomNum = Math.floor(Math.random() * characters.length);
+    randomCode += characters[randomNum];
+  }
+
+  return randomCode;
+}
+
+export function generateVerificationSecret() {
+  return randomBytes(16).toString("base64");
+}
+
+// returns undefined = user is p00r
+export async function getUserPayment(
+  userId: number
+): Promise<m.PaymentModel | undefined> {
+  const payment = (
+    await db.query<m.PaymentModel>(
+      "SELECT * FROM payment WHERE user_id = $1 AND NOW() > period_start AND NOW() < period_end;",
+      [userId]
+    )
+  ).rows[0];
+
+  return payment;
+}
+
+// in seconds
+const spamThreshold = 30e3;
+
+export async function canSendEmail(
+  user: m.UserModel,
+  email: string,
+  ip: string
+): Promise<string | undefined> {
+  const sent = (
+    await db.query<m.EmailModel>(
+      `SELECT * FROM email WHERE email = $1 OR ip = $2;`,
+      [email, ip]
+    )
+  ).rows;
+
+  const now = Date.now();
+  for (const e of sent) {
+    const t = e.send_time.getTime();
+    const r = now - t;
+    if (r <= spamThreshold) {
+      const s = Math.ceil(r / 1000);
+      return `Please wait${s === 0 ? "" : " " + s + "more seconds"}`;
+    }
+  }
+
+  // record it
+  await db.query("INSERT INTO email(email,ip,user_id) VALUES($1,$2,$3);", [
+    user.email,
+    ip,
+    user.id,
+  ]);
+}
+
+const emailCSS = `div{background:#fff;padding:20px;font-family:"Helvetica Neue","Helvetica","Arial","sans-serif"}`;
+const verifyCSS = `#verify{color:#fff;background:#0078d4;padding:5px 10px;border:0;border-radius:5px;text-decoration:none}`;
+
+export async function sendChangeEmailVerification(
+  user: m.UserModel,
+  newEmail: string,
+  verificationSecret: string
+) {
+  const url = `https://holyubofficial.net/donate/verify-new-email?secret=${encodeURIComponent(
+    verificationSecret
+  )}`;
+
+  console.log("DEBUG CHANGE EMAIL VERIFICATION", [
+    user.id,
+    newEmail,
+    verificationSecret,
+    url,
+  ]);
+
+  await transporter.sendMail({
+    to: newEmail,
+    sender: {
+      address: "support@holyubofficial.net",
+      name: "Holy Unblocker Team",
+    },
+    from: "noreply@holyubofficial.net",
+    subject: "Confirm your new email",
+    html: `<style>${emailCSS}${verifyCSS}</style><div>
+<p>To finish changing your Holy Unblocker account's email address from ${user.email} to ${newEmail}, click the button below.</p>
+<a href="${url}" id="verify">Verify Email</a>
+<p>Or go to <a href="${url}">${url}</a></p>
+<p>You can log into your Holy Unblocker account at <a href="https://holyubofficial.net/donate/">holyubofficial.net</a></p>
+</div>`,
+  });
+}
+
+export async function sendChangePasswordNotification(
+  user: m.UserModel,
+  ip: string
+) {
+  // todo: add a recovery secret thats valid for only 30 days
+  console.log("DEBUG CHANGE PASSWORD NOTIFICATION", [user.id]);
+
+  await transporter.sendMail({
+    to: user.email,
+    sender: {
+      address: "support@holyubofficial.net",
+      name: "Holy Unblocker Team",
+    },
+    from: "noreply@holyubofficial.net",
+    subject: "Password changed",
+    html: `<style>${emailCSS}${verifyCSS}</style><div>
+<p>Your account's password was changed.</p>
+<p>This change was initiated by ${ip}</p>
+<p>You can log into your Holy Unblocker account at <a href="https://holyubofficial.net/donate/">holyubofficial.net</a></p>
+</div>`,
+  });
+}
+
+export async function sendChangeEmailNotification(
+  user: m.UserModel,
+  ip: string
+) {
+  // todo: add a recovery secret thats valid for only 30 days
+  console.log("DEBUG CHANGE EMAIL NOTIFICATION", [user.id]);
+
+  await transporter.sendMail({
+    to: user.email,
+    sender: {
+      address: "support@holyubofficial.net",
+      name: "Holy Unblocker Team",
+    },
+    from: "noreply@holyubofficial.net",
+    subject: "Email changed",
+    html: `<style>${emailCSS}${verifyCSS}</style><div>
+<p>Your account's password was changed to ${user.new_email}.</p>
+<p>This change was initiated by ${ip}</p>
+<p>You can log into your Holy Unblocker account at <a href="https://holyubofficial.net/donate/">holyubofficial.net</a></p>
+</div>`,
+  });
+}
+
+export async function sendEmailVerification(user: m.UserModel) {
+  console.log(
+    "DEBUG EMAIL VERIFICATION",
+    user.email,
+    user.email_verification_code
+  );
+
+  await transporter.sendMail({
+    to: user.email,
+    sender: {
+      address: "support@holyubofficial.net",
+      name: "Holy Unblocker Team",
+    },
+    from: "noreply@holyubofficial.net",
+    subject: "Finish creating your account",
+    html: `<style>${emailCSS}span{font-family:monospace}</style><div>
+<p>To finish creating your Holy Unblocker account, enter this verification code: <span>${user.email_verification_code}</span></p>
+<p>If this wasn't you, then you can ignore this email.</p>
+<p>You can log into your Holy Unblocker account at <a href="https://holyubofficial.net/donate/">holyubofficial.net</a></p>`,
+  });
+}
+
+export async function sendPasswordVerification(
+  email: string,
+  verificationSecret: string
+) {
+  const url = `https://holyubofficial.net/donate/forgot-password?secret=${encodeURIComponent(
+    verificationSecret
+  )}`;
+
+  console.log("DEBUG PASSWORD VERIFICATION", {
+    email,
+    verificationSecret,
+    url,
+  });
+
+  await transporter.sendMail({
+    to: email,
+    sender: {
+      address: "support@holyubofficial.net",
+      name: "Holy Unblocker Team",
+    },
+    from: "noreply@holyubofficial.net",
+    subject: "Password change request",
+    html: `<style>${emailCSS}${verifyCSS}</style>
+<p>Someone requested to change your password on Holy Unblocker. To reset your account password, click the button below.</p>
+<a href="${url}" id="verify">Change Password</a>
+<p>Or go to <a href="${url}">${url}</a></p>
+<p>If this wasn't you, then you can ignore this request.</p>
+<p>You can log into your Holy Unblocker account at <a href="https://holyubofficial.net/donate/">holyubofficial.net</a></p>`,
+  });
+}
+
+// only called after the user verifies their email
+export async function createStripeCustomer(user: m.UserModel) {
+  const customer = await stripe!.customers.create({
+    // name: "Jenny Rosen",
+    email: user.email,
+  });
+
+  user.stripe_customer = customer.id;
+  await db.query("UPDATE users SET stripe_customer = $1 WHERE id = $2;", [
+    customer.id,
+    user.id,
+  ]);
+  console.log("new customer", customer);
+}
+
+export * from "./validation";
+
+/*-- TIERS
+-- 0 - poor
+-- 1 - $3/month official supporter
+-- 2 - $10/month ultimate supporter
+*/
+
+const tierNames: Record<number, string> = {
+  0: "Free",
+  1: "Official Supporter",
+  2: "Ultimate Supporter",
+};
+
+export function getTierName(tier: number = 0) {
+  if (!(tier in tierNames)) throw new RangeError(`unknown tier: ${tier}`);
+  return tierNames[tier];
+}

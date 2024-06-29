@@ -1,65 +1,8 @@
 ---
-// import { useGlobalSettings } from "../../Layout";
-import type {
-  LoadingTheatreEntry,
-  TheatreEntry,
-} from "@components/TheatreCommon";
-import { ItemList, TheatreAPI } from "@components/TheatreCommon";
-import { appConfig } from "@config/config";
-import { isFailedToFetch } from "@lib/isAbortError";
 import styles from "@styles/TheatreCategory.module.scss";
-import { useEffect, useState } from "preact/hooks";
 import MainLayout from "@layouts/MainLayout.astro";
-
-/*const [settings, setSettings] = useGlobalSettings();
-
-  const [data, setData] = useState<(TheatreEntry | LoadingTheatreEntry)[]>(() =>
-    settings.favorites.map((id) => ({
-      loading: true,
-      id,
-      category: [],
-    }))
-  );*/
-
-/*useEffect(() => {
-    const abort = new AbortController();
-
-    (async function () {
-      const api = new TheatreAPI(appConfig.apis.db, abort.signal);
-      const data = [];
-
-      for (const id of settings.favorites) {
-        try {
-          data.push(await api.show(id));
-        } catch (err) {
-          // cancelled? page unload?
-          if (!isFailedToFetch(err)) {
-            console.warn("Unable to fetch entry:", id, err);
-            settings.favorites.splice(settings.favorites.indexOf(id), 1);
-          }
-        }
-      }
-
-      // update settings
-      setSettings({
-        ...settings,
-      });
-
-      setData(data);
-    })();
-
-    return () => abort.abort();
-  }, [layout, setSettings, settings]);
-
-  if (settings.favorites.length === 0)
-    return (
-      <>
-        <FavoritesMeta />
-        <main className="error">
-          <p>{t("noFavorites")}</p>
-        </main>
-      </>
-    );*/
+import ClientAPIs from "@components/ClientAPIs.astro";
+import TheatreFavorites from "@components/TheatreFavorites.tsx";
 ---
 
 <MainLayout>
@@ -69,7 +12,8 @@ import MainLayout from "@layouts/MainLayout.astro";
   <main class={styles.main}>
     <section>
       <div class={styles.name}><h1>Favorites</h1></div>
-      <div class={styles.items}>{/*<ItemList items={data} />*/}</div>
+      <TheatreFavorites client:only="preact" />
     </section>
   </main>
 </MainLayout>
+<ClientAPIs />

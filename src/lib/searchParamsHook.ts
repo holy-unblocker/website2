@@ -32,6 +32,7 @@ export function useSearchParams(): [
         "",
         st === "" ? location.pathname : `${location.pathname}?${st}`
       );
+      setParams(newParams);
     },
   ];
 }

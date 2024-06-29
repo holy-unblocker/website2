@@ -19,12 +19,16 @@ import WebAsset from "@icons/web_asset_24dp.svg?react";
 import QuestionMark from "@icons/question_mark_24dp.svg?react";
 import Apps from "@icons/apps_24dp.svg?react";
 import StarOutline from "@icons/star_outline_24dp.svg?react";
+import DeviceHub from "@icons/device_hub_24dp_FILL0_wght400_GRAD0_opsz24.svg?react";
 import Star from "@icons/star_24dp.svg?react";
 import List from "@icons/list_24dp.svg?react";
+import luv from "@icons/favorite_24dp.svg?react";
+import Leaderboard from "@icons/leaderboard_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
 import SortRounded from "@icons/sort_24dp.svg?react";
 import clsx from "clsx";
 import MenuTab from "@components/MenuTab.astro";
 import Footer from "@components/Footer.astro";
+import { stripe } from "@lib/util";
 
 function Hat() {
   switch (import.meta.env.VITE_HAT_BADGE) {
@@ -36,6 +40,8 @@ function Hat() {
       return HatPlain;
   }
 }
+
+// const { user } = Astro.locals;
 ---
 
 <html lang="en" data-theme={Astro.locals.theme}>
@@ -59,6 +65,13 @@ function Hat() {
         set:html={Hat()}
       />
       <div class={styles.shiftRight}></div>
+      {
+        /*user ? (
+          <a href="/donate/dashboard">Dashboard</a>
+        ) : (
+          <a href="/donate/">not logged in</a>
+        )*/
+      }
       {
         /* we want the user to tab into the button, not the link so it looks right */
       }
@@ -89,10 +102,30 @@ function Hat() {
             iconFilled={Home}
             iconOutlined={HomeOutlined}
           />
-          <MenuTab href="/proxy" name="Proxy" iconFilled={WebAsset} />
+          <MenuTab href="/proxy" name="Ultraviolet" iconFilled={WebAsset} />
           <MenuTab href="/faq" name="FAQ" iconFilled={QuestionMark} />
 
-          <div class={styles.bar}></div>
+          {
+            stripe && (
+              <>
+                <div class={styles.bar} />
+
+                <MenuTab href="/donate/" name="Donate" iconFilled={luv} />
+                <MenuTab
+                  href="/donate/vm"
+                  name="Virtual Browser"
+                  iconFilled={DeviceHub}
+                />
+                <MenuTab
+                  href="/donate/pricing"
+                  name="Tiers"
+                  iconFilled={Leaderboard}
+                />
+
+                <div class={styles.bar} />
+              </>
+            )
+          }
 
           <MenuTab href="/theatre/apps" name="Apps" iconFilled={Apps} />
 
@@ -105,7 +138,7 @@ function Hat() {
 
           <div class={styles.bar}></div>
 
-          <div class={styles.title}>Games</div>
+          <div class={styles.title}>Arcade</div>
 
           <MenuTab
             href="/theatre/games/"

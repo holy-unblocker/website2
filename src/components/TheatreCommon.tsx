@@ -1,5 +1,4 @@
 import DatabaseAPI from "@lib/DatabaseAPI";
-import { appConfig } from "@config/config";
 import styles from "@styles/TheatreCategory.module.scss";
 import clsx from "clsx";
 import { useState } from "preact/hooks";
@@ -115,7 +114,7 @@ export function Item({ id, name }: { id: string; name: string }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <a className={styles.item} href={`/theatre/player/${id}`} title={name}>
+    <a className={styles.item} href={`/theatre/play?id=${id}`} title={name}>
       <div className={styles.thumbnail} data-loaded={Number(loaded)}>
         <img
           alt=""

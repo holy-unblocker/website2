@@ -1,0 +1,101 @@
+---
+import "@styles/donator.scss";
+import MainLayout from "@layouts/MainLayout.astro";
+import themeStyles from "@styles/ThemeElements.module.scss";
+import InputPassword from "@components/InputPassword.astro";
+import Banner from "@components/Banner.astro";
+import { db } from "@lib/db";
+import { m, createSession } from "@lib/util";
+import { compare } from "@lib/bcrypt";
+
+const { user, ip, acc } = Astro.locals;
+// redirect to dashboard if they're already signed in
+if (user) return acc.toDash();
+
+let to = Astro.url.searchParams.get("to") || undefined;
+if (!to || to === "/donate/") to = "/donate/dashboard";
+if (!to.startsWith("/")) to = undefined;
+
+let error: string | undefined;
+
+// is the initial value of the input
+let bademail: string | undefined;
+let badpassword: string | undefined;
+
+if (Astro.request.method === "POST")
+  try {
+    const data = await Astro.request.formData();
+    const email = data.get("email")?.toString() || "";
+    const password = data.get("password")?.toString() || "";
+
+    if (email === "") {
+      error = "Please enter your email.";
+      Astro.response.status = 400;
+    } else if (password === "") {
+      error = "Please enter your password.";
+      Astro.response.status = 400;
+    } else {
+      const user = (
+        await db.query<m.UserModel>("SELECT * FROM users WHERE email = $1;", [
+          email,
+        ])
+      ).rows[0];
+
+      if (user) {
+        const passwordCorrect = await compare(password, user.password_hash);
+
+        if (passwordCorrect) {
+          const session = await createSession(ip, user.id);
+          Astro.locals.setSession(session.secret);
+          return Astro.redirect(to, 302);
+        }
+      }
+
+      error = "Incorrect email or password.";
+      bademail = email;
+      badpassword = password;
+      Astro.response.status = 401;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+
+const bai = Astro.url.searchParams.has("bai");
+---
+
+{bai && <script>history.pushState({}, "", "/donate/login")</script>}
+<MainLayout>
+  <main>
+    <form class="login-form" method="post">
+      <div class="form-title">Donator Login</div>
+      <Banner
+        error={error}
+        success={bai ? "thanks for stopping by" : undefined}
+      />
+
+      <label class="manage-field">
+        <div>Email</div>
+        <input
+          type="text"
+          name="email"
+          class="prettyinput"
+          value={bademail}
+          required
+        />
+      </label>
+      <label class="manage-field">
+        <div>Password</div>
+        <InputPassword id="password" name="password" value={badpassword} />
+      </label>
+      <input class="prettysubmit wide login" type="submit" value="Login" />
+      <p>
+        <a class={themeStyles.themeLink} href="/donate/">Create an account</a>
+      </p>
+      <p>
+        <a class={themeStyles.themeLink} href="/donate/forgot-password"
+          >I forgot my password</a
+        >
+      </p>
+    </form>
+  </main>
+</MainLayout>

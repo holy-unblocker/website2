@@ -1,5 +1,5 @@
 ---
-import { themeStyles } from "@components/ThemeElements";
+import themeStyles from "@styles/ThemeElements.module.scss";
 import { appConfig } from "@config/config";
 import MainLayout from "@layouts/MainLayout.astro";
 
@@ -14,7 +14,7 @@ const faq = [
   },
   {
     title: "The proxy is slow.",
-    content: `Our proxy servers are paid for by our supporters on [Patreon](${appConfig.links.patreon}). If you subscribe, you can help us purchase faster servers in the future.`,
+    content: `Our proxy servers are paid for by our donators. [You can see our donation tiers here.](/donate/pricing). If you donate, you can help us purchase faster servers in the future.`,
   },
   {
     title: "Where is this website's source code?",
@@ -43,7 +43,7 @@ const faq = [
           <p
             set:html={content.replace(
               /\[(.*?)\]\((.*?)\)/g,
-              (match, name, href) =>
+              (_, name, href) =>
                 `<a href='${href}' class='${themeStyles.themeLink}'>${name}</a>`
             )}
           />

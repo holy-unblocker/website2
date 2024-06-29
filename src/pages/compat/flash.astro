@@ -1,7 +1,7 @@
 ---
 import CompatLayout from "@layouts/CompatLayout.astro";
 import styles from "@styles/CompatFlash.module.scss";
-import { getCompatDest } from "@lib/compat";
+import { getCompatDest, reportCompatError } from "@lib/compat";
 
 interface RufflePlayerElement extends HTMLElement {
   load(data: { url: string }): void;
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       url: getCompatDest(),
     });
   } catch (err) {
-    // compatLayout.current!.report(err, errorCause, "Rammerhead");
+    reportCompatError(err, errorCause, "Ruffle");
   }
 });
 ---

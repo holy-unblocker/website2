@@ -1,0 +1,21 @@
+---
+import ClientAPIs from "@components/ClientAPIs.astro";
+import TheatrePlayer from "@components/TheatrePlayer";
+import MainLayout from "@layouts/MainLayout.astro";
+import { theatreAPI } from "@lib/db";
+
+const id = Astro.url.searchParams.get("id");
+const data = id === null ? undefined : await theatreAPI.show(id);
+if (!data) Astro.response.status = 404;
+---
+
+<MainLayout>
+  {
+    data ? (
+      <TheatrePlayer data={data} client:only="preact" />
+    ) : (
+      <>Invalid game ID</>
+    )
+  }
+</MainLayout>
+<ClientAPIs />

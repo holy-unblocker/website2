@@ -20,7 +20,6 @@ export const appConfig = {
     support: "support@example.com",
   },
   links: {
-    patreon: "https://www.patreon.com/holyunblocker",
     github: {
       org: "https://github.com/holy-unblocker",
       website: "https://github.com/holy-unblocker/website",

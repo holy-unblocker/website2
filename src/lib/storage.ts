@@ -1,6 +1,6 @@
 // import NotificationsManager from "./Notifications";
 // import type { NotificationsManagerRef } from "./Notifications";
-import Settings from "@lib/Settings";
+import Settings, { useSettings } from "@lib/Settings";
 
 export class Scroll {
   x: number;
@@ -45,3 +45,7 @@ export const globalCloakSettings = new Settings<CloakSettings>(
     icon: "",
   }
 );
+
+export const useGlobalSettings = () => useSettings(globalSettings);
+
+export const useGlobalCloakSettings = () => useSettings(globalCloakSettings);

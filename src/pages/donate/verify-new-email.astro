@@ -1,0 +1,105 @@
+---
+import "@styles/donator.scss";
+import MainLayout from "@layouts/MainLayout.astro";
+import themeStyles from "@styles/ThemeElements.module.scss";
+import Banner from "@components/Banner.astro";
+import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
+import { db } from "@lib/db";
+import {
+  m,
+  canSendEmail,
+  createSession,
+  sendChangeEmailVerification,
+  sendChangeEmailNotification,
+} from "@lib/util";
+
+let error: string | undefined;
+let success: string | undefined;
+
+const { ip, user, acc } = Astro.locals;
+if (await acc.isBanned()) return acc.toBan();
+
+const secret = Astro.url.searchParams.get("secret") || "";
+
+if (secret !== "") {
+  const target = (
+    await db.query<m.UserModel>(
+      "SELECT * FROM users WHERE new_email_verification_secret = $1;",
+      [secret]
+    )
+  ).rows[0];
+
+  if (!target) {
+    error = "The link you received is invalid.";
+  } else {
+    await db.query(
+      "UPDATE users SET email = $1, new_email = null, new_email_verification_secret = null WHERE id = $2;",
+      [target.new_email, target.id]
+    );
+    success = `Your email was successfully verified.`;
+    // sign the user into their account
+    if (user) {
+      await db.query("UPDATE session SET user_id = $1 WHERE secret = $2;", [
+        target.id,
+        user.session.secret,
+      ]);
+      await sendChangeEmailNotification(user, ip);
+    } else {
+      // create a new session
+      const session = await createSession(ip, target.id);
+      Astro.locals.setSession(session.secret);
+    }
+
+    return Astro.redirect("/donate/dashboard?newEmailConfirmed", 302);
+  }
+} else {
+  if (!user) return acc.toLogin();
+  if (!user.email_verified) return acc.toVerifyEmail();
+  if (user.new_email === null)
+    return Astro.redirect("/donate/dashboard?newEmailConfirmed", 302);
+
+  if (Astro.request.method === "POST")
+    try {
+      error = await canSendEmail(user, user.email, ip);
+      if (!error) {
+        await sendChangeEmailVerification(
+          user,
+          user.new_email,
+          user.new_email_verification_secret!
+        );
+        success = "Email sent! Check your inbox and spam filters.";
+      }
+    } catch (err) {
+      console.error("caught err:");
+      console.error(err);
+    }
+}
+---
+
+<MainLayout user={user}>
+  <main>
+    <h1 class="page-title sub">
+      <a
+        class="back-button"
+        href="/donate/dashboard"
+        set:html={ArrowBackIcon}
+      />Confirm your new email
+    </h1>
+    <Banner success={success} error={error} />
+    <div class="user-card">
+      <p>
+        We sent you an email with instructions to verify your new email. Please
+        check your inbox and spam filters.
+      </p>
+      <form method="post">
+        <p>
+          Didn't get an email?<input
+            class={themeStyles.themeLink}
+            type="submit"
+            value="Resend Email"
+          />
+        </p>
+      </form>
+    </div>
+  </main>
+</MainLayout>

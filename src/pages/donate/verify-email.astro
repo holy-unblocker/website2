@@ -1,0 +1,101 @@
+---
+import "@styles/donator.scss";
+import MainLayout from "@layouts/MainLayout.astro";
+import themeStyles from "@styles/ThemeElements.module.scss";
+import Banner from "@components/Banner.astro";
+import { db } from "@lib/db";
+import {
+  canSendEmail,
+  sendEmailVerification,
+  createStripeCustomer,
+} from "@lib/util";
+
+const { user, ip, acc } = Astro.locals;
+if (!user) return acc.toLogin();
+if (await acc.isBanned()) return acc.toBan();
+if (user.email_verified)
+  return Astro.redirect("/donate/dashboard?welcome", 302);
+
+let error: string | undefined;
+let success: string | undefined;
+
+if (Astro.request.method === "POST")
+  try {
+    const data = await Astro.request.formData();
+    const type = data.get("type")?.toString();
+
+    switch (type) {
+      case "verify":
+        {
+          const code = data.get("code")?.toString();
+
+          if (user.email_verification_code !== code) {
+            error = "Incorrect verification code.";
+          } else {
+            await db.query(
+              "UPDATE users SET email_verified = true WHERE id = $1;",
+              [user.id]
+            );
+            await createStripeCustomer(user);
+            return Astro.redirect("/donate/dashboard?welcome", 302);
+          }
+        }
+        break;
+      case "resend":
+        {
+          error = await canSendEmail(user, user.email, ip);
+          if (!error) {
+            await sendEmailVerification(user);
+            success = "Email sent! Check your inbox and spam filters.";
+          }
+        }
+        break;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+---
+
+<MainLayout user={user}>
+  <main>
+    <h1 class="page-title sub">Confirm your email</h1>
+    <Banner success={success} error={error} />
+    <div class="user-card">
+      <p>
+        A verification code has been sent to <code>{user.email}</code>. Please
+        check your spam filters.
+      </p>
+      <form method="post">
+        <input type="text" name="type" value="verify" hidden />
+        <label class="input">
+          <span>Code</span>
+          <div class="change-email">
+            <input type="text" class="prettyinput code" name="code" required />
+            <input
+              type="submit"
+              class="prettysubmit inline"
+              value="Verify"
+              required
+            />
+          </div>
+        </label>
+      </form>
+      <form method="post">
+        <input type="text" name="type" value="resend" hidden />
+        <p>
+          Didn't receive a code?<input
+            type="submit"
+            class={themeStyles.themeLink}
+            value="Resend Code"
+          />
+        </p>
+      </form>
+      <p>
+        Entered the wrong email? <a
+          class={themeStyles.themeLink}
+          href="/donate/change-email">Change email address</a
+        >
+      </p>
+    </div>
+  </main>
+</MainLayout>

@@ -20,7 +20,6 @@ export interface AppConfig {
     support: string;
   };
   links: {
-    patreon: string;
     github: {
       org: string;
       website: string;
@@ -29,6 +28,18 @@ export interface AppConfig {
     discord: {
       titaniumnetwork: string;
       holyunblocker: string;
+    };
+  };
+  // donator stuff
+  smtpTransport?: string;
+  stripe?: {
+    publish: string;
+    secret: string;
+    endpointSecret: string;
+    // stripe price ids for each tier
+    priceIds: {
+      official: string;
+      ultimate: string;
     };
   };
 }

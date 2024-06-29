@@ -99,7 +99,7 @@ export const Category = ({
     })();
 
     return () => abort.abort();
-  }, [page, category, search]);
+  }, [category, search.get("sort"), page]);
 
   if (error)
     return (
@@ -131,7 +131,7 @@ export const Category = ({
             defaultValue={search.get("sort")!}
             onChange={(event) => {
               setSearch({
-                page: undefined,
+                page: null,
                 sort: event.target.value,
               });
             }}

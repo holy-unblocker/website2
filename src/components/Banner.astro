@@ -1,0 +1,14 @@
+---
+// a really simple wrapper wrapper for the prettybanner element
+// part of the donator css
+
+interface Props {
+  error?: string;
+  success?: string;
+}
+
+const { error, success } = Astro.props;
+---
+
+{success && <p class="prettybanner success" set:text={success} />}
+{error && <p class="prettybanner error" set:text={error} />}

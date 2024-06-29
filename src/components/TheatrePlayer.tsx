@@ -18,6 +18,7 @@ import StarBorder from "@icons/star_outline_24dp.svg?react";
 import VideogameAsset from "@icons/videogame_asset_24dp.svg?react";
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "preact/hooks";
+import { useGlobalSettings } from "@lib/storage";
 
 async function resolveSrc(
   src: TheatreEntry["src"],
@@ -56,12 +57,10 @@ async function resolveSrc(
   />
 );*/
 
-const TheatrePlayer = ({ id }: { id: string }) => {
-  // const [settings, setSettings] = useGlobalSettings();
-  const settings = { favorites: [] as string[], seenGames: [] as string[] };
-  const setSettings = (e: any) => {};
+const TheatrePlayer = ({ data }: { data: TheatreEntry }) => {
+  const [settings, setSettings] = useGlobalSettings();
   const [favorited, setFavorited] = useState(() =>
-    settings.favorites.includes(id)
+    settings.favorites.includes(data.id)
   );
   const [panorama, setPanorama] = useState(false);
   const [controlsExpanded, setControlsExpanded] = useState(false);
@@ -69,7 +68,6 @@ const TheatrePlayer = ({ id }: { id: string }) => {
     cause?: string;
     message: string;
   } | null>(null);
-  const [data, setData] = useState<TheatreEntry | null>(null);
   const iframe = useRef<HTMLIFrameElement | null>(null);
   const controlsOpen = useRef<HTMLDivElement | null>(null);
   const [resolvedSrc, setResolvedSrc] = useState<string | null>(null);
@@ -85,8 +83,6 @@ const TheatrePlayer = ({ id }: { id: string }) => {
       const api = new TheatreAPI(window.db_api, abort.signal);
 
       try {
-        errorCause = "Unable to fetch information";
-        const data = await api.show(id);
         errorCause = undefined;
         errorCause = "Unable to determine proxy/location";
         const resolvedSrc = await resolveSrc(
@@ -94,14 +90,13 @@ const TheatrePlayer = ({ id }: { id: string }) => {
           data.type
         );
         errorCause = undefined;
-        setData(data);
         setResolvedSrc(resolvedSrc);
 
-        if (!settings.seenGames.includes(id)) {
-          errorCause = "Unable to tick plays counter";
-          await api.plays(id);
+        if (!settings.seenGames.includes(data.id)) {
+          errorCause = "Unable to count play";
+          await api.plays(data.id);
           const { seenGames } = settings;
-          seenGames.push(id);
+          seenGames.push(data.id);
           setSettings({
             ...settings,
             seenGames,
@@ -121,7 +116,7 @@ const TheatrePlayer = ({ id }: { id: string }) => {
     })();
 
     return () => abort.abort();
-  }, [id, settings, setSettings]);
+  }, [data, settings, setSettings]);
 
   useEffect(() => {
     function focusListener() {
@@ -186,31 +181,6 @@ const TheatrePlayer = ({ id }: { id: string }) => {
         />
       </>
     );
-
-  if (!data) {
-    return (
-      <>
-        <main
-          className={clsx(styles.main, styles.loading)}
-          data-panorama={Number(panorama)}
-          data-controls={Number(controlsExpanded)}
-        >
-          <div className={styles.frame}></div>
-          <div className={styles.title}>
-            {
-              // eslint-disable-next-line jsx-a11y/heading-has-content
-              <h3 className={styles.name} />
-            }
-            <div className={styles.shiftRight}></div>
-            <div className={styles.button} />
-            <div className={styles.button} />
-            <div className={styles.button} />
-            <div className={styles.button} />
-          </div>
-        </main>
-      </>
-    );
-  }
 
   const controls = [];
 
@@ -342,10 +312,10 @@ const TheatrePlayer = ({ id }: { id: string }) => {
             className={styles.button}
             onClick={() => {
               const favorites = settings.favorites;
-              const i = favorites.indexOf(id);
+              const i = favorites.indexOf(data.id);
 
               if (i === -1) {
-                favorites.push(id);
+                favorites.push(data.id);
               } else {
                 favorites.splice(i, 1);
               }
@@ -355,7 +325,7 @@ const TheatrePlayer = ({ id }: { id: string }) => {
                 favorites,
               });
 
-              setFavorited(favorites.includes(id));
+              setFavorited(favorites.includes(data.id));
             }}
             title="Add to favorites"
             dangerouslySetInnerHTML={{ __html: favorited ? Star : StarBorder }}

@@ -144,8 +144,6 @@ export default class TheatreWrapper {
     const vars = [];
     const selection = ["*", "count(*) OVER() AS total"];
 
-    console.log(options);
-
     if (typeof options.category === "string") {
       const list = [];
       for (const category of options.category.split(","))

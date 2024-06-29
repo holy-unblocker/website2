@@ -1,0 +1,20 @@
+---
+import "@styles/donator.scss";
+import MainLayout from "@layouts/MainLayout.astro";
+import { getUserPayment } from "@lib/util";
+
+const { user, acc } = Astro.locals;
+if (await acc.isBanned()) return acc.toBan();
+if (!user) return acc.toLogin();
+if (!user.email_verified) return acc.toVerifyEmail();
+// check if they paid
+const payment = await getUserPayment(user.id);
+if (!payment || payment.tier < 1)
+  return Astro.redirect("/donate/pricing?vm", 302);
+---
+
+<MainLayout user={user}>
+  <main>
+    <p>coming very soon!!</p>
+  </main>
+</MainLayout>
