@@ -1,11 +1,15 @@
-@import './common.scss';
+@import "./common.scss";
 
 .main {
-	margin-left: auto;
-	margin-right: auto;
-	width: 584px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 584px;
 
-	@include screenMobile {
-		width: auto;
-	}
+  .title {
+    text-align: center;
+  }
+
+  @include screenMobile {
+    width: auto;
+  }
 }
