@@ -3,7 +3,7 @@ import { stripe } from "@lib/util";
 import type { APIRoute } from "astro";
 import type Stripe from "stripe";
 
-export const GET: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request }) => {
   const signature = request.headers.get("stripe-signature");
   if (signature === null) return new Response(null, { status: 400 });
   let event: Stripe.Event;
