@@ -9,7 +9,7 @@ export const POST: APIRoute = async ({ request }) => {
   let event: Stripe.Event;
   try {
     event = stripe!.webhooks.constructEvent(
-      await request.json(),
+      await request.text(),
       signature,
       appConfig.stripe!.endpointSecret
     );
