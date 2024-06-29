@@ -8,8 +8,10 @@ import { appConfig } from "@config/config";
 import Discord from "@icons/discord.svg?react";
 import Arcade from "@icons/sports_esports_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
 import Public from "@icons/public_24dp.svg?react";
-import WebAsset from "@icons/web_asset_24dp.svg?react";
+import UltravioletIcon from "@icons/ultraviolet_icon.svg?react";
 import DeviceHub from "@icons/device_hub_24dp_FILL0_wght400_GRAD0_opsz24.svg?react";
+import ChatBot from "@icons/chatbot.svg?react";
+import Speed from "@icons/speed_24dp_FILL0_wght400_GRAD0_opsz24.svg?react";
 import { stripe } from "@lib/util";
 
 const { user } = Astro.locals;
@@ -115,7 +117,7 @@ if (!error && exclusiveError) {
               <span>All Site Features</span>
             </div>
             <div>
-              <span class="icon" set:html={WebAsset} />
+              <span class="icon" set:html={UltravioletIcon} />
               <span>Ultraviolet</span>
             </div>
             <div>
@@ -133,6 +135,10 @@ if (!error && exclusiveError) {
               <span>Virtual Browser</span>
             </div>
             <div>
+              <span class="ai icon" set:html={ChatBot} />
+              <span>AI Chatbot</span>
+            </div>
+            <div>
               <span class="disc icon" set:html={Discord} />
               <span>Discord Role</span>
             </div>
@@ -143,9 +149,9 @@ if (!error && exclusiveError) {
               type="submit"
               class:list={[
                 "prettysubmit",
-                payment && payment.tier < 1 && "owned",
+                payment && payment.tier >= 1 && "owned",
               ]}
-              value={!payment || payment.tier < 1 ? "Buy" : "You have this"}
+              value={!payment || payment.tier < 1 ? "Buy" : "YOU HAVE THIS!"}
               disabled={!user ||
                 user.stripe_customer === null ||
                 payment?.tier === 1}
@@ -157,7 +163,11 @@ if (!error && exclusiveError) {
           <div class="price">$10/month</div>
           <div class="features">
             <div>
-              <span>All Official Supporter Perks</span>
+              <span>All Official Supporter Perks!</span>
+            </div>
+            <div>
+              <span class="icon" set:html={Speed} />
+              <span>No Ratelimits</span>
             </div>
             <div><span>TYSM :D</span></div>
           </div>
@@ -167,9 +177,9 @@ if (!error && exclusiveError) {
               type="submit"
               class:list={[
                 "prettysubmit",
-                payment && payment.tier < 2 && "owned",
+                payment && payment.tier >= 2 && "owned",
               ]}
-              value={!payment || payment.tier < 2 ? "Buy" : "You have this"}
+              value={!payment || payment.tier < 2 ? "Buy" : "YOU HAVE THIS!"}
               disabled={!user ||
                 user.stripe_customer === null ||
                 payment?.tier === 2}
@@ -188,6 +198,7 @@ if (!error && exclusiveError) {
               purchase.
             </p>
             <p>Payments are handled by Stripe.</p>
+            <p>NO REFUNDS!!!</p>
           </>
         ) : (
           <>

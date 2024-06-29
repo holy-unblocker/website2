@@ -230,12 +230,6 @@ hr {
   padding: 0 15px;
   height: 38px;
 
-  // for tiers
-  // already purchased
-  &.owned {
-    background-color: var(--action);
-  }
-
   &:focus {
     outline: 0;
     box-shadow: 0 0 0 0.15rem #0056ff3f;
@@ -244,21 +238,21 @@ hr {
   &.login {
     margin-top: 13px;
   }
+
+  &.center {
+    display: flex;
+    margin: 0 auto;
+  }
+
+  &.wide {
+    display: flex;
+    width: 100%;
+  }
 }
 
 .anchor {
   text-decoration: none;
   display: contents;
-}
-
-.prettysubmit.center {
-  display: flex;
-  margin: 0 auto;
-}
-
-.prettysubmit.wide {
-  display: flex;
-  width: 100%;
 }
 
 .prettyfile.inline {
@@ -340,7 +334,7 @@ main.pricing {
         display: flex;
         flex-direction: column;
         width: 220px;
-        height: 250px;
+        height: 280px;
         padding: 0 10px;
         padding-top: 30px;
         padding-bottom: 10px;
@@ -370,6 +364,8 @@ main.pricing {
           gap: 5px;
 
           > div {
+            display: flex;
+            align-items: center;
             font-size: 15px;
             line-height: 35px;
             padding: 2px 10px;
@@ -382,13 +378,17 @@ main.pricing {
                 height: 16px;
               }
 
+              &.ai svg {
+                height: 21px;
+              }
+
               display: contents;
               svg {
                 display: inline-block;
                 width: 26px;
                 height: 24px;
                 vertical-align: middle;
-                margin-right: 2px;
+                margin-right: 3px;
               }
             }
           }
@@ -400,6 +400,13 @@ main.pricing {
           .prettysubmit {
             font-size: 15px;
             width: 100%;
+
+            // for tiers
+            // already purchased
+            &.owned {
+              background-color: var(--contrast-background) !important;
+              cursor: not-allowed;
+            }
           }
         }
       }

@@ -122,7 +122,7 @@ export async function getUserPayment(
 ): Promise<m.PaymentModel | undefined> {
   const payment = (
     await db.query<m.PaymentModel>(
-      "SELECT * FROM payment WHERE user_id = $1 AND NOW() > period_start AND NOW() < period_end;",
+      "SELECT * FROM payment WHERE user_id = $1 AND NOW() > period_start AND NOW() < period_end ORDER BY tier DESC;",
       [userId]
     )
   ).rows[0];

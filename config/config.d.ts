@@ -37,6 +37,7 @@ export interface AppConfig {
     secret: string;
     endpointSecret: string;
     // stripe price ids for each tier
+    // used for creating invoices
     priceIds: {
       official: string;
       ultimate: string;
