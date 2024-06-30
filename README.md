@@ -4,7 +4,7 @@
 
 Host your own instance of Holy Unblocker, no configuration required at all.
 
-You will need to install git and at least NodeJS v18.
+You will need to install git and at least NodeJS v19.
 
 ```sh
 git clone https://github.com/holy-unblocker/website2
