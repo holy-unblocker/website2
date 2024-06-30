@@ -2,7 +2,7 @@
 // this page will only be reached if the user is signed in
 // this is a dashboard
 // they can edit their profile, subscribe, check their subscription status and cancel it
-import "@styles/donator.scss";
+import "@styles/subscriber.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
@@ -55,7 +55,7 @@ if (Astro.request.method === "POST")
     welcome ||
     connected ||
     Astro.request.method === "POST") && (
-    <script>history.pushState({}, "", "/donate/dashboard")</script>
+    <script>history.pushState({}, "", "/sub/dashboard")</script>
   )
 }
 <MainLayout user={user}>
@@ -68,24 +68,24 @@ if (Astro.request.method === "POST")
     <div class="user-card">
       <h3>Account Actions:</h3>
       <p>
-        <a class={themeStyles.themeLink} href="/donate/change-password"
+        <a class={themeStyles.themeLink} href="/sub/change-password"
           >Change Password</a
         >
       </p>
       <p>
-        <a class={themeStyles.themeLink} href="/donate/change-email"
+        <a class={themeStyles.themeLink} href="/sub/change-email"
           >Change Email</a
         >
       </p>
       <p>
-        <a class={themeStyles.themeLink} href="/donate/logout">Log Out</a>
+        <a class={themeStyles.themeLink} href="/sub/logout">Log Out</a>
       </p>
     </div>
     <div class="user-card" style="padding-bottom:10px;">
       <h3>Subscription</h3>
       <p>Current tier: {getTierName(payment?.tier)}</p>
-      <p>You can donate on the tiers page:</p>
-      <a href="/donate/pricing">
+      <p>You can subscribe on the tiers page:</p>
+      <a href="/sub/pricing">
         <input type="button" class="prettysubmit" value="See Tiers" />
       </a>
     </div>

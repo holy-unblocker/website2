@@ -71,18 +71,18 @@ export const appConfig = {
   // DISCORD CONFIG
   // - USES OAUTH2 TO LINK DISCORD ACC TO DASHBOARD
   // - GIVE SUPPORTERS THEIR ROLES IN THE HOLY UB DISCORD
-  // - Official Supporter -> Awesome role
-  // - Ultimate Supporter -> ULTIMATE SUPPORTER role
+  // - Official Subscriber -> Awesome role
+  // - Ultimate Subscriber -> ULTIMATE SUBSCRIBER role
   // https://discord.com/developers/applications
   // discord: {
   //   botToken: "DISCORD BOT TOKEN HERE",
   //   clientId: "OAUTH CLIENT ID",
   //   clientSecret: "OAUTH CLIENT SECRET",
-  //   clientRedirectURI: "https://holyubofficial.net/donate/linkdiscord",
+  //   clientRedirectURI: "https://holyubofficial.net/sub/linkdiscord",
   //   guildId: "1251447707529252896", // holy unblocker's discord server
   //   roleIds: {
-  //     donator: "1251473356188946544", // official & ultimate supporters
-  //     ultimate: "1256770749230874634", // ultimate supporters
+  //     official: "1251473356188946544", // official & ultimate subscribers
+  //     ultimate: "1256770749230874634", // ultimate subscribers
   //   },
   // },
 

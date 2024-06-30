@@ -1,5 +1,5 @@
 ---
-import "@styles/donator.scss";
+import "@styles/subscriber.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import Banner from "@components/Banner.astro";
 import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
@@ -27,11 +27,11 @@ if (Astro.request.method === "POST")
 
     switch (tier) {
       case 1:
-        // official supporter
+        // official subscriber
         priceId = appConfig.stripe?.priceIds.official;
         break;
       case 2:
-        // ultimate supporter
+        // ultimate subscriber
         priceId = appConfig.stripe?.priceIds.ultimate;
         break;
     }
@@ -62,8 +62,8 @@ if (Astro.request.method === "POST")
               quantity: 1,
             },
           ],
-          success_url: `https://${Astro.url.host}/donate/paid?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `https://${Astro.url.host}/donate/pricing`,
+          success_url: `https://${Astro.url.host}/sub/paid?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `https://${Astro.url.host}/sub/pricing`,
         });
 
         console.log("checkout session created", session.id);
@@ -88,11 +88,7 @@ if (!error && exclusiveError) {
 }
 ---
 
-{
-  exclusiveError && (
-    <script>history.pushState({}, "", "/donate/pricing")</script>
-  )
-}
+{exclusiveError && <script>history.pushState({}, "", "/sub/pricing")</script>}
 <MainLayout>
   <main class="pricing">
     <Banner error={error} />
@@ -102,11 +98,11 @@ if (!error && exclusiveError) {
           user && (
             <a
               class="back-button"
-              href="/donate/dashboard"
+              href="/sub/dashboard"
               set:html={ArrowBackIcon}
             />
           )
-        }Donation Tiers
+        }Subscription Tiers
       </div>
       <div class="list">
         <div>
@@ -126,9 +122,17 @@ if (!error && exclusiveError) {
               <span>Arcade</span>
             </div>
           </div>
+          <form class="buy">
+            <input
+              type="submit"
+              class:list={["prettysubmit", "owned"]}
+              value="YOU HAVE THIS!"
+              disabled
+            />
+          </form>
         </div>
         <div>
-          <div class="title">Official Supporter</div>
+          <div class="title">Official</div>
           <div class="price">$3/month</div>
           <div class="features">
             <div>
@@ -160,11 +164,11 @@ if (!error && exclusiveError) {
           </form>
         </div>
         <div>
-          <div class="title">Ultimate Supporter</div>
+          <div class="title">Ultimate</div>
           <div class="price">$10/month</div>
           <div class="features">
             <div>
-              <span>All Official Supporter Perks!</span>
+              <span>All Official Subscriber Perks!</span>
             </div>
             <div>
               <span class="icon" set:html={Speed} />
@@ -203,8 +207,8 @@ if (!error && exclusiveError) {
           </>
         ) : (
           <>
-            <p>In order to donate, you need to create an account.</p>
-            <a href="/donate/">
+            <p>In order to subscribe, you need to create an account.</p>
+            <a href="/sub/">
               <input
                 type="button"
                 class="prettysubmit"

@@ -90,5 +90,5 @@ export const GET: APIRoute = async (context) => {
     ]
   );
 
-  return context.redirect("/donate/dashboard?connected", 302);
+  return context.redirect("/sub/dashboard?connected", 302);
 };

@@ -1,5 +1,5 @@
 ---
-import "@styles/donator.scss";
+import "@styles/subscriber.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import InputPassword from "@components/InputPassword.astro";
@@ -12,7 +12,7 @@ const { user, ip } = Astro.locals;
 // redirect to dashboard if they're already signed in
 
 let to = Astro.url.searchParams.get("to") || undefined;
-if (!to || to === "/donate/" || !to.startsWith("/")) to = "/donate/dashboard";
+if (!to || to === "/sub/" || !to.startsWith("/")) to = "/sub/dashboard";
 if (user) return Astro.redirect(to, 302);
 
 let error: string | undefined;
@@ -62,7 +62,7 @@ if (Astro.request.method === "POST")
 const bai = Astro.url.searchParams.has("bai");
 ---
 
-{bai && <script>history.pushState({}, "", "/donate/login")</script>}
+{bai && <script>history.pushState({}, "", "/sub/login")</script>}
 <MainLayout>
   <main>
     <form class="login-form" method="post">
@@ -86,12 +86,12 @@ const bai = Astro.url.searchParams.has("bai");
         <div>Password</div>
         <InputPassword id="password" name="password" value={badpassword} />
       </label>
-      <input class="prettysubmit wide login" type="submit" value="Login" />
+      <input class="prettysubmit wide" type="submit" value="Login" />
       <p>
-        <a class={themeStyles.themeLink} href="/donate/">Create an account</a>
+        <a class={themeStyles.themeLink} href="/sub/">Create an account</a>
       </p>
       <p>
-        <a class={themeStyles.themeLink} href="/donate/forgot-password"
+        <a class={themeStyles.themeLink} href="/sub/forgot-password"
           >I forgot my password</a
         >
       </p>

@@ -1,6 +1,6 @@
 ---
 // this is the register page
-import "@styles/donator.scss";
+import "@styles/subscriber.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import InputPassword from "@components/InputPassword.astro";
@@ -18,7 +18,7 @@ import {
 
 const { ip, user, acc } = Astro.locals;
 let to = Astro.url.searchParams.get("to") || undefined;
-if (!to || to === "/donate/" || !to.startsWith("/")) to = "/donate/dashboard";
+if (!to || to === "/sub/" || !to.startsWith("/")) to = "/sub/dashboard";
 if (user) return Astro.redirect(to, 302);
 
 let error: string | undefined;
@@ -79,19 +79,20 @@ if (Astro.request.method === "POST") {
   <main>
     <div class="register">
       <div class="description">
-        <h1 class="page-title">Donator Dashboard</h1>
+        <h1 class="page-title">Subscriber Dashboard</h1>
         <p>
-          In order to donate, change account settings, or access donator perks
-          such as the virtual browser, you need a donator account.
+          In order to subscribe, change account settings, or access your perks
+          such as the virtual browser, you need a subscriber account.
         </p>
         <h3>Do I have to sign up?</h3>
         <p>
-          We welcome anyone to donate money to Holy Unblocker, and we greatly
-          benefit from your support, but giving us money is entirely optional.
+          We welcome anyone to purchase a subscription from Holy Unblocker, and
+          we greatly benefit from your support, but you don't have to purchase a
+          subscription in order to access Ultraviolet or the rest of the site.
         </p>
         <h3>What are the perks?</h3>
         <p>You can check out our list of tiers to learn more:</p>
-        <a href="/donate/pricing">
+        <a href="/sub/pricing">
           <input type="button" class="prettysubmit" value="See Tiers" />
         </a>
       </div>
@@ -118,11 +119,11 @@ if (Astro.request.method === "POST") {
             validate
           />
         </label>
-        <input class="prettysubmit wide login" type="submit" value="Sign up" />
+        <input class="prettysubmit wide" type="submit" value="Sign up" />
         <p>
           Already have an account? <a
             class={themeStyles.themeLink}
-            href="/donate/login">Login</a
+            href="/sub/login">Login</a
           >
         </p>
       </form>

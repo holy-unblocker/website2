@@ -1,5 +1,5 @@
 ---
-import "@styles/donator.scss";
+import "@styles/subscriber.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
@@ -62,13 +62,13 @@ if (secret !== "") {
       Astro.locals.setSession(session.secret);
     }
 
-    return Astro.redirect("/donate/dashboard?newEmailConfirmed", 302);
+    return Astro.redirect("/sub/dashboard?newEmailConfirmed", 302);
   }
 } else {
   if (!user) return acc.toLogin();
   if (!user.email_verified) return acc.toVerifyEmail();
   if (user.new_email === null)
-    return Astro.redirect("/donate/dashboard?newEmailConfirmed", 302);
+    return Astro.redirect("/sub/dashboard?newEmailConfirmed", 302);
 
   if (Astro.request.method === "POST")
     try {
@@ -94,7 +94,7 @@ if (secret !== "") {
     <h1 class="page-title sub">
       <a
         class="back-button"
-        href="/donate/dashboard"
+        href="/sub/dashboard"
         set:html={ArrowBackIcon}
       />Confirm your new email
     </h1>

@@ -82,9 +82,9 @@ const { cloak } = Astro.locals;
       <div class={styles.shiftRight}></div>
       {
         /*user ? (
-          <a href="/donate/dashboard">Dashboard</a>
+          <a href="/sub/dashboard">Dashboard</a>
         ) : (
-          <a href="/donate/">not logged in</a>
+          <a href="/sub/">not logged in</a>
         )*/
       }
       {
@@ -128,19 +128,15 @@ const { cloak } = Astro.locals;
             stripe && (
               <>
                 <div class={styles.bar} />
-                <MenuTab href="/donate/" name="Donate" iconFilled={luv} />
+                <MenuTab href="/sub/" name="Subscribe" iconFilled={luv} />
                 <MenuTab
-                  href="/donate/vm"
+                  href="/sub/vm"
                   name="Virtual Browser"
                   iconFilled={DeviceHub}
                 />
+                <MenuTab href="/sub/ai" name="Chat Bot" iconFilled={ChatBot} />
                 <MenuTab
-                  href="/donate/ai"
-                  name="Chat Bot"
-                  iconFilled={ChatBot}
-                />
-                <MenuTab
-                  href="/donate/pricing"
+                  href="/sub/pricing"
                   name="Tiers"
                   iconFilled={Leaderboard}
                 />

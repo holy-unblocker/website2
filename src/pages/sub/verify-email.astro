@@ -1,5 +1,5 @@
 ---
-import "@styles/donator.scss";
+import "@styles/subscriber.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
@@ -13,8 +13,7 @@ import {
 const { user, ip, acc } = Astro.locals;
 if (!user) return acc.toLogin();
 if (await acc.isBanned()) return acc.toBan();
-if (user.email_verified)
-  return Astro.redirect("/donate/dashboard?welcome", 302);
+if (user.email_verified) return Astro.redirect("/sub/dashboard?welcome", 302);
 
 let error: string | undefined;
 let success: string | undefined;
@@ -37,7 +36,7 @@ if (Astro.request.method === "POST")
               [user.id]
             );
             await createStripeCustomer(user);
-            return Astro.redirect("/donate/dashboard?welcome", 302);
+            return Astro.redirect("/sub/dashboard?welcome", 302);
           }
         }
         break;
@@ -93,7 +92,7 @@ if (Astro.request.method === "POST")
       <p>
         Entered the wrong email? <a
           class={themeStyles.themeLink}
-          href="/donate/change-email">Change email address</a
+          href="/sub/change-email">Change email address</a
         >
       </p>
     </div>

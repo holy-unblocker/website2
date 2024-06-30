@@ -268,19 +268,14 @@ hr {
     box-shadow: 0 0 0 0.15rem #0056ff3f;
   }
 
-  &.login {
-    margin-top: 13px;
-  }
-
   &.center {
     display: flex;
     margin: 0 auto;
   }
+}
 
-  &.wide {
-    display: flex;
-    width: 100%;
-  }
+.prettysubmit.wide {
+  width: 100%;
 }
 
 .anchor {

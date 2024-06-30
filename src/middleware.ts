@@ -80,6 +80,13 @@ async function getRandomCloak(): Promise<string | AppCloak | undefined> {
 
 // `context` and `next` are automatically typed
 export const onRequest = defineMiddleware(async (context, next) => {
+  // oops
+  if (context.url.pathname.startsWith("/donate/"))
+    return context.redirect(
+      "/sub" + context.url.pathname.slice("/donate".length),
+      301
+    );
+
   // encode the cloak or delete it
   context.locals.setCloak = (cloak) => {
     if (cloak)
@@ -138,7 +145,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       : searchEngine;
 
   if (!stripe) {
-    if (context.url.pathname.startsWith("/donate/"))
+    if (context.url.pathname.startsWith("/sub/"))
       return new Response("accounts are disabled", { status: 400 });
     // don't bother loading logic for account stuff
     return next();
@@ -150,7 +157,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       context.cookies.set("session", secret, {
         domain: context.url.hostname,
         sameSite: "lax",
-        path: "/donate/",
+        path: "/sub/",
         maxAge: maxAgeLimit,
         secure: true,
         httpOnly: true,
@@ -160,7 +167,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       context.cookies.set("session", "", {
         domain: context.url.hostname,
         sameSite: "lax",
-        path: "/donate/",
+        path: "/sub/",
         expires: new Date(0), // as old as possible
         secure: true,
         httpOnly: true,
@@ -197,7 +204,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.cookies.set("session", cookie, {
           domain: context.url.hostname,
           sameSite: "lax",
-          path: "/donate/",
+          path: "/sub/",
           maxAge: maxAgeLimit,
           secure: true,
           httpOnly: true,
@@ -231,29 +238,29 @@ export const onRequest = defineMiddleware(async (context, next) => {
         }
       }
     },
-    toDash: () => context.redirect("/donate/dashboard", 302),
-    toBan: () => context.redirect("/donate/ban", 302),
-    toPricing: () => context.redirect("/donate/pricing", 302),
+    toDash: () => context.redirect("/sub/dashboard", 302),
+    toBan: () => context.redirect("/sub/ban", 302),
+    toPricing: () => context.redirect("/sub/pricing", 302),
     toLogin: () =>
       context.redirect(
-        context.url.pathname === "/donate/login"
-          ? "/donate/login"
-          : `/donate/login?to=${encodeURIComponent(
+        context.url.pathname === "/sub/login"
+          ? "/sub/login"
+          : `/sub/login?to=${encodeURIComponent(
               context.url.pathname + context.url.search
             )}`,
         307
       ),
     toSignup: () =>
       context.redirect(
-        context.url.pathname === "/donate/"
-          ? "/donate/"
-          : `/donate/?to=${encodeURIComponent(
+        context.url.pathname === "/sub/"
+          ? "/sub/"
+          : `/sub/?to=${encodeURIComponent(
               context.url.pathname + context.url.search
             )}`,
         307
       ),
-    toVerifyEmail: () => context.redirect("/donate/verify-email", 302),
-    toVerifyNewEmail: () => context.redirect("/donate/verify-new-email", 302),
+    toVerifyEmail: () => context.redirect("/sub/verify-email", 302),
+    toVerifyNewEmail: () => context.redirect("/sub/verify-new-email", 302),
   };
 
   return next();

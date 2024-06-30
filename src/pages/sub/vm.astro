@@ -1,5 +1,5 @@
 ---
-import "@styles/donator.scss";
+import "@styles/subscriber.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import { getUserPayment } from "@lib/util";
 
@@ -9,8 +9,7 @@ if (!user) return acc.toLogin();
 if (!user.email_verified) return acc.toVerifyEmail();
 // check if they paid
 const payment = await getUserPayment(user.id);
-if (!payment || payment.tier < 1)
-  return Astro.redirect("/donate/pricing?vm", 302);
+if (!payment || payment.tier < 1) return Astro.redirect("/sub/pricing?vm", 302);
 ---
 
 <MainLayout>

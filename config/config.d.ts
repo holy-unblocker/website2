@@ -42,7 +42,7 @@ export interface AppConfig {
     clientRedirectURI: string;
     guildId: string;
     roleIds: {
-      donator: string;
+      official: string;
       ultimate: string;
     };
   };
