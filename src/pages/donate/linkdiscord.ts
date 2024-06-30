@@ -73,6 +73,7 @@ export const GET: APIRoute = async (context) => {
     avatar: string;
     global_name: string;
   };
+  console.log("got data:", userData);
 
   // now we just add it
   await db.query(
