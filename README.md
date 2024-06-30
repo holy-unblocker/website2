@@ -1,4 +1,4 @@
-# <img src="./src/icons/hat.svg" style="width: 1em; height: 1em; vertical-align: middle"> Holy Unblocker Frontend
+# <img src="./src/icons/hat.svg" style="width: 1em; vertical-align: middle"> Holy Unblocker Frontend
 
 ## <img src="docs/quickstart.gif" alt="Quick Start" height="80px">
 
