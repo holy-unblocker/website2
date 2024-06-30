@@ -14,7 +14,7 @@ npm run build
 npm start
 ```
 
-## <img src="docs/struct.gif" alt="Configuration" height="80px">
+## <img src="docs/config.gif" alt="Configuration" height="80px">
 
 This program will look for a config in `./config/config.js`. You copy the example config:
 
