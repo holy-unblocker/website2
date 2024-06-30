@@ -1,5 +1,5 @@
 import CommonError from "@components/CommonError";
-import resolveProxy from "@lib/ProxyResolver";
+import { resolveProxy } from "@lib/ProxyResolver";
 import { TheatreAPI } from "@components/TheatreCommon";
 import type { TheatreEntry } from "@components/TheatreCommon";
 import { encryptURL } from "@lib/cryptURL";
@@ -26,7 +26,7 @@ async function resolveSrc(
 ) {
   switch (type) {
     case "proxy":
-      return await resolveProxy(src, "automatic");
+      return resolveProxy(src, "automatic");
     case "embed":
       return src;
     case "flash":

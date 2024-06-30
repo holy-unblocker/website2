@@ -1,6 +1,5 @@
 import pg from "pg";
 import { appConfig } from "@config/config";
-import CompatWrapper from "./CompatWrapper";
 import TheatreWrapper from "./TheatreWrapper";
 
 const gloo = globalThis as unknown as { pginstance: pg.Client };
@@ -19,5 +18,4 @@ async function initDB() {
 
 if (process.env.NODE_ENV !== "production") gloo.pginstance = db;
 
-export const compatAPI = new CompatWrapper(db);
 export const theatreAPI = new TheatreWrapper(db);

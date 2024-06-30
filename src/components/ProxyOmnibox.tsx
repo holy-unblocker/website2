@@ -1,4 +1,4 @@
-import resolveProxy from "@lib/ProxyResolver";
+import { resolveProxy } from "@lib/ProxyResolver";
 import SearchBuilder from "@lib/SearchBuilder";
 import type { ServiceFrameSrc } from "@components/ServiceFrame";
 import ServiceFrame from "@components/ServiceFrame";
@@ -38,20 +38,11 @@ const ProxyOmnibox = ({
   const [src, setSrc] = useState<ServiceFrameSrc | null>(null);
 
   useEffect(() => {
-    const abort = new AbortController();
-
-    (async () => {
-      // allow querying eg ?q+hello+world
-      if (search.has("q")) {
-        const src = new SearchBuilder(engine.format).query(search.get("q")!);
-        setSrc([
-          src,
-          await resolveProxy(src, globalSettings.get("proxy"), abort.signal),
-        ]);
-      }
-    })();
-
-    return () => abort.abort();
+    // allow querying eg ?q+hello+world
+    if (search.has("q")) {
+      const src = new SearchBuilder(engine.format).query(search.get("q")!);
+      setSrc([src, resolveProxy(src, globalSettings.get("proxy"))]);
+    }
   }, [search, setSearch, engine]);
 
   useEffect(() => {
@@ -131,7 +122,7 @@ const ProxyOmnibox = ({
     setInputFocused(false);
 
     const proxy = globalSettings.get("proxy");
-    const s = await resolveProxy(src, proxy);
+    const s = resolveProxy(src, proxy);
 
     switch (globalSettings.get("proxyMode")) {
       case "embedded":

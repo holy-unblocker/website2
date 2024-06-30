@@ -9,11 +9,6 @@ export interface TheatreModel {
   controls: string;
 }
 
-export interface CompatModel {
-  host: string;
-  proxy: string;
-}
-
 export interface UserModel {
   id: number;
   email: string;
