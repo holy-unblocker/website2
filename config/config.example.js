@@ -56,6 +56,18 @@ export const appConfig = {
   //   database: "dbname",
   // },
 
+  /// STRIPE CONFIG
+  // - ASSIGN A STRIPE CUSTOMER ID TO EACH USER
+  // - CREATE INVOICES FOR SUBSCRIPTIONS
+  // stripe: {
+  //   secret: "API secret",
+  //   webhookEndpointSecret: "webhook secret",
+  //   priceIds: {
+  //     official: "price id for official supporter",
+  //     ultimate: "price id for ultimate supporter",
+  //   },
+  // },
+
   // DISCORD CONFIG
   // - USES OAUTH2 TO LINK DISCORD ACC TO DASHBOARD
   // - GIVE SUPPORTERS THEIR ROLES IN THE HOLY UB DISCORD
@@ -99,18 +111,6 @@ export const appConfig = {
   //   },
   //   // email to send verifications from
   //   noreply: "noreply@holyubofficial.net",
-  // },
-
-  /// STRIPE CONFIG
-  // - ASSIGN A STRIPE CUSTOMER ID TO EACH USER
-  // - CREATE INVOICES FOR SUBSCRIPTIONS
-  // stripe: {
-  //   secret: "API secret",
-  //   webhookEndpointSecret: "webhook secret",
-  //   priceIds: {
-  //     official: "price id for official supporter",
-  //     ultimate: "price id for ultimate supporter",
-  //   },
   // },
 
   // general website links
