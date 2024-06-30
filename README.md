@@ -1,8 +1,22 @@
 # <img src="./src/icons/hat.svg" style="width: 1em"> Holy Unblocker: Astro
 
+## <img src="docs/quickstart.gif" alt="Quick Start" height="80px">
+
+Host your own instance of Holy Unblocker, no configuration required at all.
+
+You will need to install git and at least NodeJS v18.
+
+```sh
+git clone https://github.com/holy-unblocker/website2
+cd website2
+npm install
+npm run build
+npm start
+```
+
 ## <img src="docs/struct.gif" alt="Configuration" height="80px">
 
-This program will look for a config in `./config/config.js`. You will need to copy the example config:
+This program will look for a config in `./config/config.js`. You copy the example config:
 
 ```sh
 cp ./config/config.example.js ./config.js
