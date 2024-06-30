@@ -26,10 +26,13 @@ import styles from "@styles/Settings.module.scss";
 <script>
   import { setTheme } from "@lib/cookies";
 
-  const themeSwitcher =
-    document.querySelector<HTMLInputElement>("#themeSwitcher")!;
+  document.addEventListener("astro:page-load", () => {
+    const themeSwitcher =
+      document.querySelector<HTMLInputElement>("#themeSwitcher");
+    if (!themeSwitcher) return; // page not loaded
 
-  themeSwitcher.addEventListener("change", () => {
-    setTheme(themeSwitcher.value);
+    themeSwitcher.addEventListener("change", () => {
+      setTheme(themeSwitcher.value);
+    });
   });
 </script>

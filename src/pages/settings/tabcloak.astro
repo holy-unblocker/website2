@@ -46,7 +46,7 @@ if (Astro.request.method === "POST")
   import type { AppCloak } from "@lib/cloak";
   import { getCookie } from "@lib/cookies";
 
-  document.addEventListener("astro:after-swap", () => {
+  document.addEventListener("astro:page-load", () => {
     const cookie = getCookie("cloak");
     const icon = document.querySelector<HTMLLinkElement>(
       "link[rel='shortcut icon']"

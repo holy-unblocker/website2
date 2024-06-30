@@ -7,20 +7,6 @@ import styles from "@styles/Settings.module.scss";
 
 <SettingsLayout title="Proxy settings">
   <section>
-    <!--
-    <div>
-      <p>Engine</p>
-      <ThemeSelect
-        id="proxyEngine"
-        class={styles.ThemeSelect}
-        options={[
-          { name: "Automatic", value: "automatic" },
-          { name: "Ultraviolet", value: "ultraviolet" },
-          // { name: "rammerhead", value: "Rammerhead" },
-        ]}
-      />
-    </div>
-    -->
     <div>
       <p>Mode</p>
       <ThemeSelect
@@ -53,8 +39,10 @@ import styles from "@styles/Settings.module.scss";
 
   const globalSettings = getGlobalSettings();
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const proxyMode = document.querySelector<HTMLInputElement>("#proxyMode")!;
+  document.addEventListener("astro:page-load", () => {
+    const proxyMode = document.querySelector<HTMLInputElement>("#proxyMode");
+    if (!proxyMode) return; // page not loaded
+
     proxyMode.value = globalSettings.get("proxyMode");
     proxyMode.addEventListener("change", () => {
       globalSettings.set("proxyMode", proxyMode.value);
