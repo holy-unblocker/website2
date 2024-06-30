@@ -46,7 +46,8 @@ export const Category = ({
 }) => {
   const [search, setSearch] = useSearchParams();
   let page = parseInt(search.get("page")!);
-  if (isNaN(page)) page = 0;
+  if (isNaN(page)) page = 1;
+  page -= 1;
   const [lastTotal, setLastTotal] = useState(LIMIT * 2);
   const [data, setData] = useState<CategoryData | null>(null);
   const foundData = data || createLoading(lastTotal);
@@ -144,8 +145,10 @@ export const Category = ({
           className={clsx(styles.button, !page && styles.disabled)}
           onClick={() => {
             if (!isLoading(foundData) && page) {
+              let newpage: number | null = Math.max(page - 1, 0) + 1;
+              if (newpage === 1) newpage = null;
               setSearch({
-                page: Math.max(page - 1, 0),
+                page: newpage,
               });
             }
           }}
@@ -155,7 +158,7 @@ export const Category = ({
           className={clsx(styles.button, page >= maxPage && styles.disabled)}
           onClick={() => {
             if (!isLoading(foundData) && page < maxPage) {
-              setSearch({ page: page + 1 });
+              setSearch({ page: page + 1 + 1 });
             }
           }}
           dangerouslySetInnerHTML={{ __html: ChevronRight }}

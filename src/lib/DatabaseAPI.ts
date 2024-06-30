@@ -35,11 +35,14 @@ export default class DatabaseAPI {
     this.signal = signal;
   }
   protected sortParams(
-    params: Record<string, string | number | boolean>
+    params: Record<string, string | number | boolean | undefined>
   ): Record<string, string> {
     const result: Record<string, string> = {};
 
-    for (const param in params) result[param] = params[param].toString();
+    for (const param in params) {
+      const e = params[param];
+      if (typeof e !== "undefined") result[param] = e.toString();
+    }
 
     return result;
   }
