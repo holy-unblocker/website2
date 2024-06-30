@@ -1,5 +1,7 @@
 # <img src="./src/icons/hat.svg" style="width: 1em; vertical-align: middle"> Holy Unblocker Frontend
 
+[JOIN OUR DISCORD](https://discord.gg/JFDCJzFana)
+
 ## <img src="docs/quickstart.gif" alt="Quick Start" height="80px">
 
 Host your own instance of Holy Unblocker, no configuration required at all.
@@ -56,16 +58,13 @@ Execute all commands from the root of the project, employing a terminal:
 | Directive                 | Implementation                                       |
 | :------------------------ | :--------------------------------------------------- |
 | `npm install`             | Installs dependencies                                |
+| `npm start`               | Starts Holy Unblocker                                |
 | `npm run dev`             | Initialize local dev server at `localhost:4321`      |
 | `npm run build`           | Construct productive site to `./dist/`               |
 | `npm run preview`         | Localize preview of your build                       |
 | `npm run astro ...`       | Apply CLI directives like `astro add`, `astro audit` |
 | `npm run astro -- --help` | Assistance for Astro CLI operations                  |
 
-## 👨‍💼 Fancy to learn more?
-
-Feel encouraged to explore [our comprehensive compliance codex](https://docs.titaniumnetwork.org) or merge into our [corporate synergy platform](https://discord.gg/JFDCJzFana).
-
-# account system
+## <img src="docs/acc.gif" alt="Account System" height="80px">
 
 - first account created will be given admin for convenience
