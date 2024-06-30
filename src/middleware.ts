@@ -89,7 +89,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   context.locals.isMainWebsite =
     !("mainWebsite" in appConfig) ||
-    context.url.hostname !== appConfig.mainWebsite;
+    context.url.hostname === appConfig.mainWebsite;
 
   // encode the cloak or delete it
   context.locals.setCloak = (cloak) => {
