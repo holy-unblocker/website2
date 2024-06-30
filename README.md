@@ -1,12 +1,18 @@
 # <img src="./src/icons/hat.svg" style="width: 1em"> Holy Unblocker: Astro
 
+## <img src="docs/struct.gif" alt="Configuration" height="80px">
+
+This program will look for a config in `./config/config.js`. You will need to copy the example config:
+
+```sh
+cp ./config/config.example.js ./config.js
+```
+
+We provide an example configuration in [./config/config.example.js](./config/config.example.js)
+
 ```sh
 npm create astro@latest -- --template minimal
 ```
-
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/minimal)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/minimal/devcontainer.json)
 
 > 🚀 **Boardroom veteran?** Eliminate this parchment. Seamless creation awaits!
 

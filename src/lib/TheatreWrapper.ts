@@ -1,4 +1,7 @@
 import type { Client } from "pg";
+import type { CategoryData, TheatreEntry } from "@lib/TheatreAPI";
+import type { m } from "@lib/util";
+import type { TheatreModel } from "./models";
 
 export const theatreTypes = [
   "emulator.nes",
@@ -10,48 +13,7 @@ export const theatreTypes = [
   "proxy",
 ];
 
-/**
- * one of the above types or a letter/key such as A,B,TAB,SPACE,SHIFT
- */
-export type KeyLike =
-  | "mouseleft"
-  | "mouseright"
-  | "scrollup"
-  | "scrolldown"
-  | "wasd"
-  | "arrows"
-  | string;
-
-export interface Control {
-  keys: KeyLike[];
-  label: string;
-}
-
-interface TheatreRow {
-  type:
-    | "emulator.nes"
-    | "emulator.gba"
-    | "emulator.n64"
-    | "emulator.genesis"
-    | "flash"
-    | "embed"
-    | "proxy"
-    | string;
-  controls: string;
-  category: string;
-  id: string;
-  name: string;
-  plays: number;
-  src: string;
-}
-
-export interface TheatreEntry
-  extends Omit<Omit<TheatreRow, "controls">, "category"> {
-  controls: Control[];
-  category: string[];
-}
-
-export function rowTo(entry: TheatreRow) {
+export function rowTo(entry: m.TheatreModel) {
   return {
     ...entry,
     controls: JSON.parse(entry.controls),
@@ -129,7 +91,7 @@ export default class TheatreWrapper {
   }
   async show(id: string) {
     const row = (
-      await this.client.query<TheatreRow>(
+      await this.client.query<TheatreModel>(
         "SELECT * FROM theatre WHERE id = $1",
         [id]
       )
@@ -137,7 +99,7 @@ export default class TheatreWrapper {
 
     if (row) return rowTo(row);
   }
-  async list(options: ListOptions = {}) {
+  async list(options: ListOptions = {}): Promise<CategoryData> {
     // 0: select, 1: condition, 3: order, 3: limit, 4: offset
     const select = [];
     const conditions = [];
@@ -209,7 +171,7 @@ export default class TheatreWrapper {
         .filter(Boolean)
         .join(" ") + ";";
 
-    const { rows } = await this.client.query<TheatreRow & { total: string }>(
+    const { rows } = await this.client.query<TheatreModel & { total: string }>(
       query,
       vars
     );
@@ -301,7 +263,7 @@ export default class TheatreWrapper {
 
     return rowTo(
       (
-        await this.client.query<TheatreRow>(
+        await this.client.query<TheatreModel>(
           `UPDATE theatre SET name = $${vars.push(
             entry.name
           )}, type = $${vars.push(entry.type)}, category = $${vars.push(

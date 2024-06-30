@@ -6,57 +6,32 @@ import Public from "@icons/public_24dp.svg?react";
 import { useRef } from "preact/hooks";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { sillyfetch } from "@lib/sillyfetch";
-import { createNotification } from "@lib/notifications";
-import { isError } from "@lib/isAbortError";
 
-export type ServiceFrameSrc = [src: string, proxySrc: string];
+export type ServiceFrameSrc = [src: string, uvPage: string];
 
 const ServiceFrame = ({
   // layout,
   src,
-  close,
+  setSearch,
 }: {
   // layout: LayoutDump["layout"];
-  src: ServiceFrameSrc | null;
-  /**
-   * Callback to handle closing the ServiceFrame.
-   * Logic should be:
-   * 	- Clear the src attribute
-   */
-  close: () => void;
+  src: ServiceFrameSrc;
+  setSearch: (src: ServiceFrameSrc | null) => void;
 }) => {
+  if (src === null) throw new Error("fuck");
   const iframe = useRef<HTMLIFrameElement | null>(null);
   const [firstLoad, setFirstLoad] = useState(false);
   const [revokeIcon, setRevokeIcon] = useState(false);
-  const [lastSrc, setLastSrc] = useState("");
+  const lastSrc = useRef<string>(src[0]);
   //  const bare = useMemo(() => new BareClient(BARE_API), []);
   const linksTried = useMemo(() => new WeakMap(), []);
   const [title, setTitle] = useState<string | null>(src?.[0] || null);
   const [icon, setIcon] = useState("");
 
   useEffect(() => {
-    if (src) {
-      if (!iframe.current || !iframe.current.contentWindow) return;
-
-      try {
-        iframe.current.contentWindow.location.href = src[1];
-        setLastSrc(src[1]);
-      } catch (err) {
-        console.error(err);
-        createNotification({
-          title: "Unable to find a compatible proxy",
-          description: isError(err) ? err.message : String(err),
-          type: "error",
-        });
-      }
-    } else {
-      if (!iframe.current || !iframe.current.contentWindow) return;
-      setFirstLoad(false);
-      setTitle("");
-      setIcon("");
-      iframe.current.contentWindow.location.href = "about:blank";
-      setLastSrc("about:blank");
-    }
+    if (!iframe.current || !iframe.current.contentWindow) return;
+    iframe.current.contentWindow.location.href = src[1];
+    setSearch(src);
   }, [iframe, src]);
 
   useEffect(() => {
@@ -80,7 +55,11 @@ const ServiceFrame = ({
 
       // * didn't hook our call to new Function
       try {
-        setLastSrc(contentWindow.location.href);
+        const newsrc = contentWindow.location.href;
+        if (newsrc !== src[1]) {
+          src[1] = newsrc;
+          setSearch(src);
+        }
       } catch (err) {
         // possibly an x-frame error
         return;
@@ -88,7 +67,7 @@ const ServiceFrame = ({
 
       const location = new contentWindow.Function("return location")();
 
-      if (location === contentWindow.location) setTitle(src?.[0] || null);
+      if (location === contentWindow.location) setTitle(src[0] || null);
       else {
         const currentTitle = contentWindow.document.title;
 
@@ -124,10 +103,10 @@ const ServiceFrame = ({
   }, [testProxyUpdate]);
 
   useEffect(() => {
-    document.documentElement.dataset.service = Number(Boolean(src)).toString();
+    document.documentElement.setAttribute("data-service", "");
 
     return () => {
-      delete document.documentElement.dataset.service;
+      document.documentElement.removeAttribute("data-service");
     };
   }, [src]);
 
@@ -137,7 +116,9 @@ const ServiceFrame = ({
         <div
           dangerouslySetInnerHTML={{ __html: ChevronLeft }}
           className={styles.button}
-          onClick={close}
+          onClick={() => {
+            setSearch(null);
+          }}
         />
         {icon ? (
           <img
@@ -161,7 +142,11 @@ const ServiceFrame = ({
         <p className={styles.title}>{title}</p>
         <div className={styles.shiftRight}></div>
         <a
-          href={lastSrc}
+          onClick={() =>
+            window.open(
+              `/uv/service/${__uv$config.encodeUrl!(lastSrc.current)}`
+            )
+          }
           className={styles.button}
           dangerouslySetInnerHTML={{ __html: OpenInNew }}
         />
@@ -175,7 +160,7 @@ const ServiceFrame = ({
         className={styles.embed}
         title="embed"
         ref={iframe}
-        data-first-load={Number(firstLoad)}
+        data-first-load={firstLoad || undefined}
         onLoad={() => {
           testProxyUpdate();
 
@@ -183,7 +168,7 @@ const ServiceFrame = ({
             setFirstLoad(true);
           }
         }}
-      ></iframe>
+      />
     </div>
   );
 };

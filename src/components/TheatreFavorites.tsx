@@ -1,9 +1,6 @@
 import { useGlobalSettings } from "@lib/storage";
-import type {
-  LoadingTheatreEntry,
-  TheatreEntry,
-} from "@components/TheatreCommon";
-import { ItemList, TheatreAPI } from "@components/TheatreCommon";
+import TheatreAPI, { type TheatreEntry } from "@lib/TheatreAPI";
+import { type LoadingTheatreEntry, ItemList } from "@components/TheatreCommon";
 import { isFailedToFetch } from "@lib/isAbortError";
 import styles from "@styles/TheatreCategory.module.scss";
 import { useEffect, useState } from "preact/hooks";
@@ -23,7 +20,7 @@ const TheatreFavorites = () => {
     const abort = new AbortController();
 
     (async function () {
-      const api = new TheatreAPI(window.db_api, abort.signal);
+      const api = new TheatreAPI("/api/theatre/", abort.signal);
       const data = [];
 
       for (const id of settings.favorites) {

@@ -97,7 +97,7 @@ if (Astro.request.method === "POST")
         {
           user.discord_id === null ? (
             <a
-              href={`https://discord.com/oauth2/authorize?client_id=${appConfig.discord!.clientId}&response_type=code&redirect_uri=${encodeURIComponent(appConfig.discord!.redirectURI)}&scope=identify`}
+              href={`https://discord.com/oauth2/authorize?client_id=${appConfig.discord!.clientId}&response_type=code&redirect_uri=${encodeURIComponent(appConfig.discord!.clientRedirectURI)}&scope=identify`}
             >
               <input
                 type="button"

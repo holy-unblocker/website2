@@ -3,16 +3,19 @@
 import aes from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
 
-if (!("cryptURL key" in localStorage)) {
-  localStorage["cryptURL key"] = Math.random().toString(36).slice(2);
+function getEncryptionKey() {
+  let key: string | undefined = localStorage["cryptURL key"];
+  if (key === undefined) {
+    key = Math.random().toString(36).slice(2);
+    localStorage["cryptURL key"] = key;
+  }
+  return key;
 }
 
-const key = localStorage["cryptURL key"];
-
 export function encryptURL(part: string) {
-  return aes.encrypt(part, key).toString();
+  return aes.encrypt(part, getEncryptionKey()).toString();
 }
 
 export function decryptURL(part: string) {
-  return aes.decrypt(part, key).toString(Utf8);
+  return aes.decrypt(part, getEncryptionKey()).toString(Utf8);
 }

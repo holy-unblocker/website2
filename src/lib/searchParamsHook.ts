@@ -1,19 +1,18 @@
-import { useState, useEffect } from "preact/hooks";
+import { useState } from "preact/hooks";
 
 /**
+ * astro hydration stuff
  * SET THE PROPERTY VALUE TO NULL TO DELETE IT FROM SEARCH PARAMS
  */
 export function useSearchParams(): [
   URLSearchParams,
   (value: Record<string, any>) => void
 ] {
-  const [params, setParams] = useState(
-    () => new URLSearchParams(location.search)
+  const [params, setParams] = useState(() =>
+    typeof location === "object"
+      ? new URLSearchParams(location.search)
+      : new URLSearchParams()
   );
-
-  useEffect(() => {
-    setParams(new URLSearchParams(location.search));
-  }, [location.search]);
 
   return [
     params,

@@ -21,10 +21,6 @@ export function setTheme(theme: string) {
   setCookie("theme", theme);
 }
 
-export function getSearchEngine() {
-  return Number(getCookie("searchEngine", "1"));
-}
-
 export function setSearchEngine(searchEngine: number) {
   setCookie("searchEngine", searchEngine.toString());
 }

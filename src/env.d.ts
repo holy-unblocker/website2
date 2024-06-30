@@ -28,6 +28,8 @@ declare type CtxUser = import("@lib/models").UserModel & {
 
 namespace App {
   interface Locals {
+    searchEngine: number;
+
     user?: CtxUser;
     ip: string;
     /**
@@ -68,9 +70,6 @@ declare namespace App {
   }
 }
 
-declare var has_serviceworkers: boolean;
-
-declare var db_api: string;
 declare var wisp_api: string;
 declare var theatre_cdn: string;
 

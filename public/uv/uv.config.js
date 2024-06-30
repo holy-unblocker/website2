@@ -1,4 +1,4 @@
-const config = {
+self.__uv$config = {
   prefix: `/uv/service/`,
   encodeUrl: Ultraviolet.codec.xor.encode,
   decodeUrl: Ultraviolet.codec.xor.decode,
@@ -8,5 +8,3 @@ const config = {
   client: `/uv/uv.client.js`,
   sw: `/uv/uv.sw.js`,
 };
-
-globalThis.__uv$config = config;

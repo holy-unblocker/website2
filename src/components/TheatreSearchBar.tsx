@@ -1,11 +1,9 @@
-import type { CategoryData } from "@components/TheatreCommon";
-import { TheatreAPI } from "@components/TheatreCommon";
+import TheatreAPI, { type CategoryData } from "@lib/TheatreAPI";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import categories from "@lib/gameCategories";
 import isAbortError from "@lib/isAbortError";
 import styles from "@styles/TheatreSearch.module.scss";
 import Search from "@icons/search_24dp.svg?react";
-import clsx from "clsx";
 import { useRef, useState } from "preact/hooks";
 
 const LIMIT = 8;
@@ -36,7 +34,7 @@ const SearchBar = ({
     searchAbort.current.abort();
     searchAbort.current = new AbortController();
 
-    const api = new TheatreAPI(window.db_api, searchAbort.current.signal);
+    const api = new TheatreAPI("/api/theatre/", searchAbort.current.signal);
 
     try {
       const categoryData = await api.category({
@@ -59,16 +57,11 @@ const SearchBar = ({
   return (
     <div
       className={styles.search}
-      data-focused={Number(inputFocused)}
-      data-suggested={Number(renderSuggested)}
+      data-focused={inputFocused || undefined}
+      data-suggested={renderSuggested || undefined}
       ref={bar}
-      onBlur={(event) => {
-        if (!bar.current!.contains(event.relatedTarget as Node)) {
-          setInputFocused(false);
-        }
-      }}
     >
-      <div className={clsx(themeStyles.ThemeInputBar, styles.ThemeInputBar)}>
+      <div className={`${themeStyles.ThemeInputBar} ${styles.inputBar}`}>
         <div
           className={themeStyles.icon}
           dangerouslySetInnerHTML={{ __html: Search }}
@@ -83,8 +76,10 @@ const SearchBar = ({
             setLastSelect(-1);
             search(input.current!.value);
           }}
-          onBlur={() => {
-            setInputFocused(false);
+          onBlur={(event) => {
+            if (!bar.current!.contains(event.relatedTarget as Node)) {
+              setInputFocused(false);
+            }
           }}
           onClick={() => {
             setInputFocused(true);
@@ -161,14 +156,16 @@ const SearchBar = ({
       >
         {renderSuggested &&
           categoryData.entries.map((entry, i) => (
-            <a
+            <div
               tabIndex={0}
               key={entry.id}
-              onClick={() => setInputFocused(false)}
+              onClick={(event) => {
+                event.preventDefault();
+                location.href = `/theatre/play?id=${entry.id}`;
+              }}
               onMouseOver={() => setLastSelect(i)}
-              href={`/theatre/play?id=${entry.id}`}
               title={entry.name}
-              className={clsx(styles.option, i === lastSelect && styles.hover)}
+              data-hover={i === lastSelect || undefined}
             >
               <div className={styles.name}>{entry.name}</div>
               {showCategory && entry.category[0] && (
@@ -180,7 +177,7 @@ const SearchBar = ({
                   }
                 </div>
               )}
-            </a>
+            </div>
           ))}
       </div>
     </div>

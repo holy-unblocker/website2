@@ -4,8 +4,6 @@ import "@fontsource/lato/700.css";
 import "@fontsource/montserrat-alternates";
 import "@styles/root.scss";
 import "@styles/theme.scss";
-import "@styles/TheatrePlayer.scss";
-import "@styles/Service.scss";
 import HatBeta from "@icons/hat-beta.svg?react";
 import HatDev from "@icons/hat-dev.svg?react";
 import HatPlain from "@icons/hat.svg?react";
@@ -26,7 +24,6 @@ import List from "@icons/list_24dp.svg?react";
 import luv from "@icons/favorite_24dp.svg?react";
 import Leaderboard from "@icons/leaderboard_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
 import SortRounded from "@icons/sort_24dp.svg?react";
-import clsx from "clsx";
 import MenuTab from "@components/MenuTab.astro";
 import Footer from "@components/Footer.astro";
 import { stripe } from "@lib/util";
@@ -62,7 +59,7 @@ function Hat() {
       </button>
       <a
         href="/"
-        class={clsx(styles.entry, styles.logo)}
+        class:list={[styles.entry, styles.logo]}
         title="Home"
         set:html={Hat()}
       />
@@ -87,7 +84,7 @@ function Hat() {
       <div tabindex="-1" class:list={[styles.cover, "menuitem"]}></div>
       <div class={styles.menu}>
         <div class={styles.top}>
-          <div class={clsx(styles.button, "menuitem")}>
+          <div class:list={[styles.button, "menuitem"]}>
             <Menu class="icon" />
           </div>
           <a
@@ -150,12 +147,8 @@ function Hat() {
 
           <div class={styles.title}>Arcade</div>
 
-          <MenuTab
-            href="/theatre/games/"
-            name="Popular"
-            iconFilled={SortRounded}
-          />
-          <MenuTab href="/theatre/games/all" name="All" iconFilled={List} />
+          <MenuTab href="/theatre/" name="Popular" iconFilled={SortRounded} />
+          <MenuTab href="/theatre/all" name="All" iconFilled={List} />
           <div class={styles.title}>Genre</div>
           <div class={styles.genres}>
             {
@@ -163,7 +156,7 @@ function Hat() {
                 <a
                   href={`/theatre/${category.id}`}
                   title={category.name}
-                  class={clsx(styles.entry, "menuitem", styles.text)}
+                  class:list={[styles.entry, "menuitem", styles.text]}
                 >
                   {category.name}
                 </a>

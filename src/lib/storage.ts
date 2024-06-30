@@ -24,28 +24,28 @@ export interface CloakSettings {
 }
 
 export interface GlobalSettings {
-  proxy: string;
   proxyMode: string;
   favorites: string[];
   seenGames: string[];
 }
 
-export const globalSettings = new Settings<GlobalSettings>("global settings", {
-  proxy: "automatic",
-  proxyMode: "embedded",
-  favorites: [],
-  seenGames: [],
-});
+// dont access localStorage that way SSR works
 
-export const globalCloakSettings = new Settings<CloakSettings>(
-  "cloak settings",
-  {
+export const getGlobalSettings = () =>
+  new Settings<GlobalSettings>("global settings", {
+    proxyMode: "embedded",
+    favorites: [],
+    seenGames: [],
+  });
+
+export const getGlobalCloakSettings = () =>
+  new Settings<CloakSettings>("cloak settings", {
     url: "",
     title: "",
     icon: "",
-  }
-);
+  });
 
-export const useGlobalSettings = () => useSettings(globalSettings);
+export const useGlobalSettings = () => useSettings(getGlobalSettings());
 
-export const useGlobalCloakSettings = () => useSettings(globalCloakSettings);
+export const useGlobalCloakSettings = () =>
+  useSettings(getGlobalCloakSettings());

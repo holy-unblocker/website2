@@ -1,9 +1,18 @@
-// Config is only fully loaded on the serverside.
-// Client should only have access to the "apis" part of the config.
+// for code readability:
+// type definitions will assume every config field exists
+// or else u get to assert every: appConfig.mailer!.noreply
+
+// DOCUMENTATION AND EXAMPLES OF ALL THIS CRAP
+// CAN BE FOUND IN config.example.js
 
 export interface AppConfig {
+  configName: string;
   host: string;
   port: number;
+  theatreApiMirror: string;
+  theatreFilesMirror: string;
+  theatreFilesPath: string;
+  separateWispServer: string;
   db: {
     user: string;
     password: string;
@@ -11,13 +20,31 @@ export interface AppConfig {
     port: number;
     database: string;
   };
-  apis: {
-    db: string;
-    theatre: string;
-    wisp: string;
+  supportEmail: string;
+  stripe: {
+    secret: string;
+    webhookEndpointSecret: string;
+    priceIds: {
+      official: string;
+      ultimate: string;
+    };
   };
-  emails: {
-    support: string;
+  mailer: {
+    transport: Parameters<typeof import("nodemailer")["createTransport"]>[0];
+    sender: import("nodemailer").SendMailOptions["sender"];
+    noreply: string;
+    mainWebsite: string;
+  };
+  discord: {
+    botToken: string;
+    clientId: string;
+    clientSecret: string;
+    clientRedirectURI: string;
+    guildId: string;
+    roleIds: {
+      donator: string;
+      ultimate: string;
+    };
   };
   links: {
     github: {
@@ -28,30 +55,6 @@ export interface AppConfig {
     discord: {
       titaniumnetwork: string;
       holyunblocker: string;
-    };
-  };
-  // used to give discord perks and for account integration
-  discord?: {
-    botToken: string;
-    donatorRoleId: string;
-    ultimateRoleId: string;
-    // oauth stuff
-    guildId: string;
-    clientId: string;
-    clientSecret: string;
-    redirectURI: string; // this should go to /donate/linkdiscord on ur official domain
-  };
-  // donator stuff
-  smtpTransport?: string;
-  stripe?: {
-    publish: string;
-    secret: string;
-    endpointSecret: string;
-    // stripe price ids for each tier
-    // used for creating invoices
-    priceIds: {
-      official: string;
-      ultimate: string;
     };
   };
 }

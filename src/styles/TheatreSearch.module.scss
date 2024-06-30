@@ -1,106 +1,107 @@
-@import './common.scss';
+@import "./common.scss";
+
+$height: 44px;
 
 .search {
-	display: flex;
-	$border: 1px;
-	$height: 44px;
-	width: 667px;
-	height: $height;
-	position: relative;
-	flex-direction: row;
-	max-height: 100%;
-	margin: 10px auto;
+  display: flex;
+  $border: 1px;
+  width: 667px;
+  height: $height;
+  position: relative;
+  flex-direction: row;
+  max-height: 100%;
+  margin: 10px auto;
 
-	@media only screen and (max-width: 741px) {
-		width: 100%;
-	}
+  @media only screen and (max-width: 741px) {
+    width: 100%;
+  }
 
-	@include screenMobile {
-		&[data-focused='1'] {
-			position: fixed;
-			z-index: 100;
-			top: 0px;
-			left: 0px;
-			margin: 0px;
-			padding: 10px;
-			width: calc(100% - 20px);
-			height: calc(100% - 20px);
-			background: rgba(0, 0, 0, 0.5);
-		}
-	}
+  @include screenMobile {
+    &[data-focused] {
+      position: fixed;
+      z-index: 100;
+      top: 0px;
+      left: 0px;
+      margin: 0px;
+      padding: 10px;
+      width: calc(100% - 20px);
+      height: calc(100% - 20px);
+      background: rgba(0, 0, 0, 0.5);
+    }
+  }
 
-	> .ThemeInputBar {
-		width: 100%;
-	}
+  > .inputBar {
+    width: 100%;
+  }
 
-	> .suggested {
-		display: none;
-		margin-top: calc($height);
-		width: 100%;
-		box-sizing: border-box;
-		z-index: 3;
-		user-select: none;
+  &[data-suggested] {
+    > .suggested {
+      display: flex;
+    }
 
-		@include screenMobile {
-			width: calc(100% - 20px); // - padding - border
-		}
+    > .inputBar {
+      border-bottom-left-radius: 0px;
+      border-bottom-right-radius: 0px;
+    }
+  }
+}
 
-		position: absolute;
-		flex-direction: column;
-		background-color: var(--background-accent);
-		overflow: hidden;
-		border-bottom-left-radius: 5px;
-		border-bottom-right-radius: 5px;
-		border: 1px solid var(--border);
-		border-top: none;
+.suggested {
+  display: none;
+  margin-top: calc($height);
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 3;
+  user-select: none;
 
-		> .option {
-			cursor: pointer;
-			color: var(--text);
-			height: $height;
-			position: relative;
-			display: flex;
-			flex-direction: row;
+  @include screenMobile {
+    width: calc(100% - 20px); // - padding - border
+  }
 
-			&.hover {
-				background-color: var(--background);
-			}
+  position: absolute;
+  flex-direction: column;
+  background-color: var(--background-accent);
+  overflow: hidden;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border: 1px solid var(--border);
+  border-top: none;
 
-			> .name {
-				text-align: left;
-				width: 100%;
-				text-overflow: ellipsis;
-				overflow: hidden;
-				white-space: nowrap;
-				padding: 0px 10px;
-			}
+  > div {
+    cursor: pointer;
+    color: var(--text);
+    height: $height;
+    position: relative;
+    display: flex;
+    flex-direction: row;
 
-			> .name,
-			> .category {
-				align-items: center;
-				display: flex;
-			}
+    &[data-hover] {
+      background-color: var(--background);
+    }
 
-			> .category {
-				flex: none;
-				width: 25%;
-				color: var(--text-placeholder);
-			}
+    > .name {
+      text-align: left;
+      width: 100%;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      padding: 0px 10px;
+    }
 
-			> .search {
-				color: var(--text);
-			}
-		}
-	}
+    > .name,
+    > .category {
+      align-items: center;
+      display: flex;
+    }
 
-	&[data-suggested='1'] {
-		> .suggested {
-			display: flex;
-		}
+    > .category {
+      flex: none;
+      width: 25%;
+      color: var(--text-placeholder);
+    }
 
-		> .ThemeInputBar {
-			border-bottom-left-radius: 0px;
-			border-bottom-right-radius: 0px;
-		}
-	}
+    > .search {
+      color: var(--text);
+    }
+  }
 }

@@ -130,7 +130,7 @@ for (const child of Astro.props.options) {
 
     function setOpen(value: boolean) {
       open = value;
-      if (open) ts.setAttribute("data-open", "1");
+      if (open) ts.setAttribute("data-open", "");
       else ts.removeAttribute("data-open");
     }
 
@@ -167,7 +167,7 @@ for (const child of Astro.props.options) {
         const option = options[i];
         const child = list.children[i] as HTMLDivElement;
         if (option.disabled) continue;
-        if (i === lastSelect) child.setAttribute("data-hover", "1");
+        if (i === lastSelect) child.setAttribute("data-hover", "");
         else child.removeAttribute("data-hover");
       }
     }
@@ -193,7 +193,6 @@ for (const child of Astro.props.options) {
   tabindex="0"
   class:list={[themeStyles.ThemeSelect, Astro.props.class]}
   data-selected={defaultSelected}
-  data-open="0"
   id={Astro.props.id}
 >
   <input readonly hidden name={Astro.props.name} />

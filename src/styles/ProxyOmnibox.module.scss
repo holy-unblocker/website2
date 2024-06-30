@@ -1,8 +1,13 @@
 @import "./common.scss";
 
+$height: 44px;
+
+.inputBar {
+  width: 100%;
+}
+
 .omnibox {
   $border: 1px;
-  $height: 44px;
   width: 584px;
   height: $height;
   display: flex;
@@ -10,33 +15,21 @@
   position: relative;
   margin: 10px auto;
 
-  .search,
-  .open {
-    display: contents;
-    > svg {
-      user-select: none;
-      width: 20px;
-      height: 20px;
-      padding: 12px;
-      color: var(--text-placeholder);
-      display: block;
-      text-align: center;
-      pointer-events: none;
+  &[data-suggested] {
+    .suggested {
+      display: flex;
     }
-  }
 
-  .open {
-    display: none;
-  }
-
-  > .ThemeInputBar {
-    width: 100%;
+    .inputBar {
+      border-bottom-left-radius: 0px;
+      border-bottom-right-radius: 0px;
+    }
   }
 
   @include screenMobile {
     width: 100%;
 
-    &[data-focused="1"] {
+    &[data-focused] {
       margin: 0;
       position: absolute;
       z-index: 100;
@@ -47,66 +40,73 @@
       height: calc(100% - 20px);
       background: rgba(0, 0, 0, 0.5);
     }
+  }
+}
 
-    .open {
-      display: block;
-      top: 0px;
-      right: 0px;
-    }
+.search,
+.open {
+  display: contents;
+  > svg {
+    user-select: none;
+    width: 20px;
+    height: 20px;
+    padding: 12px;
+    color: var(--text-placeholder);
+    display: block;
+    text-align: center;
+    pointer-events: none;
+  }
+}
+
+.open {
+  display: none;
+  @include screenMobile {
+    display: block;
+    top: 0px;
+    right: 0px;
+  }
+}
+
+.suggested {
+  box-sizing: border-box;
+  display: none;
+  margin-top: $height;
+  width: 100%;
+
+  @include screenMobile {
+    width: calc(100% - 20px); // - padding - border
   }
 
-  > .suggested {
-    box-sizing: border-box;
-    display: none;
-    margin-top: $height;
-    width: 100%;
+  position: absolute;
+  flex-direction: column;
+  background-color: var(--background-accent);
+  overflow: hidden;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border: 1px solid var(--border);
+  border-top: none;
 
-    @include screenMobile {
-      width: calc(100% - 20px); // - padding - border
+  > div {
+    cursor: pointer;
+    color: var(--text);
+    height: $height;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+
+    &[data-hover] {
+      background-color: var(--background);
     }
 
-    position: absolute;
-    flex-direction: column;
-    background-color: var(--background-accent);
-    overflow: hidden;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border: 1px solid var(--border);
-    border-top: none;
+    > .text {
+      padding: 0px 15px 0px 0px;
+      width: 100%;
+      line-height: $height;
+      user-select: none;
+    }
 
-    > .option {
-      cursor: pointer;
+    > .search {
       color: var(--text);
-      height: $height;
-      position: relative;
-      display: flex;
-      flex-direction: row;
-
-      &.hover {
-        background-color: var(--background);
-      }
-
-      > .text {
-        padding: 0px 15px 0px 0px;
-        width: 100%;
-        line-height: $height;
-        user-select: none;
-      }
-
-      > .search {
-        color: var(--text);
-      }
-    }
-  }
-
-  &[data-suggested="1"] {
-    > .suggested {
-      display: flex;
-    }
-
-    > .ThemeInputBar {
-      border-bottom-left-radius: 0px;
-      border-bottom-right-radius: 0px;
     }
   }
 }

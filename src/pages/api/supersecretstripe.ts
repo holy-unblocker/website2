@@ -12,7 +12,7 @@ export const POST: APIRoute = async ({ request }) => {
     event = stripe!.webhooks.constructEvent(
       await request.text(),
       signature,
-      appConfig.stripe!.endpointSecret
+      appConfig.stripe.webhookEndpointSecret
     );
   } catch (err) {
     // @ts-ignore`
@@ -59,10 +59,10 @@ export const POST: APIRoute = async ({ request }) => {
           let tier: number | undefined;
 
           switch (line.plan.id) {
-            case appConfig.stripe!.priceIds.official:
+            case appConfig.stripe.priceIds.official:
               tier = 1;
               break;
-            case appConfig.stripe!.priceIds.ultimate:
+            case appConfig.stripe.priceIds.ultimate:
               tier = 2;
               break;
           }

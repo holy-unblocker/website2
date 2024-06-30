@@ -1,0 +1,25 @@
+---
+import styles from "@styles/TheatreCategory.module.scss";
+
+interface Props {
+  id: string;
+  name: string;
+}
+---
+
+<a
+  class={styles.item}
+  href={`/theatre/play?id=${Astro.props.id}`}
+  title={Astro.props.name}
+  data-item
+>
+  <div class={styles.thumbnail}>
+    <img
+      alt=""
+      loading="lazy"
+      onload="this.parentNode.parentNode.setAttribute('data-load', '')"
+      src={`/cdn/thumbnails/${Astro.props.id}.webp`}
+    />
+  </div>
+  <div class={styles.name}>{Astro.props.name}</div>
+</a>

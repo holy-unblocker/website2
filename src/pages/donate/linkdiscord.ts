@@ -1,9 +1,12 @@
 import { appConfig } from "@config/config";
 import { db } from "@lib/db";
+import { stripe } from "@lib/util";
 import type { APIRoute } from "astro";
 
 // we are redirected here after discord acc is complete
 export const GET: APIRoute = async (context) => {
+  if (!stripe) return new Response("accounts are disabled", { status: 400 });
+
   const { user, acc } = context.locals;
 
   const code = context.url.searchParams.get("code");
@@ -20,13 +23,13 @@ export const GET: APIRoute = async (context) => {
     body: new URLSearchParams({
       grant_type: "authorization_code",
       code: code,
-      redirect_uri: appConfig.discord!.redirectURI,
+      redirect_uri: appConfig.discord.clientRedirectURI,
     }),
     headers: {
       authorization:
         "Basic " +
         Buffer.from(
-          appConfig.discord!.clientId + ":" + appConfig.discord!.clientSecret
+          appConfig.discord!.clientId + ":" + appConfig.discord.clientSecret
         ).toString("base64"),
     },
     method: "POST",

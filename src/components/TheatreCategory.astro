@@ -1,6 +1,9 @@
 ---
+import TheatreSearchBar from "@components/TheatreSearchBar";
 import { Category } from "./TheatreCategoryView";
 import ClientAPIs from "./ClientAPIs.astro";
+import styles from "@styles/TheatreCategory.module.scss";
+import ThemeSelect from "./ThemeSelect.astro";
 
 interface Props {
   name: string;
@@ -8,7 +11,35 @@ interface Props {
   placeholder?: string;
   showCategory?: boolean;
 }
+
+const sort = Astro.url.searchParams.get("sort");
 ---
 
-<Category {...Astro.props} client:only="preact" />
+<main class={styles.main}>
+  <TheatreSearchBar
+    showCategory={Astro.props.showCategory}
+    category={Astro.props.category}
+    placeholder={Astro.props.placeholder}
+    client:load
+  />
+  <section>
+    <div class={styles.name}>
+      <h1>{Astro.props.name}</h1>
+      <ThemeSelect
+        options={[
+          { name: "Most Popular", value: "mostPopular" },
+          { name: "Least Popular", value: "leastPopular" },
+          { name: "Name (A-Z)", value: "nameASC" },
+          { name: "Name (Z-A)", value: "nameDES" },
+        ]}
+        id="sort"
+        value={typeof sort === "string" &&
+        ["mostPopular", "leastPopular", "nameASC", "nameDES"].includes(sort)
+          ? sort
+          : undefined}
+      />
+      <Category category={Astro.props.category} client:only="preact" />
+    </div>
+  </section>
+</main>
 <ClientAPIs />

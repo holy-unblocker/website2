@@ -1,4 +1,4 @@
-import { db } from "@lib/db";
+import { db, dbEnabled } from "@lib/db";
 import { randomBytes } from "node:crypto";
 import { hash } from "@lib/bcrypt";
 import nodemailer from "nodemailer";
@@ -9,11 +9,15 @@ import { Stripe } from "stripe";
 export { m };
 
 // stripe integration, only if configuration is set
-export const stripe = appConfig.stripe
-  ? new Stripe(appConfig.stripe.secret)
-  : undefined;
+export const stripe =
+  appConfig.stripe && dbEnabled
+    ? new Stripe(appConfig.stripe.secret)
+    : undefined;
 
-const transporter = nodemailer.createTransport(appConfig.smtpTransport);
+// mail stuff
+const mailer = appConfig.mailer
+  ? nodemailer.createTransport(appConfig.mailer.transport)
+  : undefined;
 
 export async function createSession(ip: string, userId: number) {
   return (
@@ -183,19 +187,16 @@ export async function sendChangeEmailVerification(
     url,
   ]);
 
-  await transporter.sendMail({
+  await mailer!.sendMail({
     to: newEmail,
-    sender: {
-      address: "support@holyubofficial.net",
-      name: "Holy Unblocker Team",
-    },
-    from: "noreply@holyubofficial.net",
+    sender: appConfig.mailer.sender,
+    from: appConfig.mailer.noreply,
     subject: "Confirm your new email",
     html: `<style>${emailCSS}${verifyCSS}</style><div>
 <p>To finish changing your Holy Unblocker account's email address from ${user.email} to ${newEmail}, click the button below.</p>
 <a href="${url}" id="verify">Verify Email</a>
 <p>Or go to <a href="${url}">${url}</a></p>
-<p>You can log into your Holy Unblocker account at <a href="https://holyubofficial.net/donate/">holyubofficial.net</a></p>
+<p>You can log into your Holy Unblocker account at <a href="https://${appConfig.mailer.mainWebsite}/donate/">${appConfig.mailer.mainWebsite}</a></p>
 </div>`,
   });
 }
@@ -207,18 +208,15 @@ export async function sendChangePasswordNotification(
   // todo: add a recovery secret thats valid for only 30 days
   console.log("DEBUG CHANGE PASSWORD NOTIFICATION", [user.id]);
 
-  await transporter.sendMail({
+  await mailer!.sendMail({
     to: user.email,
-    sender: {
-      address: "support@holyubofficial.net",
-      name: "Holy Unblocker Team",
-    },
-    from: "noreply@holyubofficial.net",
+    sender: appConfig.mailer.sender,
+    from: appConfig.mailer.noreply,
     subject: "Password changed",
     html: `<style>${emailCSS}${verifyCSS}</style><div>
 <p>Your account's password was changed.</p>
 <p>This change was initiated by ${ip}</p>
-<p>You can log into your Holy Unblocker account at <a href="https://holyubofficial.net/donate/">holyubofficial.net</a></p>
+<p>You can log into your Holy Unblocker account at <a href="https://${appConfig.mailer.mainWebsite}/donate/">${appConfig.mailer.mainWebsite}</a></p>
 </div>`,
   });
 }
@@ -230,18 +228,15 @@ export async function sendChangeEmailNotification(
   // todo: add a recovery secret thats valid for only 30 days
   console.log("DEBUG CHANGE EMAIL NOTIFICATION", [user.id]);
 
-  await transporter.sendMail({
+  await mailer!.sendMail({
     to: user.email,
-    sender: {
-      address: "support@holyubofficial.net",
-      name: "Holy Unblocker Team",
-    },
-    from: "noreply@holyubofficial.net",
+    sender: appConfig.mailer.sender,
+    from: appConfig.mailer.noreply,
     subject: "Email changed",
     html: `<style>${emailCSS}${verifyCSS}</style><div>
 <p>Your account's password was changed to ${user.new_email}.</p>
 <p>This change was initiated by ${ip}</p>
-<p>You can log into your Holy Unblocker account at <a href="https://holyubofficial.net/donate/">holyubofficial.net</a></p>
+<p>You can log into your Holy Unblocker account at <a href="https://${appConfig.mailer.mainWebsite}/donate/">${appConfig.mailer.mainWebsite}</a></p>
 </div>`,
   });
 }
@@ -253,18 +248,15 @@ export async function sendEmailVerification(user: m.UserModel) {
     user.email_verification_code
   );
 
-  await transporter.sendMail({
+  await mailer!.sendMail({
     to: user.email,
-    sender: {
-      address: "support@holyubofficial.net",
-      name: "Holy Unblocker Team",
-    },
-    from: "noreply@holyubofficial.net",
+    sender: appConfig.mailer.sender,
+    from: appConfig.mailer.noreply,
     subject: "Finish creating your account",
     html: `<style>${emailCSS}span{font-family:monospace}</style><div>
 <p>To finish creating your Holy Unblocker account, enter this verification code: <span>${user.email_verification_code}</span></p>
 <p>If this wasn't you, then you can ignore this email.</p>
-<p>You can log into your Holy Unblocker account at <a href="https://holyubofficial.net/donate/">holyubofficial.net</a></p>`,
+<p>You can log into your Holy Unblocker account at <a href="https://holyubof${appConfig.mailer.mainWebsite}/donate/">${appConfig.mailer.mainWebsite}</a></p>`,
   });
 }
 
@@ -283,20 +275,17 @@ export async function sendPasswordVerification(
     url,
   });
 
-  await transporter.sendMail({
+  await mailer!.sendMail({
     to: email,
-    sender: {
-      address: "support@holyubofficial.net",
-      name: "Holy Unblocker Team",
-    },
-    from: "noreply@holyubofficial.net",
+    sender: appConfig.mailer.sender,
+    from: appConfig.mailer.noreply,
     subject: "Password change request",
     html: `<style>${emailCSS}${verifyCSS}</style>
 <p>Someone requested to change your password on Holy Unblocker. To reset your account password, click the button below.</p>
 <a href="${url}" id="verify">Change Password</a>
 <p>Or go to <a href="${url}">${url}</a></p>
 <p>If this wasn't you, then you can ignore this request.</p>
-<p>You can log into your Holy Unblocker account at <a href="https://holyubofficial.net/donate/">holyubofficial.net</a></p>`,
+<p>You can log into your Holy Unblocker account at <a href="https://${appConfig.mailer.mainWebsite}/donate/">${appConfig.mailer.mainWebsite}</a></p>`,
   });
 }
 

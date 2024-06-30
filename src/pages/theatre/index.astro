@@ -1,39 +1,51 @@
 ---
-import CommonError from "@components/CommonError.astro";
-import type {
-  LoadingTheatreEntry,
-  TheatreEntry,
-} from "@components/TheatreCommon";
-import { ItemList } from "@components/TheatreCommon";
-import SearchBar from "@components/TheatreSearchBar";
+// popular games
+
+import TheatreSearchBar from "@components/TheatreSearchBar";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import categories from "@lib/gameCategories";
 import type { Category } from "@lib/gameCategories";
 import styles from "@styles/TheatreCategory.module.scss";
 import ArrowForward from "@icons/arrow_forward_24dp.svg?svgmin";
 import MainLayout from "@layouts/MainLayout.astro";
-import { theatreAPI } from "@lib/db";
+import { theatreAPI, theatreAPIMirror } from "@lib/db";
+import { dbEnabled } from "@lib/db";
+import type { CategoryData, TheatreEntryMin } from "@lib/TheatreAPI";
+import LoadingItem from "@components/LoadingItem.astro";
 
 const entryLimit = 8;
 
 const categoryQuery = categories.map((category) => category.id).join(",");
 
-let data;
-let error: string | undefined;
-try {
+let mirrorError = false;
+
+let data: CategoryData | undefined;
+
+if (dbEnabled) {
   data = await theatreAPI.list({
     sort: "plays",
     category: categoryQuery,
     limitPerCategory: entryLimit,
   });
-} catch (err) {
-  console.error(err);
-  error = String(err);
-}
+} else
+  try {
+    data = await theatreAPIMirror.category({
+      sort: "plays",
+      category: categoryQuery,
+      limitPerCategory: entryLimit,
+    });
+  } catch (err) {
+    mirrorError = true;
+    console.error(err);
+
+    // refresh after 5 seconds
+    Astro.response.headers.set("reload", "5");
+    Astro.response.status = 500;
+  }
 
 const _categories: Record<
   string,
-  { entries: (TheatreEntry | LoadingTheatreEntry)[]; category: Category }
+  { entries: TheatreEntryMin[]; category: Category }
 > = {};
 
 for (const category of categories)
@@ -49,8 +61,11 @@ if (data)
 
 <MainLayout>
   {
-    error ? (
-      <CommonError error={error} message="Popular Games" />
+    mirrorError ? (
+      <main>
+        <p>An error occurred while trying to access the theatre API mirror.</p>
+        <p>This page will refresh in 5 seconds.</p>
+      </main>
     ) : (
       <>
         <Fragment slot="head">
@@ -58,10 +73,11 @@ if (data)
           <title>Popular Games</title>
         </Fragment>
         <main class={styles.main}>
-          <SearchBar
+          <TheatreSearchBar
             showCategory
             category={categoryQuery}
             placeholder="Search by game name"
+            client:load
           />
           {Object.values(_categories).map((section) => (
             <section class={styles.expand}>
@@ -76,10 +92,11 @@ if (data)
                   <ArrowForward />
                 </a>
               </div>
-              <ItemList
-                className={`${styles.items} ${styles.flex}`}
-                items={section.entries}
-              />
+              <div class:list={[styles.items, styles.flex]}>
+                {section.entries.map((e) => (
+                  <LoadingItem name={e.name} id={e.id} />
+                ))}
+              </div>
             </section>
           ))}
         </main>

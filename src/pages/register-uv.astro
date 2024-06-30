@@ -1,0 +1,64 @@
+---
+import "@fontsource/lato";
+import "@fontsource/lato/700.css";
+import "@styles/root.scss";
+import "@styles/theme.scss";
+import ClientAPIs from "@components/ClientAPIs.astro";
+---
+
+<html lang="en" data-theme={Astro.locals.theme}>
+  <head><meta charset="utf-8" /></head>
+  <body>
+    <main>Ultraviolet is loading...</main>
+    <ClientAPIs baremux />
+    <script>
+      import { reportCompatError } from "@lib/compat";
+
+      declare const BareMux: any;
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        let errorCause: string | undefined;
+
+        try {
+          console.log(
+            "Destination:",
+            __uv$config.decodeUrl!(
+              location.pathname.slice(__uv$config.prefix!.length)
+            )
+          );
+          console.log(
+            "%cRegistering Ultraviolet",
+            "background-color:black;color:Pink;font-weight:Bold;"
+          );
+
+          if (
+            location.protocol !== "https:" &&
+            !["localhost", "127.0.0.1"].includes(location.hostname)
+          )
+            throw new Error("HTTPS must be enabled to use Ultraviolet.");
+
+          if (!navigator.serviceWorker)
+            throw new Error("Your browser doesn't support service workers.");
+
+          // register sw
+          errorCause = "Failure registering the service worker.";
+          await navigator.serviceWorker.register(`/uv/sw.js`, {
+            scope: __uv$config.prefix,
+            updateViaCache: "none",
+          });
+          errorCause = undefined;
+
+          console.log("using wisp at", window.wisp_api);
+          // Register the EpoxyClient transport to be used for network requests
+          await BareMux.SetTransport("EpxMod.EpoxyClient", {
+            wisp: window.wisp_api,
+          });
+
+          setTimeout(() => location.reload(), 5e3);
+        } catch (err) {
+          reportCompatError(err, errorCause, "Ultraviolet");
+        }
+      });
+    </script>
+  </body>
+</html>

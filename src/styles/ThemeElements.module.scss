@@ -17,18 +17,18 @@ input.themeLink {
   margin: none;
 }
 
-.ThemeInputBar[data-disabled="1"],
+.ThemeInputBar[data-disabled],
 .ThemeInput[disabled],
 .ThemeButton[disabled] {
   cursor: not-allowed !important;
   background-color: var(--background-accent-disabled) !important;
 }
 
-.ThemeInputBar[data-disabled="1"] input {
+.ThemeInputBar[data-disabled] input {
   cursor: not-allowed !important;
 }
 
-html[data-tab="1"] {
+html[data-tab] {
   .ThemeInput,
   .ThemeButton,
   .ThemeInputBar .button,
@@ -236,19 +236,19 @@ html[data-tab="1"] {
       padding: 0px calc(30px + 15px) 0px 15px;
       cursor: pointer;
 
-      &[data-disabled="1"] {
+      &[data-disabled] {
         cursor: default;
         color: var(--text-placeholder);
       }
 
-      &[data-hover="1"] {
+      &[data-hover] {
         background-color: var(--background);
         color: var(--text);
       }
     }
   }
 
-  &[data-open="1"] {
+  &[data-open] {
     > .toggle {
       border-bottom-left-radius: 0px;
       border-bottom-right-radius: 0px;

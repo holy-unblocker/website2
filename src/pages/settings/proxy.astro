@@ -45,23 +45,18 @@ import styles from "@styles/Settings.module.scss";
           name,
           value: i.toString(),
         }))}
-        value={Astro.cookies.get("searchEngine")?.value || "1"}
+        value={Astro.locals.searchEngine.toString()}
       />
     </div>
   </section>
 </SettingsLayout>
 <script>
   import { setSearchEngine } from "@lib/cookies";
-  import { globalSettings } from "@lib/storage";
+  import { getGlobalSettings } from "@lib/storage";
+
+  const globalSettings = getGlobalSettings();
 
   document.addEventListener("DOMContentLoaded", () => {
-    /*const proxyEngine =
-      document.querySelector<HTMLInputElement>("#proxyEngine")!;
-    proxyEngine.value = globalSettings.get("proxy");
-    proxyEngine.addEventListener("change", () => {
-      globalSettings.set("proxy", proxyEngine.value);
-    });*/
-
     const proxyMode = document.querySelector<HTMLInputElement>("#proxyMode")!;
     proxyMode.value = globalSettings.get("proxyMode");
     proxyMode.addEventListener("change", () => {

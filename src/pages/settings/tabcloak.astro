@@ -11,7 +11,7 @@ import Check from "@icons/check_24dp.svg?svgmin";
   </Fragment>
   <section>
     <p>
-      Tab Masking allows you to disguise Holy Unblocker as any website such as
+      Tab Cloaking allows you to disguise Holy Unblocker as any website such as
       your school's home page, new tab, etc.
     </p>
     <div>
@@ -38,7 +38,9 @@ import Check from "@icons/check_24dp.svg?svgmin";
   <script>
     import { extractData } from "@lib/mask";
     import { createNotification } from "@lib/notifications";
-    import { globalCloakSettings } from "@lib/storage";
+    import { getGlobalCloakSettings } from "@lib/storage";
+
+    const globalCloakSettings = getGlobalCloakSettings();
 
     const input = document.querySelector<HTMLInputElement>("#cloakinput")!;
 

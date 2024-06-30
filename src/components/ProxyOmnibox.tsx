@@ -1,4 +1,3 @@
-import { resolveProxy } from "@lib/ProxyResolver";
 import SearchBuilder from "@lib/SearchBuilder";
 import type { ServiceFrameSrc } from "@components/ServiceFrame";
 import ServiceFrame from "@components/ServiceFrame";
@@ -6,24 +5,22 @@ import themeStyles from "@styles/ThemeElements.module.scss";
 import presentAboutBlank from "@lib/aboutBlank";
 import { decryptURL, encryptURL } from "@lib/cryptURL";
 import engines from "@lib/engines";
-import isAbortError, { isFailedToFetch } from "@lib/isAbortError";
+import isAbortError from "@lib/isAbortError";
 import styles from "@styles/ProxyOmnibox.module.scss";
-import textContent from "@lib/textContent";
+import getTextContent from "@lib/textContent";
 import NorthWest from "@icons/north_west_24dp.svg?react";
 import Search from "@icons/search_24dp.svg?react";
-import clsx from "clsx";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useSearchParams } from "@lib/searchParamsHook";
-import { globalSettings } from "@lib/storage";
+import { getGlobalSettings } from "@lib/storage";
 import { sillyfetch } from "@lib/sillyfetch";
 import { createRef } from "preact";
-import { getSearchEngine } from "@lib/cookies";
 
 const ProxyOmnibox = ({
-  className,
+  searchEngine,
   placeholder,
 }: {
-  className?: string;
+  searchEngine: number;
   placeholder?: string;
 }) => {
   const input = useRef<HTMLInputElement | null>(null);
@@ -33,34 +30,22 @@ const ProxyOmnibox = ({
   const [omniboxEntries, setOmniboxEntries] = useState<string[]>([]);
   const [inputFocused, setInputFocused] = useState(false);
   const abort = useRef(new AbortController());
-  const engine = engines[getSearchEngine()];
+  const engine = engines[searchEngine];
   const [search, setSearch] = useSearchParams();
   const [src, setSrc] = useState<ServiceFrameSrc | null>(null);
 
+  // set src using search params on HYDRATE
   useEffect(() => {
-    // allow querying eg ?q+hello+world
-    if (search.has("q")) {
-      const src = new SearchBuilder(engine.format).query(search.get("q")!);
-      setSrc([src, resolveProxy(src, globalSettings.get("proxy"))]);
-    }
-  }, [search, setSearch, engine]);
-
-  useEffect(() => {
-    // allow reusing src
     const qSrc = search.get("src");
-    if (qSrc) setSrc(JSON.parse(decryptURL(qSrc)));
-    // only do this on the first load bc search.src is updated later:
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (qSrc !== null) setSrc(JSON.parse(decryptURL(qSrc)));
 
-  useEffect(() => {
-    // update search.src
-    // this won't trip the previous hook
-    setSearch({
-      src: src ? encryptURL(JSON.stringify(src)) : null,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [src]);
+    // allow querying eg ?q+hello+world
+    const query = search.get("q");
+    if (query !== null) {
+      const src = new SearchBuilder(engine.format).query(query);
+      setSrc([src, `/uv/service/${__uv$config.encodeUrl!(src)}`]);
+    }
+  }, []);
 
   async function onInput() {
     const v = input.current!.value;
@@ -97,11 +82,10 @@ const ProxyOmnibox = ({
         ))
           entries.push(phrase);
       } catch (err) {
-        if (!isAbortError(err) && !isFailedToFetch(err)) {
+        if (!isAbortError(err)) {
           // likely abort error
           console.error("Error fetching silly server.");
-        } else {
-          throw err;
+          console.error(err);
         }
       }
 
@@ -112,7 +96,7 @@ const ProxyOmnibox = ({
     const value =
       lastSelect === -1 || lastInput.current === "input"
         ? input.current!.value
-        : textContent(omniboxEntries[lastSelect]);
+        : getTextContent(omniboxEntries[lastSelect]);
 
     input.current!.value = value;
 
@@ -121,18 +105,17 @@ const ProxyOmnibox = ({
 
     setInputFocused(false);
 
-    const proxy = globalSettings.get("proxy");
-    const s = resolveProxy(src, proxy);
+    const uvPage = `/uv/service/${__uv$config.encodeUrl!(src)}`;
 
-    switch (globalSettings.get("proxyMode")) {
+    switch (getGlobalSettings().get("proxyMode")) {
       case "embedded":
-        setSrc([src, s]);
+        setSrc([src, uvPage]);
         break;
       case "redirect":
-        window.location.assign(s);
+        window.location.assign(uvPage);
         break;
       case "about:blank":
-        presentAboutBlank(s);
+        presentAboutBlank(uvPage);
         break;
     }
 
@@ -146,26 +129,31 @@ const ProxyOmnibox = ({
 
   return (
     <>
-      <ServiceFrame src={src} close={() => setSrc(null)} />
+      {src !== null && (
+        <ServiceFrame
+          src={src}
+          setSearch={(src) => {
+            setSearch({
+              src: src === null ? null : encryptURL(JSON.stringify(src)),
+            });
+            setSrc(src);
+          }}
+        />
+      )}
       <form
-        className={clsx(styles.omnibox, className)}
-        data-suggested={Number(renderSuggested)}
-        data-focused={Number(inputFocused)}
+        className={styles.omnibox}
+        data-suggested={renderSuggested || undefined}
+        data-focused={inputFocused || undefined}
         onSubmit={(event) => {
           event.preventDefault();
           searchSubmit();
         }}
-        onBlur={(event) => {
-          if (!form.current!.contains(event.relatedTarget as Node)) {
-            setInputFocused(false);
-          }
-        }}
         ref={form}
       >
-        <div className={themeStyles.ThemeInputBar}>
+        <div className={`${themeStyles.ThemeInputBar} ${styles.inputBar}`}>
           <div
             dangerouslySetInnerHTML={{ __html: Search }}
-            className={clsx(themeStyles.icon, "icon-contents")}
+            className={themeStyles.icon}
           />
           <input
             type="text"
@@ -180,8 +168,10 @@ const ProxyOmnibox = ({
               setInputFocused(true);
               setLastSelect(-1);
             }}
-            onBlur={() => {
-              setInputFocused(false);
+            onBlur={(event) => {
+              if (!form.current!.contains(event.relatedTarget as Node)) {
+                setInputFocused(false);
+              }
             }}
             onClick={() => {
               onInput();
@@ -248,45 +238,41 @@ const ProxyOmnibox = ({
             setLastSelect(-1);
           }}
         >
-          {renderSuggested &&
-            omniboxEntries.map((entry, i) => {
-              const text = createRef<HTMLSpanElement>();
+          {omniboxEntries.map((entry, i) => {
+            const text = createRef<HTMLSpanElement>();
 
-              return (
+            return (
+              <div
+                key={i}
+                tabIndex={0}
+                data-hover={i === lastSelect || undefined}
+                onClick={() => {
+                  lastInput.current = "select";
+                  input.current!.value = text.current!.textContent!;
+                  searchSubmit();
+                }}
+                onMouseOver={() => {
+                  setLastSelect(i);
+                }}
+              >
                 <div
-                  key={i}
-                  tabIndex={0}
-                  className={clsx(
-                    styles.option,
-                    i === lastSelect && styles.hover
-                  )}
-                  onClick={() => {
-                    lastInput.current = "select";
-                    input.current!.value = text.current!.textContent!;
-                    searchSubmit();
+                  dangerouslySetInnerHTML={{ __html: Search }}
+                  className={styles.search}
+                />
+                <span
+                  className={styles.text}
+                  ref={text}
+                  dangerouslySetInnerHTML={{
+                    __html: entry,
                   }}
-                  onMouseOver={() => {
-                    setLastSelect(i);
-                  }}
-                >
-                  <div
-                    dangerouslySetInnerHTML={{ __html: Search }}
-                    className={styles.search}
-                  />
-                  <span
-                    className={styles.text}
-                    ref={text}
-                    dangerouslySetInnerHTML={{
-                      __html: entry,
-                    }}
-                  />
-                  <div
-                    dangerouslySetInnerHTML={{ __html: NorthWest }}
-                    className={styles.open}
-                  />
-                </div>
-              );
-            })}
+                />
+                <div
+                  dangerouslySetInnerHTML={{ __html: NorthWest }}
+                  className={styles.open}
+                />
+              </div>
+            );
+          })}
         </div>
       </form>
     </>

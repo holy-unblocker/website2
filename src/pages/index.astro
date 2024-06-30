@@ -36,7 +36,7 @@ import ClientAPIs from "@components/ClientAPIs.astro";
         >
           Get Started
         </button>
-        <ProxyOmnibox client:only="preact" />
+        <ProxyOmnibox searchEngine={Astro.locals.searchEngine} client:load />
       </div>
     </div>
   </main>

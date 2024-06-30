@@ -20,6 +20,7 @@ export function reportCompatError(
   cause: string | undefined,
   what: string
 ) {
+  console.log(error, cause);
   const container = document.querySelector<HTMLElement>("main")!;
   container.innerHTML = "";
   const p = document.createElement("p");

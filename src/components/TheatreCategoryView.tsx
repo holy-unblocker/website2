@@ -1,15 +1,10 @@
 import CommonError from "@components/CommonError";
-import type { CategoryData, LoadingCategoryData } from "./TheatreCommon";
-import { isLoading } from "./TheatreCommon";
-import { ItemList, TheatreAPI } from "./TheatreCommon";
-import SearchBar from "./TheatreSearchBar";
-import { ThemeSelect } from "./ThemeSelect";
-// import { appConfig } from "@config/config";
+import { ItemList, isLoading, type LoadingCategoryData } from "./TheatreCommon";
+import TheatreAPI, { type CategoryData } from "@lib/TheatreAPI";
 import isAbortError from "@lib/isAbortError";
 import styles from "@styles/TheatreCategory.module.scss";
 import ChevronLeft from "@icons/chevron_left_24dp.svg?react";
 import ChevronRight from "@icons/chevron_right_24dp.svg?react";
-import clsx from "clsx";
 import { useEffect, useState } from "preact/hooks";
 import { useSearchParams } from "@lib/searchParamsHook";
 
@@ -33,17 +28,7 @@ function createLoading(total: number) {
   return loading;
 }
 
-export const Category = ({
-  name,
-  category,
-  placeholder,
-  showCategory,
-}: {
-  name: string;
-  category: string;
-  placeholder?: string;
-  showCategory?: boolean;
-}) => {
+export const Category = ({ category }: { category: string }) => {
   const [search, setSearch] = useSearchParams();
   let page = parseInt(search.get("page")!);
   if (isNaN(page)) page = 1;
@@ -78,7 +63,7 @@ export const Category = ({
           break;
       }
 
-      const api = new TheatreAPI(window.db_api, abort.signal);
+      const api = new TheatreAPI("/api/theatre/", abort.signal);
 
       try {
         const data = await api.category({
@@ -111,38 +96,27 @@ export const Category = ({
       />
     );
 
+  useEffect(() => {
+    const sort = document.querySelector<HTMLInputElement>("#sort")!;
+
+    const listener = () => {
+      setSearch({
+        page: null,
+        sort: sort.value,
+      });
+    };
+    sort.addEventListener("change", listener);
+
+    return () => sort.removeEventListener("change", listener);
+  }, []);
+
   return (
-    <main className={styles.main}>
-      <SearchBar
-        showCategory={showCategory}
-        category={category}
-        placeholder={placeholder}
-      />
-      <section>
-        <div className={styles.name}>
-          <h1>{name}</h1>
-          <ThemeSelect
-            options={[
-              { name: "Most Popular", value: "mostPopular" },
-              { name: "Least Popular", value: "leastPopular" },
-              { name: "Name (A-Z)", value: "nameASC" },
-              { name: "Name (Z-A)", value: "nameDES" },
-            ]}
-            className={styles.sort}
-            defaultValue={search.get("sort")!}
-            onChange={(event) => {
-              setSearch({
-                page: null,
-                sort: event.target.value,
-              });
-            }}
-          />
-        </div>
-        <ItemList className={styles.items} items={foundData.entries} />
-      </section>
-      <div className={clsx(styles.pages, maxPage === 0 && styles.useless)}>
+    <>
+      <ItemList className={styles.items} items={foundData.entries} />
+      <div className={styles.pages} data-useless={maxPage === 0 || undefined}>
         <div
-          className={clsx(styles.button, !page && styles.disabled)}
+          className={styles.button}
+          data-disabled={page === 0 || undefined}
           onClick={() => {
             if (!isLoading(foundData) && page) {
               let newpage: number | null = Math.max(page - 1, 0) + 1;
@@ -155,7 +129,8 @@ export const Category = ({
           dangerouslySetInnerHTML={{ __html: ChevronLeft }}
         />
         <div
-          className={clsx(styles.button, page >= maxPage && styles.disabled)}
+          className={styles.button}
+          data-disabled={page >= maxPage || undefined}
           onClick={() => {
             if (!isLoading(foundData) && page < maxPage) {
               setSearch({ page: page + 1 + 1 });
@@ -164,6 +139,6 @@ export const Category = ({
           dangerouslySetInnerHTML={{ __html: ChevronRight }}
         />
       </div>
-    </main>
+    </>
   );
 };

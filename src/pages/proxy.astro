@@ -43,7 +43,7 @@ import ClientAPIs from "@components/ClientAPIs.astro";
   <main class={styles.main}>
     <ClientAPIs />
     <h1 class={styles.title}>Ultraviolet</h1>
-    <ProxyOmnibox client:only="preact" />
+    <ProxyOmnibox searchEngine={Astro.locals.searchEngine} client:load />
     <p>
       If you're having issues with the proxy, try troubleshooting your problem
       by looking at the <a href="/faq">FAQ</a>.

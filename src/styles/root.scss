@@ -37,8 +37,8 @@ svg {
   }
 }
 
-html[data-tab="1"] {
-  a:not([tabIndex="-1"]):focus {
+html[data-tab] {
+  a:not([tab-index="-1"]):focus {
     outline: var(--action) solid 1px;
     border-radius: 5px;
   }
@@ -110,8 +110,4 @@ input {
 a {
   text-decoration: inherit;
   color: inherit;
-}
-
-.icon-contents {
-  display: contents;
 }

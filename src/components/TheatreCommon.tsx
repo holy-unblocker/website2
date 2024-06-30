@@ -1,41 +1,37 @@
-import DatabaseAPI from "@lib/DatabaseAPI";
+import type { CategoryData, TheatreEntryMin } from "@lib/TheatreAPI";
 import styles from "@styles/TheatreCategory.module.scss";
-import clsx from "clsx";
 import { useState } from "preact/hooks";
 
-/**
- * one of the above types or a letter/key such as A,B,TAB,SPACE,SHIFT
- */
-export type KeyLike =
-  | "mouseleft"
-  | "mouseright"
-  | "scrollup"
-  | "scrolldown"
-  | "wasd"
-  | "arrows"
-  | string;
+function LoadingItem({ id, name }: { id: string; name: string }) {
+  const [loaded, setLoaded] = useState(false);
 
-export interface Control {
-  keys: KeyLike[];
-  label: string;
+  return (
+    <a
+      className={styles.item}
+      href={`/theatre/play?id=${id}`}
+      title={name}
+      data-load={loaded || undefined}
+    >
+      <div className={styles.thumbnail}>
+        <img
+          alt=""
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          src={`/cdn/thumbnails/${id}.webp`}
+        />
+      </div>
+      <div className={styles.name}>{name}</div>
+    </a>
+  );
 }
 
-export interface TheatreEntry {
-  type:
-    | "emulator.nes"
-    | "emulator.gba"
-    | "emulator.n64"
-    | "emulator.genesis"
-    | "flash"
-    | "embed"
-    | "proxy"
-    | string;
-  controls: Control[];
-  category: string[];
-  id: string;
-  name: string;
-  plays: number;
-  src: string;
+export function UnknownItem() {
+  return (
+    <div className={`${styles.item} ${styles.unknown}`}>
+      <div className={styles.thumbnail} />
+      <div className={styles.name} />
+    </div>
+  );
 }
 
 export interface LoadingTheatreEntry {
@@ -44,113 +40,46 @@ export interface LoadingTheatreEntry {
   category: string[];
 }
 
-export interface CategoryData {
-  total: number;
-  entries: TheatreEntry[];
-}
-
 export interface LoadingCategoryData {
   total: number;
-  entries: (TheatreEntry | LoadingTheatreEntry)[];
+  entries: (TheatreEntryMin | LoadingTheatreEntry)[];
   loading: true;
 }
 
-export interface TheatreEntry {
-  type:
-    | "emulator.nes"
-    | "emulator.gba"
-    | "emulator.n64"
-    | "emulator.genesis"
-    | "flash"
-    | "embed"
-    | "proxy"
-    | string;
-  controls: Control[];
-  category: string[];
-  id: string;
-  name: string;
-  plays: number;
-  src: string;
-}
 export function isLoading(
   data: CategoryData | LoadingCategoryData
 ): data is LoadingCategoryData;
 
 export function isLoading(
-  data: TheatreEntry | LoadingTheatreEntry
+  data: TheatreEntryMin | LoadingTheatreEntry
 ): data is LoadingTheatreEntry;
 
 export function isLoading(
-  data: TheatreEntry | LoadingTheatreEntry | CategoryData | LoadingCategoryData
+  data:
+    | TheatreEntryMin
+    | LoadingTheatreEntry
+    | CategoryData
+    | LoadingCategoryData
 ): data is LoadingTheatreEntry | LoadingCategoryData {
   return "loading" in data && data.loading === true;
-}
-
-export class TheatreAPI extends DatabaseAPI {
-  async show(id: String) {
-    return await this.fetch<TheatreEntry>(`./theatre/${id}/`);
-  }
-  async plays(id: string) {
-    return await this.fetch<TheatreEntry>(`./theatre/${id}/plays`, {
-      method: "PUT",
-    });
-  }
-  async category(params: {
-    leastGreatest?: boolean;
-    sort?: string;
-    category?: string;
-    search?: string;
-    offset?: number;
-    limit?: number;
-    limitPerCategory?: number;
-  }) {
-    return await this.fetch<CategoryData>(
-      "./theatre/?" + new URLSearchParams(this.sortParams(params))
-    );
-  }
-}
-
-export function Item({ id, name }: { id: string; name: string }) {
-  const [loaded, setLoaded] = useState(false);
-
-  return (
-    <a className={styles.item} href={`/theatre/play?id=${id}`} title={name}>
-      <div className={styles.thumbnail} data-loaded={Number(loaded)}>
-        <img
-          alt=""
-          loading="lazy"
-          onLoad={() => setLoaded(true)}
-          src={`/cdn/thumbnails/${id}.webp`}
-        ></img>
-      </div>
-      <div className={styles.name}>{name}</div>
-    </a>
-  );
-}
-
-export function LoadingItem() {
-  return (
-    <div className={clsx(styles.item, styles.loading)}>
-      <div className={styles.thumbnail} />
-      <div className={styles.name} />
-    </div>
-  );
 }
 
 export function ItemList({
   items,
   className,
 }: {
-  items: (TheatreEntry | LoadingTheatreEntry)[];
+  items: (TheatreEntryMin | LoadingTheatreEntry)[];
   className?: string;
 }) {
   const children = [];
 
   for (const item of items) {
     if (isLoading(item)) {
-      children.push(<LoadingItem key={item.id} />);
+      children.push(<UnknownItem key={item.id} />);
     } else {
-      children.push(<Item key={item.id} id={item.id} name={item.name} />);
+      children.push(
+        <LoadingItem key={item.id} id={item.id} name={item.name} />
+      );
     }
   }
 

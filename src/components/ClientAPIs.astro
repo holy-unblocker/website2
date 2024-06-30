@@ -4,22 +4,18 @@ import { appConfig } from "@config/config";
 
 <div
   id="apis"
-  data-db={appConfig.apis.db}
-  data-theatre={appConfig.apis.theatre}
-  data-wisp={appConfig.apis.wisp}
+  data-wisp={appConfig.separateWispServer ||
+    "%{location.wsprotocol}//%{location.host}/wisp/"}
 >
 </div>
+<script src="/baremux/bare.cjs" is:inline async></script>
+<script src="/epoxy/index.js" is:inline async></script>
+<script src="/uv/uv.bundle.js" is:inline></script>
+<script src="/uv/uv.config.js" is:inline></script>
 <script>
   const apis = document.querySelector("#apis")!;
 
-  window.has_serviceworkers =
-    location.protocol === "https:" ||
-    location.hostname === "localhost" ||
-    location.hostname === "127.0.0.1";
-
-  window.db_api = format(apis.getAttribute("data-db")!);
   window.wisp_api = format(apis.getAttribute("data-wisp")!);
-  window.theatre_cdn = format(apis.getAttribute("data-theatre")!);
 
   function format(env: string) {
     const { host, hostname, protocol } = globalThis.location;

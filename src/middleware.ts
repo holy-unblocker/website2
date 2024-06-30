@@ -1,12 +1,28 @@
 import { db } from "@lib/db";
-import { m, isIPBanned, isUserBanned } from "@lib/util";
+import { m, isIPBanned, isUserBanned, stripe } from "@lib/util";
 import { maxAgeLimit } from "@lib/url";
 import { defineMiddleware } from "astro:middleware";
+import engines from "@lib/engines";
 
 // `context` and `next` are automatically typed
 export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.theme =
     context.cookies.get("theme")?.value === "night" ? "night" : "day";
+
+  const searchEngine = Number(context.cookies.get("searchEngine")?.value);
+
+  // use duckduckgo by default
+  context.locals.searchEngine =
+    isNaN(searchEngine) || searchEngine < 0 || searchEngine > engines.length
+      ? 1
+      : searchEngine;
+
+  if (!stripe) {
+    if (context.url.pathname.startsWith("/donate/"))
+      return new Response("accounts are disabled", { status: 400 });
+    // don't bother loading logic for account stuff
+    return next();
+  }
 
   context.locals.setSession = (secret) => {
     // set the session
@@ -14,7 +30,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       context.cookies.set("session", secret, {
         domain: context.url.hostname,
         sameSite: "lax",
-        path: "/",
+        path: "/donate/",
         maxAge: maxAgeLimit,
         secure: true,
         httpOnly: true,
@@ -24,7 +40,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       context.cookies.set("session", "", {
         domain: context.url.hostname,
         sameSite: "lax",
-        path: "/",
+        path: "/donate/",
         expires: new Date(0), // as old as possible
         secure: true,
         httpOnly: true,
@@ -61,7 +77,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.cookies.set("session", cookie, {
           domain: context.url.hostname,
           sameSite: "lax",
-          path: "/",
+          path: "/donate/",
           maxAge: maxAgeLimit,
           secure: true,
           httpOnly: true,
@@ -120,5 +136,5 @@ export const onRequest = defineMiddleware(async (context, next) => {
     toVerifyNewEmail: () => context.redirect("/donate/verify-new-email", 302),
   };
 
-  next();
+  return next();
 });
