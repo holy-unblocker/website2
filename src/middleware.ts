@@ -4,6 +4,7 @@ import { maxAgeLimit } from "@lib/url";
 import { defineMiddleware } from "astro:middleware";
 import engines from "@lib/searchEngines";
 import { extractCloakData, type AppCloak } from "@lib/cloak";
+import { appConfig } from "@config/config";
 
 const randomCloaks: (string | AppCloak)[] = [
   // LMS:
@@ -106,7 +107,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // don't run this on holyubofficial.net so we get SEO
   if (
     !context.cookies.has("autoCloak") &&
-    context.url.hostname !== "holyubofficial.net"
+    (!("mainWebsite" in appConfig) ||
+      context.url.hostname !== appConfig.mainWebsite)
   ) {
     cloak = await getRandomCloak();
     if (cloak) context.locals.setCloak(cloak);

@@ -21,6 +21,7 @@ export interface AppConfig {
     database: string;
   };
   supportEmail: string;
+  mainWebsite: string;
   stripe: {
     secret: string;
     webhookEndpointSecret: string;
@@ -33,7 +34,6 @@ export interface AppConfig {
     transport: Parameters<typeof import("nodemailer")["createTransport"]>[0];
     sender: import("nodemailer").SendMailOptions["sender"];
     noreply: string;
-    mainWebsite: string;
   };
   discord: {
     botToken: string;

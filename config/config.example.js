@@ -38,6 +38,11 @@ export const appConfig = {
   // shown on /contact
   // supportEmail: "support@holyubofficial.net",
 
+  // a link to the main Holy Unblocker website
+  // - shown in emails
+  // - used to not automatically set a cloak
+  // mainWebsite: "holyubofficial.net",
+
   // Postgres database credentials
   // if no credentials are specified, it will proxy the mirror
   // optionally string
@@ -94,8 +99,6 @@ export const appConfig = {
   //   },
   //   // email to send verifications from
   //   noreply: "noreply@holyubofficial.net",
-  //   // a link to get to the main Holy Unblocker website
-  //   mainWebsite: "holyubofficial.net",
   // },
 
   /// STRIPE CONFIG
