@@ -66,9 +66,8 @@ if (Astro.request.method === "POST")
           cancel_url: `https://${Astro.url.host}/donate/pricing`,
         });
 
-        console.log("session created", session);
-
-        return Astro.redirect(session.url, 303);
+        // return Astro.redirect(session.url, 303);
+        return Astro.redirect(session.url, 302);
       } catch (err) {
         console.error("STRIPE ERROR", err);
         Astro.response.status = 500;

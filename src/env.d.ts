@@ -50,6 +50,8 @@ namespace App {
        * Detects the current page and will redirect to it once logged in
        */
       toLogin: () => Response;
+      // this is also aware of the url
+      toSignup: () => Response;
 
       toDash: () => Response;
       toBan: () => Response;

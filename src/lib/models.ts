@@ -27,6 +27,11 @@ export interface UserModel {
   new_email_verification_secret: string | null;
   password_verification_secret: string | null;
   stripe_customer: string | null;
+  discord_id: string | null;
+  discord_username: string | null;
+  discord_avatar: string | null;
+  discord_name: string | null;
+  discord_updated: Date | null;
 }
 
 export interface PaymentModel {

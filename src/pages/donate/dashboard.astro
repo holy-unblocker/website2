@@ -4,23 +4,57 @@
 // they can edit their profile, subscribe, check their subscription status and cancel it
 import "@styles/donator.scss";
 import MainLayout from "@layouts/MainLayout.astro";
-import { getTierName, getUserPayment } from "@lib/util";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
+import Delete from "@icons/delete_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
+import { getTierName, getUserPayment } from "@lib/util";
+import { appConfig } from "@config/config";
+import { db } from "@lib/db";
 
 const { user, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
 if (!user) return acc.toLogin();
 if (!user.email_verified) return acc.toVerifyEmail();
 
+let error: string | undefined;
+let success: string | undefined;
+
 const payment = await getUserPayment(user.id);
 
 const newEmailConfirmed = Astro.url.searchParams.has("newEmailConfirmed");
 const welcome = Astro.url.searchParams.has("welcome");
+const connected = Astro.url.searchParams.has("connected");
+
+if (Astro.request.method === "POST")
+  try {
+    const data = await Astro.request.formData();
+    const type = data.get("type")?.toString();
+
+    switch (type) {
+      case "unlink-discord":
+        if (user.discord_id === null) {
+          error = "You don't have a Discord linked.";
+          Astro.response.status = 400;
+        } else {
+          await db.query(
+            "UPDATE users SET discord_id = null, discord_username = null, discord_avatar = null, discord_name = null, discord_updated = null WHERE id = $1;",
+            [user.id]
+          );
+          success = "Discord account unlinked.";
+          user.discord_id = null;
+        }
+        break;
+    }
+  } catch (err) {
+    console.error(err);
+  }
 ---
 
 {
-  (newEmailConfirmed || welcome) && (
+  (newEmailConfirmed ||
+    welcome ||
+    connected ||
+    Astro.request.method === "POST") && (
     <script>history.pushState({}, "", "/donate/dashboard")</script>
   )
 }
@@ -29,6 +63,8 @@ const welcome = Astro.url.searchParams.has("welcome");
     <h1 class="page-title">Dashboard for {user.email}</h1>
     {newEmailConfirmed && <Banner success="Email changed." />}
     {welcome && <Banner success="Email verified." />}
+    {connected && <Banner success="Account connected." />}
+    <Banner success={success} error={error} />
     <div class="user-card">
       <h3>Account Actions:</h3>
       <p>
@@ -52,6 +88,40 @@ const welcome = Astro.url.searchParams.has("welcome");
       <a href="/donate/pricing">
         <input type="button" class="prettysubmit" value="See Tiers" />
       </a>
+    </div>
+    <div class="user-card" style="padding-bottom:10px;">
+      <h3>Connected Accounts</h3>
+      <p>Once you connect an account, it will show up here.</p>
+      <div class="user-connection">
+        <span class="service-name">Discord:</span>
+        {
+          user.discord_id === null ? (
+            <a
+              href={`https://discord.com/oauth2/authorize?client_id=${appConfig.discord!.clientId}&response_type=code&redirect_uri=${encodeURIComponent(appConfig.discord!.redirectURI)}&scope=identify`}
+            >
+              <input
+                type="button"
+                class="prettysubmit"
+                value="Connect Discord"
+              />
+            </a>
+          ) : (
+            <>
+              <span class="details">
+                <img
+                  src={`https://cdn.discordapp.com/avatars/${user.discord_id}/${user.discord_avatar}.png`}
+                  class="avatar"
+                />
+                <span set:text={user.discord_name} class="username" />
+              </span>
+              <form class="delete" method="post">
+                <input type="text" name="type" value="unlink-discord" hidden />
+                <button set:html={Delete} />
+              </form>
+            </>
+          )
+        }
+      </div>
     </div>
   </main>
 </MainLayout>

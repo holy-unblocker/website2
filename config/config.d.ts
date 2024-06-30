@@ -30,6 +30,17 @@ export interface AppConfig {
       holyunblocker: string;
     };
   };
+  // used to give discord perks and for account integration
+  discord?: {
+    botToken: string;
+    donatorRoleId: string;
+    ultimateRoleId: string;
+    // oauth stuff
+    guildId: string;
+    clientId: string;
+    clientSecret: string;
+    redirectURI: string; // this should go to /donate/linkdiscord on ur official domain
+  };
   // donator stuff
   smtpTransport?: string;
   stripe?: {

@@ -158,12 +158,64 @@ hr {
   }
 }
 
-//
 .user-card {
   padding: 5px 15px;
   border-radius: 10px;
   margin-bottom: 15px;
   background-color: var(--background-accent-deep-1);
+}
+
+.user-connection {
+  line-height: 35px;
+
+  > .service-name {
+    margin-right: 5px;
+  }
+
+  .prettysubmit {
+    height: 35px;
+    padding: 0 10px;
+  }
+
+  > .details {
+    padding: 0 10px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    background-color: var(--contrast-background);
+    vertical-align: middle;
+    color: var(--contrast-text);
+    border-radius: 10px;
+
+    .avatar {
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+  }
+
+  > .delete {
+    display: inline-block;
+
+    button {
+      border: none;
+      background-color: transparent;
+      cursor: pointer;
+      > svg {
+        vertical-align: middle;
+        width: 25px;
+        height: 25px;
+        fill: var(--contrast-background);
+        transition: fill 0.1s ease;
+        &:hover {
+          fill: var(--error);
+        }
+      }
+    }
+  }
 }
 
 .change-form {

@@ -38,7 +38,14 @@ CREATE TABLE IF NOT EXISTS users (
     new_email TEXT, -- for changing ur email
     new_email_verification_secret TEXT,
     password_verification_secret TEXT, -- for changing ur password
-    stripe_customer TEXT -- set when their email is verified
+    stripe_customer TEXT, -- set when their email is verified
+    discord_id TEXT, -- link acc
+    -- cached metadata about the disc acc
+    -- we can probably just fetch this from the guild
+    discord_username TEXT,
+    discord_avatar TEXT,
+    discord_name TEXT, -- aka 'global name'
+    discord_updated TIMESTAMP -- re-fetch this data using the bot after its older than like 1 day
 );
 
 -- log of a user's emails
@@ -48,7 +55,7 @@ CREATE TABLE IF NOT EXISTS email (
     send_time TIMESTAMP DEFAULT NOW(),
     email TEXT NOT NULL,
     ip TEXT NOT NULL,
-    user_id SERIAL NOT NULL, 
+    user_id SERIAL NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES users(id)
 );
 

@@ -8,13 +8,12 @@ import { db } from "@lib/db";
 import { m, createSession } from "@lib/util";
 import { compare } from "@lib/bcrypt";
 
-const { user, ip, acc } = Astro.locals;
+const { user, ip } = Astro.locals;
 // redirect to dashboard if they're already signed in
-if (user) return acc.toDash();
 
 let to = Astro.url.searchParams.get("to") || undefined;
-if (!to || to === "/donate/") to = "/donate/dashboard";
-if (!to.startsWith("/")) to = undefined;
+if (!to || to === "/donate/" || !to.startsWith("/")) to = "/donate/dashboard";
+if (user) return Astro.redirect(to, 302);
 
 let error: string | undefined;
 

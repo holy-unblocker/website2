@@ -13,7 +13,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (secret)
       context.cookies.set("session", secret, {
         domain: context.url.hostname,
-        sameSite: "strict",
+        sameSite: "lax",
         path: "/",
         maxAge: maxAgeLimit,
         secure: true,
@@ -23,7 +23,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     else
       context.cookies.set("session", "", {
         domain: context.url.hostname,
-        sameSite: "strict",
+        sameSite: "lax",
         path: "/",
         expires: new Date(0), // as old as possible
         secure: true,
@@ -48,17 +48,25 @@ export const onRequest = defineMiddleware(async (context, next) => {
         ])
       ).rows[0];
       const e = user as CtxUser;
-      e.session = session;
-      context.locals.user = e;
 
-      context.cookies.set("session", cookie, {
-        domain: context.url.hostname,
-        sameSite: "strict",
-        path: "/",
-        maxAge: maxAgeLimit,
-        secure: true,
-        httpOnly: true,
-      });
+      if (!e) {
+        console.error(
+          "session had a reference to a non existant user...,erm what"
+        );
+        context.locals.setSession();
+      } else {
+        e.session = session;
+        context.locals.user = e;
+
+        context.cookies.set("session", cookie, {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          maxAge: maxAgeLimit,
+          secure: true,
+          httpOnly: true,
+        });
+      }
     } else {
       // invalid
       context.locals.setSession();
@@ -91,6 +99,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
     toBan: () => context.redirect("/donate/ban", 302),
     toPricing: () => context.redirect("/donate/pricing", 302),
     toLogin: () =>
+      context.redirect(
+        context.url.pathname === "/donate/login"
+          ? "/donate/login"
+          : `/donate/login?to=${encodeURIComponent(
+              context.url.pathname + context.url.search
+            )}`,
+        307
+      ),
+    toSignup: () =>
       context.redirect(
         context.url.pathname === "/donate/"
           ? "/donate/"
