@@ -38,7 +38,7 @@ if (Astro.request.method === "POST")
 
     if (priceId === undefined) {
       Astro.response.status = 400;
-      error = "Invalid tier ID";
+      error = "Invalid plan ID";
     } else if (!user) {
       Astro.response.status = 400;
       error = "You need an account";
