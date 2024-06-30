@@ -175,7 +175,7 @@ console.log(chalk.italic("Configuration is valid."));
 const server = http.createServer();
 
 server.on("request", (req, res) => {
-  if (handleReq(req, res)) {
+  handleReq(req, res, () => {
     astroMiddleware(req, res, () => {
       serveHandler(
         req,
@@ -192,7 +192,7 @@ server.on("request", (req, res) => {
         }
       );
     });
-  }
+  });
 });
 
 server.on("upgrade", (req, socket, head) => {

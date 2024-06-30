@@ -1,7 +1,10 @@
 import http from "node:http";
 import https from "node:https";
+import { resolve } from "node:path";
 import { appConfig } from "./config.js";
 import serveHandler from "serve-handler";
+import { lstat, readdir, realpath } from "node:fs/promises";
+import { createReadStream } from "node:fs";
 
 /**
  * @typedef {Object} AppMirror
@@ -25,13 +28,23 @@ if (!("db" in appConfig))
 
 const hasTheatreFiles = "theatreFilesPath" in appConfig;
 
+const cdnAbs = hasTheatreFiles && resolve(appConfig.theatreFilesPath);
+
+/**
+ * normalizes a /cdn/ path for static files
+ */
+function normalCDN(path) {
+  // this will work on windows & posix paths
+  return cdnAbs + "/" + path.slice("/theatre-files/cdn/".length);
+}
+
 /**
  *
  * @param {import("http").IncomingMessage} req
  * @param {import("http").OutgoingMessage} res
- * @returns {boolean}
+ * @param {() => void} middleware
  */
-export function handleReq(req, res) {
+export function handleReq(req, res, middleware) {
   const isCDN = req.url.startsWith("/cdn/");
 
   // THIS SHOULD ALWAYS BE SET ON THEATRE FILES AND /compat/
@@ -41,10 +54,34 @@ export function handleReq(req, res) {
   }
 
   if (isCDN && hasTheatreFiles) {
-    serveHandler(req, res, {
-      public: appConfig.theatreFilesPath,
-    });
-    return false;
+    serveHandler(
+      req,
+      res,
+      {
+        cleanUrls: false, // too freaky
+        public: "/theatre-files/",
+        trailingSlash: true,
+      },
+      {
+        lstat(path) {
+          return lstat(normalCDN(path));
+        },
+        realpath(path) {
+          return realpath(normalCDN(path));
+        },
+        createReadStream(path, config) {
+          return createReadStream(normalCDN(path), config);
+        },
+        readdir(path) {
+          return readdir(normalCDN(path));
+        },
+        sendError() {
+          req.url = "/404";
+          middleware();
+        },
+      }
+    );
+    return;
   }
 
   // we want the uv service page to fallback to a page that registers the service worker
@@ -52,7 +89,7 @@ export function handleReq(req, res) {
   if (req.url.startsWith("/uv/service/")) {
     req.url = "/register-uv";
     // app(req, res);
-    return true;
+    return middleware();
   }
 
   // HIGH PERFORMANCE http proxy
@@ -74,9 +111,9 @@ export function handleReq(req, res) {
 
     mirrorReq.on("response", (mirrorRes) => {
       if (mirrorRes.statusCode === 404) {
+        // display astro 404 page
         req.url = "/404";
-        app(req, res);
-        return;
+        return middleware();
       }
 
       // support redirects
@@ -98,8 +135,8 @@ export function handleReq(req, res) {
     // or just send the request
     else mirrorReq.end();
 
-    return false;
+    return;
   }
 
-  return true;
+  return middleware();
 }

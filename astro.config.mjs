@@ -96,9 +96,7 @@ export default defineConfig({
           const astroMiddleware = httpServer._events.request;
           httpServer._events.request = (req, res) => {
             // mirrors, /uv/service/ redirect
-            if (handleReq(req, res)) {
-              astroMiddleware(req, res);
-            }
+            handleReq(req, res, () => astroMiddleware(req, res));
           };
 
           // start a wisp server while letting HMR run
