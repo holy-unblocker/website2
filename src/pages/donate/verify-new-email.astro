@@ -11,6 +11,7 @@ import {
   createSession,
   sendChangeEmailVerification,
   sendChangeEmailNotification,
+  stripe,
 } from "@lib/util";
 
 let error: string | undefined;
@@ -32,11 +33,22 @@ if (secret !== "") {
   if (!target) {
     error = "The link you received is invalid.";
   } else {
+    // store the new email in the db
     await db.query(
       "UPDATE users SET email = $1, new_email = null, new_email_verification_secret = null WHERE id = $2;",
       [target.new_email, target.id]
     );
-    success = `Your email was successfully verified.`;
+
+    // and update it on stripe
+    if (target.stripe_customer)
+      try {
+        await stripe!.customers.update(target.stripe_customer, {
+          email: target.new_email!,
+        });
+      } catch (err) {
+        console.error("error updating customer on stripe!", target, err);
+      }
+
     // sign the user into their account
     if (user) {
       await db.query("UPDATE session SET user_id = $1 WHERE secret = $2;", [
