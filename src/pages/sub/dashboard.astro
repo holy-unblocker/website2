@@ -58,7 +58,7 @@ if (Astro.request.method === "POST")
     <script>history.pushState({}, "", "/sub/dashboard")</script>
   )
 }
-<MainLayout user={user}>
+<MainLayout>
   <main>
     <h1 class="page-title">Dashboard for {user.email}</h1>
     {newEmailConfirmed && <Banner success="Email changed." />}
