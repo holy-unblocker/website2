@@ -1,4 +1,5 @@
 ---
+import { appConfig } from "@config/config";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 ---
@@ -37,10 +38,16 @@ import themeStyles from "@styles/ThemeElements.module.scss";
         >
         - BALLER DONATOR, TY
       </li>
-      <li>
-        <a>The Kingdom of Saudi Arabia</a>
-      </li>
-      <li>Jeff Bezos - Server hosting</li>
+      {
+        !Astro.locals.isMainWebsite && (
+          <>
+            <li>
+              <a>The Kingdom of Saudi Arabia</a>
+            </li>
+            <li>Jeff Bezos - Server hosting</li>
+          </>
+        )
+      }
     </ul>
 
     <h4>Development</h4>

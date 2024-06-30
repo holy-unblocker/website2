@@ -87,6 +87,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
       301
     );
 
+  context.locals.isMainWebsite =
+    !("mainWebsite" in appConfig) ||
+    context.url.hostname !== appConfig.mainWebsite;
+
   // encode the cloak or delete it
   context.locals.setCloak = (cloak) => {
     if (cloak)
@@ -112,11 +116,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // pick a random cloak on the first load
   // don't run this on holyubofficial.net so we get SEO
-  if (
-    !context.cookies.has("autoCloak") &&
-    (!("mainWebsite" in appConfig) ||
-      context.url.hostname !== appConfig.mainWebsite)
-  ) {
+  if (!context.cookies.has("autoCloak") && !context.locals.isMainWebsite) {
     cloak = await getRandomCloak();
     if (cloak) context.locals.setCloak(cloak);
   }

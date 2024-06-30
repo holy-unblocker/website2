@@ -28,6 +28,7 @@ declare type CtxUser = import("@lib/models").UserModel & {
 
 namespace App {
   interface Locals {
+    isMainWebsite: boolean;
     searchEngine: number;
     cloak?: import("@lib/cloak").AppCloak;
     setCloak: (cloak?: import("@lib/cloak").AppCloak) => void;
