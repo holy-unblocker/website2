@@ -1,5 +1,6 @@
 ---
 import MainLayout from "@layouts/MainLayout.astro";
+import themeStyles from "@styles/ThemeElements.module.scss";
 ---
 
 <MainLayout>
@@ -7,20 +8,37 @@ import MainLayout from "@layouts/MainLayout.astro";
     <title>Credits</title>
   </Fragment>
   <main>
+    <h3>THANK YOU FOR SUPPORTING US :D</h3>
+
     <h2>Credits</h2>
 
     <h4>Operations</h4>
 
     <ul>
+      <li>
+        <a href="https://github.com/e9x" class={themeStyles.themeLink}>David</a>
+        - Frontend/Backend Developer
+      </li>
+      <li>
+        <a href="https://github.com/genericness" class={themeStyles.themeLink}
+          >Akane</a
+        > - Infrastructure, Finances, Backend Developer
+      </li>
       <li>Eli - NFT/Bitcoin specialist</li>
-      <li>Incoming - Accountant</li>
     </ul>
 
     <h4>Sponsors</h4>
 
     <ul>
       <li>
-        <a href="/donate/pricing">Our Donators!</a>
+        <a href="/donate/pricing" class={themeStyles.themeLink}>Our Donators!</a
+        >
+      </li>
+      <li>
+        <a href="https://github.com/z3db0y" class={themeStyles.themeLink}
+          >z3db0y</a
+        >
+        - BALLER DONATOR, TY
       </li>
       <li>
         <a>The Kingdom of Saudi Arabia</a>
@@ -30,7 +48,7 @@ import MainLayout from "@layouts/MainLayout.astro";
 
     <h4>Development</h4>
     <ul>
-      <li>sexyduceduce - Frontend Developer, Ultraviolet</li>
+      <li>sexyduceduce - Frontend Developer, Creator of Ultraviolet</li>
       <li>OlyB - Frontend Developer, WebRetro</li>
       <li>luphoria - Backend Developer</li>
       <li>Ender - Backend Developer</li>
@@ -39,23 +57,19 @@ import MainLayout from "@layouts/MainLayout.astro";
 
     <h4>Community</h4>
     <ul>
+      <li>Simon - CSGO Skin Gambling, Chat Moderator</li>
+      <li>Incoming - Chat Moderator, Foreign Interpreter</li>
+      <li>Degenerate - Unpaid Intern, Chat Moderator</li>
       <li>Aub - Community Manager</li>
-      <li>Degenerate - Chat Moderator</li>
-      <li>Simon - Chat Moderator</li>
     </ul>
 
     <h2>Proxy Scripts</h2>
     <ul>
       <li>
-        Rammerhead: <a
-          href="https://github.com/binary-person/rammerhead"
-          title="Git repository">https://github.com/binary-person/rammerhead</a
-        >
-      </li>
-      <li>
         Ultraviolet: <a
           href="https://github.com/titaniumnetwork-dev/Ultraviolet"
           title="Git repository"
+          class={themeStyles.themeLink}
           >https://github.com/titaniumnetwork-dev/Ultraviolet</a
         >
       </li>
