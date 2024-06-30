@@ -167,11 +167,12 @@ const emailCSS = `div{background:#fff;padding:20px;font-family:"Helvetica Neue",
 const verifyCSS = `#verify{color:#fff;background:#0078d4;padding:5px 10px;border:0;border-radius:5px;text-decoration:none}`;
 
 export async function sendChangeEmailVerification(
+  host: string,
   user: m.UserModel,
   newEmail: string,
   verificationSecret: string
 ) {
-  const url = `https://holyubofficial.net/donate/verify-new-email?secret=${encodeURIComponent(
+  const url = `https://${host}/donate/verify-new-email?secret=${encodeURIComponent(
     verificationSecret
   )}`;
 
@@ -268,10 +269,11 @@ export async function sendEmailVerification(user: m.UserModel) {
 }
 
 export async function sendPasswordVerification(
+  host: string,
   email: string,
   verificationSecret: string
 ) {
-  const url = `https://holyubofficial.net/donate/forgot-password?secret=${encodeURIComponent(
+  const url = `https://${host}/donate/forgot-password?secret=${encodeURIComponent(
     verificationSecret
   )}`;
 

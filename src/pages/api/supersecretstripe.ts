@@ -1,6 +1,6 @@
 import { appConfig } from "@config/config";
 import { db } from "@lib/db";
-import { m, stripe } from "@lib/util";
+import { stripe } from "@lib/util";
 import type { APIRoute } from "astro";
 import type Stripe from "stripe";
 

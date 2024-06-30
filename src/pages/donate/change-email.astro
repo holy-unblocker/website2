@@ -31,7 +31,12 @@ if (Astro.request.method === "POST")
         "UPDATE users SET new_email = $1, new_email_verification_secret = $2 WHERE id = $3;",
         [email, verificationSecret, user.id]
       );
-      await sendChangeEmailVerification(user, email, verificationSecret);
+      await sendChangeEmailVerification(
+        Astro.url.host,
+        user,
+        email,
+        verificationSecret
+      );
 
       return acc.toVerifyNewEmail();
     }
