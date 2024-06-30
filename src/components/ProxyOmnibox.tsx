@@ -69,7 +69,7 @@ const ProxyOmnibox = ({
 
     const entries: string[] = [];
 
-    if (v.trim() === "")
+    if (v.trim() !== "")
       try {
         abort.current.abort();
         abort.current = new AbortController();
