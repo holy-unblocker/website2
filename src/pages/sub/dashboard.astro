@@ -83,7 +83,7 @@ if (Astro.request.method === "POST")
     </div>
     <div class="user-card" style="padding-bottom:10px;">
       <h3>Subscription</h3>
-      <p>Current tier: {getTierName(payment?.tier)}</p>
+      <p>Current plan: {getTierName(payment?.tier)}</p>
       <p>You can subscribe on the pricing page:</p>
       <a href="/sub/pricing">
         <input type="button" class="prettysubmit" value="See Pricing" />
