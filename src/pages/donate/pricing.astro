@@ -153,7 +153,7 @@ if (!error && exclusiveError) {
               value={!payment || payment.tier < 1 ? "Buy" : "YOU HAVE THIS!"}
               disabled={!user ||
                 user.stripe_customer === null ||
-                payment?.tier === 1}
+                (payment && payment.tier >= 1)}
             />
           </form>
         </div>
@@ -181,7 +181,7 @@ if (!error && exclusiveError) {
               value={!payment || payment.tier < 2 ? "Buy" : "YOU HAVE THIS!"}
               disabled={!user ||
                 user.stripe_customer === null ||
-                payment?.tier === 2}
+                (payment && payment.tier >= 2)}
             />
           </form>
         </div>
