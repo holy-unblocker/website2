@@ -6,6 +6,17 @@ import serveHandler from "serve-handler";
 import { lstat, readdir, realpath } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 
+const majorNodeVersion = Number(process.versions.node.split(".")[0]);
+
+if (majorNodeVersion < 19) {
+  console.error("Your NodeJS version is unsupported!");
+  console.error("You need at least NodeJS v19 to run Holy Unblocker");
+  console.error(
+    "You can fix this by upgrading NodeJS. Try installing nvm: https://github.com/nvm-sh/nvm"
+  );
+  process.exit(1);
+}
+
 /**
  * @typedef {Object} AppMirror
  * @property {string} prefix
@@ -16,7 +27,7 @@ import { createReadStream } from "node:fs";
 /**
  * @type {import("./mirrors").AppMirror[]}
  */
-export const appMirrors = [];
+const appMirrors = [];
 
 // setup theatre mirror
 if (!("theatreFiles" in appConfig))
