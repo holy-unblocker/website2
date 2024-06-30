@@ -25,6 +25,7 @@
     "@types/effective-domain-name-parser": "^0.0.2",
     "@types/node": "^20.14.2",
     "@types/nodemailer": "^6.4.15",
+    "@types/pg": "^8.11.6",
     "astro": "^4.10.2",
     "crypto-js": "^4.2.0",
     "effective-domain-name-parser": "^0.0.11",
