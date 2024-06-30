@@ -34,6 +34,10 @@ export const appConfig = {
   // holyubofficial.net hosts wisp on the `api.` subdomain
   // separateWispServer: "%{location.wsprotocol}//api.%{location.host}/",
 
+  // website support email
+  // shown on /contact
+  // supportEmail: "support@holyubofficial.net",
+
   // Postgres database credentials
   // if no credentials are specified, it will proxy the mirror
   // optionally string
@@ -64,10 +68,6 @@ export const appConfig = {
   //     ultimate: "1256770749230874634", // ultimate supporters
   //   },
   // },
-
-  // website support email
-  // shown on /contact
-  // supportEmail: "support@holyubofficial.net",
 
   // MAILER CONFIG
   // receipts, recovery, contacting, password resets, etc..
