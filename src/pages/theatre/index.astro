@@ -59,7 +59,7 @@ if (data)
     _categories[item.category[0]].entries.push(item);
 ---
 
-<MainLayout>
+<MainLayout title="Popular Games">
   {
     mirrorError ? (
       <main>
@@ -70,7 +70,6 @@ if (data)
       <>
         <Fragment slot="head">
           <meta name="description" content="Popular games on Holy Unblocker." />
-          <title>Popular Games</title>
         </Fragment>
         <main class={styles.main}>
           <TheatreSearchBar

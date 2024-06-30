@@ -3,24 +3,83 @@ import SettingsLayout from "@layouts/SettingsLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import styles from "@styles/Settings.module.scss";
 import Check from "@icons/check_24dp.svg?svgmin";
+import { extractCloakData } from "@lib/cloak";
+import Banner from "@components/Banner.astro";
+
+let success: string | undefined;
+let error: string | undefined;
+
+if (Astro.request.method === "POST")
+  try {
+    const data = await Astro.request.formData();
+    let address = data.get("address");
+
+    if (typeof address === "string") {
+      const protocol = /^\w+:/;
+
+      if (!address.match(protocol)) {
+        // try to correct the address
+        if (address.includes(".")) {
+          address = `http://${address}`;
+        } else {
+          error = "Please enter a valid URL";
+        }
+      }
+
+      if (!error)
+        try {
+          Astro.locals.setCloak(await extractCloakData(address.toString()));
+          success = "Cloak saved.";
+        } catch (err: any) {
+          error = err.message;
+        }
+    } else {
+      Astro.locals.setCloak();
+      success = "Cloak reset.";
+    }
+  } catch (err) {
+    console.error(err);
+  }
 ---
 
-<SettingsLayout>
-  <Fragment slot="head">
-    <title>Tab Cloak Settings</title>
-  </Fragment>
+<script>
+  import type { AppCloak } from "@lib/cloak";
+  import { getCookie } from "@lib/cookies";
+
+  document.addEventListener("astro:after-swap", () => {
+    const cookie = getCookie("cloak");
+    const icon = document.querySelector<HTMLLinkElement>(
+      "link[rel='shortcut icon']"
+    )!;
+    if (cookie === undefined) {
+      console.log("Reset cloak");
+      document.title = "Tab Cloak Settings";
+      icon.href = "/favicon.ico";
+    } else {
+      const cloak = JSON.parse(decodeURIComponent(cookie)) as AppCloak;
+      console.log("Found cloak", cloak);
+      document.title = cloak.title;
+      icon.href =
+        cloak.icon === ""
+          ? "data:,"
+          : "/api/cloakicon?" + encodeURIComponent(cloak.icon);
+    }
+  });
+</script>
+<SettingsLayout title="Tab Cloak Settings">
   <section>
+    <Banner success={success} error={error} />
     <p>
       Tab Cloaking allows you to disguise Holy Unblocker as any website such as
       your school's home page, new tab, etc.
     </p>
     <div>
       <p>URL</p>
-      <form id="form">
+      <form id="form" method="post">
         <div class:list={[themeStyles.ThemeInputBar, styles.ThemeInputBar]}>
           <input
             class={themeStyles.themePadRight}
-            id="cloakinput"
+            name="address"
             placeholder="https://example.org/"
           />
           <button type="submit">
@@ -30,59 +89,9 @@ import Check from "@icons/check_24dp.svg?svgmin";
       </form>
     </div>
     <div>
-      <button class={themeStyles.ThemeButton} id="resetButton"
-        >Reset mask</button
-      >
+      <form id="form" method="post">
+        <button class={themeStyles.ThemeButton}>Reset Cloak</button>
+      </form>
     </div>
   </section>
-  <script>
-    import { extractData } from "@lib/mask";
-    import { createNotification } from "@lib/notifications";
-    import { getGlobalCloakSettings } from "@lib/storage";
-
-    const globalCloakSettings = getGlobalCloakSettings();
-
-    const input = document.querySelector<HTMLInputElement>("#cloakinput")!;
-
-    input.value = globalCloakSettings.get("url");
-
-    const resetButton =
-      document.querySelector<HTMLButtonElement>("#resetButton")!;
-
-    resetButton.addEventListener("click", () => {
-      globalCloakSettings.set("icon", "");
-      globalCloakSettings.set("title", "");
-      globalCloakSettings.set("url", "");
-      input.value = "";
-    });
-
-    const form = document.querySelector<HTMLFormElement>("#form")!;
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      createNotification({
-        description: "Loading mask...",
-        type: "info",
-      });
-      try {
-        const data = await extractData(input.value);
-        input.value = data.url;
-        globalCloakSettings.set("icon", data.icon);
-        globalCloakSettings.set("title", data.title);
-        globalCloakSettings.set("url", data.url);
-
-        createNotification({
-          description: "Mask successfully set.",
-          type: "success",
-        });
-      } catch (err) {
-        console.error(err);
-
-        createNotification({
-          title: "Failure loading mask.",
-          description: err instanceof Error ? err.message : "Unknown Error",
-          type: "error",
-        });
-      }
-    });
-  </script>
 </SettingsLayout>

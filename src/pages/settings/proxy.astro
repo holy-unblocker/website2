@@ -1,14 +1,11 @@
 ---
 import SettingsLayout from "@layouts/SettingsLayout.astro";
 import ThemeSelect from "@components/ThemeSelect.astro";
-import engines from "@lib/engines";
+import searchEngines from "@lib/searchEngines";
 import styles from "@styles/Settings.module.scss";
 ---
 
-<SettingsLayout>
-  <Fragment slot="head">
-    <title>Proxy settings</title>
-  </Fragment>
+<SettingsLayout title="Proxy settings">
   <section>
     <!--
     <div>
@@ -41,7 +38,7 @@ import styles from "@styles/Settings.module.scss";
       <ThemeSelect
         class={styles.ThemeSelect}
         id="searchEngine"
-        options={engines.map(({ name }, i) => ({
+        options={searchEngines.map(({ name }, i) => ({
           name,
           value: i.toString(),
         }))}

@@ -4,7 +4,7 @@ import ServiceFrame from "@components/ServiceFrame";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import presentAboutBlank from "@lib/aboutBlank";
 import { decryptURL, encryptURL } from "@lib/cryptURL";
-import engines from "@lib/engines";
+import engines from "@lib/searchEngines";
 import isAbortError from "@lib/isAbortError";
 import styles from "@styles/ProxyOmnibox.module.scss";
 import getTextContent from "@lib/textContent";

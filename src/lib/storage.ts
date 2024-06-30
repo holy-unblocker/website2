@@ -17,12 +17,6 @@ export class Scroll {
   }
 }
 
-export interface CloakSettings {
-  url: string;
-  title: string;
-  icon: string;
-}
-
 export interface GlobalSettings {
   proxyMode: string;
   favorites: string[];
@@ -38,14 +32,4 @@ export const getGlobalSettings = () =>
     seenGames: [],
   });
 
-export const getGlobalCloakSettings = () =>
-  new Settings<CloakSettings>("cloak settings", {
-    url: "",
-    title: "",
-    icon: "",
-  });
-
 export const useGlobalSettings = () => useSettings(getGlobalSettings());
-
-export const useGlobalCloakSettings = () =>
-  useSettings(getGlobalCloakSettings());

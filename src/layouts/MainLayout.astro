@@ -39,7 +39,12 @@ function Hat() {
   }
 }
 
-// const { user } = Astro.locals;
+interface Props {
+  title?: string; // page title - will be overwritten by cloak
+}
+
+const { title } = Astro.props;
+const { cloak } = Astro.locals;
 ---
 
 <html lang="en" data-theme={Astro.locals.theme}>
@@ -47,8 +52,19 @@ function Hat() {
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
     <slot name="head" />
+    <link
+      rel="shortcut icon"
+      href={cloak
+        ? cloak.icon === ""
+          ? "data:,"
+          : "/api/cloakicon?" + encodeURIComponent(cloak.icon)
+        : "/favicon.ico"}
+    />
+    {
+      (cloak && <title set:text={cloak.title} />) ||
+        (title && <title set:text={title} />)
+    }
   </head>
   <body>
     <script src="@lib/themeClient.ts"></script>

@@ -111,25 +111,6 @@ hr {
   border-color: #eee;
 }
 
-.prettybanner {
-  font-size: 15px;
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 4px;
-
-  &.error {
-    color: #b94a48;
-    background-color: #f2dede;
-    border-color: #eed3d7;
-  }
-
-  &.success {
-    color: #155724;
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-  }
-}
-
 .page-title {
   display: flex;
   align-items: center;

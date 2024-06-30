@@ -7,12 +7,11 @@ const id = Astro.params.id!;
 const category = categories.find((category) => category.id === id);
 ---
 
-<MainLayout>
+<MainLayout title={category?.name}>
   {
     category ? (
       <>
         <Fragment slot="head">
-          <title>{category.name}</title>
           <meta
             name="description"
             content={`Find ${category.name} games on Holy Unblocker.`}

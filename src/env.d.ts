@@ -29,6 +29,8 @@ declare type CtxUser = import("@lib/models").UserModel & {
 namespace App {
   interface Locals {
     searchEngine: number;
+    cloak?: import("@lib/cloak").AppCloak;
+    setCloak: (cloak?: import("@lib/cloak").AppCloak) => void;
 
     user?: CtxUser;
     ip: string;
