@@ -194,7 +194,7 @@ import Public from "@icons/public_24dp.svg?react";
   }
 
   document.addEventListener("astro:page-load", () => {
-    if (isProxyPage()) {
+    if (!isProxyPage()) {
       redirectFocus = false;
       return;
     }
