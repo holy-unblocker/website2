@@ -67,7 +67,7 @@ if (Astro.request.method === "POST")
   )
 }
 <MainLayout>
-  <main>
+  <main class="subscriber-main">
     <h1 class="page-title">Dashboard for {user.email}</h1>
     {newEmailConfirmed && <Banner success="Email changed." />}
     {welcome && <Banner success="Email verified." />}

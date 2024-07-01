@@ -1,22 +1,6 @@
 /* a lot of this is still being adapted */
 @import "./common.scss";
 
-/*
-main {
-  padding: 15px 8vw;
-  margin-bottom: 200px;
-}
-
-main {
-  box-sizing: border-box;
-  padding: 15px 8vw;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  align-items: center;
-}
-*/
-
 .prettyinput[readonly] {
   cursor: default;
   border-color: transparent;
@@ -243,7 +227,7 @@ hr {
 }
 
 @media (max-width: 1000px) {
-  main {
+  .subscriber-main {
     padding: 15px 2vw;
     flex-direction: column;
   }
@@ -313,7 +297,7 @@ hr {
   cursor: default;
 }
 
-main {
+.subscriber-main {
   padding: 0;
 }
 
