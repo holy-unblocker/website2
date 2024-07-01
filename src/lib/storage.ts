@@ -18,7 +18,6 @@ export class Scroll {
 }
 
 export interface GlobalSettings {
-  proxyMode: string;
   favorites: string[];
   seenGames: string[];
 }
@@ -27,9 +26,6 @@ export interface GlobalSettings {
 
 export const getGlobalSettings = () =>
   new Settings<GlobalSettings>("global settings", {
-    proxyMode: "embedded",
     favorites: [],
     seenGames: [],
   });
-
-export const useGlobalSettings = () => useSettings(getGlobalSettings());

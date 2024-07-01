@@ -17,6 +17,7 @@ import styles from "@styles/Settings.module.scss";
           { name: "Redirect", value: "redirect" },
           { name: "about:blank", value: "about:blank" },
         ]}
+        value={Astro.locals.proxyMode}
       />
     </div>
     <div>
@@ -34,18 +35,14 @@ import styles from "@styles/Settings.module.scss";
   </section>
 </SettingsLayout>
 <script>
-  import { setSearchEngine } from "@lib/cookies";
-  import { getGlobalSettings } from "@lib/storage";
-
-  const globalSettings = getGlobalSettings();
+  import { setSearchEngine, setProxyMode } from "@lib/cookies";
 
   document.addEventListener("astro:page-load", () => {
     const proxyMode = document.querySelector<HTMLInputElement>("#proxyMode")!;
     if (proxyMode === null) return;
 
-    proxyMode.value = globalSettings.get("proxyMode");
     proxyMode.addEventListener("change", () => {
-      globalSettings.set("proxyMode", proxyMode.value);
+      setProxyMode(proxyMode.value);
     });
 
     const searchEngine =

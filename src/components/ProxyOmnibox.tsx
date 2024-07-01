@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { useSearchParams } from "@lib/searchParamsHook";
 import { getGlobalSettings } from "@lib/storage";
 import { createRef } from "preact";
+import { getProxyMode } from "@lib/cookies";
 
 // simple API used for fetching duckduckgo search results
 async function sillyfetch(url: string, opts?: { signal: AbortSignal }) {
@@ -28,13 +29,7 @@ async function sillyfetch(url: string, opts?: { signal: AbortSignal }) {
   return s;
 }
 
-const ProxyOmnibox = ({
-  searchEngine,
-  placeholder,
-}: {
-  searchEngine: number;
-  placeholder?: string;
-}) => {
+const ProxyOmnibox = ({ searchEngine }: { searchEngine: number }) => {
   const input = useRef<HTMLInputElement | null>(null);
   const inputValue = useRef<string | null>(null);
   const lastInput = useRef<"select" | "input" | null>(null);
@@ -119,7 +114,7 @@ const ProxyOmnibox = ({
 
     const uvPage = `/uv/service/${__uv$config.encodeUrl!(src)}`;
 
-    switch (getGlobalSettings().get("proxyMode")) {
+    switch (getProxyMode()) {
       case "embedded":
         setSrc([src, uvPage]);
         break;
@@ -169,7 +164,7 @@ const ProxyOmnibox = ({
           />
           <input
             type="text"
-            placeholder={placeholder || `Search ${engine.name} or type a URL`}
+            placeholder={`Search ${engine.name} or type a URL`}
             required={lastSelect === -1}
             autoComplete="off"
             className={themeStyles.thinPadLeft}

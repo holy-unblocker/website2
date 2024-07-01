@@ -144,13 +144,30 @@ export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.theme =
     context.cookies.get("theme")?.value === "night" ? "night" : "day";
 
-  const searchEngine = Number(context.cookies.get("searchEngine")?.value);
+  // proxy search engine
+  // 1 = google
+  // 2 = duckduckgo
+  // 3 = bing
+  // 4 = wikipedia
+  // 5 = reddit
+  // 6 = hacker
+  context.locals.searchEngine = 1;
+  const searchEngine = Number(context.cookies.get("search")?.value);
+  if (
+    !isNaN(searchEngine) &&
+    searchEngine >= 0 &&
+    searchEngine < engines.length
+  )
+    context.locals.searchEngine = searchEngine;
 
-  // use duckduckgo by default
-  context.locals.searchEngine =
-    isNaN(searchEngine) || searchEngine < 0 || searchEngine > engines.length
-      ? 1
-      : searchEngine;
+  // proxy mode
+  context.locals.proxyMode = "embedded";
+  const proxyMode = context.cookies.get("prx")?.value;
+  if (
+    proxyMode !== undefined &&
+    ["embedded", "redirect", "about:blank"].includes(proxyMode)
+  )
+    context.locals.proxyMode = proxyMode;
 
   if (!stripeEnabled) {
     if (

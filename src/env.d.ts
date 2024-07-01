@@ -31,6 +31,7 @@ declare var BareMux: any;
 namespace App {
   interface Locals {
     isMainWebsite: boolean;
+    proxyMode: string;
     searchEngine: number;
     cloak?: import("@lib/cloak").AppCloak;
     setCloak: (cloak?: import("@lib/cloak").AppCloak) => void;

@@ -75,25 +75,22 @@ if (Astro.request.method === "POST")
 </SettingsLayout>
 <script>
   import type { AppCloak } from "@lib/cloak";
-  import { getCookie } from "@lib/cookies";
+  import { getCloak } from "@lib/cookies";
 
   document.addEventListener("astro:page-load", () => {
     const input = document.querySelector<HTMLInputElement>("#tabcloak-value");
 
     if (input === null) return;
 
-    const cookie = getCookie("cloak");
+    const cloak = getCloak();
     const icon = document.querySelector<HTMLLinkElement>(
       "link[rel='shortcut icon']"
     )!;
-    if (cookie === undefined) {
+    if (cloak === undefined) {
       console.log("Reset cloak");
       document.title = "Tab Cloak Settings";
       icon.href = "/h.ico";
     } else {
-      const cloak: AppCloak = Object.fromEntries([
-        ...new URLSearchParams(decodeURIComponent(cookie)).entries(),
-      ]) as any;
       console.log("Found cloak", cloak);
       document.title = cloak.title;
       icon.href =
