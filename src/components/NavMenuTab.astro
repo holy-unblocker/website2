@@ -18,15 +18,13 @@ const selected = Astro.url.pathname === href;
 
 <a
   href={href}
+  data-settings
   data-selected={selected || undefined}
-  class:list={[styles.entry]}
-  onclick="setNavExpanded(false)"
+  data-outlined={iconOutlined !== undefined || undefined}
+  class={styles.entry}
   title={name}
 >
-  <span
-    class={styles.icon}
-    set:html={(selected && iconFilled) || iconOutlined || iconFilled}
-  />
+  <span class={styles.icon} set:html={iconFilled + (iconOutlined || "")} />
   <span class={styles.name}>{name}</span>
   {isNew && <span class={styles.new}>new</span>}
 </a>

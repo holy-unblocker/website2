@@ -27,6 +27,7 @@ import SortRounded from "@icons/sort_24dp.svg?react";
 import NavMenuTab from "@components/NavMenuTab.astro";
 import Footer from "@components/Footer.astro";
 import { stripeEnabled } from "@config/apis";
+import { ViewTransitions } from "astro:transitions";
 
 function Hat() {
   switch (import.meta.env.VITE_HAT_BADGE) {
@@ -37,10 +38,6 @@ function Hat() {
     default:
       return HatPlain;
   }
-}
-
-interface Props {
-  title?: string; // page title - will be overwritten by cloak
 }
 
 const { title } = Astro.props;
@@ -64,9 +61,10 @@ const { cloak } = Astro.locals;
     />
     <meta name="viewport" content="width=device-width" />
     <slot name="head" />
+    <ViewTransitions />
   </head>
   <body>
-    <nav class={styles.nav} transition:persist>
+    <nav class={styles.nav} transition:name="skibidi" transition:persist>
       <button
         class={styles.button}
         onclick="setNavExpanded(true)"
@@ -191,36 +189,49 @@ const { cloak } = Astro.locals;
       <slot />
       <Footer />
     </div>
+    <script>
+      import { setTheme } from "@lib/cookies";
+
+      // set the initial theme to the user's preference
+      if (!document.cookie.includes("theme=")) {
+        const preference = window.matchMedia("(prefers-color-scheme: dark)")
+          .matches
+          ? "night"
+          : "day";
+        setTheme(preference);
+      }
+
+      window.setNavExpanded = (expanded) => {
+        if (expanded)
+          document.documentElement.setAttribute("data-expanded", "");
+        else document.documentElement.removeAttribute("data-expanded");
+      };
+
+      function getNavExpanded() {
+        return document.documentElement.dataset.expanded === "1";
+      }
+
+      function keydown(event: KeyboardEvent) {
+        if (getNavExpanded() && event.key === "Escape") {
+          setNavExpanded(false);
+        }
+      }
+
+      document.addEventListener("keydown", keydown);
+
+      for (const nav of document.querySelectorAll<HTMLAnchorElement>(
+        "[data-nav]"
+      ))
+        nav.addEventListener("click", () => setNavExpanded(false));
+
+      document.addEventListener("astro:page-load", () => {
+        for (const setting of document.querySelectorAll<HTMLAnchorElement>(
+          "[data-nav]"
+        ))
+          if (new URL(setting.href).pathname === location.pathname)
+            setting.setAttribute("data-selected", "");
+          else setting.removeAttribute("data-selected");
+      });
+    </script>
   </body>
 </html>
-<script>
-  import { setTheme } from "@lib/cookies";
-
-  // set the initial theme to the user's preference
-  if (!document.cookie.includes("theme=")) {
-    const preference = window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "night"
-      : "day";
-    setTheme(preference);
-  }
-
-  window.setNavExpanded = (expanded) => {
-    if (expanded) {
-      document.documentElement.dataset.expanded = "1";
-    } else {
-      delete document.documentElement.dataset.expanded;
-    }
-  };
-
-  function getNavExpanded() {
-    return document.documentElement.dataset.expanded === "1";
-  }
-
-  function keydown(event: KeyboardEvent) {
-    if (getNavExpanded() && event.key === "Escape") {
-      setNavExpanded(false);
-    }
-  }
-
-  document.addEventListener("keydown", keydown);
-</script>

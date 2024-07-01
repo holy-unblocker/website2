@@ -94,7 +94,11 @@ if (Astro.request.method === "POST")
         >
       </p>
       <p>
-        <a class={themeStyles.themeLink} href="/sub/logout">Log Out</a>
+        <a
+          class={themeStyles.themeLink}
+          href="/sub/logout"
+          data-astro-prefetch="false">Log Out</a
+        >
       </p>
     </div>
     <div class="user-card" style="padding-bottom:10px;">

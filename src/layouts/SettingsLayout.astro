@@ -6,7 +6,6 @@ import BrushOutlined from "@icons/brush_24dp_outline.svg?react";
 import DriveFileRenameOutline from "@icons/drive_file_rename_outline_24dp.svg?react";
 import Public from "@icons/public_24dp.svg?react";
 import SettingsMenuTab from "@components/SettingsMenuTab.astro";
-import { ViewTransitions } from "astro:transitions";
 
 interface Props {
   title?: string;
@@ -16,10 +15,7 @@ const { title } = Astro.props;
 ---
 
 <MainLayout title={title}>
-  <Fragment slot="head"
-    ><slot name="head" />
-    <ViewTransitions />
-  </Fragment>
+  <Fragment slot="head"><slot name="head" /></Fragment>
   <main class={styles.main}>
     <div class={styles.menu} transition:persist>
       <SettingsMenuTab
@@ -42,3 +38,14 @@ const { title } = Astro.props;
     <slot />
   </main>
 </MainLayout>
+<script>
+  document.addEventListener("astro:page-load", () => {
+    for (const setting of document.querySelectorAll<HTMLAnchorElement>(
+      "[data-settings]"
+    )) {
+      if (new URL(setting.href).pathname === location.pathname)
+        setting.setAttribute("data-selected", "");
+      else setting.removeAttribute("data-selected");
+    }
+  });
+</script>

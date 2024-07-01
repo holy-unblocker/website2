@@ -199,6 +199,26 @@ html[data-tab] {
       height: 30px;
     }
 
+    &[data-outlined] {
+      svg:nth-child(1) {
+        display: none;
+      }
+
+      svg:nth-child(2) {
+        display: block;
+      }
+
+      &[data-selected] {
+        svg:nth-child(1) {
+          display: block;
+        }
+
+        svg:nth-child(2) {
+          display: none;
+        }
+      }
+    }
+
     &[data-selected] {
       background-color: var(--background-accent-deep-1);
 
@@ -280,7 +300,7 @@ html[data-tab] {
   }
 }
 
-html[data-expanded="1"] {
+html[data-expanded] {
   body {
     margin-right: 16px;
     overflow: hidden;
