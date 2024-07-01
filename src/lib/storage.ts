@@ -29,3 +29,5 @@ export const getGlobalSettings = () =>
     favorites: [],
     seenGames: [],
   });
+
+export const useGlobalSettings = () => useSettings(getGlobalSettings());
