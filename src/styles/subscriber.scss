@@ -221,10 +221,11 @@ hr {
   padding: 0px 15px;
   // make the actual login form a little taller
   &.login {
-    .form-title {
-      line-height: 100px;
-    }
     padding-bottom: 2px;
+
+    .form-title {
+      padding-top: 20px;
+    }
   }
 
   .form-title {
