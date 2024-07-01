@@ -3,7 +3,6 @@ import styles from "@styles/Settings.module.scss";
 
 type Props = Record<string, any> & {
   href?: string;
-  class?: string;
   name: string;
   iconFilled: string;
   iconOutlined?: string;
@@ -16,16 +15,21 @@ const { href, name, iconFilled, iconOutlined, isNew } = Astro.props;
 const selected = Astro.url.pathname === href;
 ---
 
+<script>
+  (window as any).settingsTab = (e: HTMLAnchorElement) => {
+    document.querySelector("[data-selected]")!.removeAttribute("data-selected");
+    e.setAttribute("data-selected", "");
+  };
+</script>
 <a
   href={href}
   data-selected={selected || undefined}
-  class:list={[styles.entry, Astro.props.class, "menuitem"]}
+  data-outlined={iconOutlined !== undefined || undefined}
+  class={styles.entry}
   title={name}
+  onclick="settingsTab(this)"
 >
-  <span
-    class={styles.icon}
-    set:html={(selected && iconFilled) || iconOutlined || iconFilled}
-  />
+  <span class={styles.icon} set:html={iconFilled + (iconOutlined || "")} />
   <span class={styles.name}>{name}</span>
   {isNew && <span class={styles.new}>new</span>}
 </a>

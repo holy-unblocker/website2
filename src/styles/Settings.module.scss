@@ -54,6 +54,7 @@ $menu-height: 90px;
   display: flex;
   left: 0;
   top: 0;
+  background-color: var(--backround);
   margin-top: $nav-height-border;
   border-right: 1px solid var(--border);
   width: 300px;
@@ -125,6 +126,26 @@ $menu-height: 90px;
 
     @include screenMobile {
       color: var(--contrast-background);
+    }
+  }
+
+  &[data-outlined] {
+    svg:nth-child(1) {
+      display: none;
+    }
+
+    svg:nth-child(2) {
+      display: block;
+    }
+
+    &[data-selected] {
+      svg:nth-child(1) {
+        display: block;
+      }
+
+      svg:nth-child(2) {
+        display: none;
+      }
     }
   }
 
