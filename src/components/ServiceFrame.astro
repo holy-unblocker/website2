@@ -96,10 +96,13 @@ import Public from "@icons/public_24dp.svg?react";
           document.querySelector<HTMLImageElement>("#serviceIcon")!;
         const serviceTitle =
           document.querySelector<HTMLDivElement>("#serviceTitle")!;
+        const defaultIcon =
+          document.querySelector<HTMLDivElement>("#defaultIcon")!;
 
         serviceIcon.addEventListener("error", (err) => {
           console.log("failed to load icon", err);
-          serviceIcon.src = "";
+          serviceIcon.style.display = "none";
+          defaultIcon.style.display = "";
         });
 
         serviceTitle.textContent = contentWindow.document.title;
@@ -114,7 +117,11 @@ import Public from "@icons/public_24dp.svg?react";
         const newIcon =
           location.origin + "/api/cloakicon?" + encodeURIComponent(icon);
 
-        if (serviceIcon.src !== newIcon) serviceIcon.src = newIcon;
+        if (serviceIcon.src !== newIcon) {
+          serviceIcon.style.display = "";
+          defaultIcon.style.display = "none";
+          serviceIcon.src = newIcon;
+        }
 
         // if (newSrc === "about:blank") return;
         if (newSrc !== lastSrc) {
