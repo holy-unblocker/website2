@@ -29,7 +29,7 @@ if (majorNodeVersion < 19) {
 }
 
 // start the discord bot here
-if (stripeEnabled) {
+if (stripeEnabled && appConfig.discord.listenForJoins) {
   const client = new Client({ intents: [] });
 
   client.on("ready", async () => {

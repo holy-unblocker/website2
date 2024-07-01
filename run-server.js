@@ -157,10 +157,23 @@ if (hasStripe) {
   }
 
   console.log(st[+hasDiscord], chalk.bold("Discord integration"));
-  if (!hasMailer) {
+  if (!hasDiscord) {
     console.error("You need to configure your discord integration.");
     process.exit(1);
   }
+
+  const hasDiscordBot = "listenForJoins" in appConfig.discord;
+
+  console.log(st[+hasDiscordBot], chalk.bold("Discord bot running"));
+  console.log(
+    "   " +
+      chalk.grey("you can turn this off by setting listenForJoins to false")
+  );
+  console.log(
+    chalk.grey(
+      "   you should probably do it if you're actively updating HU's server"
+    )
+  );
 }
 
 if (!("links" in appConfig)) {

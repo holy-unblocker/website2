@@ -124,10 +124,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.cloak = cloak;
   } else {
     const cloakCookie = context.cookies.get("cloak");
-    if (cloakCookie !== undefined)
-      context.locals.cloak = Object.fromEntries(
-        new URLSearchParams(cloakCookie.value)
-      ) as any as AppCloak;
+    if (cloakCookie !== undefined) {
+      context.locals.cloak = Object.fromEntries([
+        ...new URLSearchParams(cloakCookie.value).entries(),
+      ]) as any;
+    }
   }
 
   // indicate that the cloak was already randomly picked

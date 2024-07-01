@@ -1,10 +1,8 @@
-export function getCookie(name: string, defaultValue?: string) {
+export function getCookie(name: string) {
   for (const cookie of document.cookie.split("; ")) {
-    const c = cookie.split("=");
-    if (name === c[0]) return c[1];
+    const n = name + "=";
+    if (cookie.startsWith(n)) return cookie.slice(n.length);
   }
-
-  return defaultValue;
 }
 
 export function setCookie(name: string, value: string) {

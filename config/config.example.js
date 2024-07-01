@@ -75,6 +75,7 @@ export const appConfig = {
   // - Ultimate Subscriber -> ULTIMATE SUBSCRIBER role
   // https://discord.com/developers/applications
   // discord: {
+  //   listenForJoins: false, // if you're developing, you don't want to spam discord's api
   //   botToken: "DISCORD BOT TOKEN HERE",
   //   clientId: "OAUTH CLIENT ID",
   //   clientSecret: "OAUTH CLIENT SECRET",

@@ -56,7 +56,9 @@ if (Astro.request.method === "POST")
       document.title = "Tab Cloak Settings";
       icon.href = "/h.ico";
     } else {
-      const cloak = JSON.parse(decodeURIComponent(cookie)) as AppCloak;
+      const cloak: AppCloak = Object.fromEntries([
+        ...new URLSearchParams(decodeURIComponent(cookie)).entries(),
+      ]) as any;
       console.log("Found cloak", cloak);
       document.title = cloak.title;
       icon.href =

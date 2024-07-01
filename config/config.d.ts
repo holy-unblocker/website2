@@ -38,6 +38,7 @@ export interface AppConfig {
     noreply: string;
   };
   discord: {
+    listenForJoins: boolean;
     botToken: string;
     clientId: string;
     clientSecret: string;
