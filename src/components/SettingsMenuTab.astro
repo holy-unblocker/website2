@@ -9,7 +9,7 @@ type Props = Record<string, any> & {
   tabIndex?: number;
 };
 
-const { href, name, iconFilled, iconOutlined, isNew } = Astro.props;
+const { href, name, iconFilled, iconOutlined } = Astro.props;
 
 const selected = Astro.url.pathname === href;
 ---
