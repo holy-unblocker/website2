@@ -155,9 +155,7 @@ import Public from "@icons/public_24dp.svg?react";
       // for user convenience
       // and for this crap to work
       saveSrcInSearch(src);
-      setupServiceWorker();
-
-      console.log("Service worker registered");
+      await setupServiceWorker();
 
       const uvPage = `/uv/service/${__uv$config.encodeUrl!(src)}`;
       console.log("Ultraviolet URL:", uvPage);

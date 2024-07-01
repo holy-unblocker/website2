@@ -28,12 +28,9 @@ import ClientAPIs from "@components/ClientAPIs.astro";
             )
           );
 
-          setupServiceWorker();
+          await setupServiceWorker();
 
-          // Register the EpoxyClient transport to be used for network requests
-          setTimeout(() => {
-            // location.reload();
-          }, 1e3);
+          location.reload();
         } catch (err) {
           reportCompatError(err, errorCause, "Ultraviolet");
         }
