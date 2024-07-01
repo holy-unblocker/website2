@@ -5,18 +5,21 @@ import TheatreCategory from "@components/TheatreCategory.astro";
 
 const id = Astro.params.id!;
 const category = categories.find((category) => category.id === id);
+if (!category) Astro.response.status = 404;
 ---
 
 <MainLayout title={category?.name}>
   {
     category ? (
       <>
-        <Fragment slot="head">
-          <meta
-            name="description"
-            content={`Find ${category.name} games on Holy Unblocker.`}
-          />
-        </Fragment>
+        {Astro.locals.isMainWebsite && category && (
+          <Fragment slot="head">
+            <meta
+              name="description"
+              content={`Find ${category.name} games on Holy Unblocker.`}
+            />
+          </Fragment>
+        )}
         <TheatreCategory
           name={category.name}
           category={id}
@@ -24,7 +27,7 @@ const category = categories.find((category) => category.id === id);
         />
       </>
     ) : (
-      <></>
+      <>Category not found</>
     )
   }
 </MainLayout>

@@ -67,9 +67,14 @@ if (data)
       </main>
     ) : (
       <>
-        <Fragment slot="head">
-          <meta name="description" content="Popular games on Holy Unblocker." />
-        </Fragment>
+        {Astro.locals.isMainWebsite && (
+          <Fragment slot="head">
+            <meta
+              name="description"
+              content="Popular games on Holy Unblocker."
+            />
+          </Fragment>
+        )}
         <main class={styles.main}>
           <TheatreSearchBar
             showCategory

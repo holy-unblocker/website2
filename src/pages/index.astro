@@ -5,17 +5,19 @@ import Underline from "@icons/underline.svg?svgmin";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import ProxyOmnibox from "@components/ProxyOmnibox";
 import ClientAPIs from "@components/ClientAPIs.astro";
-
-// <ProxyOmnibox className={styles.omnibox} layout={layout} />;
 ---
 
 <MainLayout title="Holy Unblocker">
-  <Fragment slot="head">
-    <meta
-      name="description"
-      content="Holy Unblocker is a web proxy service with support for many sites. Unblock websites on Chromebooks at school and work."
-    />
-  </Fragment>
+  {
+    Astro.locals.isMainWebsite && (
+      <Fragment slot="head">
+        <meta
+          name="description"
+          content="Holy Unblocker is a web proxy service with support for many sites. Unblock websites on Chromebooks at school and work."
+        />
+      </Fragment>
+    )
+  }
   <ClientAPIs />
   <main class={styles.main}>
     <div class={styles.title}>

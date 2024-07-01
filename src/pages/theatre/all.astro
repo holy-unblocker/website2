@@ -5,9 +5,13 @@ import MainLayout from "@layouts/MainLayout.astro";
 ---
 
 <MainLayout title="Games">
-  <Fragment slot="head">
-    <meta name="description" content="Find games on Holy Unblocker." />
-  </Fragment>
+  {
+    Astro.locals.isMainWebsite && (
+      <Fragment slot="head">
+        <meta name="description" content="Find games on Holy Unblocker." />
+      </Fragment>
+    )
+  }
   <TheatreCategory
     name="All Games"
     showCategory
