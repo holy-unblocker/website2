@@ -66,7 +66,7 @@ const { cloak } = Astro.locals;
     <slot name="head" />
   </head>
   <body>
-    <nav class={styles.nav} transition:name="navigation bar" transition:persist>
+    <nav class={styles.nav} transition:persist>
       <button
         class={styles.button}
         onclick="setNavExpanded(true)"

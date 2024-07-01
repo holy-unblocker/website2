@@ -52,7 +52,6 @@ $menu-height: 90px;
   flex-direction: column;
   overflow-y: auto;
   display: flex;
-  background-color: var(--background);
   left: 0;
   top: 0;
   margin-top: $nav-height-border;
@@ -96,7 +95,6 @@ $menu-height: 90px;
 .entry {
   cursor: pointer;
   white-space: pre;
-  background-color: transparent;
   border: none;
   color: var(--contrast-background);
   display: flex;
@@ -115,6 +113,7 @@ $menu-height: 90px;
     box-sizing: content-box;
     border-radius: 5px;
     padding: 0px;
+    background-color: var(--background-accent-deep-1);
 
     > span:nth-child(1) {
       margin-right: 0;
@@ -122,17 +121,15 @@ $menu-height: 90px;
   }
 
   &:hover {
-    color: var(--text);
     background-color: var(--background-accent);
 
     @include screenMobile {
-      background-color: var(--background-accent-deep-2);
       color: var(--contrast-background);
     }
   }
 
   &[data-selected] {
-    background-color: var(--background-accent-deep-1);
+    background-color: var(--background-accent);
   }
 
   > .name {
