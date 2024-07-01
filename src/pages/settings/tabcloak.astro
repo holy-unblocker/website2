@@ -54,7 +54,7 @@ if (Astro.request.method === "POST")
     if (cookie === undefined) {
       console.log("Reset cloak");
       document.title = "Tab Cloak Settings";
-      icon.href = "/favicon.ico";
+      icon.href = "/h.ico";
     } else {
       const cloak = JSON.parse(decodeURIComponent(cookie)) as AppCloak;
       console.log("Found cloak", cloak);

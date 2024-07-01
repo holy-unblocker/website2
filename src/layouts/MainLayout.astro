@@ -50,21 +50,20 @@ const { cloak } = Astro.locals;
 <html lang="en" data-theme={Astro.locals.theme}>
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <slot name="head" />
+    {
+      (cloak && <title set:text={cloak.title} />) ||
+        (title && <title set:text={title} />)
+    }
     <link
       rel="shortcut icon"
       href={cloak
         ? cloak.icon === ""
           ? "data:,"
           : "/api/cloakicon?" + encodeURIComponent(cloak.icon)
-        : "/favicon.ico"}
+        : "/h.ico"}
     />
-    {
-      (cloak && <title set:text={cloak.title} />) ||
-        (title && <title set:text={title} />)
-    }
+    <meta name="viewport" content="width=device-width" />
+    <slot name="head" />
   </head>
   <body>
     <script src="@lib/themeClient.ts"></script>

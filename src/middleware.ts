@@ -59,7 +59,7 @@ const randomCloaks: (string | AppCloak)[] = [
   "https://smallbusiness.withgoogle.com/",
 ];
 
-async function getRandomCloak(): Promise<string | AppCloak | undefined> {
+async function getRandomCloak(): Promise<AppCloak | undefined> {
   let retries = 5;
 
   while (true) {
@@ -94,13 +94,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // encode the cloak or delete it
   context.locals.setCloak = (cloak) => {
     if (cloak)
-      context.cookies.set("cloak", cloak, {
-        domain: context.url.hostname,
-        sameSite: "lax",
-        path: "/",
-        maxAge: maxAgeLimit,
-        secure: true,
-      });
+      context.cookies.set(
+        "cloak",
+        new URLSearchParams({ ...cloak }).toString(),
+        {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          maxAge: maxAgeLimit,
+          secure: true,
+        }
+      );
     // clear the cloak
     else
       context.cookies.set("cloak", "", {
@@ -112,13 +116,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
       });
   };
 
-  let cloak = context.cookies.get("cloak")?.json();
-
   // pick a random cloak on the first load
   // don't run this on holyubofficial.net so we get SEO
   if (!context.cookies.has("autoCloak") && !context.locals.isMainWebsite) {
-    cloak = await getRandomCloak();
+    const cloak = await getRandomCloak();
     if (cloak) context.locals.setCloak(cloak);
+    context.locals.cloak = cloak;
+  } else {
+    const cloakCookie = context.cookies.get("cloak");
+    if (cloakCookie !== undefined)
+      context.locals.cloak = Object.fromEntries(
+        new URLSearchParams(cloakCookie.value)
+      ) as any as AppCloak;
   }
 
   // indicate that the cloak was already randomly picked
@@ -130,8 +139,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
     secure: true,
     httpOnly: true,
   });
-
-  context.locals.cloak = cloak;
 
   context.locals.theme =
     context.cookies.get("theme")?.value === "night" ? "night" : "day";
