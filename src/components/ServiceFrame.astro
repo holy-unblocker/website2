@@ -114,8 +114,10 @@ import Public from "@icons/public_24dp.svg?react";
           selector && selector.href !== ""
             ? selector.href
             : new URL("/favicon.ico", location).toString();
+        // make this an absolute url to /api/cloakIcon
+        // because serviceIcon.src is absolute
         const newIcon =
-          location.origin + "/api/cloakicon?" + encodeURIComponent(icon);
+          window.location.origin + "/api/cloakicon?" + encodeURIComponent(icon);
 
         if (serviceIcon.src !== newIcon) {
           serviceIcon.style.display = "";
