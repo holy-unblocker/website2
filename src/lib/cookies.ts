@@ -33,7 +33,7 @@ export function getCloak() {
 }
 
 export function getProxyMode() {
-  return getCookie("prx");
+  return getCookie("prx") || "embedded";
 }
 
 export function setProxyMode(proxyMode: string) {
