@@ -30,11 +30,28 @@ import Public from "@icons/public_24dp.svg?react";
 
   window.setServiceSrc = setServiceSrc;
 
+  function isProxyPage() {
+    return location.pathname === "/" || location.pathname === "/proxy";
+  }
+
   const savedSrc = new URLSearchParams(location.search).get("src");
   if (savedSrc !== null) {
     console.log("Detected saved src");
     setServiceSrc(decryptURL(savedSrc));
   }
+
+  window.addEventListener("popstate", () => {
+    console.log("detected popstate");
+    if (isProxyPage()) {
+      const savedSrc = new URLSearchParams(location.search).get("src");
+      if (savedSrc === null) {
+        setServiceSrc();
+      } else {
+        console.log("Detected saved src");
+        setServiceSrc(decryptURL(savedSrc));
+      }
+    }
+  });
 
   function saveSrcInSearch(src?: string) {
     const newParams = new URLSearchParams(location.search);
@@ -54,9 +71,13 @@ import Public from "@icons/public_24dp.svg?react";
     if (redirectFocus && serviceEmbed) serviceEmbed.focus();
   });
 
-  setInterval(() => {
+  let embedChangeInterval: number | undefined;
+
+  function checkForEmbedChanges() {
     const serviceEmbed =
       document.querySelector<HTMLIFrameElement>("#serviceEmbed")!;
+
+    if (!serviceEmbed) return clearInterval(embedChangeInterval);
 
     try {
       const contentWindow =
@@ -103,7 +124,7 @@ import Public from "@icons/public_24dp.svg?react";
       // possibly an x-frame error
       return;
     }
-  }, 500);
+  }
 
   function setServiceSrc(src?: string) {
     const serviceEmbed =
@@ -173,10 +194,15 @@ import Public from "@icons/public_24dp.svg?react";
   }
 
   document.addEventListener("astro:page-load", () => {
-    if (location.pathname !== "/" && location.pathname !== "/proxy") {
+    if (isProxyPage()) {
       redirectFocus = false;
       return;
     }
+    if (embedChangeInterval === undefined)
+      embedChangeInterval = setInterval(
+        checkForEmbedChanges,
+        500
+      ) as any as number;
 
     const serviceEmbed =
       document.querySelector<HTMLIFrameElement>("#serviceEmbed")!;
