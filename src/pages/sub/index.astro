@@ -22,6 +22,8 @@ if (!to || to === "/sub/" || !to.startsWith("/")) to = "/sub/dashboard";
 if (user) return Astro.redirect(to, 302);
 
 let error: string | undefined;
+let internalError: boolean | undefined;
+let emailExists: boolean | undefined;
 
 let email: string | undefined;
 let password: string | undefined;
@@ -61,7 +63,8 @@ if (Astro.request.method === "POST") {
           err?.message ===
           'duplicate key value violates unique constraint "users_email_key"'
         ) {
-          error = "Email already exists. Did you mean to login?";
+          Astro.response.status = 401;
+          emailExists = true;
         } else {
           console.error("caught err:");
           console.error(err);
@@ -71,6 +74,7 @@ if (Astro.request.method === "POST") {
   } catch (err) {
     console.error("caught err:");
     console.error(err);
+    internalError = true;
   }
 }
 ---
@@ -99,6 +103,17 @@ if (Astro.request.method === "POST") {
       <form class="login-form" method="post">
         <div class="form-title">Create an account</div>
         {error && <script>history.pushState({}, "")</script>}
+        {
+          emailExists && (
+            <p class="prettybanner error">
+              Email already exists.{" "}
+              <u>
+                <a href="/sub/login">Did you mean to login?</a>
+              </u>
+            </p>
+          )
+        }
+        {internalError && <Banner error="An internal error occurred." />}
         <Banner error={error} />
         <label class="manage-field">
           <div>Email</div>
