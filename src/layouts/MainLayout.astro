@@ -64,12 +64,8 @@ const { cloak } = Astro.locals;
     <ViewTransitions />
   </head>
   <body>
-    <nav class={styles.nav} transition:name="skibidi" transition:persist>
-      <button
-        class={styles.button}
-        onclick="setNavExpanded(true)"
-        transition:persist
-      >
+    <nav class={styles.nav} transition:persist>
+      <button class={styles.button} onclick="setNavExpanded(true)">
         <Menu class="icon" />
       </button>
       <a
