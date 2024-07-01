@@ -11,9 +11,15 @@ export function validatePassword(password: string) {
     return "Password must contain at least 1 number and 1 special character.";
 }
 
-export function validateEmail(email: string) {
+export function validateEmail(
+  email: string | undefined,
+  currentEmail?: string
+): string | undefined {
   if (typeof email === "undefined" || email.length === 0)
     return "Please enter an email.";
+
+  if (currentEmail !== undefined && email === currentEmail)
+    return "Your new email must be different from your old one.";
 
   const emailPattern = /\S+@\S+\.\S+/;
 

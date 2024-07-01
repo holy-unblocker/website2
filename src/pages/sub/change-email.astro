@@ -21,8 +21,9 @@ let error: string | undefined;
 if (Astro.request.method === "POST")
   try {
     const data = await Astro.request.formData();
-    email = data.get("email")?.toString() || "";
-    error = validateEmail(email) || (await canSendEmail(user, email, ip));
+    email = data.get("email")?.toString().trim() || "";
+    error =
+      validateEmail(email, user.email) || (await canSendEmail(user, email, ip));
 
     if (!error) {
       const verificationSecret = generateVerificationSecret();
@@ -59,19 +60,48 @@ if (Astro.request.method === "POST")
       Change Email
     </h1>
     <Banner error={error} />
-    <script>
-      document.querySelector<HTMLInputElement>("[name='email']")!.focus();
-    </script>
     <form class="change-form user" method="post">
       <label class="manage-field">
-        <div>Current Email</div>
-        <input type="text" class="prettyinput" value={user.email} readonly />
+        <div>
+          Current Email {user.email_verified ? "(verified)" : "(unverified)"}
+        </div>
+        <input
+          type="text"
+          class="prettyinput"
+          id="currentEmail"
+          value={user.email}
+          readonly
+        />
       </label>
       <label class="manage-field">
         <div>New Email</div>
-        <input type="text" class="prettyinput" name="email" value={email} />
+        <input
+          type="text"
+          class="prettyinput"
+          id="email"
+          name="email"
+          value={email}
+        />
       </label>
       <input class="prettysubmit inline" type="submit" value="Change Email" />
     </form>
   </main>
 </MainLayout>
+<script>
+  const currentEmail =
+    document.querySelector<HTMLInputElement>("#currentEmail")!;
+  const email = document.querySelector<HTMLInputElement>("#email")!;
+  email.focus();
+
+  email.form!.addEventListener("submit", (event) => {
+    if (email.value.trim() === "") {
+      event.preventDefault();
+      alert("Please enter an email.");
+    }
+
+    if (currentEmail.value === email.value.trim()) {
+      event.preventDefault();
+      alert("Your new email must be different from your old one.");
+    }
+  });
+</script>
