@@ -12,7 +12,6 @@ import NorthWest from "@icons/north_west_24dp.svg?react";
 import Search from "@icons/search_24dp.svg?react";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useSearchParams } from "@lib/searchParamsHook";
-import { getGlobalSettings } from "@lib/storage";
 import { createRef } from "preact";
 import { getProxyMode } from "@lib/cookies";
 
