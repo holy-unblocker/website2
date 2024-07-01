@@ -29,16 +29,8 @@ import Public from "@icons/public_24dp.svg?react";
   // used for opening in new tabs...
   let lastSrc: string | undefined;
 
-  window.setServiceSrc = setServiceSrc;
-
   function isProxyPage() {
     return location.pathname === "/" || location.pathname === "/proxy";
-  }
-
-  const savedSrc = new URLSearchParams(location.search).get("src");
-  if (savedSrc !== null) {
-    console.log("Detected saved src");
-    setServiceSrc(decryptURL(savedSrc));
   }
 
   window.addEventListener("popstate", () => {
@@ -217,6 +209,16 @@ import Public from "@icons/public_24dp.svg?react";
       redirectFocus = false;
       return;
     }
+
+    // only expose this API when the page is loaded
+    window.setServiceSrc = setServiceSrc;
+
+    const savedSrc = new URLSearchParams(location.search).get("src");
+    if (savedSrc !== null) {
+      console.log("Detected saved src");
+      setServiceSrc(decryptURL(savedSrc));
+    }
+
     if (embedChangeInterval === undefined)
       embedChangeInterval = setInterval(
         checkForEmbedChanges,
