@@ -16,6 +16,7 @@ import StarBorder from "@icons/star_outline_24dp.svg?react";
 import VideogameAsset from "@icons/videogame_asset_24dp.svg?react";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useGlobalSettings } from "@lib/storage";
+import { setupServiceWorker } from "@lib/sw";
 
 async function resolveSrc(
   src: TheatreEntry["src"],
@@ -23,6 +24,7 @@ async function resolveSrc(
 ) {
   switch (type) {
     case "proxy":
+      await setupServiceWorker();
       return `/uv/service/${__uv$config.encodeUrl!(src)}`;
     case "embed":
       return src;

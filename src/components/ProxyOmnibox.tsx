@@ -140,7 +140,7 @@ const ProxyOmnibox = ({ searchEngine }: { searchEngine: number }) => {
               setInputFocused(true);
               setLastSelect(-1);
             }}
-            onBlur={(event) => {
+            onBlur={() => {
               setInputFocused(false);
             }}
             onClick={() => {

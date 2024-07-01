@@ -13,6 +13,7 @@ import ClientAPIs from "@components/ClientAPIs.astro";
     <ClientAPIs />
     <script>
       import { reportCompatError } from "@lib/compat";
+      import { setupServiceWorker } from "@lib/sw";
 
       console.log(location.href);
 
@@ -27,36 +28,7 @@ import ClientAPIs from "@components/ClientAPIs.astro";
             )
           );
 
-          if (
-            location.protocol !== "https:" &&
-            !["localhost", "127.0.0.1"].includes(location.hostname)
-          )
-            throw new Error("HTTPS must be enabled to use Ultraviolet.");
-
-          if (!navigator.serviceWorker)
-            throw new Error("Your browser doesn't support service workers.");
-
-          const reg = await navigator.serviceWorker.getRegistration();
-          if (reg) {
-            await navigator.serviceWorker.ready;
-          } else {
-            await navigator.serviceWorker.register("/sw.js", {
-              scope: "/",
-            });
-            console.log(
-              "Registered serviceWorker. Reloading the page to activate it."
-            );
-            location.reload();
-            return;
-          }
-          console.log("Service worker registered");
-
-          console.log("Using wisp at", window.wisp_api);
-
-          await navigator.serviceWorker.ready;
-          await BareMux.SetTransport("EpxMod.EpoxyClient", {
-            wisp: window.wisp_api,
-          });
+          setupServiceWorker();
 
           // Register the EpoxyClient transport to be used for network requests
           setTimeout(() => {

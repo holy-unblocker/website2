@@ -21,7 +21,7 @@ import Public from "@icons/public_24dp.svg?react";
 <script>
   import { getProxyMode } from "@lib/cookies";
   import { decryptURL, encryptURL } from "@lib/cryptURL";
-  import { navigate } from "astro:transitions/client";
+  import { setupServiceWorker } from "@lib/sw";
 
   let redirectFocus = false;
 
@@ -154,34 +154,12 @@ import Public from "@icons/public_24dp.svg?react";
       // for user convenience
       // and for this crap to work
       saveSrcInSearch(src);
-
-      const reg = await navigator.serviceWorker.getRegistration();
-      if (reg) {
-        await navigator.serviceWorker.ready;
-      } else {
-        await navigator.serviceWorker.register("/sw.js", {
-          scope: "/",
-        });
-        console.log(
-          "Registered serviceWorker. Reloading the page to activate it."
-        );
-        location.reload();
-        return;
-      }
+      setupServiceWorker();
 
       console.log("Service worker registered");
 
-      console.log("Using wisp at", window.wisp_api);
-
-      await BareMux.SetTransport("EpxMod.EpoxyClient", {
-        wisp: window.wisp_api,
-      });
-
       const uvPage = `/uv/service/${__uv$config.encodeUrl!(src)}`;
       console.log("Ultraviolet URL:", uvPage);
-
-      console.log("Ultraviolet registered");
-      console.log("Wisp server:", window.wisp_api);
 
       switch (proxyMode) {
         case "embedded":

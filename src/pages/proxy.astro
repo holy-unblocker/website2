@@ -41,7 +41,6 @@ import ServiceFrame from "@components/ServiceFrame.astro";
     />
   </Fragment>
   <main class={styles.main}>
-    <ClientAPIs />
     <h1 class={styles.title}>Ultraviolet</h1>
     <ServiceFrame />
     <ProxyOmnibox searchEngine={Astro.locals.searchEngine} client:load />
@@ -65,3 +64,4 @@ import ServiceFrame from "@components/ServiceFrame.astro";
     </p>
   </main>
 </MainLayout>
+<ClientAPIs />
