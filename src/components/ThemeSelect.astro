@@ -154,7 +154,6 @@ for (const child of Astro.props.options) {
 
         input.value = options[value]?.value || "";
         ts.dispatchEvent(new Event("change"));
-        // if (onChange) onChange({ target: i });
       }
 
       toggle.addEventListener("click", () => {

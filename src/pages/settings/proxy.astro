@@ -11,18 +11,20 @@ import styles from "@styles/Settings.module.scss";
       <p>Mode</p>
       <ThemeSelect
         id="proxyMode"
-        class={styles.ThemeSelect}
+        class={styles.themeSelect}
         options={[
           { name: "Embedded", value: "embedded" },
           { name: "Redirect", value: "redirect" },
           { name: "about:blank", value: "about:blank" },
         ]}
+        transition:name="proxyMode select"
+        transition:persist
       />
     </div>
     <div>
       <p>Search Engine:</p>
       <ThemeSelect
-        class={styles.ThemeSelect}
+        class={styles.themeSelect}
         id="searchEngine"
         options={searchEngines.map(({ name }, i) => ({
           name,
@@ -40,8 +42,8 @@ import styles from "@styles/Settings.module.scss";
   const globalSettings = getGlobalSettings();
 
   document.addEventListener("astro:page-load", () => {
-    const proxyMode = document.querySelector<HTMLInputElement>("#proxyMode");
-    if (!proxyMode) return; // page not loaded
+    const proxyMode = document.querySelector<HTMLInputElement>("#proxyMode")!;
+    if (proxyMode === null) return;
 
     proxyMode.value = globalSettings.get("proxyMode");
     proxyMode.addEventListener("change", () => {
@@ -50,6 +52,7 @@ import styles from "@styles/Settings.module.scss";
 
     const searchEngine =
       document.querySelector<HTMLInputElement>("#searchEngine")!;
+
     searchEngine.addEventListener("change", () => {
       setSearchEngine(Number(searchEngine.value));
     });

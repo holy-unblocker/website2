@@ -127,8 +127,8 @@ export async function canSendEmail(
     const t = e.send_time.getTime();
     const r = now - t;
     if (r <= spamThreshold) {
-      const s = Math.ceil(r / 1000);
-      return `Please wait${s === 0 ? "" : " " + s + "more seconds"}`;
+      const s = Math.ceil((t + spamThreshold - now) / 1000);
+      return `Please wait${s === 0 ? "" : " " + s + " more seconds"}`;
     }
   }
 

@@ -18,8 +18,9 @@ const selected = Astro.url.pathname === href;
 
 <a
   href={href}
-  data-selected={Number(selected)}
-  class:list={[styles.entry, Astro.props.class, "menuitem", Astro.props.class]}
+  data-selected={selected || undefined}
+  class:list={[styles.entry]}
+  onclick="setNavExpanded(false)"
   title={name}
 >
   <span

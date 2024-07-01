@@ -13,6 +13,7 @@ export function setCookie(name: string, value: string) {
 
 export function setTheme(theme: string) {
   setCookie("theme", theme);
+  document.documentElement.setAttribute("data-theme", theme);
 }
 
 export function setSearchEngine(searchEngine: number) {

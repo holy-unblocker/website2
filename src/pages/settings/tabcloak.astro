@@ -15,15 +15,16 @@ if (Astro.request.method === "POST")
     let address = data.get("address");
 
     if (typeof address === "string") {
-      const protocol = /^\w+:/;
-
-      if (!address.match(protocol)) {
+      if (!address.match(/^\w+:/)) {
         // try to correct the address
         if (address.includes(".")) {
           address = `http://${address}`;
-        } else {
-          error = "Please enter a valid URL";
         }
+      }
+      try {
+        new URL(address);
+      } catch {
+        error = "Please enter a valid URL";
       }
 
       if (!error)
@@ -42,11 +43,45 @@ if (Astro.request.method === "POST")
   }
 ---
 
+<SettingsLayout title="Tab Cloak Settings">
+  <section>
+    <Banner success={success} error={error} />
+    <p>
+      Tab Cloaking allows you to disguise Holy Unblocker as any website such as
+      your school's home page, new tab, etc.
+    </p>
+    <div>
+      <p>URL</p>
+      <form method="post">
+        <div class:list={[themeStyles.ThemeInputBar, styles.inputBar]}>
+          <input
+            class={themeStyles.themePadRight}
+            name="address"
+            placeholder="https://example.org/"
+            id="tabcloak-value"
+          />
+          <button type="submit">
+            <Check class:list={[themeStyles.button, themeStyles.right]} />
+          </button>
+        </div>
+      </form>
+    </div>
+    <div>
+      <form method="post">
+        <button class={themeStyles.ThemeButton}>Reset Cloak</button>
+      </form>
+    </div>
+  </section>
+</SettingsLayout>
 <script>
   import type { AppCloak } from "@lib/cloak";
   import { getCookie } from "@lib/cookies";
 
   document.addEventListener("astro:page-load", () => {
+    const input = document.querySelector<HTMLInputElement>("#tabcloak-value");
+
+    if (input === null) return;
+
     const cookie = getCookie("cloak");
     const icon = document.querySelector<HTMLLinkElement>(
       "link[rel='shortcut icon']"
@@ -66,34 +101,25 @@ if (Astro.request.method === "POST")
           ? "data:,"
           : "/api/cloakicon?" + encodeURIComponent(cloak.icon);
     }
+
+    input.form!.addEventListener("submit", (event) => {
+      let address = input.value;
+
+      if (!address.match(/^\w+:/)) {
+        // try to correct the address
+        if (address.includes(".")) {
+          address = `http://${address}`;
+        }
+      }
+
+      try {
+        new URL(address);
+      } catch {
+        event.preventDefault();
+        alert(
+          "Please enter a valid URL or partial URL of a website\n(eg. google.com, kahoot.it, www.msn.com https://youtube.com/)"
+        );
+      }
+    });
   });
 </script>
-<SettingsLayout title="Tab Cloak Settings">
-  <section>
-    <Banner success={success} error={error} />
-    <p>
-      Tab Cloaking allows you to disguise Holy Unblocker as any website such as
-      your school's home page, new tab, etc.
-    </p>
-    <div>
-      <p>URL</p>
-      <form id="form" method="post">
-        <div class:list={[themeStyles.ThemeInputBar, styles.ThemeInputBar]}>
-          <input
-            class={themeStyles.themePadRight}
-            name="address"
-            placeholder="https://example.org/"
-          />
-          <button type="submit">
-            <Check class:list={[themeStyles.button, themeStyles.right]} />
-          </button>
-        </div>
-      </form>
-    </div>
-    <div>
-      <form id="form" method="post">
-        <button class={themeStyles.ThemeButton}>Reset Cloak</button>
-      </form>
-    </div>
-  </section>
-</SettingsLayout>

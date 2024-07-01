@@ -9,7 +9,7 @@ import styles from "@styles/Settings.module.scss";
     <div>
       <p>Theme:</p>
       <ThemeSelect
-        class={styles.ThemeSelect}
+        class={styles.themeSelect}
         value={Astro.locals.theme}
         id="themeSwitcher"
         options={[
@@ -29,7 +29,7 @@ import styles from "@styles/Settings.module.scss";
   document.addEventListener("astro:page-load", () => {
     const themeSwitcher =
       document.querySelector<HTMLInputElement>("#themeSwitcher");
-    if (!themeSwitcher) return; // page not loaded
+    if (themeSwitcher === null) return;
 
     themeSwitcher.addEventListener("change", () => {
       setTheme(themeSwitcher.value);
