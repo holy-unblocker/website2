@@ -13,7 +13,7 @@ html {
   }
 
   &[data-appearance="dark"] {
-    .service {
+    .embed {
       background: #000;
       color: #fff;
     }
@@ -38,10 +38,7 @@ html {
   width: 100%;
   height: calc(100% - $nav-height-border);
   background: var(--background);
-
-  &[data-first-load] {
-    background: #fff;
-  }
+  background: #fff;
 }
 
 .buttons {

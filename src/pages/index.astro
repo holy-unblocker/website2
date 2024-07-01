@@ -5,6 +5,7 @@ import Underline from "@icons/underline.svg?svgmin";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import ProxyOmnibox from "@components/ProxyOmnibox";
 import ClientAPIs from "@components/ClientAPIs.astro";
+import ServiceFrame from "@components/ServiceFrame.astro";
 ---
 
 <MainLayout title="Holy Unblocker">
@@ -37,6 +38,7 @@ import ClientAPIs from "@components/ClientAPIs.astro";
         >
           Get Started
         </button>
+        <ServiceFrame />
         <ProxyOmnibox searchEngine={Astro.locals.searchEngine} client:load />
       </div>
     </div>

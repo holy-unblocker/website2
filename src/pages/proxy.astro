@@ -5,6 +5,7 @@ import styles from "@styles/Proxy.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import ClientAPIs from "@components/ClientAPIs.astro";
+import ServiceFrame from "@components/ServiceFrame.astro";
 
 /*const ProxyMeta = () => (
   <Meta
@@ -42,6 +43,7 @@ import ClientAPIs from "@components/ClientAPIs.astro";
   <main class={styles.main}>
     <ClientAPIs />
     <h1 class={styles.title}>Ultraviolet</h1>
+    <ServiceFrame />
     <ProxyOmnibox searchEngine={Astro.locals.searchEngine} client:load />
     <p>
       If you're having issues with the proxy, try troubleshooting your problem

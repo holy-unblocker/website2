@@ -1,0 +1,206 @@
+---
+import styles from "@styles/Service.module.scss";
+import ChevronLeft from "@icons/chevron_left_24dp.svg?react";
+import Fullscreen from "@icons/fullscreen_24dp.svg?react";
+import OpenInNew from "@icons/open_in_new_24dp.svg?react";
+import Public from "@icons/public_24dp.svg?react";
+---
+
+<div class={styles.service}>
+  <div class={styles.buttons}>
+    <div set:html={ChevronLeft} class={styles.button} id="closeService" />
+    <img class={styles.tabicon} alt="" id="serviceIcon" />
+    <div set:html={Public} class={styles.defaulttabicon} id="defaultIcon" />
+    <p class={styles.title} id="serviceTitle"></p>
+    <div class={styles.shiftRight}></div>
+    <a id="openInNew" class={styles.button} set:html={OpenInNew} />
+    <div class={styles.button} id="openInFullscreen" set:html={Fullscreen} />
+  </div>
+  <iframe class={styles.embed} id="serviceEmbed" title="embed"></iframe>
+</div>
+<script>
+  import { getProxyMode } from "@lib/cookies";
+  import { decryptURL, encryptURL } from "@lib/cryptURL";
+
+  let redirectFocus = false;
+
+  // stores the URL of the last proxied page
+  // used for opening in new tabs...
+  let lastSrc: string | undefined;
+
+  window.setServiceSrc = setServiceSrc;
+
+  const savedSrc = new URLSearchParams(location.search).get("src");
+  if (savedSrc !== null) {
+    console.log("Detected saved src");
+    setServiceSrc(decryptURL(savedSrc));
+  }
+
+  function saveSrcInSearch(src?: string) {
+    const newParams = new URLSearchParams(location.search);
+    if (src === undefined) newParams.delete("src");
+    else newParams.set("src", encryptURL(src));
+    const st = newParams.toString();
+    history.pushState(
+      {},
+      "",
+      st === "" ? location.pathname : `${location.pathname}?${st}`
+    );
+  }
+
+  window.addEventListener("focus", () => {
+    const serviceEmbed =
+      document.querySelector<HTMLIFrameElement>("#serviceEmbed")!;
+    if (redirectFocus && serviceEmbed) serviceEmbed.focus();
+  });
+
+  setInterval(() => {
+    const serviceEmbed =
+      document.querySelector<HTMLIFrameElement>("#serviceEmbed")!;
+
+    try {
+      const contentWindow =
+        serviceEmbed.contentWindow as unknown as typeof globalThis;
+
+      // page hasn't loaded so location isn't rewritten
+      const location = new contentWindow.Function("return location")();
+
+      // if (location === contentWindow.location) title.textContent = src[0] || null);
+      // if we got a fake location object
+      if (location !== contentWindow.location) {
+        const newSrc = location.href;
+
+        const serviceIcon =
+          document.querySelector<HTMLImageElement>("#serviceIcon")!;
+        const serviceTitle =
+          document.querySelector<HTMLDivElement>("#serviceTitle")!;
+
+        serviceIcon.addEventListener("error", (err) => {
+          console.log("failed to load icon", err);
+          serviceIcon.src = "";
+        });
+
+        serviceTitle.textContent = contentWindow.document.title;
+        const selector = contentWindow.document.querySelector(
+          'link[rel*="icon"]'
+        ) as HTMLLinkElement | null;
+
+        const icon =
+          selector && selector.href !== ""
+            ? selector.href
+            : new URL("/favicon.ico", location).toString();
+
+        serviceIcon.src = "/api/cloakicon?" + icon;
+
+        // if (newSrc === "about:blank") return;
+        if (newSrc !== lastSrc) {
+          lastSrc = newSrc;
+          saveSrcInSearch(newSrc);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      // possibly an x-frame error
+      return;
+    }
+  }, 500);
+
+  function setServiceSrc(src?: string) {
+    const serviceEmbed =
+      document.querySelector<HTMLIFrameElement>("#serviceEmbed");
+    if (!serviceEmbed) return;
+    const serviceIcon =
+      document.querySelector<HTMLImageElement>("#serviceIcon")!;
+    const serviceTitle =
+      document.querySelector<HTMLDivElement>("#serviceTitle")!;
+    const defaultIcon = document.querySelector<HTMLDivElement>("#defaultIcon")!;
+
+    if (src === undefined) {
+      document.documentElement.removeAttribute("data-service");
+      serviceEmbed.src = "";
+      lastSrc = undefined;
+      redirectFocus = false;
+      saveSrcInSearch();
+    } else {
+      lastSrc = src;
+
+      const proxyMode = getProxyMode();
+      console.log("ServiceFrame: loading", src, "with method", proxyMode);
+
+      const uvPage = `/uv/service/${__uv$config.encodeUrl!(src)}`;
+      console.log("Ultraviolet URL:", uvPage);
+
+      switch (proxyMode) {
+        case "embedded":
+          document.documentElement.setAttribute("data-service", "");
+          serviceTitle.textContent = src;
+          saveSrcInSearch(src);
+          redirectFocus = true;
+          defaultIcon.style.display = "";
+          serviceIcon.style.display = "none";
+          break;
+        case "redirect":
+          window.location.assign(uvPage);
+          break;
+        case "about:blank":
+          const newWindow = window.open("about:blank");
+
+          if (!newWindow) throw new Error(`Could not create new window`);
+
+          newWindow.addEventListener(
+            "DOMContentLoaded",
+            () => {
+              const iframe = newWindow.document.createElement(
+                "iframe"
+              ) as HTMLIFrameElement;
+              iframe.src = src;
+              // expand iframe to fit window
+              iframe.style.border = "none";
+              iframe.style.position = "absolute";
+              iframe.style.top = "0px";
+              iframe.style.left = "0px";
+              iframe.style.width = "100%";
+              iframe.style.height = "100%";
+              newWindow.document.body.append(iframe);
+            },
+            // immediately attempt to dereference iframe
+            { once: true }
+          );
+
+          break;
+      }
+    }
+  }
+
+  document.addEventListener("astro:page-load", () => {
+    if (location.pathname !== "/" && location.pathname !== "/proxy") {
+      redirectFocus = false;
+      return;
+    }
+
+    const serviceEmbed =
+      document.querySelector<HTMLIFrameElement>("#serviceEmbed")!;
+
+    const openInFullscreen =
+      document.querySelector<HTMLDivElement>("#openInFullscreen")!;
+    openInFullscreen.addEventListener("click", () => {
+      console.log("Requesting fullscreen");
+      serviceEmbed.requestFullscreen();
+    });
+
+    const openInNew = document.querySelector<HTMLDivElement>("#openInNew")!;
+
+    openInNew.addEventListener("click", () => {
+      console.log("Opening", lastSrc, "in new window");
+      window.open("/uv/service/" + __uv$config.encodeUrl!(lastSrc!));
+    });
+
+    const closeService =
+      document.querySelector<HTMLDivElement>("#closeService")!;
+
+    closeService.addEventListener("click", () => {
+      console.log("Closing ServiceFrame");
+      window.setServiceSrc();
+    });
+  });
+</script>

@@ -1,9 +1,5 @@
 import SearchBuilder from "@lib/SearchBuilder";
-import type { ServiceFrameSrc } from "@components/ServiceFrame";
-import ServiceFrame from "@components/ServiceFrame";
 import themeStyles from "@styles/ThemeElements.module.scss";
-import presentAboutBlank from "@lib/aboutBlank";
-import { decryptURL, encryptURL } from "@lib/cryptURL";
 import engines from "@lib/searchEngines";
 import isAbortError from "@lib/isAbortError";
 import styles from "@styles/ProxyOmnibox.module.scss";
@@ -11,9 +7,7 @@ import getTextContent from "@lib/textContent";
 import NorthWest from "@icons/north_west_24dp.svg?react";
 import Search from "@icons/search_24dp.svg?react";
 import { useEffect, useRef, useState } from "preact/hooks";
-import { useSearchParams } from "@lib/searchParamsHook";
 import { createRef } from "preact";
-import { getProxyMode } from "@lib/cookies";
 
 // simple API used for fetching duckduckgo search results
 async function sillyfetch(url: string, opts?: { signal: AbortSignal }) {
@@ -37,19 +31,14 @@ const ProxyOmnibox = ({ searchEngine }: { searchEngine: number }) => {
   const [inputFocused, setInputFocused] = useState(false);
   const abort = useRef(new AbortController());
   const engine = engines[searchEngine];
-  const [search, setSearch] = useSearchParams();
-  const [src, setSrc] = useState<ServiceFrameSrc | null>(null);
 
   // set src using search params on HYDRATE
   useEffect(() => {
-    const qSrc = search.get("src");
-    if (qSrc !== null) setSrc(JSON.parse(decryptURL(qSrc)));
-
     // allow querying eg ?q+hello+world
-    const query = search.get("q");
+    const query = new URLSearchParams(location.search).get("q");
     if (query !== null) {
       const src = new SearchBuilder(engine.format).query(query);
-      setSrc([src, `/uv/service/${__uv$config.encodeUrl!(src)}`]);
+      window.setServiceSrc(src);
     }
   }, []);
 
@@ -111,19 +100,7 @@ const ProxyOmnibox = ({ searchEngine }: { searchEngine: number }) => {
 
     setInputFocused(false);
 
-    const uvPage = `/uv/service/${__uv$config.encodeUrl!(src)}`;
-
-    switch (getProxyMode()) {
-      case "embedded":
-        setSrc([src, uvPage]);
-        break;
-      case "redirect":
-        window.location.assign(uvPage);
-        break;
-      case "about:blank":
-        presentAboutBlank(uvPage);
-        break;
-    }
+    setServiceSrc(src);
 
     onInput();
   }
@@ -135,17 +112,6 @@ const ProxyOmnibox = ({ searchEngine }: { searchEngine: number }) => {
 
   return (
     <>
-      {src !== null && (
-        <ServiceFrame
-          src={src}
-          setSearch={(src) => {
-            setSearch({
-              src: src === null ? null : encryptURL(JSON.stringify(src)),
-            });
-            setSrc(src);
-          }}
-        />
-      )}
       <form
         className={styles.omnibox}
         data-suggested={renderSuggested || undefined}
@@ -175,9 +141,7 @@ const ProxyOmnibox = ({ searchEngine }: { searchEngine: number }) => {
               setLastSelect(-1);
             }}
             onBlur={(event) => {
-              if (!form.current!.contains(event.relatedTarget as Node)) {
-                setInputFocused(false);
-              }
+              setInputFocused(false);
             }}
             onClick={() => {
               onInput();
@@ -189,8 +153,6 @@ const ProxyOmnibox = ({ searchEngine }: { searchEngine: number }) => {
               setLastSelect(-1);
             }}
             onKeyDown={(event) => {
-              let preventDefault = true;
-
               switch (event.code) {
                 case "Escape":
                   setInputFocused(false);
@@ -225,14 +187,6 @@ const ProxyOmnibox = ({ searchEngine }: { searchEngine: number }) => {
                     setLastSelect(next);
                   }
                   break;
-                default:
-                  preventDefault = false;
-                  break;
-                // no default
-              }
-
-              if (preventDefault) {
-                event.preventDefault();
               }
             }}
           />

@@ -28,6 +28,11 @@ declare type CtxUser = import("@lib/models").UserModel & {
 
 declare var BareMux: any;
 
+type ServiceFrameSrc = [src: string, uvPage: string];
+
+// setting to undefined closes the ServicEFrame
+declare var setServiceSrc: (src?: string) => void;
+
 namespace App {
   interface Locals {
     isMainWebsite: boolean;
