@@ -147,7 +147,9 @@ hr {
 }
 
 .user-connection {
-  line-height: 35px;
+  display: flex;
+  align-items: center;
+  height: 35px;
 
   > .service-name {
     margin-right: 5px;
@@ -190,7 +192,6 @@ hr {
         width: 25px;
         height: 25px;
         fill: var(--contrast-background);
-        transition: fill 0.1s ease;
         &:hover {
           fill: var(--error);
         }

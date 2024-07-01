@@ -112,13 +112,15 @@ export async function giveTierDiscordRoles(
 
   for (const roleId of roleIds) {
     console.log(
-      "Giving",
-      user.discord_id,
+      deleteRoles ? "Taking" : "Giving",
       "role",
       roleId,
+      "to",
+      user.discord_id,
       "in guild",
       appConfig.discord.guildId
     );
+
     // https://discord.com/developers/docs/resources/guild#add-guild-member-role
     const res = await fetch(
       `https://discord.com/api/v10/guilds/${appConfig.discord.guildId}/members/${user.discord_id}/roles/${roleId}`,
