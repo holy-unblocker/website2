@@ -27,11 +27,6 @@ import ClientAPIs from "@components/ClientAPIs.astro";
             )
           );
 
-          console.log(
-            "%cRegistering Ultraviolet",
-            "background-color:black;color:Pink;font-weight:Bold;"
-          );
-
           if (
             location.protocol !== "https:" &&
             !["localhost", "127.0.0.1"].includes(location.hostname)
@@ -41,32 +36,31 @@ import ClientAPIs from "@components/ClientAPIs.astro";
           if (!navigator.serviceWorker)
             throw new Error("Your browser doesn't support service workers.");
 
-          const reg = await navigator.serviceWorker.getRegistration(
-            __uv$config.prefix
-          );
-
-          // register sw
+          const reg = await navigator.serviceWorker.getRegistration();
           if (reg) {
-            console.log("Ultraviolet is already registered");
+            await navigator.serviceWorker.ready;
           } else {
-            errorCause = "Failure registering the service worker.";
-            await navigator.serviceWorker.register(`/uv/sw.js`, {
-              scope: __uv$config.prefix,
-              updateViaCache: "none",
+            await navigator.serviceWorker.register("/sw.js", {
+              scope: "/",
             });
-            console.log("Service worker registered.");
-            errorCause = undefined;
-
-            console.log("using wisp at", window.wisp_api);
-
-            await BareMux.SetTransport("EpxMod.EpoxyClient", {
-              wisp: window.wisp_api,
-            });
+            console.log(
+              "Registered serviceWorker. Reloading the page to activate it."
+            );
+            location.reload();
+            return;
           }
+          console.log("Service worker registered");
+
+          console.log("Using wisp at", window.wisp_api);
+
+          await navigator.serviceWorker.ready;
+          await BareMux.SetTransport("EpxMod.EpoxyClient", {
+            wisp: window.wisp_api,
+          });
 
           // Register the EpoxyClient transport to be used for network requests
           setTimeout(() => {
-            location.reload();
+            // location.reload();
           }, 1e3);
         } catch (err) {
           reportCompatError(err, errorCause, "Ultraviolet");

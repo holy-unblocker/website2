@@ -21,6 +21,7 @@ import Public from "@icons/public_24dp.svg?react";
 <script>
   import { getProxyMode } from "@lib/cookies";
   import { decryptURL, encryptURL } from "@lib/cryptURL";
+  import { navigate } from "astro:transitions/client";
 
   let redirectFocus = false;
 
@@ -110,8 +111,10 @@ import Public from "@icons/public_24dp.svg?react";
           selector && selector.href !== ""
             ? selector.href
             : new URL("/favicon.ico", location).toString();
+        const newIcon =
+          location.origin + "/api/cloakicon?" + encodeURIComponent(icon);
 
-        serviceIcon.src = "/api/cloakicon?" + icon;
+        if (serviceIcon.src !== newIcon) serviceIcon.src = newIcon;
 
         // if (newSrc === "about:blank") return;
         if (newSrc !== lastSrc) {
@@ -126,7 +129,7 @@ import Public from "@icons/public_24dp.svg?react";
     }
   }
 
-  function setServiceSrc(src?: string) {
+  async function setServiceSrc(src?: string) {
     const serviceEmbed =
       document.querySelector<HTMLIFrameElement>("#serviceEmbed");
     if (!serviceEmbed) return;
@@ -148,17 +151,46 @@ import Public from "@icons/public_24dp.svg?react";
       const proxyMode = getProxyMode();
       console.log("ServiceFrame: loading", src, "with method", proxyMode);
 
+      // for user convenience
+      // and for this crap to work
+      saveSrcInSearch(src);
+
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) {
+        await navigator.serviceWorker.ready;
+      } else {
+        await navigator.serviceWorker.register("/sw.js", {
+          scope: "/",
+        });
+        console.log(
+          "Registered serviceWorker. Reloading the page to activate it."
+        );
+        location.reload();
+        return;
+      }
+
+      console.log("Service worker registered");
+
+      console.log("Using wisp at", window.wisp_api);
+
+      await BareMux.SetTransport("EpxMod.EpoxyClient", {
+        wisp: window.wisp_api,
+      });
+
       const uvPage = `/uv/service/${__uv$config.encodeUrl!(src)}`;
       console.log("Ultraviolet URL:", uvPage);
+
+      console.log("Ultraviolet registered");
+      console.log("Wisp server:", window.wisp_api);
 
       switch (proxyMode) {
         case "embedded":
           document.documentElement.setAttribute("data-service", "");
           serviceTitle.textContent = src;
-          saveSrcInSearch(src);
           redirectFocus = true;
           defaultIcon.style.display = "";
           serviceIcon.style.display = "none";
+          serviceEmbed.src = uvPage;
           break;
         case "redirect":
           window.location.assign(uvPage);
