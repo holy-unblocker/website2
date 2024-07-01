@@ -217,8 +217,15 @@ hr {
   background-color: var(--background-accent-deep-1);
   border-radius: 10px;
   box-sizing: border-box;
-  padding: 0px 15px;
   padding-bottom: 2px;
+  padding: 0px 15px;
+  // make the actual login form a little taller
+  &.login {
+    .form-title {
+      line-height: 100px;
+    }
+    padding-bottom: 2px;
+  }
 
   .form-title {
     font-family: $MontserratAlternates;

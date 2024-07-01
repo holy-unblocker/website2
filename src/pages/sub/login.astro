@@ -65,7 +65,7 @@ const bai = Astro.url.searchParams.has("bai");
 {bai && <script>history.pushState({}, "", "/sub/login")</script>}
 <MainLayout>
   <main>
-    <form class="login-form" method="post">
+    <form class="login-form login" method="post">
       <div class="form-title">Subscriber Login</div>
       <Banner
         error={error}
