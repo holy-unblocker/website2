@@ -4,14 +4,13 @@ import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
 import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
-import { db } from "@lib/db";
+import { db, stripe } from "@config/apis";
 import {
   m,
   canSendEmail,
   createSession,
   sendChangeEmailVerification,
   sendChangeEmailNotification,
-  stripe,
 } from "@lib/util";
 
 let error: string | undefined;

@@ -1,23 +1,10 @@
-import { db, dbEnabled } from "@lib/db";
+import { db, mailer, stripe } from "@config/apis";
 import { randomBytes } from "node:crypto";
 import { hash } from "@lib/bcrypt";
-import nodemailer from "nodemailer";
-import { appConfig } from "@config/config.js";
+import { appConfig } from "@config/config";
 import * as m from "@lib/models";
-import { Stripe } from "stripe";
 
 export { m };
-
-// stripe integration, only if configuration is set
-export const stripe =
-  appConfig.stripe && dbEnabled
-    ? new Stripe(appConfig.stripe.secret)
-    : undefined;
-
-// mail stuff
-const mailer = appConfig.mailer
-  ? nodemailer.createTransport(appConfig.mailer.transport)
-  : undefined;
 
 export async function createSession(ip: string, userId: number) {
   return (
@@ -120,20 +107,6 @@ export function generateVerificationSecret() {
   return randomBytes(16).toString("base64");
 }
 
-// returns undefined = user is p00r
-export async function getUserPayment(
-  userId: number
-): Promise<m.PaymentModel | undefined> {
-  const payment = (
-    await db.query<m.PaymentModel>(
-      "SELECT * FROM payment WHERE user_id = $1 AND NOW() > period_start AND NOW() < period_end ORDER BY tier DESC;",
-      [userId]
-    )
-  ).rows[0];
-
-  return payment;
-}
-
 // in seconds
 const spamThreshold = 30e3;
 
@@ -187,7 +160,7 @@ export async function sendChangeEmailVerification(
     url,
   ]);
 
-  await mailer!.sendMail({
+  await mailer.sendMail({
     to: newEmail,
     sender: appConfig.mailer.sender,
     from: appConfig.mailer.noreply,
@@ -208,7 +181,7 @@ export async function sendChangePasswordNotification(
   // todo: add a recovery secret thats valid for only 30 days
   console.log("DEBUG CHANGE PASSWORD NOTIFICATION", [user.id]);
 
-  await mailer!.sendMail({
+  await mailer.sendMail({
     to: user.email,
     sender: appConfig.mailer.sender,
     from: appConfig.mailer.noreply,
@@ -248,7 +221,7 @@ export async function sendEmailVerification(user: m.UserModel) {
     user.email_verification_code
   );
 
-  await mailer!.sendMail({
+  await mailer.sendMail({
     to: user.email,
     sender: appConfig.mailer.sender,
     from: appConfig.mailer.noreply,
@@ -291,7 +264,7 @@ export async function sendPasswordVerification(
 
 // only called after the user verifies their email
 export async function createStripeCustomer(user: m.UserModel) {
-  const customer = await stripe!.customers.create({
+  const customer = await stripe.customers.create({
     // name: "Jenny Rosen",
     email: user.email,
   });
@@ -305,20 +278,3 @@ export async function createStripeCustomer(user: m.UserModel) {
 }
 
 export * from "./validation";
-
-/*-- TIERS
--- 0 - poor
--- 1 - $3/month official subscriber
--- 2 - $10/month ultimate subscriber
-*/
-
-const tierNames: Record<number, string> = {
-  0: "Free",
-  1: "Official Subscriber",
-  2: "Ultimate Subscriber",
-};
-
-export function getTierName(tier: number = 0) {
-  if (!(tier in tierNames)) throw new RangeError(`unknown tier: ${tier}`);
-  return tierNames[tier];
-}

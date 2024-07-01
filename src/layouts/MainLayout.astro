@@ -26,7 +26,7 @@ import Leaderboard from "@icons/leaderboard_24dp_FILL1_wght400_GRAD0_opsz24.svg?
 import SortRounded from "@icons/sort_24dp.svg?react";
 import MenuTab from "@components/MenuTab.astro";
 import Footer from "@components/Footer.astro";
-import { stripe } from "@lib/util";
+import { stripeEnabled } from "@config/apis";
 
 function Hat() {
   switch (import.meta.env.VITE_HAT_BADGE) {
@@ -125,7 +125,7 @@ const { cloak } = Astro.locals;
           <MenuTab href="/faq" name="FAQ" iconFilled={QuestionMark} />
 
           {
-            stripe && (
+            stripeEnabled && (
               <>
                 <div class={styles.bar} />
                 <MenuTab href="/sub/" name="Subscribe" iconFilled={luv} />

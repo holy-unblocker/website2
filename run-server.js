@@ -68,7 +68,7 @@ console.log(yes, chalk.red.bold("Loaded Astro"));
 const { appConfig } = await import("./config/config.js");
 
 // same principle
-const { handleReq } = await import("./config/mirrors.js");
+const { handleReq } = await import("./config/runtime.js");
 
 if (!("configName" in appConfig)) {
   console.log("Missing 'configName', invalid config");

@@ -24,7 +24,7 @@ try {
 // only needed for dev server host & port
 const { appConfig } = await import("./config/config.js");
 // and mirroring
-const { handleReq } = await import("./config/mirrors.js");
+const { handleReq } = await import("./config/runtime.js");
 
 const require = createRequire(import.meta.url);
 const rufflePath = path.resolve(require.resolve("@ruffle-rs/ruffle"), "..");
@@ -46,7 +46,10 @@ export default defineConfig({
   vite: {
     build: {
       dynamicImportVarsOptions: {
-        exclude: [path.resolve("./config/config.js")],
+        exclude: [
+          path.resolve("./config/config.js"),
+          path.resolve("./config/apis.js"),
+        ],
       },
       assetsInlineLimit: 0,
     },

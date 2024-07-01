@@ -13,8 +13,20 @@ import Search from "@icons/search_24dp.svg?react";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useSearchParams } from "@lib/searchParamsHook";
 import { getGlobalSettings } from "@lib/storage";
-import { sillyfetch } from "@lib/sillyfetch";
 import { createRef } from "preact";
+
+// simple API used for fetching duckduckgo search results
+async function sillyfetch(url: string, opts?: { signal: AbortSignal }) {
+  const s = (await fetch("/api/sillyfetch", {
+    method: "POST",
+    body: url,
+    signal: opts?.signal,
+  })) as Response & { sillyurl: string };
+
+  s.sillyurl = s.headers.get("x-url")!;
+
+  return s;
+}
 
 const ProxyOmnibox = ({
   searchEngine,

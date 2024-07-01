@@ -13,13 +13,15 @@ export interface AppConfig {
   theatreFilesMirror: string;
   theatreFilesPath: string;
   separateWispServer: string;
-  db: {
-    user: string;
-    password: string;
-    host: string;
-    port: number;
-    database: string;
-  };
+  db:
+    | string
+    | {
+        user: string;
+        password: string;
+        host: string;
+        port: number;
+        database: string;
+      };
   supportEmail: string;
   mainWebsite: string;
   stripe: {

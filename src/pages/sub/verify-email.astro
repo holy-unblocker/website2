@@ -3,7 +3,7 @@ import "@styles/subscriber.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
-import { db } from "@lib/db";
+import { db } from "@config/apis";
 import {
   canSendEmail,
   sendEmailVerification,

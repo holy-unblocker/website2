@@ -4,7 +4,7 @@ import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import InputPassword from "@components/InputPassword.astro";
 import Banner from "@components/Banner.astro";
-import { db } from "@lib/db";
+import { db } from "@config/apis";
 import { m, createSession } from "@lib/util";
 import { compare } from "@lib/bcrypt";
 

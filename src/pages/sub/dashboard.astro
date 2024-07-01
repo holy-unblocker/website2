@@ -7,9 +7,10 @@ import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
 import Delete from "@icons/delete_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
-import { getTierName, getUserPayment } from "@lib/util";
+import { db, getTierName, getUserPayment } from "@config/apis";
 import { appConfig } from "@config/config";
-import { db } from "@lib/db";
+import { giveTierDiscordRoles } from "@config/apis";
+import __AstroComponent_ from "../404.astro";
 
 const { user, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
@@ -23,7 +24,12 @@ const payment = await getUserPayment(user.id);
 
 const newEmailConfirmed = Astro.url.searchParams.has("newEmailConfirmed");
 const welcome = Astro.url.searchParams.has("welcome");
-const connected = Astro.url.searchParams.has("connected");
+const discordConnected = Astro.url.searchParams.has("disc_connected");
+let userNotInDiscordServer = false;
+
+// for displaying the error
+if (discordConnected)
+  userNotInDiscordServer = !(await giveTierDiscordRoles(user, payment?.tier));
 
 if (Astro.request.method === "POST")
   try {
@@ -36,6 +42,8 @@ if (Astro.request.method === "POST")
           error = "You don't have a Discord linked.";
           Astro.response.status = 400;
         } else {
+          // take away their roles
+          await giveTierDiscordRoles(user, payment?.tier, true);
           await db.query(
             "UPDATE users SET discord_id = null, discord_username = null, discord_avatar = null, discord_name = null, discord_updated = null WHERE id = $1;",
             [user.id]
@@ -53,7 +61,7 @@ if (Astro.request.method === "POST")
 {
   (newEmailConfirmed ||
     welcome ||
-    connected ||
+    discordConnected ||
     Astro.request.method === "POST") && (
     <script>history.pushState({}, "", "/sub/dashboard")</script>
   )
@@ -63,7 +71,15 @@ if (Astro.request.method === "POST")
     <h1 class="page-title">Dashboard for {user.email}</h1>
     {newEmailConfirmed && <Banner success="Email changed." />}
     {welcome && <Banner success="Email verified." />}
-    {connected && <Banner success="Account connected." />}
+    {
+      userNotInDiscordServer && (
+        <Banner
+          error="We couldn't find your Discord account in our server"
+          success="Account connected."
+        />
+      )
+    }
+    {discordConnected && <Banner success="Account connected." />}
     <Banner success={success} error={error} />
     <div class="user-card">
       <h3>Account Actions:</h3>

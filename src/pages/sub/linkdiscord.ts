@@ -1,12 +1,9 @@
 import { appConfig } from "@config/config";
-import { db } from "@lib/db";
-import { stripe } from "@lib/util";
+import { db } from "@config/apis";
 import type { APIRoute } from "astro";
 
 // we are redirected here after discord acc is complete
 export const GET: APIRoute = async (context) => {
-  if (!stripe) return new Response("accounts are disabled", { status: 400 });
-
   const { user, acc } = context.locals;
 
   const code = context.url.searchParams.get("code");
@@ -90,5 +87,5 @@ export const GET: APIRoute = async (context) => {
     ]
   );
 
-  return context.redirect("/sub/dashboard?connected", 302);
+  return context.redirect("/sub/dashboard?disc_connected", 302);
 };

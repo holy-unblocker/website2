@@ -8,8 +8,7 @@ import type { Category } from "@lib/gameCategories";
 import styles from "@styles/TheatreCategory.module.scss";
 import ArrowForward from "@icons/arrow_forward_24dp.svg?svgmin";
 import MainLayout from "@layouts/MainLayout.astro";
-import { theatreAPI, theatreAPIMirror } from "@lib/db";
-import { dbEnabled } from "@lib/db";
+import { dbEnabled, theatreAPI, theatreAPIMirror } from "@lib/theatre";
 import type { CategoryData, TheatreEntryMin } from "@lib/TheatreAPI";
 import LoadingItem from "@components/LoadingItem.astro";
 

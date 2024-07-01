@@ -1,4 +1,4 @@
-import { theatreAPI } from "@lib/db";
+import { theatreAPI } from "@lib/theatre";
 import type { CategoryData } from "@lib/TheatreAPI";
 import type { ListOptions } from "@lib/TheatreWrapper";
 import type { APIRoute } from "astro";

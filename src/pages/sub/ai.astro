@@ -1,7 +1,7 @@
 ---
 import "@styles/subscriber.scss";
 import MainLayout from "@layouts/MainLayout.astro";
-import { getUserPayment } from "@lib/util";
+import { getUserPayment } from "@config/apis";
 
 const { user, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();

@@ -1,6 +1,5 @@
 import { appConfig } from "@config/config";
-import { db } from "@lib/db";
-import { stripe } from "@lib/util";
+import { stripe, db } from "@config/apis";
 import type { APIRoute } from "astro";
 import type Stripe from "stripe";
 
@@ -9,7 +8,7 @@ export const POST: APIRoute = async ({ request }) => {
   if (signature === null) return new Response(null, { status: 400 });
   let event: Stripe.Event;
   try {
-    event = stripe!.webhooks.constructEvent(
+    event = stripe.webhooks.constructEvent(
       await request.text(),
       signature,
       appConfig.stripe.webhookEndpointSecret

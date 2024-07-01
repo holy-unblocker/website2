@@ -6,19 +6,6 @@ import Public from "@icons/public_24dp.svg?react";
 import { useRef } from "preact/hooks";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 
-// simple API used for fetching duckduckgo search results
-async function sillyfetch(url: string, opts?: { signal: AbortSignal }) {
-  const s = (await fetch("/api/sillyfetch", {
-    method: "POST",
-    body: url,
-    signal: opts?.signal,
-  })) as Response & { sillyurl: string };
-
-  s.sillyurl = s.headers.get("x-url")!;
-
-  return s;
-}
-
 export type ServiceFrameSrc = [src: string, uvPage: string];
 
 const ServiceFrame = ({
@@ -30,7 +17,6 @@ const ServiceFrame = ({
 }) => {
   const iframe = useRef<HTMLIFrameElement | null>(null);
   const [firstLoad, setFirstLoad] = useState(false);
-  const [revokeIcon, setRevokeIcon] = useState(false);
   const lastSrc = useRef<string>(src[0]);
   //  const bare = useMemo(() => new BareClient(BARE_API), []);
   const linksTried = useMemo(() => new WeakMap(), []);
@@ -90,16 +76,7 @@ const ServiceFrame = ({
             ? selector.href
             : new URL("/favicon.ico", location).toString();
 
-        if (!linksTried.has(location)) linksTried.set(location, new Set());
-
-        if (!linksTried.get(location).has(icon)) {
-          linksTried.get(location).add(icon);
-
-          const outgoing = await sillyfetch(icon);
-
-          setIcon(URL.createObjectURL(await outgoing.blob()));
-          setRevokeIcon(true);
-        }
+        setIcon("/api/cloakicon?" + icon);
       }
     },
     [iframe, linksTried, src]
@@ -135,12 +112,6 @@ const ServiceFrame = ({
             alt=""
             src={icon}
             onError={() => setIcon("")}
-            onLoad={() => {
-              if (revokeIcon) {
-                URL.revokeObjectURL(icon);
-                setRevokeIcon(false);
-              }
-            }}
           />
         ) : (
           <div

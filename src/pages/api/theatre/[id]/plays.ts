@@ -1,4 +1,4 @@
-import { theatreAPI } from "@lib/db";
+import { theatreAPI } from "@lib/theatre";
 import type { APIRoute } from "astro";
 
 export const PUT: APIRoute = async ({ params }) => {

@@ -3,7 +3,7 @@ import "@styles/subscriber.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import Banner from "@components/Banner.astro";
 import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
-import { getUserPayment, getTierName } from "@lib/util";
+import { stripe, getUserPayment, getTierName } from "@config/apis";
 import { appConfig } from "@config/config";
 import Discord from "@icons/discord.svg?react";
 import Arcade from "@icons/sports_esports_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
@@ -12,7 +12,6 @@ import UltravioletIcon from "@icons/ultraviolet_icon.svg?react";
 import DeviceHub from "@icons/device_hub_24dp_FILL0_wght400_GRAD0_opsz24.svg?react";
 import ChatBot from "@icons/chatbot.svg?react";
 import Speed from "@icons/speed_24dp_FILL0_wght400_GRAD0_opsz24.svg?react";
-import { stripe } from "@lib/util";
 
 const { user } = Astro.locals;
 

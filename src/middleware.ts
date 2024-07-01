@@ -1,5 +1,5 @@
-import { db } from "@lib/db";
-import { m, isIPBanned, isUserBanned, stripe } from "@lib/util";
+import { db, stripeEnabled } from "@config/apis";
+import { m, isIPBanned, isUserBanned } from "@lib/util";
 import { maxAgeLimit } from "@lib/url";
 import { defineMiddleware } from "astro:middleware";
 import engines from "@lib/searchEngines";
@@ -144,8 +144,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
       ? 1
       : searchEngine;
 
-  if (!stripe) {
-    if (context.url.pathname.startsWith("/sub/"))
+  if (!stripeEnabled) {
+    if (
+      context.url.pathname.startsWith("/sub/") ||
+      context.url.pathname === "/api/supersecretstripe"
+    )
       return new Response("accounts are disabled", { status: 400 });
     // don't bother loading logic for account stuff
     return next();
