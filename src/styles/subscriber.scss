@@ -204,6 +204,10 @@ hr {
   border-radius: 10px;
   margin-bottom: 15px;
 
+  .manage-field {
+    max-width: 400px;
+  }
+
   &.user {
     background-color: var(--background-accent-deep-1);
   }
