@@ -195,6 +195,12 @@ export function handleReq(req, res, middleware) {
     res.setHeader("cross-origin-resource-policy", "same-origin");
   }
 
+  const isMainWebsite =
+    !("mainWebsite" in appConfig) || req.headers.host === appConfig.mainWebsite;
+
+  // prevent scraping of website
+  if (!isMainWebsite) res.setHeader("x-robots-tag", "noindex");
+
   if (isCDN && hasTheatreFiles) {
     serveHandler(
       req,
