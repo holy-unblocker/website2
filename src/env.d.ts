@@ -26,6 +26,8 @@ declare type CtxUser = import("@lib/models").UserModel & {
   session: import("@lib/models").SessionModel;
 };
 
+declare var BareMux: any;
+
 namespace App {
   interface Locals {
     isMainWebsite: boolean;

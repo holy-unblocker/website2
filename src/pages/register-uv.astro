@@ -10,11 +10,11 @@ import ClientAPIs from "@components/ClientAPIs.astro";
   <head><meta charset="utf-8" /></head>
   <body>
     <main>Ultraviolet is loading...</main>
-    <ClientAPIs baremux />
+    <ClientAPIs />
     <script>
       import { reportCompatError } from "@lib/compat";
 
-      declare const BareMux: any;
+      console.log(location.href);
 
       document.addEventListener("DOMContentLoaded", async () => {
         let errorCause: string | undefined;
@@ -26,6 +26,7 @@ import ClientAPIs from "@components/ClientAPIs.astro";
               location.pathname.slice(__uv$config.prefix!.length)
             )
           );
+
           console.log(
             "%cRegistering Ultraviolet",
             "background-color:black;color:Pink;font-weight:Bold;"
@@ -40,21 +41,33 @@ import ClientAPIs from "@components/ClientAPIs.astro";
           if (!navigator.serviceWorker)
             throw new Error("Your browser doesn't support service workers.");
 
+          const reg = await navigator.serviceWorker.getRegistration(
+            __uv$config.prefix
+          );
+
           // register sw
-          errorCause = "Failure registering the service worker.";
-          await navigator.serviceWorker.register(`/uv/sw.js`, {
-            scope: __uv$config.prefix,
-            updateViaCache: "none",
-          });
-          errorCause = undefined;
+          if (reg) {
+            console.log("Ultraviolet is already registered");
+          } else {
+            errorCause = "Failure registering the service worker.";
+            await navigator.serviceWorker.register(`/uv/sw.js`, {
+              scope: __uv$config.prefix,
+              updateViaCache: "none",
+            });
+            console.log("Service worker registered.");
+            errorCause = undefined;
 
-          console.log("using wisp at", window.wisp_api);
+            console.log("using wisp at", window.wisp_api);
+
+            await BareMux.SetTransport("EpxMod.EpoxyClient", {
+              wisp: window.wisp_api,
+            });
+          }
+
           // Register the EpoxyClient transport to be used for network requests
-          await BareMux.SetTransport("EpxMod.EpoxyClient", {
-            wisp: window.wisp_api,
-          });
-
-          setTimeout(() => location.reload(), 5e3);
+          setTimeout(() => {
+            location.reload();
+          }, 1e3);
         } catch (err) {
           reportCompatError(err, errorCause, "Ultraviolet");
         }

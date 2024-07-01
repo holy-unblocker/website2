@@ -5,20 +5,29 @@ import OpenInNew from "@icons/open_in_new_24dp.svg?react";
 import Public from "@icons/public_24dp.svg?react";
 import { useRef } from "preact/hooks";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
-import { sillyfetch } from "@lib/sillyfetch";
+
+// simple API used for fetching duckduckgo search results
+async function sillyfetch(url: string, opts?: { signal: AbortSignal }) {
+  const s = (await fetch("/api/sillyfetch", {
+    method: "POST",
+    body: url,
+    signal: opts?.signal,
+  })) as Response & { sillyurl: string };
+
+  s.sillyurl = s.headers.get("x-url")!;
+
+  return s;
+}
 
 export type ServiceFrameSrc = [src: string, uvPage: string];
 
 const ServiceFrame = ({
-  // layout,
   src,
   setSearch,
 }: {
-  // layout: LayoutDump["layout"];
   src: ServiceFrameSrc;
   setSearch: (src: ServiceFrameSrc | null) => void;
 }) => {
-  if (src === null) throw new Error("fuck");
   const iframe = useRef<HTMLIFrameElement | null>(null);
   const [firstLoad, setFirstLoad] = useState(false);
   const [revokeIcon, setRevokeIcon] = useState(false);
@@ -30,7 +39,6 @@ const ServiceFrame = ({
 
   useEffect(() => {
     if (!iframe.current || !iframe.current.contentWindow) return;
-    iframe.current.contentWindow.location.href = src[1];
     setSearch(src);
   }, [iframe, src]);
 
@@ -56,6 +64,7 @@ const ServiceFrame = ({
       // * didn't hook our call to new Function
       try {
         const newsrc = contentWindow.location.href;
+        if (newsrc === "about:blank") return;
         if (newsrc !== src[1]) {
           src[1] = newsrc;
           setSearch(src);
@@ -161,6 +170,7 @@ const ServiceFrame = ({
         title="embed"
         ref={iframe}
         data-first-load={firstLoad || undefined}
+        src={src[1]}
         onLoad={() => {
           testProxyUpdate();
 
