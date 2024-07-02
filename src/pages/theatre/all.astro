@@ -14,7 +14,7 @@ import MainLayout from "@layouts/MainLayout.astro";
   }
   <TheatreCategory
     name="All Games"
-    category={categories.map((category) => category.id).join(",")}
+    category={categories.map((category) => category.id)}
     placeholder="Search by game name"
   />
 </MainLayout>

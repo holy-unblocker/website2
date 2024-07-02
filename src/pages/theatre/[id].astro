@@ -22,7 +22,7 @@ if (!category) Astro.response.status = 404;
         )}
         <TheatreCategory
           name={category.name}
-          category={id}
+          category={[id]}
           placeholder="Search by game name"
         />
       </>

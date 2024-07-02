@@ -123,6 +123,16 @@ export default class TheatreWrapper {
       );
     }
 
+    if (typeof options.category === "object") {
+      // split the entry category into an array
+      // check if the input categories array has any elements in common with the entry category array
+      conditions.push(
+        `string_to_array(category, ',') && string_to_array($${vars.push(
+          options.category.join(",")
+        )}, ',')`
+      );
+    }
+
     if (typeof options.category === "string") {
       conditions.push(
         `$${vars.push(options.category)} = ANY(string_to_array(category, ','))`

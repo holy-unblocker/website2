@@ -80,7 +80,7 @@ export interface ListOptions {
   offset?: number;
   limitPerCategory?: number;
   search?: string;
-  category?: string;
+  category?: string[];
   ids?: string[];
 }
 

@@ -20,12 +20,12 @@ export const GET: APIRoute = async ({ url }) => {
     q.reverse = url.searchParams.get("reverse") === "true";
   }
   if (url.searchParams.has("limit")) {
-    const limit = Number(url.searchParams.get("limit"));
-    if (!isNaN(limit)) q.limit = limit;
+    const limit = parseInt(url.searchParams.get("limit")!);
+    if (!isNaN(limit) && limit >= 0) q.limit = limit;
   }
   if (url.searchParams.has("offset")) {
-    const offset = Number(url.searchParams.get("offset"));
-    if (!isNaN(offset)) q.offset = offset;
+    const offset = parseInt(url.searchParams.get("offset")!);
+    if (!isNaN(offset) && offset >= 0) q.offset = offset;
   }
   if (url.searchParams.has("limitPerCategory")) {
     const limitPerCategory = Number(url.searchParams.get("limitPerCategory"));
@@ -35,7 +35,7 @@ export const GET: APIRoute = async ({ url }) => {
     q.search = url.searchParams.get("search")!;
   }
   if (url.searchParams.has("category")) {
-    q.category = url.searchParams.get("category")!;
+    q.category = url.searchParams.get("category")!.split(",");
   }
   if (url.searchParams.has("ids")) {
     q.ids = url.searchParams.get("ids")!.split(",");

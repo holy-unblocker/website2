@@ -12,39 +12,11 @@ import ClientAPIs from "@components/ClientAPIs.astro";
 </MainLayout>
 <ClientAPIs />
 <script>
+  import { getClientTheatreAPI, renderTheatreItem } from "@lib/renderTheatre";
   import { getGlobalSettings } from "@lib/storage";
-  import TheatreAPI, { type TheatreEntryMin } from "@lib/TheatreAPI";
-  import styles from "@styles/TheatreCategory.module.scss";
 
+  const theatreAPI = getClientTheatreAPI();
   const globalSettings = getGlobalSettings();
-  const api = new TheatreAPI("/api/theatre/");
-
-  function renderTheatreItem(item?: TheatreEntryMin) {
-    const container = document.createElement(item === undefined ? "div" : "a");
-    container.className =
-      styles.item + (item === undefined ? " " + styles.unknown : "");
-
-    const thumb = document.createElement("div");
-    thumb.className = styles.thumbnail;
-    container.append(thumb);
-    thumb.setAttribute("data-load", "");
-
-    if (item !== undefined) {
-      (container as HTMLAnchorElement).href = "/theatre/play?id=" + item.id;
-
-      const img = document.createElement("img");
-      img.addEventListener("load", () => thumb.removeAttribute("data-load"));
-      img.src = `/cdn/thumbnails/${item.id}.webp`;
-      thumb.append(img);
-    }
-
-    const name = document.createElement("div");
-    name.className = styles.name;
-    if (item !== undefined) name.textContent = item.name;
-    container.append(name);
-
-    return container;
-  }
 
   document.addEventListener("astro:page-load", () => {
     const items = document.querySelector<HTMLDivElement>("#favoriteItems");
@@ -61,7 +33,7 @@ import ClientAPIs from "@components/ClientAPIs.astro";
     for (let i = 0; i < favorites.length; i++)
       items.append(renderTheatreItem());
 
-    api
+    theatreAPI
       .list({
         ids: favorites,
       })
