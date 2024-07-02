@@ -37,6 +37,10 @@ if (Astro.request.method === "POST")
     const type = data.get("type")?.toString();
 
     switch (type) {
+      case "cancelSubscription":
+        error = "Not implemented yet! (please try again tomorrow - David)";
+        Astro.response.status = 500;
+        break;
       case "unlink-discord":
         if (user.discord_id === null) {
           error = "You don't have a Discord linked.";
@@ -108,40 +112,64 @@ if (Astro.request.method === "POST")
       <a href="/sub/pricing">
         <input type="button" class="prettysubmit" value="See Pricing" />
       </a>
-    </div>
-    <div class="user-card" style="padding-bottom:10px;">
-      <h3>Connected Accounts</h3>
-      <p>Once you connect an account, it will show up here.</p>
-      <div class="user-connection">
-        <span class="service-name">Discord:</span>
-        {
-          user.discord_id === null ? (
-            <a
-              href={`https://discord.com/oauth2/authorize?client_id=${appConfig.discord!.clientId}&response_type=code&redirect_uri=${encodeURIComponent(appConfig.discord!.clientRedirectURI)}&scope=identify`}
-            >
-              <input
-                type="button"
-                class="prettysubmit"
-                value="Connect Discord"
-              />
-            </a>
-          ) : (
-            <>
-              <span class="details">
-                <img
-                  src={`https://cdn.discordapp.com/avatars/${user.discord_id}/${user.discord_avatar}.png`}
-                  class="avatar"
-                />
-                <span set:text={user.discord_name} class="username" />
-              </span>
-              <form class="delete" method="post">
-                <input type="text" name="type" value="unlink-discord" hidden />
-                <button set:html={Delete} />
-              </form>
-            </>
-          )
-        }
-      </div>
+      {
+        payment && (
+          <form method="post" id="cancelSubscription">
+            <input type="text" name="type" value="cancelSubscription" hidden />
+            <input
+              type="submit"
+              class="prettysubmit"
+              value="Cancel Subscription"
+            />
+          </form>
+        )
+      }
     </div>
   </main>
+  <div class="user-card" style="padding-bottom:10px;">
+    <h3>Connected Accounts</h3>
+    <p>Once you connect an account, it will show up here.</p>
+    <div class="user-connection">
+      <span class="service-name">Discord:</span>
+      {
+        user.discord_id === null ? (
+          <a
+            href={`https://discord.com/oauth2/authorize?client_id=${appConfig.discord!.clientId}&response_type=code&redirect_uri=${encodeURIComponent(appConfig.discord!.clientRedirectURI)}&scope=identify`}
+          >
+            <input type="button" class="prettysubmit" value="Connect Discord" />
+          </a>
+        ) : (
+          <>
+            <span class="details">
+              <img
+                src={`https://cdn.discordapp.com/avatars/${user.discord_id}/${user.discord_avatar}.png`}
+                class="avatar"
+              />
+              <span set:text={user.discord_name} class="username" />
+            </span>
+            <form class="delete" method="post">
+              <input type="text" name="type" value="unlink-discord" hidden />
+              <button set:html={Delete} />
+            </form>
+          </>
+        )
+      }
+    </div>
+  </div>
 </MainLayout>
+
+<script>
+  document.addEventListener("astro:page-load", (event) => {
+    const cancelSubscription = document.querySelector<HTMLDivElement>(
+      "#cancelSubscription"
+    )!;
+    cancelSubscription.addEventListener("submit", (event) => {
+      if (
+        !confirm(
+          "Are you ABSOLUTELY sure you want to cancel your subscription?"
+        )
+      )
+        event.preventDefault();
+    });
+  });
+</script>
