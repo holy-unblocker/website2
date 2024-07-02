@@ -52,6 +52,10 @@ if (Astro.request.method === "POST")
       try {
         // create the invoice and redirect
 
+        const proto = ["localhost", "127.0.0.1"].includes(Astro.url.hostname)
+          ? "http:"
+          : "https:";
+
         // https://docs.stripe.com/billing/subscriptions/build-subscriptions
         stripeSession = await stripe!.checkout.sessions.create({
           mode: "subscription",
@@ -63,8 +67,10 @@ if (Astro.request.method === "POST")
               quantity: 1,
             },
           ],
-          success_url: `https://${Astro.url.host}/sub/paid?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `https://${Astro.url.host}/sub/pricing`,
+          success_url:
+            proto +
+            `//${Astro.url.host}/sub/paid?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: proto + `//${Astro.url.host}/sub/pricing`,
         });
 
         console.log("checkout session created", stripeSession.id);
