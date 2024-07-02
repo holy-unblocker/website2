@@ -128,59 +128,57 @@ if (mirrorError) {
           </Fragment>
         )}
         <TheatreSearchBar />
-        <main class={styles.main}>
-          <div class={styles.content} id="content">
-            <div class={styles.frame}>
-              <div class={styles.iframeContainer}>
-                <div
-                  class={styles.iframeCover}
-                  title="Click to focus"
-                  id="focusOverlay"
-                />
-                <iframe id="playerFrame" title="Embed" />
-              </div>
-              <div tabindex="0" class={styles.controls} id="controlsPopup">
-                <div
-                  class={styles.close}
-                  id="closeControlsPopup"
-                  set:html={Close}
-                />
-                <div class={styles.controls} set:html={controlsHTML} />
-              </div>
+        <div class={styles.content} id="content">
+          <div class={styles.frame}>
+            <div class={styles.iframeContainer}>
+              <div
+                class={styles.iframeCover}
+                title="Click to focus"
+                id="focusOverlay"
+              />
+              <iframe id="playerFrame" title="Embed" />
             </div>
-            <div class={styles.title}>
-              <h3 class={styles.name}>{data.name}</h3>
-              <div class={styles.shiftRight} />
+            <div tabindex="0" class={styles.controls} id="controlsPopup">
               <div
-                class={styles.button}
-                id="openInFullscreen"
-                title="Fullscreen mode"
-                set:html={Fullscreen}
+                class={styles.close}
+                id="closeControlsPopup"
+                set:html={Close}
               />
-              {data.controls.length !== 0 && (
-                <div
-                  class={styles.button}
-                  tabindex="0"
-                  id="openControls"
-                  title="Controls"
-                  set:html={VideogameAsset}
-                />
-              )}
-              <div
-                class:list={[styles.button, styles.favoriteButton]}
-                id="favoriteButton"
-                title="Add to favorites"
-                set:html={Star + StarBorder}
-              />
-              <div
-                class:list={[styles.button, styles.panoramaButton]}
-                id="panoramaButton"
-                title="Panorama mode"
-                set:html={ChevronLeft + Panorama}
-              />
+              <div class={styles.controls} set:html={controlsHTML} />
             </div>
           </div>
-        </main>
+          <div class={styles.title}>
+            <h3 class={styles.name}>{data.name}</h3>
+            <div class={styles.shiftRight} />
+            <div
+              class={styles.button}
+              id="openInFullscreen"
+              title="Fullscreen mode"
+              set:html={Fullscreen}
+            />
+            {data.controls.length !== 0 && (
+              <div
+                class={styles.button}
+                tabindex="0"
+                id="openControls"
+                title="Controls"
+                set:html={VideogameAsset}
+              />
+            )}
+            <div
+              class:list={[styles.button, styles.favoriteButton]}
+              id="favoriteButton"
+              title="Add to favorites"
+              set:html={Star + StarBorder}
+            />
+            <div
+              class:list={[styles.button, styles.panoramaButton]}
+              id="panoramaButton"
+              title="Panorama mode"
+              set:html={ChevronLeft + Panorama}
+            />
+          </div>
+        </div>
       </>
     ) : (
       <main>
