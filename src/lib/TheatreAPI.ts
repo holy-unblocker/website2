@@ -94,7 +94,7 @@ export default class TheatreAPI {
 
     for (const param in params) {
       const e = params[param];
-      if (e !== null) result[param] = e.toString();
+      if (e !== null && e !== undefined) result[param] = e.toString();
     }
 
     return result;
