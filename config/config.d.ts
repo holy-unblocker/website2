@@ -51,9 +51,9 @@ export interface AppConfig {
   };
   links: {
     github: {
-      org: string;
-      website: string;
-      websiteaio: string;
+      mercuryworkshop: string;
+      titaniumnetwork: string;
+      holyunblocker: string;
     };
     discord: {
       titaniumnetwork: string;

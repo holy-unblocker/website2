@@ -40,10 +40,10 @@ import UltravioletIcon from "@icons/ultraviolet_icon.svg?react";
       </button>
       <ProxyOmnibox searchEngine={Astro.locals.searchEngine} />
     </div>
-    <div class={styles.poweredBy}>
+    <a class={styles.poweredBy} href="/credits">
       <Fragment set:html={UltravioletIcon} />
       <span>Powered by <b>Ultraviolet</b></span>
-    </div>
+    </a>
   </main>
 </MainLayout>
 <ClientAPIs />

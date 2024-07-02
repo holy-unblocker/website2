@@ -1,6 +1,7 @@
 ---
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
+import { appConfig } from "@config/config";
 ---
 
 <MainLayout title="Credits">
@@ -14,67 +15,103 @@ import themeStyles from "@styles/ThemeElements.module.scss";
     <ul>
       <li>
         <a href="https://github.com/e9x" class={themeStyles.themeLink}>David</a>
-        - Frontend/Backend Developer
+        - Owner of Holy Unblocker, main developer
       </li>
       <li>
         <a href="https://github.com/genericness" class={themeStyles.themeLink}
-          >Akane</a
-        > - Infrastructure, Finances, Backend Developer
+          >akane</a
+        > - Infrastructure and finances
       </li>
-      <li>Eli - NFT/Bitcoin specialist</li>
+      <li>
+        <a
+          href="https://github.com/QuiteAFancyEmerald"
+          class={themeStyles.themeLink}
+          >Quite A Fancy Emerald
+        </a> - Founder of Holy Unblocker
+      </li>
+      <li>Eli - NFT specialist</li>
     </ul>
 
     <h4>Sponsors</h4>
 
     <ul>
       <li>
-        <a href="/sub/pricing" class={themeStyles.themeLink}>Our Subscribers!</a
+        <a href="/sub/pricing" class={themeStyles.themeLink}
+          >Holy Unblocker Premium Subscribers</a
         >
       </li>
       <li>
         <a href="https://github.com/z3db0y" class={themeStyles.themeLink}
           >z3db0y</a
         >
-        - BALLER DONATOR, TY
+        - MASSIVE DONATOR :D
       </li>
       {
         !Astro.locals.isMainWebsite && (
           <>
             <li>
-              <a>The Kingdom of Saudi Arabia</a>
+              <a
+                href="https://www.my.gov.sa/wps/portal/snp/main?lang=en"
+                class={themeStyles.themeLink}
+              >
+                The Kingdom of Saudi Arabia
+              </a>
             </li>
-            <li>Jeff Bezos - Server hosting</li>
+            <li>
+              <a href="https://amazon.com/" class={themeStyles.themeLink}>
+                Jeff Bezos - Server hosting
+              </a>
+            </li>
           </>
         )
       }
     </ul>
 
-    <h4>Development</h4>
-    <ul>
-      <li>sexyduceduce - Frontend Developer, Creator of Ultraviolet</li>
-      <li>OlyB - Frontend Developer, WebRetro</li>
-      <li>luphoria - Backend Developer</li>
-      <li>Ender - Backend Developer</li>
-      <li>011011000110111101101100 - Rammerhead</li>
-    </ul>
-
     <h4>Community</h4>
     <ul>
-      <li>Simon - CSGO Skin Gambling, Chat Moderator</li>
-      <li>Incoming - Chat Moderator, Foreign Interpreter</li>
-      <li>Degenerate - Unpaid Intern, Chat Moderator</li>
-      <li>Aub - Community Manager</li>
+      <li>
+        <a
+          href={appConfig.links.discord.holyunblocker}
+          class={themeStyles.themeLink}>Click to join our Discord server!</a
+        >
+      </li>
+      <li>
+        <a href="https://github.com/s1monlol" class={themeStyles.themeLink}
+          >Simon</a
+        > - Professional Gambler, Chat Moderator
+      </li>
+      <li>Incoming - Chat Moderator</li>
+      <li>
+        <a href="https://github.com/Degen-dev" class={themeStyles.themeLink}
+          >DG0Xe3</a
+        > - Unpaid Intern, Chat Moderator
+      </li>
+      <li>aub - TitaniumNetwork owner?</li>
     </ul>
 
-    <h2>Proxy Scripts</h2>
+    <h4>Software</h4>
     <ul>
       <li>
-        Ultraviolet: <a
-          href="https://github.com/titaniumnetwork-dev/Ultraviolet"
-          title="Git repository"
-          class={themeStyles.themeLink}
-          >https://github.com/titaniumnetwork-dev/Ultraviolet</a
-        >
+        <a href="https://github.com/caracal-js" class={themeStyles.themeLink}
+          >sexyduceduce</a
+        > - Creator of Ultraviolet
+      </li>
+      <li>
+        <a
+          href={appConfig.links.github.mercuryworkshop}
+          class={themeStyles.themeLink}>Mercury Workshop</a
+        > - Creators of the wisp protocol and epoxy
+      </li>
+      <li>
+        <a
+          href={appConfig.links.discord.titaniumnetwork}
+          class={themeStyles.themeLink}>TitaniumNetwork</a
+        > - Maintainers of Ultraviolet
+      </li>
+      <li>
+        <a href="https://github.com/BinBashBanana" class={themeStyles.themeLink}
+          >OlyB</a
+        > - TitaniumNetwork owner, WebRetro
       </li>
     </ul>
   </main>

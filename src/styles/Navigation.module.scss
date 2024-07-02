@@ -40,33 +40,40 @@ html[data-tab] {
 
 .button {
   box-sizing: content-box;
-  border: none;
-  background: none;
-  width: 20px;
-  height: 20px;
   margin: auto 5px;
   border-radius: 2px;
-  padding: 5px;
   position: relative;
-  flex: none;
   cursor: pointer;
-  color: var(--text);
-
-  > svg {
-    font-size: 20px;
-  }
+  font-size: 20px;
+  width: 30px;
+  height: 30px;
 
   &:hover {
     background-color: var(--background-accent);
+  }
 
-    @include screenMobile {
-      background-color: transparent;
+  svg {
+    fill: var(--text);
+  }
+
+  // if the SVG should be centered
+  // used on google icons
+  &.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    svg {
+      width: unset;
+      height: unset;
     }
   }
 
-  @include screenMobile {
-    padding: calc(($nav-height - 20px) / 2) 10px;
-    margin: 0px;
+  // make it smaller & center it
+  &.git svg {
+    margin: 5px;
+    width: 20px;
+    height: 20px;
   }
 }
 

@@ -28,9 +28,8 @@ import { appConfig } from "@config/config";
           <td>
             <a
               class={themeStyles.themeLink}
-              href={appConfig.links.github.org}
-              title="Git repository"
-              set:text={appConfig.links.github.org}
+              href={appConfig.links.github.holyunblocker}
+              set:text={appConfig.links.github.holyunblocker}
             />
           </td>
         </tr>
@@ -42,7 +41,6 @@ import { appConfig } from "@config/config";
                 <a
                   class={themeStyles.themeLink}
                   href={"mailto:" + appConfig.supportEmail}
-                  title="Email address"
                   set:text={appConfig.supportEmail}
                 />
               </td>

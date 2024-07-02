@@ -9,8 +9,9 @@ import HatDev from "@icons/hat-dev.svg?react";
 import HatPlain from "@icons/hat.svg?react";
 import categories from "@lib/gameCategories";
 import styles from "@styles/Navigation.module.scss";
-import Menu from "@icons/menu_24dp.svg?svgmin";
-import Settings from "@icons/settings_24dp.svg?svgmin";
+import MenuIcon from "@icons/menu_24dp.svg?react";
+import GitHub from "@icons/github.svg?react";
+import Settings from "@icons/settings_24dp.svg?react";
 import HomeOutlined from "@icons/home_24dp_outlined.svg?react";
 import Home from "@icons/home_24dp.svg?react";
 import UltravioletIcon from "@icons/ultraviolet_icon.svg?react";
@@ -28,6 +29,7 @@ import NavMenuTab from "@components/NavMenuTab.astro";
 import Footer from "@components/Footer.astro";
 import { stripeEnabled } from "@config/apis";
 import { ViewTransitions } from "astro:transitions";
+import { appConfig } from "@config/config";
 
 function Hat() {
   switch (import.meta.env.VITE_HAT_BADGE) {
@@ -65,9 +67,11 @@ const { cloak } = Astro.locals;
   </head>
   <body>
     <nav class={styles.nav} transition:persist>
-      <button class={styles.button} onclick="setNavExpanded(true)">
-        <Menu class="icon" />
-      </button>
+      <div
+        class:list={[styles.button, styles.center]}
+        set:html={MenuIcon}
+        onclick="setNavExpanded(true)"
+      />
       <a
         href="/"
         class:list={[styles.entry, styles.logo]}
@@ -75,30 +79,30 @@ const { cloak } = Astro.locals;
         set:html={Hat()}
       />
       <div class={styles.shiftRight}></div>
-      {
-        /*user ? (
-          <a href="/sub/dashboard">Dashboard</a>
-        ) : (
-          <a href="/sub/">not logged in</a>
-        )*/
-      }
-      {
-        /* we want the user to tab into the button, not the link so it looks right */
-      }
-      <a href="/settings/appearance" title="Home" tabindex="-1">
-        <button class={styles.button}>
-          <Settings class="icon" />
-        </button>
-      </a>
+      <a
+        href={appConfig.links.github.holyunblocker}
+        title="GitHub"
+        class:list={[styles.button, styles.git]}
+        set:html={GitHub}
+      />
+
+      <a
+        href="/settings/"
+        title="Settings"
+        class:list={[styles.button, styles.center]}
+        set:html={Settings}
+      />
     </nav>
     <div class={styles.content}>
       <div tabindex="-1" class={styles.cover} onclick="setNavExpanded(false)">
       </div>
       <div class={styles.menu}>
         <div class={styles.top}>
-          <div class={styles.button} onclick="setNavExpanded(false)">
-            <Menu class="icon" />
-          </div>
+          <div
+            class:list={[styles.button, styles.center]}
+            set:html={MenuIcon}
+            onclick="setNavExpanded(false)"
+          />
           <a
             href="/"
             class:list={[styles.entry, styles.logo]}

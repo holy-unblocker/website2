@@ -117,9 +117,11 @@ export const appConfig = {
   // general website links
   links: {
     github: {
-      org: "https://github.com/holy-unblocker",
-      website: "https://github.com/holy-unblocker/website",
-      websiteaio: "https://github.com/holy-unblocker/website-aio",
+      mercuryworkshop: "https://github.com/MercuryWorkshop",
+      ultraviolet: "https://github.com/titaniumnetwork-dev/Ultraviolet",
+      // link to this repository
+      // used in the contact page and navbar
+      holyunblocker: "https://github.com/holy-unblocker/website2",
     },
     discord: {
       titaniumnetwork: "https://discord.gg/unblock",

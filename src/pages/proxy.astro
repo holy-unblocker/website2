@@ -5,7 +5,6 @@ import styles from "@styles/Proxy.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import ClientAPIs from "@components/ClientAPIs.astro";
-import ServiceFrame from "@components/ServiceFrame.astro";
 
 /*const ProxyMeta = () => (
   <Meta
@@ -48,18 +47,25 @@ import ServiceFrame from "@components/ServiceFrame.astro";
       by looking at the <a href="/faq">FAQ</a>.
     </p>
     <p>
-      This is a free service paid for by our Patreons. If you want to help us
-      maintain our servers and get access to exclusive features, <a
+      Ultraviolet is <a
         class={themeStyles.themeLink}
-        href="/sub/pricing">subscribe to Holy Unblocker</a
+        href={appConfig.links.github.ultraviolet}>open source</a
+      > proxy software that lets you browse the internet without leaving Holy Unblocker.
+    </p>
+    <p>
+      Our servers are paid for by our premium subscribers. If you want to help
+      us maintain our servers and get access to exclusive features, consider
+      subscribing to
+      <a class={themeStyles.themeLink} href="/sub/pricing"
+        >Holy Unblocker Premium</a
       >.
     </p>
     <p>
       <a
         class={themeStyles.themeLink}
         href={appConfig.links.discord.holyunblocker}
-        >Join the TitaniumNetwork Discord</a
-      > for access to more Holy Unblocker links.
+        >Join the Holy Unblocker Discord</a
+      > to talk to the community and gain access to more links.
     </p>
   </main>
 </MainLayout>
