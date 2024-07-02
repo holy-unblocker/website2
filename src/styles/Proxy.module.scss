@@ -1,15 +1,10 @@
 @import "./common.scss";
 
-.main {
-  margin-left: auto;
-  margin-right: auto;
-  width: 584px;
+.content {
+  margin: auto;
+  max-width: 584px;
 
   .title {
     text-align: center;
-  }
-
-  @include screenMobile {
-    width: auto;
   }
 }

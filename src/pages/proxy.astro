@@ -39,34 +39,36 @@ import ClientAPIs from "@components/ClientAPIs.astro";
       content="Bypass blocks on your internet traffic with Holy Unblocker's web proxy."
     />
   </Fragment>
-  <main class={styles.main}>
-    <h1 class={styles.title}>Ultraviolet</h1>
-    <ProxyOmnibox searchEngine={Astro.locals.searchEngine} />
-    <p>
-      If you're having issues with the proxy, try troubleshooting your problem
-      by looking at the <a href="/faq">FAQ</a>.
-    </p>
-    <p>
-      Ultraviolet is <a
-        class={themeStyles.themeLink}
-        href={appConfig.links.github.ultraviolet}>open source</a
-      > proxy software that lets you browse the internet without leaving Holy Unblocker.
-    </p>
-    <p>
-      Our servers are paid for by our premium subscribers. If you want to help
-      us maintain our servers and get access to exclusive features, consider
-      subscribing to
-      <a class={themeStyles.themeLink} href="/sub/pricing"
-        >Holy Unblocker Premium</a
-      >.
-    </p>
-    <p>
-      <a
-        class={themeStyles.themeLink}
-        href={appConfig.links.discord.holyunblocker}
-        >Join the Holy Unblocker Discord</a
-      > to talk to the community and gain access to more links.
-    </p>
+  <main>
+    <div class={styles.content}>
+      <h1 class={styles.title}>Ultraviolet</h1>
+      <ProxyOmnibox searchEngine={Astro.locals.searchEngine} />
+      <p>
+        If you're having issues with the proxy, try troubleshooting your problem
+        by looking at the <a href="/faq">FAQ</a>.
+      </p>
+      <p>
+        Ultraviolet is <a
+          class={themeStyles.themeLink}
+          href={appConfig.links.github.ultraviolet}>open source</a
+        > proxy software that lets you browse the internet without leaving Holy Unblocker.
+      </p>
+      <p>
+        Our servers are paid for by our premium subscribers. If you want to help
+        us maintain our servers and get access to exclusive features, consider
+        subscribing to
+        <a class={themeStyles.themeLink} href="/sub/pricing"
+          >Holy Unblocker Premium</a
+        >.
+      </p>
+      <p>
+        <a
+          class={themeStyles.themeLink}
+          href={appConfig.links.discord.holyunblocker}
+          >Join the Holy Unblocker Discord</a
+        > to talk to the community and gain access to more links.
+      </p>
+    </div>
   </main>
 </MainLayout>
 <ClientAPIs />
