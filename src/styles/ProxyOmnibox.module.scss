@@ -16,13 +16,15 @@ $height: 44px;
   margin: 10px auto;
 
   &[data-suggested] {
-    .suggested {
-      display: flex;
-    }
-
     .inputBar {
       border-bottom-left-radius: 0px;
       border-bottom-right-radius: 0px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .suggested {
+      border: 1px solid var(--border);
+      border-top: none;
     }
   }
 
@@ -68,23 +70,20 @@ $height: 44px;
 }
 
 .suggested {
-  box-sizing: border-box;
-  display: none;
-  margin-top: $height;
-  width: 100%;
-
-  @include screenMobile {
-    width: calc(100% - 20px); // - padding - border
-  }
-
   position: absolute;
   flex-direction: column;
   background-color: var(--background-accent);
   overflow: hidden;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
-  border: 1px solid var(--border);
-  border-top: none;
+  box-sizing: border-box;
+  display: flex;
+  margin-top: $height;
+  width: 100%;
+
+  @include screenMobile {
+    width: calc(100% - 20px); // - padding - border
+  }
 
   > div {
     cursor: pointer;
@@ -94,9 +93,12 @@ $height: 44px;
     display: flex;
     flex-direction: row;
 
-    &:hover,
-    &[data-hover] {
+    &:hover {
       background-color: var(--background);
+    }
+
+    &[data-hover] {
+      background-color: var(--background-accent-deep-2);
     }
 
     > .text {

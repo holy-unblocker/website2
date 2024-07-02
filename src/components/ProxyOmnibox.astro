@@ -1,0 +1,305 @@
+---
+import themeStyles from "@styles/ThemeElements.module.scss";
+import styles from "@styles/ProxyOmnibox.module.scss";
+import searchEngines from "@lib/searchEngines";
+import ServiceFrame from "@components/ServiceFrame.astro";
+
+const engine = searchEngines[Astro.locals.searchEngine];
+---
+
+<ServiceFrame />
+<svg class="defs" height="0" width="0" xmlns="http://www.w3.org/2000/svg"
+  ><defs>
+    <svg fill="none" id="searchGlass" viewBox="0 0 24 24">
+      <!-- "Search" from Google Material Icons -->
+      <path
+        d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+      ></path>
+    </svg>
+    <svg fill="none" id="northWest" viewBox="0 0 24 24">
+      <!-- "North West" from Google Material Icons -->
+      <path d="M5,15h2V8.41L18.59,20L20,18.59L8.41,7H15V5H5V15z"></path>
+    </svg>
+  </defs>
+</svg>
+<form class={styles.omnibox} id="omnibox" data-search-format={engine.format}>
+  <div class={`${themeStyles.ThemeInputBar} ${styles.inputBar}`}>
+    <div class={themeStyles.icon}>
+      <svg>
+        <use href="#searchGlass"></use>
+      </svg>
+    </div>
+    <input
+      type="text"
+      id="omniboxInput"
+      placeholder={`Search ${engine.name} or type a URL`}
+      required
+      autocomplete="off"
+      class={themeStyles.thinPadLeft}
+    />
+  </div>
+  <div class={styles.suggested} id="omniboxSuggest"></div>
+</form>
+<script>
+  import SearchBuilder from "@lib/SearchBuilder";
+  import styles from "@styles/ProxyOmnibox.module.scss";
+
+  type SearchProvider = "bing" | "duckduckgo";
+
+  const searchProvider: SearchProvider = "duckduckgo";
+
+  // simple API used for fetching duckduckgo search results
+  async function sillyfetch(url: string, opts?: { signal: AbortSignal }) {
+    const s = (await fetch("/api/sillyfetch", {
+      method: "POST",
+      body: url,
+      signal: opts?.signal,
+    })) as Response & { sillyurl: string };
+
+    s.sillyurl = s.headers.get("x-url")!;
+
+    return s;
+  }
+
+  let resultIndex = -1;
+  let lastQuery: string | undefined;
+
+  // reuse the same function
+  function entryClick(this: HTMLDivElement) {
+    const inputBar = document.querySelector<HTMLInputElement>("#omniboxInput")!;
+    const dest = this.textContent!;
+    inputBar.value = dest;
+    inputBar.focus();
+    resultIndex = -1;
+  }
+
+  const renderSearchResult = (result: string, query: string) => {
+    const ele = document.createElement("div");
+    // search icon
+    const search = document.createElement("span");
+    search.className = styles.search;
+    search.innerHTML = `<svg><use href="#searchGlass"></use></svg>`;
+    ele.append(search);
+
+    const text = document.createElement("span");
+    text.className = styles.text;
+    if (result.trim().startsWith(query)) {
+      // make the part that matches the query bold
+      const b = document.createElement("b");
+      b.append(query);
+      text.append(b);
+      text.append(result.slice(query.length));
+    } else {
+      text.append(query);
+    }
+    ele.append(text);
+
+    ele.addEventListener("click", entryClick);
+
+    // open icon
+    const open = document.createElement("span");
+    open.className = styles.open;
+    open.innerHTML = `<svg><use href="#northWest"></use></svg>`;
+    ele.append(open);
+
+    return ele;
+  };
+
+  document.addEventListener("astro:page-load", () => {
+    const form = document.querySelector<HTMLFormElement>("#omnibox");
+    if (!form) return;
+
+    const searchEngineFormat = form.getAttribute("data-search-format")!;
+    const builder = new SearchBuilder(searchEngineFormat);
+    const inputBar = document.querySelector<HTMLInputElement>("#omniboxInput")!;
+    const suggest = document.querySelector<HTMLDivElement>("#omniboxSuggest")!;
+
+    resultIndex = -1;
+    lastQuery = undefined;
+
+    const setInputFocused = (inputFocused: boolean) => {
+      resultIndex = -1;
+      lastQuery = undefined;
+      if (inputFocused) {
+        getSearchResults(inputBar.value);
+        form.setAttribute("data-focused", "");
+      } else {
+        suggest.innerHTML = "";
+        form.removeAttribute("data-focused");
+        form.removeAttribute("data-suggested");
+      }
+    };
+
+    function updateResults() {
+      for (let i = 0; i < suggest.children.length; i++) {
+        const e = suggest.children[i];
+
+        if (i === resultIndex) e.setAttribute("data-hover", "");
+        else e.removeAttribute("data-hover");
+      }
+    }
+
+    inputBar.addEventListener("keydown", (event) => {
+      switch (event.code) {
+        case "Escape":
+          setInputFocused(false);
+          break;
+        case "ArrowDown":
+          if (!suggest.children.length) break;
+          if (resultIndex === suggest.children.length - 1) resultIndex = 0;
+          else resultIndex++;
+          updateResults();
+          event.preventDefault();
+          break;
+        case "ArrowUp":
+          if (!suggest.children.length) break;
+          if (resultIndex === -1) resultIndex = suggest.children.length - 1;
+          else resultIndex -= 1;
+          updateResults();
+          break;
+        case "Enter":
+          {
+            if (!suggest.children.length) break;
+            const result = suggest.children[resultIndex];
+            if (result) {
+              const src = builder.query(result.textContent!);
+              setInputFocused(false);
+              setServiceSrc(src);
+              event.preventDefault();
+            }
+          }
+          break;
+      }
+    });
+
+    inputBar.addEventListener("focus", () => {
+      setInputFocused(true);
+    });
+
+    inputBar.addEventListener("blur", (event) => {
+      setTimeout(() => {
+        setInputFocused(false);
+      }, 10);
+    });
+
+    const omniboxSubmit = (search: string) => {
+      const src = builder.query(search);
+      inputBar.blur();
+      setServiceSrc(src);
+    };
+
+    // set src using search params
+    // allow querying omnibox
+    // eg: https://holyubofficial.net/?q=hello+world will search for "Hello World"
+    const query = new URLSearchParams(location.search).get("q");
+    if (query !== null) {
+      const src = new SearchBuilder(searchEngineFormat).query(query);
+      setServiceSrc(src);
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      omniboxSubmit(inputBar.value);
+    });
+
+    let abort = new AbortController();
+
+    const getSearchResults = async (query: string) => {
+      query = query.trim();
+      if (query === lastQuery) return;
+
+      suggest.innerHTML = "";
+
+      if (query === "") {
+        form.removeAttribute("data-suggested");
+      } else {
+        form.setAttribute("data-suggested", "");
+        suggest.append(renderSearchResult(query, query));
+      }
+
+      const results: string[] = [];
+
+      try {
+        abort.abort("aborted due to user input");
+        abort = new AbortController();
+
+        switch (searchProvider as SearchProvider) {
+          case "bing":
+            {
+              const res = await sillyfetch(
+                "https://www.bing.com/AS/Suggestions?" +
+                  new URLSearchParams({
+                    qry: query,
+                    cvid: "\u0001",
+                    bareServer: "", // tell bing that this is HU
+                  }),
+                {
+                  signal: abort.signal,
+                }
+              );
+
+              if (!res.ok) {
+                console.error("error fetching Bing suggestions:", res.status);
+                console.error(res.text());
+                return;
+              }
+
+              const text = await res.text();
+
+              for (const [, phrase] of text.matchAll(
+                /<span class="sa_tm_text">(.*?)<\/span>/g
+              )) {
+                // render the raw HTML to obtain its textContenet
+                const lol = document.createElement("div");
+                lol.innerHTML = phrase;
+                results.push(lol.textContent!.trim());
+              }
+            }
+            break;
+          case "duckduckgo":
+            {
+              const res = await sillyfetch(
+                "https://duckduckgo.com/ac/?" +
+                  new URLSearchParams({
+                    q: query,
+                    kl: "wt-wt",
+                    bareServer: "", // tell ddg that this is HU
+                  }),
+                {
+                  signal: abort.signal,
+                }
+              );
+
+              if (!res.ok) {
+                console.error(
+                  "error fetching DuckDuckGo autocomplete:",
+                  res.status
+                );
+                console.error(res.text());
+                return;
+              }
+
+              const data = (await res.json()) as { phrase: string }[];
+
+              for (const entry of data) results.push(entry.phrase);
+            }
+            break;
+          default:
+            throw new TypeError(`unknown search provider: ${searchProvider}`);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      // render the entries and new omnibox
+      for (const res of results)
+        if (res !== query) suggest.append(renderSearchResult(res, query));
+    };
+
+    inputBar.addEventListener("input", () => {
+      getSearchResults(inputBar.value);
+    });
+
+    // let lastSelect = useState(-1);
+  });
+</script>

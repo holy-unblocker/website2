@@ -3,9 +3,9 @@ import MainLayout from "@layouts/MainLayout.astro";
 import styles from "@styles/Home.module.scss";
 import Underline from "@icons/underline.svg?svgmin";
 import themeStyles from "@styles/ThemeElements.module.scss";
-import ProxyOmnibox from "@components/ProxyOmnibox";
+import ProxyOmnibox from "@components/ProxyOmnibox.astro";
 import ClientAPIs from "@components/ClientAPIs.astro";
-import ServiceFrame from "@components/ServiceFrame.astro";
+import UltravioletIcon from "@icons/ultraviolet_icon.svg?react";
 ---
 
 <MainLayout title="Holy Unblocker">
@@ -21,25 +21,28 @@ import ServiceFrame from "@components/ServiceFrame.astro";
   }
   <main class={styles.main}>
     <div class={styles.title}>
-      <h1>
-        Ending Internet
+      <span class={styles.big}
+        >Ending Internet
         <span class={styles.pretty}>
           Censorship.
           <Underline class={styles.prettyUnderline} />
         </span>
-      </h1>
-      <h3>Privacy right at your fingertips.</h3>
-      <div class={styles.focus}>
-        <button
-          type="button"
-          class:list={[themeStyles.ThemeButton, styles.button]}
-          onclick="setNavExpanded(true)"
-        >
-          Get Started
-        </button>
-        <ServiceFrame />
-        <ProxyOmnibox searchEngine={Astro.locals.searchEngine} client:load />
-      </div>
+      </span>
+      <h3 class={styles.small}>Privacy right at your fingertips.</h3>
+    </div>
+    <div class={styles.focus}>
+      <button
+        type="button"
+        class:list={[themeStyles.ThemeButton, styles.button]}
+        onclick="setNavExpanded(true)"
+      >
+        Get Started
+      </button>
+      <ProxyOmnibox searchEngine={Astro.locals.searchEngine} />
+    </div>
+    <div class={styles.poweredBy}>
+      <Fragment set:html={UltravioletIcon} />
+      <span>Powered by <b>Ultraviolet</b></span>
     </div>
   </main>
 </MainLayout>

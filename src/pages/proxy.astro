@@ -1,6 +1,6 @@
 ---
 import { appConfig } from "@config/config";
-import ProxyOmnibox from "@components/ProxyOmnibox";
+import ProxyOmnibox from "@components/ProxyOmnibox.astro";
 import styles from "@styles/Proxy.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
@@ -42,8 +42,7 @@ import ServiceFrame from "@components/ServiceFrame.astro";
   </Fragment>
   <main class={styles.main}>
     <h1 class={styles.title}>Ultraviolet</h1>
-    <ServiceFrame />
-    <ProxyOmnibox searchEngine={Astro.locals.searchEngine} client:load />
+    <ProxyOmnibox searchEngine={Astro.locals.searchEngine} />
     <p>
       If you're having issues with the proxy, try troubleshooting your problem
       by looking at the <a href="/faq">FAQ</a>.

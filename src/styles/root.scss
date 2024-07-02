@@ -23,7 +23,7 @@ h3 {
   outline: none;
 }
 
-svg {
+svg:not(.defs) {
   user-select: none;
   width: 1em;
   height: 1em;
@@ -88,8 +88,9 @@ body {
 }
 
 main {
-  padding: 0px 5%;
-  margin: 20px 0px;
+  padding: 20px 5vw;
+  width: calc(100vw - 16px);
+  box-sizing: border-box;
   flex: none;
 
   &.error {
