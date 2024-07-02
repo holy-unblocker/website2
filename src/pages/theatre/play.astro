@@ -1,9 +1,20 @@
 ---
 import ClientAPIs from "@components/ClientAPIs.astro";
-import TheatrePlayer from "@components/TheatrePlayer";
+import styles from "@styles/TheatrePlayer.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import type { TheatreEntry } from "@lib/TheatreAPI";
 import { dbEnabled, theatreAPI, theatreAPIMirror } from "@lib/theatre";
+import ArrowDropDown from "@icons/arrow_drop_down_24dp.svg?react";
+import ArrowDropUp from "@icons/arrow_drop_up_24dp.svg?react";
+import ArrowLeft from "@icons/arrow_left_24dp.svg?react";
+import ArrowRight from "@icons/arrow_right_24dp.svg?react";
+import ChevronLeft from "@icons/chevron_left_24dp.svg?react";
+import Close from "@icons/close_24dp.svg?react";
+import Fullscreen from "@icons/fullscreen_24dp.svg?react";
+import Panorama from "@icons/panorama_24dp.svg?react";
+import Star from "@icons/star_24dp.svg?react";
+import StarBorder from "@icons/star_outline_24dp.svg?react";
+import VideogameAsset from "@icons/videogame_asset_24dp.svg?react";
 
 let mirrorError = false;
 
@@ -22,6 +33,75 @@ if (id !== null) {
     }
 }
 
+// we build the controls popup with raw HTML
+let controlsHTML = "";
+
+// FOR DESIGNING NEW HANDLERS FOR CODES:
+// https://www.toptal.com/developers/keycode
+
+const renderControlKey = (keyCode: string) => {
+  if (/^[a-z ]/i.test(keyCode)) {
+    console.error("Invalid keyCode:", keyCode);
+    return "";
+  }
+
+  let html: string;
+
+  switch (keyCode) {
+    case "ArrowUp":
+      html = ArrowDropUp;
+    case "ArrowLeft":
+      html = ArrowLeft;
+    case "ArrowUp":
+      html = ArrowDropDown;
+    case "ArrowUp":
+      html = ArrowRight;
+    default:
+      html = keyCode;
+  }
+
+  return `<div class="${styles.controlKey} ${styles["key" + keyCode]}">${html}</div>`;
+};
+
+if (data)
+  for (const control of data.controls) {
+    let visualsHTML = "";
+
+    for (const key of control.keys) {
+      switch (key) {
+        case "arrows":
+          visualsHTML += `<div class="${styles.move}">${["ArrowUp", "ArrowLeft", "ArrowDropDown", "ArrowRight"].map(renderControlKey).join("")}</div>`;
+          break;
+        case "wasd":
+          visualsHTML += `<div class=${styles.move}>${["W", "A", "S", "D"].map(renderControlKey)}</div>`;
+          break;
+        default:
+          // key might have an HTML injection
+          // because after all we are just using raw HTML
+          // so can we just check if it doesn't contain expected characters
+          if (/^[a-z ]/i.test(key)) {
+            console.error("Invalid key code:", key);
+          } else {
+            visualsHTML += `<div class="${styles.controlKey} ${styles["key" + key]}">${key}</div>`;
+          }
+          break;
+      }
+    }
+
+    let labelHTML = "";
+    if (/^[a-z: ]/i.test(control.label)) {
+      console.error("Invalid label:", control.label);
+    } else {
+      labelHTML = `<span class=${styles.label}>${control.label}</span>`;
+    }
+
+    controlsHTML +=
+      `<div class="${styles.control}}">` +
+      `<div class=${styles.visuals}>${visualsHTML}</div>` +
+      labelHTML +
+      `</div>`;
+  }
+
 if (mirrorError) {
   // refresh after 5 seconds
   Astro.response.headers.set("reload", "5");
@@ -29,7 +109,7 @@ if (mirrorError) {
 } else if (!data) Astro.response.status = 404;
 ---
 
-<MainLayout>
+<MainLayout title={data ? `Play ${data.name}` : undefined}>
   {
     mirrorError ? (
       <main>
@@ -37,7 +117,67 @@ if (mirrorError) {
         <p>This page will refresh in 5 seconds.</p>
       </main>
     ) : data ? (
-      <TheatrePlayer data={data} client:only="preact" />
+      <>
+        {Astro.locals.isMainWebsite && (
+          <Fragment slot="head">
+            <meta
+              name="description"
+              content={`Find games like ${data.name} on Holy Unblocker.`}
+            />
+          </Fragment>
+        )}
+        <main class={styles.main}>
+          <div class={styles.frame}>
+            <div class={styles.iframeContainer}>
+              <div
+                class={styles.iframeCover}
+                title="Click to focus"
+                id="focusOverlay"
+              />
+              <iframe id="playerFrame" title="Embed" />
+            </div>
+            <div tabindex="0" class={styles.controls} id="controlsPopup">
+              <div
+                class={styles.close}
+                id="closeControlsPopup"
+                set:html={Close}
+              />
+              <div class={styles.controls} set:html={controlsHTML} />
+            </div>
+          </div>
+          <div class={styles.title}>
+            <h3 class={styles.name}>{data.name}</h3>
+            <div class={styles.shiftRight} />
+            <div
+              class={styles.button}
+              id="openInFullscreen"
+              title="Fullscreen mode"
+              set:html={Fullscreen}
+            />
+            {data.controls.length !== 0 && (
+              <div
+                class={styles.button}
+                tabindex="0"
+                id="openControls"
+                title="Controls"
+                set:html={VideogameAsset}
+              />
+            )}
+            <div
+              class={styles.button}
+              id="favoriteButton"
+              title="Add to favorites"
+              set:html={Star + StarBorder}
+            />
+            <div
+              class={styles.button}
+              id="openPanorama"
+              title="Panorama mode"
+              set:html={ChevronLeft + Panorama}
+            />
+          </div>
+        </main>
+      </>
     ) : (
       <main>
         <p>Invalid game ID</p>
@@ -46,3 +186,190 @@ if (mirrorError) {
   }
 </MainLayout>
 <ClientAPIs />
+<script
+  is:inline
+  id="gameData"
+  type="application/json"
+  set:html={JSON.stringify(data)}
+/>
+<script>
+  import TheatreAPI from "@lib/TheatreAPI";
+  import { encryptURL } from "@lib/cryptURL";
+  import { getGlobalSettings } from "@lib/storage";
+  import { setupServiceWorker } from "@lib/sw";
+
+  window.addEventListener("focus", () => {
+    setIFrameFocused(true);
+  });
+
+  // called on page load and when fullscreen changes
+  // to fix clicks/keyboard input not going to the game
+  const setIFrameFocused = (focused: boolean) => {
+    // these are declared bc astro lifecycle
+    const playerFrame =
+      document.querySelector<HTMLIFrameElement>("#playerFrame");
+    if (playerFrame === null) return; // theatre player not loaded
+    const main = document.querySelector("main")!;
+    if (focused) {
+      document.documentElement.scrollTo(0, 0);
+      document.documentElement.setAttribute("data-player-focused", "");
+      playerFrame.focus();
+    } else {
+      document.documentElement.removeAttribute("data-player-focused");
+    }
+  };
+
+  document.addEventListener("fullscreenchange", () => {
+    const playerFrame =
+      document.querySelector<HTMLIFrameElement>("#playerFrame");
+    if (playerFrame !== null)
+      setIFrameFocused(document.fullscreenElement === playerFrame);
+  });
+
+  document.addEventListener("astro:page-load", () => {
+    const dataElement = document.querySelector<HTMLScriptElement>("#gameData");
+    if (dataElement === null) return;
+    const data = JSON.parse(dataElement.textContent!);
+    const main = document.querySelector("main")!;
+
+    setIFrameFocused(true);
+
+    const playerFrame =
+      document.querySelector<HTMLIFrameElement>("#playerFrame")!;
+    const focusOverlay =
+      document.querySelector<HTMLDivElement>("#focusOverlay")!;
+    focusOverlay.addEventListener("click", () => {
+      setIFrameFocused(true);
+    });
+
+    const openInFullscreen =
+      document.querySelector<HTMLDivElement>("#openInFullscreen")!;
+
+    openInFullscreen.addEventListener("click", () => {
+      playerFrame.requestFullscreen();
+    });
+
+    let url = data.src;
+
+    // if it starts with "./" then its pulling the file from our cdn
+    if (url.startsWith("./")) {
+      // make it an absolute URL to our cdn
+      // absolute is needed for webretro
+      url = location.origin + "/cdn/" + url.slice(2);
+    }
+
+    switch (data.type) {
+      case "proxy":
+        setupServiceWorker().then(() => {
+          playerFrame.src = `/uv/service/${__uv$config.encodeUrl!(url)}`;
+        });
+        break;
+      case "embed":
+        playerFrame.src = url;
+        break;
+      case "flash":
+        playerFrame.src = `/compat/flash#${encryptURL(url)}`;
+        break;
+      case "emulator":
+      case "emulator.gba":
+      case "emulator.nes":
+      case "emulator.n64":
+      case "emulator.genesis":
+        playerFrame.src =
+          "/cdn/html5/webretro/?" +
+          new URLSearchParams({
+            rom: url,
+            core: "autodetect",
+          });
+        break;
+      default:
+        throw new TypeError(`Unrecognized theatre entry type: ${data.type}`);
+    }
+
+    const api = new TheatreAPI("/api/theatre/");
+    const globalSettings = getGlobalSettings();
+
+    const seenGames = globalSettings.get("seenGames");
+
+    if (!seenGames.includes(data.id)) {
+      seenGames.push(data.id);
+      globalSettings.set("seenGames", seenGames);
+      api.plays(data.id).catch((err) => {
+        console.error("Couldn't count play");
+        console.error(err);
+      });
+    }
+
+    // buttons/controls popup
+    if (data.controls.length !== 0) {
+      let controlsExpanded = false;
+      const setControlsExpanded = (newVal: boolean) => {
+        controlsExpanded = newVal;
+        if (controlsExpanded) main.setAttribute("data-controls-expanded", "");
+        else main.removeAttribute("data-controls-expanded");
+      };
+      // make sure controls-expanded isn't leftover from a previous page load
+      setControlsExpanded(false);
+
+      const controlsPopup =
+        document.querySelector<HTMLDivElement>("#controlsPopup")!;
+
+      const openControls =
+        document.querySelector<HTMLDivElement>("#openControls")!;
+      openControls.addEventListener("click", () => {
+        setControlsExpanded(!controlsExpanded);
+        controlsPopup.focus();
+      });
+
+      const closeControlsPopup = document.querySelector<HTMLDivElement>(
+        "#closeControlsPopup"
+      )!;
+      closeControlsPopup.addEventListener("click", () => {
+        setControlsExpanded(false);
+      });
+
+      controlsPopup.addEventListener("blur", (event) => {
+        if (
+          !(event.target as HTMLDivElement).contains(
+            event.relatedTarget as Node
+          ) &&
+          !openControls.contains(event.relatedTarget as Node)
+        )
+          setControlsExpanded(false);
+      });
+    }
+
+    const setFavorited = (favorited: boolean) => {
+      if (favorited) main.setAttribute("data-favorited", "");
+      else main.removeAttribute("data-favorited");
+    };
+    setFavorited(globalSettings.get("favorites").includes(data.id));
+
+    const favoriteButton =
+      document.querySelector<HTMLDivElement>("#favoriteButton")!;
+    favoriteButton.addEventListener("click", () => {
+      const favorites = globalSettings.get("favorites");
+      // if already favorited, remove from favorites
+      const i = favorites.indexOf(data.id);
+      if (i === -1) favorites.push(data.id);
+      else favorites.splice(i, 1);
+
+      globalSettings.set("favorites", favorites);
+      setFavorited(true);
+    });
+
+    let panorama = false;
+    const setPanorama = (newVal: boolean) => {
+      panorama = newVal;
+      if (panorama) main.setAttribute("data-panorama", "");
+      else main.removeAttribute("data-panorama");
+    };
+    setPanorama(false);
+
+    const openPanorama =
+      document.querySelector<HTMLDivElement>("#openPanorama")!;
+    openPanorama.addEventListener("click", () => {
+      setPanorama(!panorama);
+    });
+  });
+</script>

@@ -176,6 +176,10 @@ const cdnAbs = hasTheatreFiles && resolve(appConfig.theatreFilesPath);
  * normalizes a /cdn/ path for static files
  */
 function normalCDN(path) {
+  // try to serve an index page if there's a trailing slash
+  // this also breaks the directory listing
+  if (path.endsWith("/")) path += "index.html";
+
   // this will work on windows & posix paths
   return cdnAbs + "/" + path.slice("/theatre-files/cdn/".length);
 }
@@ -201,6 +205,7 @@ export function handleReq(req, res, middleware) {
   // prevent scraping of website
   if (!isMainWebsite) res.setHeader("x-robots-tag", "noindex");
 
+  // docs: https://github.com/vercel/serve-handler
   if (isCDN && hasTheatreFiles) {
     serveHandler(
       req,
@@ -209,6 +214,7 @@ export function handleReq(req, res, middleware) {
         cleanUrls: false, // too freaky
         public: "/theatre-files/",
         trailingSlash: true,
+        directoryListing: false,
       },
       {
         lstat(path) {

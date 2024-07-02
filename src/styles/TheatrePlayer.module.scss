@@ -21,7 +21,15 @@
     margin-top: 15px;
   }
 
-  &[data-controls] {
+  svg:nth-child(1) {
+    display: none;
+  }
+
+  svg:nth-child(2) {
+    display: block;
+  }
+
+  &[data-controls-expanded] {
     > .frame .controls {
       display: flex;
     }
@@ -222,12 +230,12 @@
   }
 }
 
-html:not([data-lock-frame-scroll]) .frame > .iframeContainer > .iframeCover {
+html:not([data-player-focused]) .frame > .iframeContainer > .iframeCover {
   opacity: 1;
   visibility: visible;
 }
 
-html[data-lock-frame-scroll] {
+html[data-player-focused] {
   body {
     margin-right: 16px;
     overflow: hidden;

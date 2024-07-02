@@ -190,6 +190,7 @@ const server = http.createServer();
 server.on("request", (req, res) => {
   handleReq(req, res, () => {
     astroMiddleware(req, res, () => {
+      // docs: https://github.com/vercel/serve-handler
       serveHandler(
         req,
         res,
