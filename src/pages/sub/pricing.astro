@@ -12,10 +12,12 @@ import UltravioletIcon from "@icons/ultraviolet_icon.svg?react";
 import DeviceHub from "@icons/device_hub_24dp_FILL0_wght400_GRAD0_opsz24.svg?react";
 import ChatBot from "@icons/chatbot.svg?react";
 import Speed from "@icons/speed_24dp_FILL0_wght400_GRAD0_opsz24.svg?react";
+import type Stripe from "stripe";
 
 const { user } = Astro.locals;
 
 let error: string | undefined;
+let stripeSession: Stripe.Response<Stripe.Checkout.Session> | undefined;
 
 if (Astro.request.method === "POST")
   try {
@@ -51,7 +53,7 @@ if (Astro.request.method === "POST")
         // create the invoice and redirect
 
         // https://docs.stripe.com/billing/subscriptions/build-subscriptions
-        const session = await stripe!.checkout.sessions.create({
+        stripeSession = await stripe!.checkout.sessions.create({
           mode: "subscription",
           customer: user.stripe_customer,
           line_items: [
@@ -65,10 +67,9 @@ if (Astro.request.method === "POST")
           cancel_url: `https://${Astro.url.host}/sub/pricing`,
         });
 
-        console.log("checkout session created", session.id);
+        console.log("checkout session created", stripeSession.id);
 
         // return Astro.redirect(session.url, 303);
-        return Astro.redirect(session.url, 302);
       } catch (err) {
         console.error("STRIPE ERROR", err);
         Astro.response.status = 500;
@@ -88,8 +89,21 @@ if (!error && exclusiveError) {
 ---
 
 {exclusiveError && <script>history.pushState({}, "", "/sub/pricing")</script>}
+{
+  stripeSession && (
+    <script
+      is:inline
+      set:html={
+        "location.href=document.querySelector('main').getAttribute('stripe-checkout-url')"
+      }
+    />
+  )
+}
 <MainLayout>
-  <main class="pricing">
+  <main
+    class="pricing"
+    stripe-checkout-url={stripeSession ? stripeSession.url : undefined}
+  >
     <Banner error={error} />
     <div class="tiers">
       <div class="page-title">
