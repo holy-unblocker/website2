@@ -29,6 +29,10 @@ import styles from "@styles/ProxyOmnibox.module.scss";
   const theatreAPI = getClientTheatreAPI();
   const LIMIT = 8;
 
+  function entryClick(this: HTMLDivElement) {
+    navigate(this.getAttribute("data-href")!);
+  }
+
   function renderTheatreSearchResult(
     result: string,
     query: string,
@@ -39,10 +43,8 @@ import styles from "@styles/ProxyOmnibox.module.scss";
     const href =
       id === null ? `/theatre/?q=${result}` : `/theatre/play?v=${id}`;
     e.setAttribute("data-href", href);
-    e.addEventListener("mousedown", () => {
-      // location.href = e.href;
-      navigate(href);
-    });
+    e.addEventListener("mousedown", entryClick);
+    e.addEventListener("touchstart", entryClick);
     return e;
   }
 
@@ -50,10 +52,13 @@ import styles from "@styles/ProxyOmnibox.module.scss";
     var setInputFocused: (newFocused: boolean) => void;
   }
 
-  window.addEventListener("mousedown", (event) => {
+  function detectClickOff(event: MouseEvent | TouchEvent) {
     const form = document.querySelector<HTMLFormElement>("#theatreSearchBar");
     if (form && !form.contains(event.target as any)) setInputFocused(false);
-  });
+  }
+
+  window.addEventListener("mousedown", detectClickOff);
+  window.addEventListener("touchstart", detectClickOff);
 
   document.addEventListener("astro:page-load", () => {
     const form = document.querySelector<HTMLFormElement>("#theatreSearchBar")!;

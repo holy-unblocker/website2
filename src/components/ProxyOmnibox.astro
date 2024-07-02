@@ -58,7 +58,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
   let resultIndex = -1;
 
   // reuse the same function
-  function entryClick(this: HTMLDivElement, event: MouseEvent) {
+  function entryClick(this: HTMLDivElement, event: MouseEvent | TouchEvent) {
     const form = document.querySelector<HTMLFormElement>("#omnibox");
     if (!form) return;
     const builder = new SearchBuilder(form.getAttribute("data-search-format")!);
@@ -71,6 +71,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
   const renderOmniboxSearchResult = (result: string, query: string) => {
     const e = renderSearchResult(result, query);
     e.addEventListener("mousedown", entryClick);
+    e.addEventListener("touchstart", entryClick);
     return e;
   };
 
@@ -78,10 +79,13 @@ const engine = searchEngines[Astro.locals.searchEngine];
     var setInputFocused: (newFocused: boolean) => void;
   }
 
-  window.addEventListener("mousedown", (event) => {
+  function detectClickOff(event: MouseEvent | TouchEvent) {
     const form = document.querySelector<HTMLFormElement>("#omnibox");
     if (form && !form.contains(event.target as any)) setInputFocused(false);
-  });
+  }
+
+  window.addEventListener("mousedown", detectClickOff);
+  window.addEventListener("touchstart", detectClickOff);
 
   document.addEventListener("astro:page-load", () => {
     const form = document.querySelector<HTMLFormElement>("#omnibox");
