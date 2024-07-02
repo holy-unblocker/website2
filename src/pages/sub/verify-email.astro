@@ -1,5 +1,5 @@
 ---
-import "@styles/subscriber.scss";
+import styles from "@styles/Subscriber.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
@@ -56,23 +56,28 @@ if (Astro.request.method === "POST")
 ---
 
 <MainLayout>
-  <main class="subscriber-main">
+  <main class={styles.subscriberMain}>
     <h1 class="page-title sub">Confirm your email</h1>
     <Banner success={success} error={error} />
-    <div class="user-card">
+    <div class={styles.userCard}>
       <p>
         A verification code has been sent to <code>{user.email}</code>. Please
         check your spam filters.
       </p>
       <form method="post">
         <input type="text" name="type" value="verify" hidden />
-        <label class="input">
+        <label class={styles.input}>
           <span>Code</span>
           <div class="change-email">
-            <input type="text" class="prettyinput code" name="code" required />
+            <input
+              type="text"
+              class:list={[styles.prettyinput, styles.code]}
+              name="code"
+              required
+            />
             <input
               type="submit"
-              class="prettysubmit inline"
+              class:list={[styles.prettySubmit, styles.inline]}
               value="Verify"
               required
             />

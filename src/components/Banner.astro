@@ -1,4 +1,6 @@
 ---
+import styles from "@styles/Subscriber.module.scss";
+
 // a really simple wrapper wrapper for the prettybanner element
 // part of the subscriber css
 
@@ -10,5 +12,5 @@ interface Props {
 const { error, success } = Astro.props;
 ---
 
-{success && <p class="prettybanner success" set:text={success} />}
-{error && <p class="prettybanner error" set:text={error} />}
+{success && <p class="prettyBanner" data-success set:text={success} />}
+{error && <p class="prettyBanner" data-error set:text={error} />}

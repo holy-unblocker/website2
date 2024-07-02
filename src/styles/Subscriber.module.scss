@@ -95,7 +95,7 @@ hr {
   border-color: #eee;
 }
 
-.manage-field {
+.manageField {
   display: block;
   margin-bottom: 10px;
   // label for the input
@@ -104,18 +104,18 @@ hr {
   }
 }
 
-.user-card {
+.userCard {
   padding: 5px 15px;
   border-radius: 10px;
   margin-bottom: 15px;
   background-color: var(--background-accent-deep-1);
 }
 
-#cancelSubscription .prettysubmit {
+.cancelSubscription .prettySubmit {
   margin-top: 10px;
 }
 
-.user-connection {
+.userConnection {
   display: flex;
   align-items: center;
   height: 35px;
@@ -124,7 +124,7 @@ hr {
     margin-right: 5px;
   }
 
-  .prettysubmit {
+  .prettySubmit {
     height: 35px;
     padding: 0 10px;
   }
@@ -169,12 +169,12 @@ hr {
   }
 }
 
-.change-form {
+.changeForm {
   padding: 20px 15px;
   border-radius: 10px;
   margin-bottom: 15px;
 
-  .manage-field {
+  .manageField {
     max-width: 400px;
   }
 
@@ -184,7 +184,7 @@ hr {
 }
 
 // login/register form
-.login-form {
+.loginForm {
   margin: auto;
   width: 100%;
   max-width: 450px;
@@ -193,26 +193,29 @@ hr {
   box-sizing: border-box;
   padding-bottom: 2px;
   padding: 0px 15px;
-  // make the actual login form a little taller
-  &.login {
-    padding-bottom: 2px;
 
-    .form-title {
-      padding-top: 20px;
-    }
-  }
-
-  .form-title {
+  .formTitle {
     font-family: $MontserratAlternates;
     text-align: center;
     font-size: 20px;
     font-weight: 700;
-    line-height: 60px;
+    line-height: 40px;
+  }
+
+  // make the actual login form a little taller
+  &.login {
+    padding-bottom: 2px;
+
+    .formTitle {
+      margin: 0 auto;
+      padding-top: 20px;
+      line-height: 60px;
+    }
   }
 }
 
 @media (max-width: 1000px) {
-  .subscriber-main {
+  .subscriberMain {
     padding: 15px 2vw;
     flex-direction: column;
   }
@@ -222,13 +225,13 @@ hr {
     align-items: center;
   }
 
-  .login-form {
+  .loginForm {
     max-width: 500px;
   }
 }
 
 .prettyfile::file-selector-button,
-.prettysubmit {
+.prettySubmit {
   background-color: var(--action);
   height: 45px;
   border-radius: 5px;
@@ -256,7 +259,7 @@ hr {
   }
 }
 
-.prettysubmit.wide {
+.prettySubmit.wide {
   width: 100%;
 }
 
@@ -275,7 +278,7 @@ hr {
   display: inline-block;
 }
 
-.prettysubmit[disabled],
+.prettySubmit[disabled],
 .prettyfile[disabled]::file-selector-button {
   background-color: #194fb9;
   color: #ccc;
@@ -294,7 +297,7 @@ main > .register {
     width: 100%;
   }
 
-  .login-form {
+  .loginForm {
     max-width: 350px;
     flex: none;
   }
@@ -306,7 +309,7 @@ main > .register {
     align-items: center;
     padding: 0;
 
-    .login-form {
+    .loginForm {
       margin: 0;
       margin-top: 10px;
       max-width: none;
@@ -326,8 +329,9 @@ main.pricing {
   }
 
   .tiers {
-    .page-title {
+    .pageTitle {
       margin-bottom: 10px;
+      font-family: $MontserratAlternates;
     }
 
     .list {
@@ -403,13 +407,13 @@ main.pricing {
         .buy {
           margin-top: auto;
 
-          .prettysubmit {
+          .prettySubmit {
             font-size: 15px;
             width: 100%;
 
             // for tiers
             // already purchased
-            &.owned {
+            &[data-owned] {
               background-color: var(--contrast-background) !important;
               cursor: not-allowed;
             }
@@ -417,5 +421,40 @@ main.pricing {
         }
       }
     }
+  }
+}
+
+.passwordField {
+  position: relative;
+}
+
+.passwordField.inline {
+  display: inline-block;
+}
+
+.passwordField {
+  .toggle {
+    > svg {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: auto 0;
+      max-width: 20px;
+      height: 100%;
+      padding: 0 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      fill: #333;
+    }
+  }
+
+  input[type="password"] ~ .toggle svg:nth-child(1) {
+    display: none;
+  }
+
+  input[type="text"] ~ .toggle svg:nth-child(2) {
+    display: none;
   }
 }

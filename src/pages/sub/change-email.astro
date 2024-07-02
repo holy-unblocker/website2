@@ -1,5 +1,5 @@
 ---
-import "@styles/subscriber.scss";
+import styles from "@styles/Subscriber.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
 import Banner from "@components/Banner.astro";
@@ -54,36 +54,40 @@ if (Astro.request.method === "POST")
 ---
 
 <MainLayout>
-  <main class="subscriber-main">
+  <main class={styles.subscriberMain}>
     <h1 class="page-title sub">
       <a class="back-button" href="/sub/dashboard" set:html={ArrowBackIcon} />
       Change Email
     </h1>
     <Banner error={error} />
-    <form class="change-form user" method="post">
-      <label class="manage-field">
+    <form class:list={[styles.changeForm, styles.user]} method="post">
+      <label class={styles.manageField}>
         <div>
           Current Email {user.email_verified ? "(verified)" : "(unverified)"}
         </div>
         <input
           type="text"
-          class="prettyinput"
+          class={styles.prettyinput}
           id="currentEmail"
           value={user.email}
           readonly
         />
       </label>
-      <label class="manage-field">
+      <label class={styles.manageField}>
         <div>New Email</div>
         <input
           type="text"
-          class="prettyinput"
+          class={styles.prettyinput}
           id="email"
           name="email"
           value={email}
         />
       </label>
-      <input class="prettysubmit inline" type="submit" value="Change Email" />
+      <input
+        class:list={["prettySubmit", "inline"]}
+        type="submit"
+        value="Change Email"
+      />
     </form>
   </main>
 </MainLayout>

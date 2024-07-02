@@ -1,6 +1,6 @@
 ---
 // this is the register page
-import "@styles/subscriber.scss";
+import styles from "@styles/Subscriber.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import InputPassword from "@components/InputPassword.astro";
@@ -80,10 +80,12 @@ if (Astro.request.method === "POST") {
 ---
 
 <MainLayout>
-  <main class="subscriber-main">
-    <div class="register">
-      <div class="description">
-        <h1 class="page-title">Subscriber Dashboard</h1>
+  <main class={styles.subscriberMain}>
+    <div class={styles.register}>
+      <div class={styles.description}>
+        <h1 class:list={[styles.pageTitle, "page-title"]}>
+          Subscriber Dashboard
+        </h1>
         <p>
           In order to subscribe, change account settings, or access your perks
           such as the virtual browser, you need a subscriber account.
@@ -97,15 +99,19 @@ if (Astro.request.method === "POST") {
         <h3>What are the perks?</h3>
         <p>You can check out our pricing page to learn more:</p>
         <a href="/sub/pricing">
-          <input type="button" class="prettysubmit" value="See Pricing" />
+          <input
+            type="button"
+            class={styles.prettySubmit}
+            value="See Pricing"
+          />
         </a>
       </div>
-      <form class="login-form" method="post">
-        <div class="form-title">Create an account</div>
+      <form class={styles.loginForm} method="post">
+        <h1 class={styles.formTitle}>Create an account</h1>
         {error && <script>history.pushState({}, "")</script>}
         {
           emailExists && (
-            <p class="prettybanner error">
+            <p class="prettyBanner" data-error>
               Email already exists.{" "}
               <u>
                 <a href="/sub/login">Did you mean to login?</a>
@@ -115,17 +121,17 @@ if (Astro.request.method === "POST") {
         }
         {internalError && <Banner error="An internal error occurred." />}
         <Banner error={error} />
-        <label class="manage-field">
+        <label class={styles.manageField}>
           <div>Email</div>
           <input
             type="text"
             name="email"
-            class="prettyinput"
+            class={styles.prettyinput}
             required
             value={email}
           />
         </label>
-        <label class="manage-field">
+        <label class={styles.manageField}>
           <div>Password</div>
           <InputPassword
             id="password"
@@ -134,7 +140,11 @@ if (Astro.request.method === "POST") {
             validate
           />
         </label>
-        <input class="prettysubmit wide" type="submit" value="Sign up" />
+        <input
+          class:list={[styles.prettySubmit, styles.wide]}
+          type="submit"
+          value="Sign up"
+        />
         <p>
           Already have an account? <a
             class={themeStyles.themeLink}

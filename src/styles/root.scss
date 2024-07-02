@@ -113,19 +113,19 @@ a {
   color: inherit;
 }
 
-.prettybanner {
+.prettyBanner {
   font-size: 15px;
   padding: 15px;
   margin: 10px 0;
   border-radius: 4px;
 
-  &.error {
+  &[data-error] {
     color: #b94a48;
     background-color: #f2dede;
     border-color: #eed3d7;
   }
 
-  &.success {
+  &[data-success] {
     color: #155724;
     background-color: #d4edda;
     border-color: #c3e6cb;

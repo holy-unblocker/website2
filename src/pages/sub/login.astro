@@ -1,5 +1,5 @@
 ---
-import "@styles/subscriber.scss";
+import styles from "@styles/Subscriber.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import InputPassword from "@components/InputPassword.astro";
@@ -64,28 +64,32 @@ const bai = Astro.url.searchParams.has("bai");
 
 {bai && <script>history.pushState({}, "", "/sub/login")</script>}
 <MainLayout>
-  <main class="subscriber-main">
-    <form class="login-form login" method="post">
-      <div class="form-title">Subscriber Login</div>
+  <main class={styles.subscriberMain}>
+    <form class:list={[styles.loginForm, styles.login]} method="post">
+      <h1 class={styles.formTitle}>Subscriber Login</h1>
       <Banner
         error={error}
         success={bai ? "thanks for stopping by" : undefined}
       />
-      <label class="manage-field">
+      <label class={styles.manageField}>
         <div>Email</div>
         <input
           type="text"
           name="email"
-          class="prettyinput"
+          class={styles.prettyinput}
           value={bademail}
           required
         />
       </label>
-      <label class="manage-field">
+      <label class={styles.manageField}>
         <div>Password</div>
         <InputPassword id="password" name="password" value={badpassword} />
       </label>
-      <input class="prettysubmit wide" type="submit" value="Login" />
+      <input
+        class:list={[styles.prettySubmit, styles.wide]}
+        type="submit"
+        value="Login"
+      />
       <p>
         <a class={themeStyles.themeLink} href="/sub/">Create an account</a>
       </p>

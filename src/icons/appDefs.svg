@@ -1,6 +1,4 @@
-<!-- These are importe -->
-<svg class="defs" height="0" width="0" fill="none"
->
+<svg height="0" width="0" fill="none">
     <defs>
         <svg fill="none" id="searchGlass" viewBox="0 0 24 24">
             <!-- "Search" from Google Material Icons -->

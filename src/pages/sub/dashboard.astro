@@ -2,7 +2,7 @@
 // this page will only be reached if the user is signed in
 // this is a dashboard
 // they can edit their profile, subscribe, check their subscription status and cancel it
-import "@styles/subscriber.scss";
+import styles from "@styles/Subscriber.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
@@ -10,7 +10,6 @@ import Delete from "@icons/delete_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
 import { db, getTierName, getUserPayment } from "@config/apis";
 import { appConfig } from "@config/config";
 import { giveTierDiscordRoles } from "@config/apis";
-import __AstroComponent_ from "../404.astro";
 
 const { user, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
@@ -71,7 +70,7 @@ if (Astro.request.method === "POST")
   )
 }
 <MainLayout>
-  <main class="subscriber-main">
+  <main class={styles.subscriberMain}>
     <h1 class="page-title">Dashboard for {user.email}</h1>
     {newEmailConfirmed && <Banner success="Email changed." />}
     {welcome && <Banner success="Email verified." />}
@@ -85,7 +84,7 @@ if (Astro.request.method === "POST")
     }
     {discordConnected && <Banner success="Account connected." />}
     <Banner success={success} error={error} />
-    <div class="user-card">
+    <div class={styles.userCard}>
       <h3>Account Actions:</h3>
       <p>
         <a class={themeStyles.themeLink} href="/sub/change-password"
@@ -105,31 +104,35 @@ if (Astro.request.method === "POST")
         >
       </p>
     </div>
-    <div class="user-card" style="padding-bottom:10px;">
+    <div class={styles.userCard} style="padding-bottom:10px;">
       <h3>Subscription</h3>
       <p>Current plan: {getTierName(payment?.tier)}</p>
       <p>You can subscribe on the pricing page:</p>
       <a href="/sub/pricing">
-        <input type="button" class="prettysubmit" value="See Pricing" />
+        <input type="button" class={styles.prettySubmit} value="See Pricing" />
       </a>
       {
         payment && (
-          <form method="post" id="cancelSubscription">
-            <input type="text" name="type" value="cancelSubscription" hidden />
+          <form
+            method="post"
+            class={styles.cancelSubscription}
+            id="cancelSubscription"
+          >
+            <input type="text" name="type" value="Cancel Subscription" hidden />
             <input
               type="submit"
-              class="prettysubmit"
+              class={styles.prettySubmit}
               value="Cancel Subscription"
             />
           </form>
         )
       }
     </div>
-    <div class="user-card" style="padding-bottom:10px;">
+    <div class={styles.userCard} style="padding-bottom:10px;">
       <h3>Connected Accounts</h3>
       <p>Once you connect an account, it will show up here.</p>
-      <div class="user-connection">
-        <span class="service-name">Discord:</span>
+      <div class={styles.userConnection}>
+        <span class={styles.serviceName}>Discord:</span>
         {
           user.discord_id === null ? (
             <a
@@ -137,20 +140,20 @@ if (Astro.request.method === "POST")
             >
               <input
                 type="button"
-                class="prettysubmit"
+                class={styles.prettySubmit}
                 value="Connect Discord"
               />
             </a>
           ) : (
             <>
-              <span class="details">
+              <span class={styles.details}>
                 <img
                   src={`https://cdn.discordapp.com/avatars/${user.discord_id}/${user.discord_avatar}.png`}
-                  class="avatar"
+                  class={styles.avatar}
                 />
-                <span set:text={user.discord_name} class="username" />
+                <span set:text={user.discord_name} class={styles.username} />
               </span>
-              <form class="delete" method="post">
+              <form class={styles.delete} method="post">
                 <input type="text" name="type" value="unlink-discord" hidden />
                 <button set:html={Delete} />
               </form>

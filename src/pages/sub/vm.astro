@@ -1,5 +1,5 @@
 ---
-import "@styles/subscriber.scss";
+import styles from "@styles/Subscriber.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import { getUserPayment } from "@config/apis";
 
@@ -13,7 +13,7 @@ if (!payment || payment.tier < 1) return Astro.redirect("/sub/pricing?vm", 302);
 ---
 
 <MainLayout>
-  <main class="subscriber-main">
+  <main class={styles.subscriberMain}>
     <p>virtual browser coming very soon!!</p>
   </main>
 </MainLayout>

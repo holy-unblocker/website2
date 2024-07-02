@@ -1,5 +1,5 @@
 ---
-import "@styles/subscriber.scss";
+import styles from "@styles/Subscriber.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import Banner from "@components/Banner.astro";
 import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
@@ -107,12 +107,12 @@ if (!error && exclusiveError) {
 }
 <MainLayout>
   <main
-    class="pricing"
+    class={styles.pricing}
     stripe-checkout-url={stripeSession ? stripeSession.url : undefined}
   >
     <Banner error={error} />
-    <div class="tiers">
-      <div class="page-title">
+    <div class={styles.tiers}>
+      <div class:list={["page-title", styles.pageTitle]}>
         {
           user && (
             <a
@@ -123,42 +123,43 @@ if (!error && exclusiveError) {
           )
         }Holy Unblocker Pricing
       </div>
-      <div class="list">
+      <div class={styles.list}>
         <div>
-          <div class="title">Free Plan</div>
-          <div class="price">$0</div>
-          <div class="features">
+          <div class={styles.title}>Free Plan</div>
+          <div class={styles.price}>$0</div>
+          <div class={styles.features}>
             <div>
-              <span class="icon" set:html={Public} />
+              <span class={styles.icon} set:html={Public} />
               <span>All Site Features</span>
             </div>
             <div>
-              <span class="icon" set:html={UltravioletIcon} />
+              <span class={styles.icon} set:html={UltravioletIcon} />
               <span>Ultraviolet</span>
             </div>
             <div>
-              <span class="icon" set:html={Arcade} />
+              <span class={styles.icon} set:html={Arcade} />
               <span>Arcade</span>
             </div>
           </div>
-          <form class="buy">
+          <form class={styles.buy}>
             <input
               type="submit"
-              class:list={["prettysubmit", "owned"]}
+              class={styles.prettySubmit}
+              data-owned
               value="YOU HAVE THIS!"
               disabled
             />
           </form>
         </div>
         <div>
-          <div class="title">Official Plan</div>
-          <div class="price">$3/month</div>
-          <div class="features">
+          <div class={styles.title}>Official Plan</div>
+          <div class={styles.price}>$3/month</div>
+          <div class={styles.features}>
             <div>
               <span>All Free Plan Perks!</span>
             </div>
             <div>
-              <span class="icon" set:html={DeviceHub} />
+              <span class={styles.icon} set:html={DeviceHub} />
               <span>Virtual Browser</span>
             </div>
             <div>
@@ -170,14 +171,12 @@ if (!error && exclusiveError) {
               <span>Discord Role</span>
             </div>
           </div>
-          <form class="buy" method="post">
+          <form class={styles.buy} method="post">
             <input type="text" name="tier" value="1" hidden />
             <input
               type="submit"
-              class:list={[
-                "prettysubmit",
-                payment && payment.tier >= 1 && "owned",
-              ]}
+              class={styles.prettySubmit}
+              data-owned={(payment && payment.tier >= 1) || undefined}
               value={!payment || payment.tier < 1 ? "Buy" : "YOU HAVE THIS!"}
               disabled={!user ||
                 user.stripe_customer === null ||
@@ -186,30 +185,28 @@ if (!error && exclusiveError) {
           </form>
         </div>
         <div>
-          <div class="title">Ultimate Plan</div>
-          <div class="price">$10/month</div>
-          <div class="features">
+          <div class={styles.title}>Ultimate Plan</div>
+          <div class={styles.price}>$10/month</div>
+          <div class={styles.features}>
             <div>
               <span>All Official Plan Perks!</span>
             </div>
             <div>
-              <span class="icon" set:html={Speed} />
+              <span class={styles.icon} set:html={Speed} />
               <span>No Ratelimits</span>
             </div>
             <div>
-              <span class="icon" set:html={Speed} />
+              <span class={styles.icon} set:html={Speed} />
               <span>No Ratelimits</span>
             </div>
             <div><span>TYSM :D</span></div>
           </div>
-          <form class="buy" method="post">
+          <form class={styles.buy} method="post">
             <input type="text" name="tier" value="2" hidden />
             <input
               type="submit"
-              class:list={[
-                "prettysubmit",
-                payment && payment.tier >= 2 && "owned",
-              ]}
+              class={styles.prettySubmit}
+              data-owned={(payment && payment.tier >= 2) || undefined}
               value={!payment || payment.tier < 2 ? "Buy" : "YOU HAVE THIS!"}
               disabled={!user ||
                 user.stripe_customer === null ||
@@ -219,7 +216,7 @@ if (!error && exclusiveError) {
         </div>
       </div>
     </div>
-    <div class="description">
+    <div class={styles.description}>
       {
         user ? (
           <>
@@ -237,7 +234,7 @@ if (!error && exclusiveError) {
             <a href="/sub/">
               <input
                 type="button"
-                class="prettysubmit"
+                class={styles.prettySubmit}
                 value="Create an account"
               />
             </a>
