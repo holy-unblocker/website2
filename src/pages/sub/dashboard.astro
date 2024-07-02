@@ -166,7 +166,7 @@ if (Astro.request.method === "POST")
 </MainLayout>
 
 <script>
-  document.addEventListener("astro:page-load", (event) => {
+  document.addEventListener("astro:page-load", () => {
     const cancelSubscription = document.querySelector<HTMLDivElement>(
       "#cancelSubscription"
     )!;
