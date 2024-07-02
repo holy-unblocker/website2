@@ -209,7 +209,6 @@ if (mirrorError) {
     const playerFrame =
       document.querySelector<HTMLIFrameElement>("#playerFrame");
     if (playerFrame === null) return; // theatre player not loaded
-    const main = document.querySelector("main")!;
     if (focused) {
       document.documentElement.scrollTo(0, 0);
       document.documentElement.setAttribute("data-player-focused", "");

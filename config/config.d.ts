@@ -51,8 +51,9 @@ export interface AppConfig {
   };
   links: {
     github: {
-      mercuryworkshop: string;
+      ultraviolet: string;
       titaniumnetwork: string;
+      mercuryworkshop: string;
       holyunblocker: string;
     };
     discord: {

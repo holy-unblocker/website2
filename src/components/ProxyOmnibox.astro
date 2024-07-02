@@ -176,7 +176,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
       setInputFocused(true);
     });
 
-    inputBar.addEventListener("blur", (event) => {
+    inputBar.addEventListener("blur", () => {
       setTimeout(() => {
         setInputFocused(false);
       }, 10);

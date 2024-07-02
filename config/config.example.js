@@ -117,8 +117,9 @@ export const appConfig = {
   // general website links
   links: {
     github: {
-      mercuryworkshop: "https://github.com/MercuryWorkshop",
       ultraviolet: "https://github.com/titaniumnetwork-dev/Ultraviolet",
+      titaniumnetwork: "https://github.com/titaniumnetwork-dev",
+      mercuryworkshop: "https://github.com/MercuryWorkshop",
       // link to this repository
       // used in the contact page and navbar
       holyunblocker: "https://github.com/holy-unblocker/website2",
