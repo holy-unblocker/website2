@@ -33,7 +33,7 @@ const sortOptions = [
 
 const sortParam = Astro.url.searchParams.get("sort");
 const sort =
-  sortParam !== null || !sortOptions.some((e) => e.value === sortParam)
+  sortParam === null || !sortOptions.some((e) => e.value === sortParam)
     ? sortParam
     : "mostPopular";
 const { category } = Astro.props;
