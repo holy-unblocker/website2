@@ -227,6 +227,10 @@ if (mirrorError) {
       setIFrameFocused(document.fullscreenElement === playerFrame);
   });
 
+  declare global {
+    var setInputFocused: (newFocused: boolean) => void;
+  }
+
   document.addEventListener("astro:page-load", () => {
     const dataElement = document.querySelector<HTMLScriptElement>("#gameData");
     if (dataElement === null) return;
@@ -258,6 +262,18 @@ if (mirrorError) {
       // absolute is needed for webretro
       url = location.origin + "/cdn/" + url.slice(2);
     }
+
+    window.addEventListener("keydown", (event) => {
+      if (event.target === null || !(event.target instanceof HTMLInputElement))
+        playerFrame.contentWindow?.focus();
+    });
+
+    playerFrame.addEventListener("load", () => {
+      playerFrame.contentWindow!.addEventListener("click", () => {
+        // handle closing
+        setInputFocused(false);
+      });
+    });
 
     switch (data.type) {
       case "proxy":
