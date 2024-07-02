@@ -26,8 +26,6 @@ declare type CtxUser = import("@lib/models").UserModel & {
   session: import("@lib/models").SessionModel;
 };
 
-declare var BareMux: any;
-
 type ServiceFrameSrc = [src: string, uvPage: string];
 
 // setting to undefined closes the ServicEFrame
