@@ -64,14 +64,7 @@ const maxPage =
         )
       }
       {Astro.props.name}
-      <ThemeSelect
-        options={sortOptions}
-        id="sort"
-        value={typeof sort === "string" &&
-        ["mostPopular", "leastPopular", "nameASC", "nameDES"].includes(sort)
-          ? sort
-          : undefined}
-      />
+      <ThemeSelect options={sortOptions} id="sort" value={sort} />
     </h1>
     <div
       class={styles.items}
