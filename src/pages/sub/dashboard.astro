@@ -125,37 +125,41 @@ if (Astro.request.method === "POST")
         )
       }
     </div>
-  </main>
-  <div class="user-card" style="padding-bottom:10px;">
-    <h3>Connected Accounts</h3>
-    <p>Once you connect an account, it will show up here.</p>
-    <div class="user-connection">
-      <span class="service-name">Discord:</span>
-      {
-        user.discord_id === null ? (
-          <a
-            href={`https://discord.com/oauth2/authorize?client_id=${appConfig.discord!.clientId}&response_type=code&redirect_uri=${encodeURIComponent(appConfig.discord!.clientRedirectURI)}&scope=identify`}
-          >
-            <input type="button" class="prettysubmit" value="Connect Discord" />
-          </a>
-        ) : (
-          <>
-            <span class="details">
-              <img
-                src={`https://cdn.discordapp.com/avatars/${user.discord_id}/${user.discord_avatar}.png`}
-                class="avatar"
+    <div class="user-card" style="padding-bottom:10px;">
+      <h3>Connected Accounts</h3>
+      <p>Once you connect an account, it will show up here.</p>
+      <div class="user-connection">
+        <span class="service-name">Discord:</span>
+        {
+          user.discord_id === null ? (
+            <a
+              href={`https://discord.com/oauth2/authorize?client_id=${appConfig.discord!.clientId}&response_type=code&redirect_uri=${encodeURIComponent(appConfig.discord!.clientRedirectURI)}&scope=identify`}
+            >
+              <input
+                type="button"
+                class="prettysubmit"
+                value="Connect Discord"
               />
-              <span set:text={user.discord_name} class="username" />
-            </span>
-            <form class="delete" method="post">
-              <input type="text" name="type" value="unlink-discord" hidden />
-              <button set:html={Delete} />
-            </form>
-          </>
-        )
-      }
+            </a>
+          ) : (
+            <>
+              <span class="details">
+                <img
+                  src={`https://cdn.discordapp.com/avatars/${user.discord_id}/${user.discord_avatar}.png`}
+                  class="avatar"
+                />
+                <span set:text={user.discord_name} class="username" />
+              </span>
+              <form class="delete" method="post">
+                <input type="text" name="type" value="unlink-discord" hidden />
+                <button set:html={Delete} />
+              </form>
+            </>
+          )
+        }
+      </div>
     </div>
-  </div>
+  </main>
 </MainLayout>
 
 <script>
