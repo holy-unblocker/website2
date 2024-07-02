@@ -20,7 +20,7 @@ export function renderTheatreItem(item?: TheatreEntryMin) {
   thumb.setAttribute("data-load", "");
 
   if (item !== undefined) {
-    (container as HTMLAnchorElement).href = "/theatre/play?id=" + item.id;
+    (container as HTMLAnchorElement).href = "/theatre/play?v=" + item.id;
 
     const img = document.createElement("img");
     img.addEventListener("load", () => thumb.removeAttribute("data-load"));
@@ -36,37 +36,23 @@ export function renderTheatreItem(item?: TheatreEntryMin) {
   return container;
 }
 
-export async function fetchCategoryData(
+export async function fetchListData(
   api: TheatreAPI | TheatreWrapper,
-  category: string[],
+  search: string | null,
+  category: string[] | undefined | null,
   sort: string,
   page: number
 ) {
   let leastGreatest = false;
-  let sortBy;
-
-  switch (sort) {
-    case "leastPopular":
-      leastGreatest = true;
-    // fallthrough
-    case "mostPopular":
-      sortBy = "plays";
-      break;
-    case "nameASC":
-      leastGreatest = true;
-    // fallthrough
-    case "nameDES":
-      sortBy = "name";
-      break;
-  }
 
   // const api = new TheatreAPI("/api/theatre/");
 
   return await api.list({
     category,
-    sort: sortBy,
+    sort,
     leastGreatest,
     offset: page * maxResultsPerPage,
     limit: maxResultsPerPage,
+    search,
   });
 }

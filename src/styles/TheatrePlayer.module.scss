@@ -5,45 +5,26 @@
 @include newShimmerSmall();
 
 .main {
-  border-radius: 10px;
-  margin: calc($nav-height-border / 4) auto;
-  background-color: var(--background-accent);
   display: flex;
   flex-direction: column;
-  margin: 20px auto 0px auto;
+}
+
+.content {
+  background-color: var(--background-accent);
+  height: calc(100vh - $nav-height-border - 120px);
+  margin: 0px auto 0px auto;
+  border-radius: 10px;
+  margin: calc($nav-height-border / 4) auto;
+  display: flex;
+  flex-direction: column;
   width: 95%;
-  height: calc(100vh - $nav-height-border - 40px);
   box-sizing: border-box;
   padding: 0px 15px;
   border-radius: 10px;
 
-  > span {
-    margin-top: 15px;
-  }
-
   &[data-controls-expanded] {
     > .frame .controls {
       display: flex;
-    }
-  }
-
-  .panoramaButton {
-    > svg:nth-child(1) {
-      display: none;
-    }
-
-    > svg:nth-child(2) {
-      display: block;
-    }
-  }
-
-  .favoriteButton {
-    svg:nth-child(1) {
-      display: none;
-    }
-
-    svg:nth-child(2) {
-      display: block;
     }
   }
 
@@ -93,6 +74,30 @@
       width: 100%;
       height: 100%;
     }
+  }
+}
+
+.frame {
+  background-color: var(--background-accent);
+}
+
+.panoramaButton {
+  > svg:nth-child(1) {
+    display: none;
+  }
+
+  > svg:nth-child(2) {
+    display: block;
+  }
+}
+
+.favoriteButton {
+  svg:nth-child(1) {
+    display: none;
+  }
+
+  svg:nth-child(2) {
+    display: block;
   }
 }
 

@@ -15,10 +15,11 @@ import Panorama from "@icons/panorama_24dp.svg?react";
 import Star from "@icons/star_24dp.svg?react";
 import StarBorder from "@icons/star_outline_24dp.svg?react";
 import VideogameAsset from "@icons/videogame_asset_24dp.svg?react";
+import TheatreSearchBar from "@components/TheatreSearchBar.astro";
 
 let mirrorError = false;
 
-const id = Astro.url.searchParams.get("id");
+const id = Astro.url.searchParams.get("v");
 
 let data: TheatreEntry | undefined;
 
@@ -127,54 +128,57 @@ if (mirrorError) {
           </Fragment>
         )}
         <main class={styles.main}>
-          <div class={styles.frame}>
-            <div class={styles.iframeContainer}>
-              <div
-                class={styles.iframeCover}
-                title="Click to focus"
-                id="focusOverlay"
-              />
-              <iframe id="playerFrame" title="Embed" />
+          <TheatreSearchBar />
+          <div class={styles.content} id="content">
+            <div class={styles.frame}>
+              <div class={styles.iframeContainer}>
+                <div
+                  class={styles.iframeCover}
+                  title="Click to focus"
+                  id="focusOverlay"
+                />
+                <iframe id="playerFrame" title="Embed" />
+              </div>
+              <div tabindex="0" class={styles.controls} id="controlsPopup">
+                <div
+                  class={styles.close}
+                  id="closeControlsPopup"
+                  set:html={Close}
+                />
+                <div class={styles.controls} set:html={controlsHTML} />
+              </div>
             </div>
-            <div tabindex="0" class={styles.controls} id="controlsPopup">
-              <div
-                class={styles.close}
-                id="closeControlsPopup"
-                set:html={Close}
-              />
-              <div class={styles.controls} set:html={controlsHTML} />
-            </div>
-          </div>
-          <div class={styles.title}>
-            <h3 class={styles.name}>{data.name}</h3>
-            <div class={styles.shiftRight} />
-            <div
-              class={styles.button}
-              id="openInFullscreen"
-              title="Fullscreen mode"
-              set:html={Fullscreen}
-            />
-            {data.controls.length !== 0 && (
+            <div class={styles.title}>
+              <h3 class={styles.name}>{data.name}</h3>
+              <div class={styles.shiftRight} />
               <div
                 class={styles.button}
-                tabindex="0"
-                id="openControls"
-                title="Controls"
-                set:html={VideogameAsset}
+                id="openInFullscreen"
+                title="Fullscreen mode"
+                set:html={Fullscreen}
               />
-            )}
-            <div
-              class:list={[styles.button, styles.favoriteButton]}
-              id="favoriteButton"
-              title="Add to favorites"
-              set:html={Star + StarBorder}
-            />
-            <div
-              class:list={[styles.button, styles.panoramaButton]}
-              id="panoramaButton"
-              title="Panorama mode"
-              set:html={ChevronLeft + Panorama}
-            />
+              {data.controls.length !== 0 && (
+                <div
+                  class={styles.button}
+                  tabindex="0"
+                  id="openControls"
+                  title="Controls"
+                  set:html={VideogameAsset}
+                />
+              )}
+              <div
+                class:list={[styles.button, styles.favoriteButton]}
+                id="favoriteButton"
+                title="Add to favorites"
+                set:html={Star + StarBorder}
+              />
+              <div
+                class:list={[styles.button, styles.panoramaButton]}
+                id="panoramaButton"
+                title="Panorama mode"
+                set:html={ChevronLeft + Panorama}
+              />
+            </div>
           </div>
         </main>
       </>
@@ -229,7 +233,7 @@ if (mirrorError) {
     const dataElement = document.querySelector<HTMLScriptElement>("#gameData");
     if (dataElement === null) return;
     const data = JSON.parse(dataElement.textContent!);
-    const main = document.querySelector("main")!;
+    const content = document.querySelector("#content")!;
 
     setIFrameFocused(true);
 
@@ -304,8 +308,9 @@ if (mirrorError) {
       let controlsExpanded = false;
       const setControlsExpanded = (newVal: boolean) => {
         controlsExpanded = newVal;
-        if (controlsExpanded) main.setAttribute("data-controls-expanded", "");
-        else main.removeAttribute("data-controls-expanded");
+        if (controlsExpanded)
+          content.setAttribute("data-controls-expanded", "");
+        else content.removeAttribute("data-controls-expanded");
       };
       // make sure controls-expanded isn't leftover from a previous page load
       setControlsExpanded(false);
@@ -341,8 +346,8 @@ if (mirrorError) {
     let favorited = false;
     const setFavorited = (newVal: boolean) => {
       favorited = newVal;
-      if (favorited) main.setAttribute("data-favorited", "");
-      else main.removeAttribute("data-favorited");
+      if (favorited) content.setAttribute("data-favorited", "");
+      else content.removeAttribute("data-favorited");
     };
     setFavorited(globalSettings.get("favorites").includes(data.id));
 
@@ -362,8 +367,8 @@ if (mirrorError) {
     let panorama = false;
     const setPanorama = (newVal: boolean) => {
       panorama = newVal;
-      if (panorama) main.setAttribute("data-panorama", "");
-      else main.removeAttribute("data-panorama");
+      if (panorama) content.setAttribute("data-panorama", "");
+      else content.removeAttribute("data-panorama");
     };
     setPanorama(false);
 

@@ -1,5 +1,5 @@
 import { theatreAPI } from "@lib/theatre";
-import type { CategoryData, ListOptions } from "@lib/TheatreAPI";
+import type { ListData, ListOptions } from "@lib/TheatreAPI";
 import type { APIRoute } from "astro";
 
 export const GET: APIRoute = async ({ url }) => {
@@ -46,7 +46,7 @@ export const GET: APIRoute = async ({ url }) => {
   const send = {
     entries: [],
     total: data.total,
-  } as CategoryData;
+  } as ListData;
 
   for (const entry of data.entries)
     send.entries.push({

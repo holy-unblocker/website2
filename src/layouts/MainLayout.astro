@@ -7,7 +7,7 @@ import "@styles/theme.scss";
 import HatBeta from "@icons/hat-beta.svg?react";
 import HatDev from "@icons/hat-dev.svg?react";
 import HatPlain from "@icons/hat.svg?react";
-import categories from "@lib/gameCategories";
+import { gameCategories } from "@lib/gameCategories";
 import styles from "@styles/Navigation.module.scss";
 import MenuIcon from "@icons/menu_24dp.svg?react";
 import GitHub from "@icons/github.svg?react";
@@ -173,7 +173,7 @@ const { cloak } = Astro.locals;
           <div class={styles.title}>Genre</div>
           <div class={styles.genres}>
             {
-              categories.map((category) => (
+              gameCategories.map((category) => (
                 <a
                   href={`/theatre/${category.id}`}
                   title={category.name}

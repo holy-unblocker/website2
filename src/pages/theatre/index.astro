@@ -1,15 +1,16 @@
 ---
 // popular games
 
-import TheatreSearchBar from "@components/TheatreSearchBar";
+import TheatreSearchBar from "@components/TheatreSearchBar.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
-import categories, { type Category } from "@lib/gameCategories";
+import { gameCategories, type Category } from "@lib/gameCategories";
 import styles from "@styles/TheatreCategory.module.scss";
 import ArrowForward from "@icons/arrow_forward_24dp.svg?svgmin";
 import MainLayout from "@layouts/MainLayout.astro";
 import { dbEnabled, theatreAPI, theatreAPIMirror } from "@lib/theatre";
-import type { CategoryData, TheatreEntryMin } from "@lib/TheatreAPI";
+import type { ListData, TheatreEntryMin } from "@lib/TheatreAPI";
 import TheatreItem from "@components/TheatreItem.astro";
+import TheatreCategory from "@components/TheatreCategory.astro";
 
 const entryLimit = 8;
 
@@ -17,12 +18,15 @@ const entryLimit = 8;
 
 let mirrorError = false;
 
-let data: CategoryData | undefined;
+let data: ListData | undefined;
+
+const q = Astro.url.searchParams.get("q");
 
 if (dbEnabled) {
   data = await theatreAPI.list({
     sort: "plays",
     limitPerCategory: entryLimit,
+    search: q,
   });
 } else
   try {
@@ -42,8 +46,15 @@ if (dbEnabled) {
 const renderCategories: { category: Category; entries: TheatreEntryMin[] }[] =
   [];
 
-if (data !== undefined)
-  for (const category of categories) {
+if (data !== undefined) {
+  if (q !== undefined) {
+    // do stuff with query here
+    if (data.entries.length === 0) {
+      Astro.response.status = 404;
+    }
+  }
+
+  for (const category of gameCategories) {
     const entries = data.entries.filter((e) =>
       e.category.includes(category.id)
     );
@@ -55,6 +66,7 @@ if (data !== undefined)
         entries,
       });
   }
+}
 ---
 
 <MainLayout title="Popular Games">
@@ -70,32 +82,46 @@ if (data !== undefined)
           <Fragment slot="head">
             <meta
               name="description"
-              content="Popular games on Holy Unblocker."
+              content={
+                q === null
+                  ? "Popular games on Holy Unblocker."
+                  : `Find ${q} games on Holy Unblocker`
+              }
             />
           </Fragment>
         )}
         <main class={styles.main}>
-          <TheatreSearchBar client:load />
-          {renderCategories.map(({ category, entries }) => (
-            <section class={styles.expand}>
-              <div class={styles.name}>
-                <h1>{category.name}</h1>
-                <a
-                  class={themeStyles.themeLink}
-                  href={`/theatre/${category.id}`}
-                  class={styles.seeAll}
-                >
-                  See All
-                  <ArrowForward />
-                </a>
-              </div>
-              <div class:list={[styles.items, styles.flex]}>
-                {entries.map((e) => (
-                  <TheatreItem name={e.name} id={e.id} />
-                ))}
-              </div>
-            </section>
-          ))}
+          {q === null ? (
+            <>
+              <TheatreSearchBar />
+              {renderCategories.map(({ category, entries }) => (
+                <section class={styles.expand}>
+                  <div class={styles.name}>
+                    <h1>{category.name}</h1>
+                    <a
+                      class={themeStyles.themeLink}
+                      href={`/theatre/${category.id}`}
+                      class={styles.seeAll}
+                    >
+                      See All
+                      <ArrowForward />
+                    </a>
+                  </div>
+                  <div class:list={[styles.items, styles.flex]}>
+                    {entries.map((e) => (
+                      <TheatreItem name={e.name} id={e.id} />
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </>
+          ) : (
+            <TheatreCategory
+              name={`Search for '${q}'`}
+              search={q}
+              placeholder="Search by game name"
+            />
+          )}
         </main>
       </>
     )

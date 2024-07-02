@@ -1,10 +1,10 @@
 ---
 import MainLayout from "@layouts/MainLayout.astro";
-import categories from "@lib/gameCategories";
+import { gameCategories } from "@lib/gameCategories";
 import TheatreCategory from "@components/TheatreCategory.astro";
 
 const id = Astro.params.id!;
-const category = categories.find((category) => category.id === id);
+const category = gameCategories.find((category) => category.id === id);
 if (!category) Astro.response.status = 404;
 ---
 

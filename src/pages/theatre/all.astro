@@ -1,6 +1,6 @@
 ---
 import TheatreCategory from "@components/TheatreCategory.astro";
-import categories from "@lib/gameCategories";
+import { gameCategories } from "@lib/gameCategories";
 import MainLayout from "@layouts/MainLayout.astro";
 ---
 
@@ -14,7 +14,7 @@ import MainLayout from "@layouts/MainLayout.astro";
   }
   <TheatreCategory
     name="All Games"
-    category={categories.map((category) => category.id)}
+    category={gameCategories.map((category) => category.id)}
     placeholder="Search by game name"
   />
 </MainLayout>

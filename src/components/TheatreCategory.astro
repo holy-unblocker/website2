@@ -1,17 +1,18 @@
 ---
-import TheatreSearchBar from "@components/TheatreSearchBar";
+import TheatreSearchBar from "@components/TheatreSearchBar.astro";
 import styles from "@styles/TheatreCategory.module.scss";
 import ThemeSelect from "./ThemeSelect.astro";
 import { dbEnabled, theatreAPI, theatreAPIMirror } from "@lib/theatre";
 import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
 import TheatreItem from "./TheatreItem.astro";
-import { fetchCategoryData, maxResultsPerPage } from "@lib/renderTheatre";
+import { fetchListData, maxResultsPerPage } from "@lib/renderTheatre";
 import ChevronLeft from "@icons/chevron_left_24dp.svg?react";
 import ChevronRight from "@icons/chevron_right_24dp.svg?react";
 
 interface Props {
   name: string;
-  category: string[];
+  search?: string;
+  category?: string[] | null;
   placeholder?: string;
   isGame?: boolean;
 }
@@ -38,8 +39,11 @@ const sort =
 
 const { category } = Astro.props;
 
-const data = await fetchCategoryData(
+const q = Astro.url.searchParams.get("q");
+
+const data = await fetchListData(
   dbEnabled ? theatreAPI : theatreAPIMirror,
+  q,
   category,
   sort,
   page
@@ -51,7 +55,7 @@ const maxPage =
 ---
 
 <main class={styles.main}>
-  <TheatreSearchBar client:load />
+  <TheatreSearchBar />
   <section>
     <h1 class="page-title sub">
       {
@@ -72,7 +76,7 @@ const maxPage =
     <div
       class={styles.items}
       id="theatreItems"
-      data-category={category.join(",")}
+      data-category={category}
       data-total={data.total}
       data-sort={sort}
       data-page={page}
@@ -100,22 +104,26 @@ const maxPage =
   </div>
 </main>
 <script>
-  import type { CategoryData } from "@lib/TheatreAPI";
+  import type { ListData } from "@lib/TheatreAPI";
   import {
     getClientTheatreAPI,
     renderTheatreItem,
     maxResultsPerPage,
   } from "@lib/renderTheatre";
-  import { fetchCategoryData } from "@lib/renderTheatre";
+  import { fetchListData } from "@lib/renderTheatre";
 
   const theatreAPI = getClientTheatreAPI();
+
+  const searchParams = new URLSearchParams(location.search);
+  const q = searchParams.get("q");
+  const search = q === null ? undefined : q;
 
   document.addEventListener("astro:page-load", () => {
     const theatreItems =
       document.querySelector<HTMLDivElement>("#theatreItems");
     if (!theatreItems) return;
 
-    const category = theatreItems.getAttribute("data-category")!.split(",");
+    const category = theatreItems.getAttribute("data-category")?.split(",");
     let total = parseInt(theatreItems.getAttribute("data-total")!);
     let page = parseInt(theatreItems.getAttribute("data-page")!);
     let sort = theatreItems.getAttribute("data-page")!;
@@ -128,7 +136,7 @@ const maxPage =
         theatreItems.append(renderTheatreItem());
     };
 
-    const loadItems = (data: CategoryData) => {
+    const loadItems = (data: ListData) => {
       theatreItems.innerHTML = "";
       total = data.total;
 
@@ -156,7 +164,7 @@ const maxPage =
         st === "" ? location.pathname : `${location.pathname}?${st}`
       );
       fillWithLoading();
-      fetchCategoryData(theatreAPI, category, sort, page)
+      fetchListData(theatreAPI, q, category, sort, page)
         .then(loadItems)
         .catch(handleErr);
     });
@@ -176,7 +184,7 @@ const maxPage =
         "",
         st === "" ? location.pathname : `${location.pathname}?${st}`
       );
-      fetchCategoryData(theatreAPI, category, sort, page)
+      fetchListData(theatreAPI, q, category, sort, page)
         .then(loadItems)
         .catch(handleErr);
 

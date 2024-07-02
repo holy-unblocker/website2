@@ -1,6 +1,6 @@
 import type { Client } from "pg";
 import type {
-  CategoryData,
+  ListData,
   ListOptions,
   TheatreEntry,
   TheatreEntryMin,
@@ -101,7 +101,10 @@ export default class TheatreWrapper {
 
     if (row) return rowTo(row);
   }
-  async list(options: ListOptions = {}): Promise<CategoryData> {
+  async list(
+    options: ListOptions = { search: undefined },
+    _signal?: AbortSignal
+  ): Promise<ListData> {
     // 0: select, 1: condition, 3: order, 3: limit, 4: offset
     const select = [];
     const conditions = [];

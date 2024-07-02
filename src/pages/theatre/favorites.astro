@@ -2,10 +2,12 @@
 import styles from "@styles/TheatreCategory.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import ClientAPIs from "@components/ClientAPIs.astro";
+import TheatreSearchBar from "@components/TheatreSearchBar.astro";
 ---
 
 <MainLayout title="Favorites">
   <main class={styles.main}>
+    <TheatreSearchBar />
     <h1 class="page-title sub">Favorites</h1>
     <div class={styles.items} id="favoriteItems"></div>
   </main>

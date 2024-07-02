@@ -24,7 +24,7 @@ export interface Category {
   short: boolean;
 }
 
-const categories: Category[] = [
+export const gameCategories: Category[] = [
   {
     name: "Action",
     id: "action",
@@ -67,4 +67,11 @@ const categories: Category[] = [
   },
 ];
 
-export default categories;
+export const theatreCategories: Category[] = [
+  ...gameCategories,
+  {
+    name: "Apps",
+    id: "app",
+    short: true,
+  },
+];

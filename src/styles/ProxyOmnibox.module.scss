@@ -50,6 +50,7 @@ $height: 44px;
   display: contents;
   > svg {
     user-select: none;
+    min-width: 20px;
     width: 20px;
     height: 20px;
     padding: 12px;
@@ -80,18 +81,32 @@ $height: 44px;
   display: flex;
   margin-top: $height;
   width: 100%;
+  z-index: 1000;
 
   @include screenMobile {
     width: calc(100% - 20px); // - padding - border
   }
 
+  .category {
+    flex: none;
+    justify-self: end;
+    width: 100px;
+    color: var(--text-placeholder);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  > a,
   > div {
+    flex-shrink: none;
     cursor: pointer;
     color: var(--text);
     height: $height;
     position: relative;
     display: flex;
     flex-direction: row;
+    height: $height;
 
     &:hover {
       background-color: var(--background);
@@ -101,7 +116,8 @@ $height: 44px;
       background-color: var(--background-accent-deep-2);
     }
 
-    > .text {
+    > .result {
+      margin-top: 0;
       padding: 0px 15px 0px 0px;
       width: 100%;
       line-height: $height;

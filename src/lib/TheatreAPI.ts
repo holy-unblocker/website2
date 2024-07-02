@@ -49,7 +49,7 @@ export interface TheatreEntryMin {
   category: string[];
 }
 
-export interface CategoryData {
+export interface ListData {
   total: number;
   entries: TheatreEntryMin[];
 }
@@ -79,32 +79,34 @@ export interface ListOptions {
   limit?: number;
   offset?: number;
   limitPerCategory?: number;
-  search?: string;
-  category?: string[];
+  search?: string | null;
+  category?: string[] | null;
   ids?: string[];
 }
 
 export default class TheatreAPI {
   private api?: string;
-  private signal?: AbortSignal;
-  constructor(api: string, signal?: AbortSignal) {
+  constructor(api: string) {
     this.api = api;
-    this.signal = signal;
   }
   private sortParams(params: Record<string, any>): Record<string, string> {
     const result: Record<string, string> = {};
 
     for (const param in params) {
       const e = params[param];
-      if (typeof e !== "undefined") result[param] = e.toString();
+      if (e !== null) result[param] = e.toString();
     }
 
     return result;
   }
-  async fetch<JSONData>(url: string, init: RequestInit = {}) {
+  async fetch<JSONData>(
+    url: string,
+    init: RequestInit = {},
+    signal?: AbortSignal
+  ) {
     const outgoing = await fetch(this.api + url, {
       ...init,
-      signal: this.signal,
+      signal,
     });
 
     const json = await outgoing.json();
@@ -129,9 +131,29 @@ export default class TheatreAPI {
       method: "PUT",
     });
   }
-  async list(params: ListOptions) {
-    return await this.fetch<CategoryData>(
-      "?" + new URLSearchParams(this.sortParams(params))
+  async list(params: ListOptions, signal?: AbortSignal) {
+    const s: any = { ...params };
+    if (typeof params.search !== "string") delete params.search;
+    if (typeof params.sort === "string") {
+      switch (params.sort) {
+        case "leastPopular":
+          s.leastGreatest = true;
+        // fallthrough
+        case "mostPopular":
+          s.sort = "plays";
+          break;
+        case "nameASC":
+          s.leastGreatest = true;
+        // fallthrough
+        case "nameDES":
+          s.sort = "name";
+          break;
+      }
+    }
+    return await this.fetch<ListData>(
+      "?" + new URLSearchParams(this.sortParams(s)),
+      undefined,
+      signal
     );
   }
 }
