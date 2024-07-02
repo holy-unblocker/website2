@@ -7,32 +7,30 @@ import TheatreItem from "@components/TheatreItem";
 const TheatreFavorites = () => {
   const globalSettings = getGlobalSettings();
   const favorites = globalSettings.get("favorites");
-  const [data, setData] = useState<(TheatreEntryMin | undefined)[]>(() => [
-    ...Array(favorites.length),
-  ]);
+  const [data, setData] = useState<TheatreEntryMin[] | undefined>(undefined);
 
   useEffect(() => {
     const api = new TheatreAPI("/api/theatre/");
 
-    for (const id of favorites)
-      api
-        .show(id)
-        .then((e) => {
-          data[favorites.indexOf(id)] = {
-            name: e.name,
-            id: e.id,
-            category: e.category,
-          };
-          setData([...data]);
-        })
-        .catch((err) => {
-          console.warn("Unable to fetch entry:", id, err);
-          const i = favorites.indexOf(id);
-          favorites.splice(i, 1);
-          data.splice(i, 1);
-          setData([...data]);
-          globalSettings.set("favorites", favorites);
-        });
+    api
+      .list({
+        ids: favorites,
+      })
+      .then((data) => {
+        for (const id of favorites) {
+          if (!data.entries.some((e) => e.id === id)) {
+            console.log(
+              "could not find entry id",
+              id,
+              "in result, assuming it was deleted"
+            );
+            favorites.splice(favorites.indexOf(id), 1);
+          }
+        }
+
+        setData(data.entries);
+        globalSettings.set("favorites", favorites);
+      });
   }, []);
 
   if (favorites.length === 0)
@@ -40,16 +38,16 @@ const TheatreFavorites = () => {
 
   return (
     <div class={styles.items}>
-      {data.map((e) =>
-        e === undefined ? (
-          <div className={`${styles.item} ${styles.unknown}`}>
-            <div className={styles.thumbnail} />
-            <div className={styles.name} />
-          </div>
-        ) : (
-          <TheatreItem key={e.id} id={e.id} name={e.name} />
-        )
-      )}
+      {data === undefined
+        ? [...Array(favorites.length)].map((_, i) => (
+            <div key={i} className={`${styles.item} ${styles.unknown}`}>
+              <div className={styles.thumbnail} />
+              <div className={styles.name} />
+            </div>
+          ))
+        : data.map((item) => (
+            <TheatreItem key={item.id} id={item.id} name={item.name} />
+          ))}
     </div>
   );
 };

@@ -81,6 +81,7 @@ export interface ListOptions {
   limitPerCategory?: number;
   search?: string;
   category?: string;
+  ids?: string[];
 }
 
 export default class TheatreAPI {

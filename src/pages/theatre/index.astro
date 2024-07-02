@@ -13,7 +13,7 @@ import TheatreItem from "@components/TheatreItem.astro";
 
 const entryLimit = 8;
 
-const categoryQuery = categories.map((category) => category.id).join(",");
+// const categoryQuery = categories.map((category) => category.id).join(",");
 
 let mirrorError = false;
 
@@ -22,14 +22,12 @@ let data: CategoryData | undefined;
 if (dbEnabled) {
   data = await theatreAPI.list({
     sort: "plays",
-    category: categoryQuery,
     limitPerCategory: entryLimit,
   });
 } else
   try {
     data = await theatreAPIMirror.list({
       sort: "plays",
-      category: categoryQuery,
       limitPerCategory: entryLimit,
     });
   } catch (err) {

@@ -37,6 +37,9 @@ export const GET: APIRoute = async ({ url }) => {
   if (url.searchParams.has("category")) {
     q.category = url.searchParams.get("category")!;
   }
+  if (url.searchParams.has("ids")) {
+    q.ids = url.searchParams.get("ids")!.split(",");
+  }
 
   const data = await theatreAPI.list(q);
 

@@ -108,22 +108,26 @@ export default class TheatreWrapper {
     const vars = [];
     const selection = ["*", "count(*) OVER() AS total"];
 
-    if (typeof options.category === "string") {
-      const list = [];
-      for (const category of options.category.split(","))
-        list.push(`$${vars.push(category)}`);
-
-      // split the entry category into an array
-      // check if the input categories array has any elements in common with the entry category array
-      conditions.push(`string_to_array(category, ',') && ARRAY[${list}]`);
-    }
-
     if (typeof options.limitPerCategory === "number")
       conditions.push(
         `(SELECT COUNT(*) FROM theatre b WHERE string_to_array(b."category", ',') && string_to_array(a."category", ',') AND a."index" < b."index") < $${vars.push(
           options.limitPerCategory
         )}`
       );
+
+    if (typeof options.ids === "object") {
+      // split the entry category into an array
+      // check if the input categories array has any elements in common with the entry category array
+      conditions.push(
+        `id = ANY(string_to_array($${vars.push(options.ids.join(","))}, ','))`
+      );
+    }
+
+    if (typeof options.category === "string") {
+      conditions.push(
+        `$${vars.push(options.category)} = ANY(string_to_array(category, ','))`
+      );
+    }
 
     const order = [];
 
