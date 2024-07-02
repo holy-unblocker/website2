@@ -19,7 +19,7 @@ interface Props {
 
 const pageParam = Astro.url.searchParams.get("page");
 // default to first page
-let page = pageParam === null ? 1 : parseInt(pageParam) - 1;
+let page = pageParam === null ? 1 : parseInt(pageParam);
 if (isNaN(page) || page < 0) page = 1;
 // visual offset by 1
 page -= 1;
@@ -125,7 +125,7 @@ const maxPage =
     const category = theatreItems.getAttribute("data-category")?.split(",");
     let total = parseInt(theatreItems.getAttribute("data-total")!);
     let page = parseInt(theatreItems.getAttribute("data-page")!);
-    let sort = theatreItems.getAttribute("data-page")!;
+    let sort = theatreItems.getAttribute("data-sort")!;
 
     const sortInput = document.querySelector<HTMLInputElement>("#sort")!;
 
@@ -174,9 +174,9 @@ const maxPage =
 
     const fetchPage = () => {
       const newParams = new URLSearchParams(location.search);
+      newParams.set("sort", sort);
       if (page === 0) newParams.delete("page");
       else newParams.set("page", (page + 1).toString());
-      newParams.set("sort", sort);
       const st = newParams.toString();
       history.pushState(
         {},
