@@ -6,8 +6,8 @@ import TheatreSearchBar from "@components/TheatreSearchBar.astro";
 ---
 
 <MainLayout title="Favorites">
+  <TheatreSearchBar />
   <main class={styles.main}>
-    <TheatreSearchBar />
     <h1 class="page-title sub">Favorites</h1>
     <div class={styles.items} id="favoriteItems"></div>
   </main>
