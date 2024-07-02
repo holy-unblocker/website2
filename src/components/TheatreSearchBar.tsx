@@ -156,13 +156,10 @@ const SearchBar = ({
       >
         {renderSuggested &&
           categoryData.entries.map((entry, i) => (
-            <div
+            <a
               tabIndex={0}
               key={entry.id}
-              onClick={(event) => {
-                event.preventDefault();
-                location.href = `/theatre/play?id=${entry.id}`;
-              }}
+              href={`/theatre/play?id=${entry.id}`}
               onMouseOver={() => setLastSelect(i)}
               title={entry.name}
               data-hover={i === lastSelect || undefined}
@@ -177,7 +174,7 @@ const SearchBar = ({
                   }
                 </div>
               )}
-            </div>
+            </a>
           ))}
       </div>
     </div>

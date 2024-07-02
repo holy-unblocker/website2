@@ -67,7 +67,8 @@ $height: 44px;
   border: 1px solid var(--border);
   border-top: none;
 
-  > div {
+  // search result
+  > a {
     cursor: pointer;
     color: var(--text);
     height: $height;
@@ -75,6 +76,7 @@ $height: 44px;
     display: flex;
     flex-direction: row;
 
+    &:hover,
     &[data-hover] {
       background-color: var(--background);
     }

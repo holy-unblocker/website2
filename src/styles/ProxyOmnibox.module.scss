@@ -94,6 +94,7 @@ $height: 44px;
     display: flex;
     flex-direction: row;
 
+    &:hover,
     &[data-hover] {
       background-color: var(--background);
     }
