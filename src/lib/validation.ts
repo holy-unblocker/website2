@@ -15,7 +15,7 @@ export function validateEmail(
   email: string | undefined,
   currentEmail?: string
 ): string | undefined {
-  if (typeof email === "undefined" || email.length === 0)
+  if (typeof email === "undefined" || email.trim() === "")
     return "Please enter an email.";
 
   if (currentEmail !== undefined && email === currentEmail)
