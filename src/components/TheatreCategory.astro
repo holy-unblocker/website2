@@ -19,7 +19,7 @@ interface Props {
 
 const pageParam = Astro.url.searchParams.get("page");
 // default to first page
-let page = pageParam === null ? 1 : parseInt(pageParam);
+let page = pageParam === null ? 1 : parseInt(pageParam) - 1;
 if (isNaN(page) || page < 0) page = 1;
 // visual offset by 1
 page -= 1;
@@ -86,8 +86,8 @@ const maxPage =
   </section>
   <div
     class={styles.pages}
-    data-useless={data.entries.length === 0 || undefined}
-    id="pages"
+    data-useless={page === maxPage || data.entries.length === 0 || undefined}
+    id="pages|| "
   >
     <div
       class={styles.button}
@@ -99,7 +99,7 @@ const maxPage =
       class={styles.button}
       id="pageForward"
       set:html={ChevronRight}
-      data-disabled={page === maxPage - 1 || undefined}
+      data-disabled={page === maxPage || undefined}
     />
   </div>
 </main>
@@ -175,7 +175,7 @@ const maxPage =
     const fetchPage = () => {
       const newParams = new URLSearchParams(location.search);
       if (page === 0) newParams.delete("page");
-      else newParams.set("page", page.toString());
+      else newParams.set("page", (page + 1).toString());
       newParams.set("sort", sort);
       const st = newParams.toString();
       history.pushState(
@@ -195,16 +195,16 @@ const maxPage =
       else pageBack.removeAttribute("data-disabled");
     };
 
-    pageForward.addEventListener("click", () => {
-      const maxPage = Math.floor(total / maxResultsPerPage);
-      if (page === maxPage - 1) return;
-      page++;
-      fetchPage();
-    });
-
     pageBack.addEventListener("click", () => {
       if (page === 0) return;
       page--;
+      fetchPage();
+    });
+
+    pageForward.addEventListener("click", () => {
+      const maxPage = Math.floor(total / maxResultsPerPage);
+      if (page === maxPage) return;
+      page++;
       fetchPage();
     });
   });
