@@ -59,10 +59,12 @@ const engine = searchEngines[Astro.locals.searchEngine];
 
   // reuse the same function
   function entryClick(this: HTMLDivElement, event: MouseEvent) {
-    const inputBar = document.querySelector<HTMLInputElement>("input")!;
-    const dest = this.textContent!;
-    inputBar.value = dest;
-    inputBar.focus();
+    const form = document.querySelector<HTMLFormElement>("#omnibox");
+    if (!form) return;
+    const builder = new SearchBuilder(form.getAttribute("data-search-format")!);
+    const src = builder.query(this.textContent!);
+    setInputFocused(false);
+    setServiceSrc(src);
     event.preventDefault();
   }
 
@@ -87,8 +89,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
     resultIndex = -1;
     // let lastQuery: string | undefined;
 
-    const searchEngineFormat = form.getAttribute("data-search-format")!;
-    const builder = new SearchBuilder(searchEngineFormat);
+    const builder = new SearchBuilder(form.getAttribute("data-search-format")!);
     const inputBar = form.querySelector<HTMLInputElement>("input")!;
     const suggest = document.querySelector<HTMLDivElement>("#omniboxSuggest")!;
 
@@ -167,7 +168,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
     // eg: https://holyubofficial.net/?q=hello+world will search for "Hello World"
     const query = new URLSearchParams(location.search).get("q");
     if (query !== null) {
-      const src = new SearchBuilder(searchEngineFormat).query(query);
+      const src = builder.query(query);
       setServiceSrc(src);
     }
 
