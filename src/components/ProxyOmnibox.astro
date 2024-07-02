@@ -68,7 +68,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
 
   const renderOmniboxSearchResult = (result: string, query: string) => {
     const e = renderSearchResult(result, query);
-    e.addEventListener("mousedown", entryClick, { capture: true });
+    e.addEventListener("mousedown", entryClick);
     return e;
   };
 
