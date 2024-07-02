@@ -86,10 +86,8 @@ const maxPage =
   </section>
   <div
     class={styles.pages}
-    data-useless={page === maxPage - 1 ||
-      data.entries.length === 0 ||
-      undefined}
-    id="pages|| "
+    data-useless={data.entries.length === 0 || undefined}
+    id="pages"
   >
     <div
       class={styles.button}
@@ -101,7 +99,7 @@ const maxPage =
       class={styles.button}
       id="pageForward"
       set:html={ChevronRight}
-      data-disabled={page === maxPage - 1 || undefined}
+      data-disabled={page === maxPage || undefined}
     />
   </div>
 </main>
