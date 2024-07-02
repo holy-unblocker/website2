@@ -3,10 +3,16 @@ import "@fontsource/lato";
 import "@fontsource/lato/700.css";
 import "@styles/root.scss";
 import "@styles/theme.scss";
+
+Astro.response.headers.set("x-robots-tag", "noindex");
 ---
 
 <html lang="en" data-theme={Astro.locals.theme}>
-  <head><meta charset="utf-8" /></head>
+  <head
+    ><meta charset="utf-8" />
+    <script src="/uv/uv.bundle.js" is:inline defer></script>
+    <script src="/uv/uv.config.js" is:inline defer></script>
+  </head>
   <body>
     <main>Ultraviolet is loading...</main>
     <script>
