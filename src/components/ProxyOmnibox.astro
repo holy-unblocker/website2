@@ -56,7 +56,6 @@ const engine = searchEngines[Astro.locals.searchEngine];
   }
 
   let resultIndex = -1;
-  let lastQuery: string | undefined;
 
   // reuse the same function
   function entryClick(this: HTMLDivElement, event: MouseEvent) {
@@ -86,7 +85,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
     const form = document.querySelector<HTMLFormElement>("#omnibox");
     if (!form) return;
     resultIndex = -1;
-    lastQuery = undefined;
+    // let lastQuery: string | undefined;
 
     const searchEngineFormat = form.getAttribute("data-search-format")!;
     const builder = new SearchBuilder(searchEngineFormat);
@@ -95,7 +94,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
 
     window.setInputFocused = (inputFocused: boolean) => {
       resultIndex = -1;
-      lastQuery = undefined;
+      // lastQuery = undefined;
       if (inputFocused) {
         getSearchResults(inputBar.value);
         form.setAttribute("data-focused", "");
@@ -181,7 +180,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
 
     const getSearchResults = async (query: string) => {
       query = query.trim();
-      lastQuery = query;
+      // lastQuery = query;
       suggest.innerHTML = "";
 
       if (query === "") {
