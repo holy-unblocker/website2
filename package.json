@@ -18,7 +18,7 @@
     "@mercuryworkshop/bare-mux": "^1.1.2",
     "@mercuryworkshop/epoxy-transport": "^2.0.1",
     "@node-rs/bcrypt": "^1.10.4",
-    "@ruffle-rs/ruffle": "^0.1.0-nightly.2023.9.6",
+    "@ruffle-rs/ruffle": "^0.1.0-nightly.2024.7.2",
     "@titaniumnetwork-dev/ultraviolet": "^3.1.4",
     "@types/crypto-js": "^4.2.2",
     "@types/effective-domain-name-parser": "^0.0.2",
@@ -36,8 +36,8 @@
     "serve-handler": "^6.1.5",
     "stripe": "^16.1.0",
     "svgo": "^3.3.2",
-    "typescript": "^5.4.5",
-    "vite-plugin-static-copy": "^1.0.5",
+    "typescript": "^5.5.3",
+    "vite-plugin-static-copy": "^1.0.6",
     "wisp-server-node": "^1.1.0"
   }
 }
