@@ -54,8 +54,8 @@ const maxPage =
   data === undefined ? -1 : Math.floor(data.total / maxResultsPerPage);
 ---
 
-<main class={styles.main}>
-  <TheatreSearchBar />
+<TheatreSearchBar />
+<main>
   <section>
     <h1 class="page-title sub">
       {
@@ -116,7 +116,6 @@ const maxPage =
 
   const searchParams = new URLSearchParams(location.search);
   const q = searchParams.get("q");
-  const search = q === null ? undefined : q;
 
   document.addEventListener("astro:page-load", () => {
     const theatreItems =

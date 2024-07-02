@@ -90,39 +90,37 @@ if (data !== undefined) {
             />
           </Fragment>
         )}
-        <main class={styles.main}>
-          {q === null ? (
-            <>
-              <TheatreSearchBar />
-              {renderCategories.map(({ category, entries }) => (
-                <section class={styles.expand}>
-                  <div class={styles.name}>
-                    <h1>{category.name}</h1>
-                    <a
-                      class={themeStyles.themeLink}
-                      href={`/theatre/${category.id}`}
-                      class={styles.seeAll}
-                    >
-                      See All
-                      <ArrowForward />
-                    </a>
-                  </div>
-                  <div class:list={[styles.items, styles.flex]}>
-                    {entries.map((e) => (
-                      <TheatreItem name={e.name} id={e.id} />
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </>
-          ) : (
-            <TheatreCategory
-              name={`Search for '${q}'`}
-              search={q}
-              placeholder="Search by game name"
-            />
-          )}
-        </main>
+        {q === null ? (
+          <>
+            <TheatreSearchBar />
+            {renderCategories.map(({ category, entries }) => (
+              <main class={styles.expand}>
+                <div class={styles.name}>
+                  <h1>{category.name}</h1>
+                  <a
+                    class={themeStyles.themeLink}
+                    href={`/theatre/${category.id}`}
+                    class={styles.seeAll}
+                  >
+                    See All
+                    <ArrowForward />
+                  </a>
+                </div>
+                <div class:list={[styles.items, styles.flex]}>
+                  {entries.map((e) => (
+                    <TheatreItem name={e.name} id={e.id} />
+                  ))}
+                </div>
+              </main>
+            ))}
+          </>
+        ) : (
+          <TheatreCategory
+            name={`Search for '${q}'`}
+            search={q}
+            placeholder="Search by game name"
+          />
+        )}
       </>
     )
   }
