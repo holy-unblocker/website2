@@ -50,7 +50,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
     var setInputFocused: (newFocused: boolean) => void;
   }
 
-  window.addEventListener("click", (event) => {
+  window.addEventListener("mousedown", (event) => {
     const form = document.querySelector<HTMLFormElement>("#theatreSearchBar");
     if (form && !form.contains(event.target as any)) setInputFocused(false);
   });
