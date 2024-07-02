@@ -8,15 +8,7 @@ import { useRef, useState } from "preact/hooks";
 
 const LIMIT = 8;
 
-const SearchBar = ({
-  category,
-  placeholder,
-  showCategory,
-}: {
-  category: string;
-  placeholder?: string;
-  showCategory?: boolean;
-}) => {
+const SearchBar = () => {
   const input = useRef<HTMLInputElement | null>(null);
   const bar = useRef<HTMLDivElement | null>(null);
   const [categoryData, setCategoryData] = useState<CategoryData>({
@@ -37,11 +29,10 @@ const SearchBar = ({
     const api = new TheatreAPI("/api/theatre/", searchAbort.current.signal);
 
     try {
-      const categoryData = await api.category({
+      const categoryData = await api.list({
         sort: "search",
         search: query,
         limit: LIMIT,
-        category,
       });
 
       setCategoryData(categoryData);
@@ -70,7 +61,7 @@ const SearchBar = ({
           ref={input}
           type="text"
           className={themeStyles.thinPadLeft}
-          placeholder={placeholder}
+          placeholder="Search by game name"
           onFocus={() => {
             setInputFocused(true);
             setLastSelect(-1);
@@ -165,7 +156,7 @@ const SearchBar = ({
               data-hover={i === lastSelect || undefined}
             >
               <div className={styles.name}>{entry.name}</div>
-              {showCategory && entry.category[0] && (
+              {entry.category[0] && (
                 <div className={styles.category}>
                   {
                     categories.find(

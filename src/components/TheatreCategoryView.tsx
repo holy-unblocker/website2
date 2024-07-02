@@ -1,139 +1,162 @@
-import CommonError from "@components/CommonError";
-import { ItemList, isLoading, type LoadingCategoryData } from "./TheatreCommon";
+import themeStyles from "@styles/ThemeElements.module.scss";
+import TheatreItem from "@components/TheatreItem";
 import TheatreAPI, { type CategoryData } from "@lib/TheatreAPI";
-import isAbortError from "@lib/isAbortError";
 import styles from "@styles/TheatreCategory.module.scss";
 import ChevronLeft from "@icons/chevron_left_24dp.svg?react";
 import ChevronRight from "@icons/chevron_right_24dp.svg?react";
 import { useEffect, useState } from "preact/hooks";
-import { useSearchParams } from "@lib/searchParamsHook";
+import type TheatreWrapper from "@lib/TheatreWrapper";
 
 const LIMIT = 30;
 
-function createLoading(total: number) {
-  const loading: LoadingCategoryData = {
-    total,
-    entries: [],
-    loading: true,
-  };
+export async function fetchData(
+  api: TheatreAPI | TheatreWrapper,
+  category: string,
+  sort: string,
+  page: number
+) {
+  let leastGreatest = false;
+  let sortBy;
 
-  for (let i = 0; i < LIMIT; i++) {
-    loading.entries.push({
-      id: i.toString(),
-      loading: true,
-      category: [],
-    });
+  switch (sort) {
+    case "leastPopular":
+      leastGreatest = true;
+    // fallthrough
+    case "mostPopular":
+      sortBy = "plays";
+      break;
+    case "nameASC":
+      leastGreatest = true;
+    // fallthrough
+    case "nameDES":
+      sortBy = "name";
+      break;
   }
 
-  return loading;
+  // const api = new TheatreAPI("/api/theatre/");
+
+  return await api.list({
+    category,
+    sort: sortBy,
+    leastGreatest,
+    offset: page * LIMIT,
+    limit: LIMIT,
+  });
 }
 
-export const Category = ({ category }: { category: string }) => {
-  const [search, setSearch] = useSearchParams();
-  let page = parseInt(search.get("page")!);
-  if (isNaN(page)) page = 1;
-  page -= 1;
-  const [lastTotal, setLastTotal] = useState(LIMIT * 2);
-  const [data, setData] = useState<CategoryData | null>(null);
-  const foundData = data || createLoading(lastTotal);
-  const maxPage = Math.floor(foundData.total / LIMIT);
+const TheatreCategoryView = ({
+  category,
+  initData,
+  initSort,
+  initPage,
+}: {
+  category: string;
+  initData: CategoryData;
+  initSort: string;
+  initPage: number;
+}) => {
+  const [data, setData] = useState<CategoryData | undefined>(initData);
+  const [page, setPage] = useState(initPage);
+  const [sort, setSort] = useState(initSort);
   const [error, setError] = useState<string | null>(null);
+  const maxPage = data === undefined ? -1 : Math.floor(data.total / LIMIT);
 
   useEffect(() => {
-    setData(null);
-
-    const abort = new AbortController();
-
-    (async function () {
-      let leastGreatest = false;
-      let sort;
-
-      switch (search.get("sort")) {
-        case "leastPopular":
-          leastGreatest = true;
-        // fallthrough
-        case "mostPopular":
-          sort = "plays";
-          break;
-        case "nameASC":
-          leastGreatest = true;
-        // fallthrough
-        case "nameDES":
-          sort = "name";
-          break;
-      }
-
-      const api = new TheatreAPI("/api/theatre/", abort.signal);
-
-      try {
-        const data = await api.category({
-          category,
-          sort,
-          leastGreatest,
-          offset: page * LIMIT,
-          limit: LIMIT,
-        });
-
-        setData(data);
-        setLastTotal(data.total);
-      } catch (err) {
-        if (!isAbortError(err)) {
+    if (data === undefined)
+      fetchData(new TheatreAPI("/api/theatre/"), category, sort, page)
+        .then((data) => setData(data))
+        .catch((err) => {
           console.error(err);
-          setError(String(err));
-        }
-      }
-    })();
-
-    return () => abort.abort();
-  }, [category, search.get("sort"), page]);
-
-  if (error)
-    return (
-      <CommonError
-        cause="Unable to fetch the category data."
-        error={error}
-        message="An error occurred while loading the category"
-      />
-    );
+          setError((err as Error).message);
+        });
+  }, [data, category, sort, page]);
 
   useEffect(() => {
     const sort = document.querySelector<HTMLInputElement>("#sort")!;
 
     const listener = () => {
-      setSearch({
-        page: null,
-        sort: sort.value,
-      });
+      const newParams = new URLSearchParams(location.search);
+      newParams.delete("page");
+      newParams.set("sort", sort.value);
+      const st = newParams.toString();
+      history.pushState(
+        {},
+        "",
+        st === "" ? location.pathname : `${location.pathname}?${st}`
+      );
+      setData(undefined);
+      setSort(sort.value);
     };
     sort.addEventListener("change", listener);
 
     return () => sort.removeEventListener("change", listener);
   }, []);
 
+  if (error)
+    return (
+      <main>
+        <p>Unable to fetch category data</p>
+        <pre>{error}</pre>
+        <div
+          onClick={() => location.reload()}
+          className={themeStyles.themeLink}
+          id="reload"
+        >
+          Try again by clicking here.
+        </div>
+      </main>
+    );
+
   return (
     <>
-      <ItemList className={styles.items} items={foundData.entries} />
+      <div className={styles.items}>
+        {data === undefined
+          ? [...Array(LIMIT)].map((_, i) => (
+              <div key={i} className={`${styles.item} ${styles.unknown}`}>
+                <div className={styles.thumbnail} />
+                <div className={styles.name} />
+              </div>
+            ))
+          : data.entries.map((e) => <TheatreItem id={e.id} name={e.name} />)}
+      </div>
       <div className={styles.pages} data-useless={maxPage === 0 || undefined}>
         <div
           className={styles.button}
-          data-disabled={page === 0 || undefined}
+          data-disabled={data === undefined || page === 0 || undefined}
           onClick={() => {
-            if (!isLoading(foundData) && page) {
-              let newpage: number | null = Math.max(page - 1, 0) + 1;
-              if (newpage === 1) newpage = null;
-              setSearch({
-                page: newpage,
-              });
+            if (data !== undefined && page !== 0) {
+              const newParams = new URLSearchParams(location.search);
+              if (page === 1)
+                newParams.delete("page"); // because page 0 will be blank
+              else newParams.set("page", page.toString());
+              const st = newParams.toString();
+              history.pushState(
+                {},
+                "",
+                st === "" ? location.pathname : `${location.pathname}?${st}`
+              );
+              setData(undefined);
+              setPage(page - 1);
             }
           }}
           dangerouslySetInnerHTML={{ __html: ChevronLeft }}
         />
         <div
           className={styles.button}
-          data-disabled={page >= maxPage || undefined}
+          data-disabled={data === undefined || page >= maxPage || undefined}
           onClick={() => {
-            if (!isLoading(foundData) && page < maxPage) {
-              setSearch({ page: page + 1 + 1 });
+            if (data !== undefined && page < maxPage) {
+              const newParams = new URLSearchParams(location.search);
+              newParams.delete("page");
+              newParams.set("page", (page + 1 + 1).toString());
+              const st = newParams.toString();
+              history.pushState(
+                {},
+                "",
+                st === "" ? location.pathname : `${location.pathname}?${st}`
+              );
+              setData(undefined);
+              setPage(page + 1);
             }
           }}
           dangerouslySetInnerHTML={{ __html: ChevronRight }}
@@ -142,3 +165,5 @@ export const Category = ({ category }: { category: string }) => {
     </>
   );
 };
+
+export default TheatreCategoryView;

@@ -95,25 +95,6 @@ hr {
   border-color: #eee;
 }
 
-.page-title {
-  display: flex;
-  align-items: center;
-  font-size: 29px;
-  font-family: $MontserratAlternates;
-
-  &.sub {
-    line-height: 29px;
-  }
-
-  .back-button {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    padding: 0 10px;
-    cursor: pointer;
-  }
-}
-
 .manage-field {
   display: block;
   margin-bottom: 10px;

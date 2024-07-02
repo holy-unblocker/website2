@@ -1,57 +1,55 @@
-import { useGlobalSettings } from "@lib/storage";
-import TheatreAPI, { type TheatreEntry } from "@lib/TheatreAPI";
-import { type LoadingTheatreEntry, ItemList } from "@components/TheatreCommon";
-import { isFailedToFetch } from "@lib/isAbortError";
+import { getGlobalSettings } from "@lib/storage";
+import TheatreAPI, { type TheatreEntryMin } from "@lib/TheatreAPI";
 import styles from "@styles/TheatreCategory.module.scss";
 import { useEffect, useState } from "preact/hooks";
+import TheatreItem from "@components/TheatreItem";
 
 const TheatreFavorites = () => {
-  const [settings, setSettings] = useGlobalSettings();
-
-  const [data, setData] = useState<(TheatreEntry | LoadingTheatreEntry)[]>(() =>
-    settings.favorites.map((id) => ({
-      loading: true,
-      id,
-      category: [],
-    }))
-  );
+  const globalSettings = getGlobalSettings();
+  const favorites = globalSettings.get("favorites");
+  const [data, setData] = useState<(TheatreEntryMin | undefined)[]>(() => [
+    ...Array(favorites.length),
+  ]);
 
   useEffect(() => {
-    const abort = new AbortController();
+    const api = new TheatreAPI("/api/theatre/");
 
-    (async function () {
-      const api = new TheatreAPI("/api/theatre/", abort.signal);
-      const data = [];
+    for (const id of favorites)
+      api
+        .show(id)
+        .then((e) => {
+          data[favorites.indexOf(id)] = {
+            name: e.name,
+            id: e.id,
+            category: e.category,
+          };
+          setData([...data]);
+        })
+        .catch((err) => {
+          console.warn("Unable to fetch entry:", id, err);
+          const i = favorites.indexOf(id);
+          favorites.splice(i, 1);
+          data.splice(i, 1);
+          setData([...data]);
+          globalSettings.set("favorites", favorites);
+        });
+  }, []);
 
-      for (const id of settings.favorites) {
-        try {
-          data.push(await api.show(id));
-        } catch (err) {
-          // cancelled? page unload?
-          if (!isFailedToFetch(err)) {
-            console.warn("Unable to fetch entry:", id, err);
-            settings.favorites.splice(settings.favorites.indexOf(id), 1);
-          }
-        }
-      }
-
-      // update settings
-      setSettings({
-        ...settings,
-      });
-
-      setData(data);
-    })();
-
-    return () => abort.abort();
-  }, [setSettings, settings]);
-
-  if (settings.favorites.length === 0)
-    return <p>You haven't favorited any games yet.</p>;
+  if (favorites.length === 0)
+    return <p>Once you favorite some games, they will appear here.</p>;
 
   return (
     <div class={styles.items}>
-      <ItemList items={data} />
+      {data.map((e) =>
+        e === undefined ? (
+          <div className={`${styles.item} ${styles.unknown}`}>
+            <div className={styles.thumbnail} />
+            <div className={styles.name} />
+          </div>
+        ) : (
+          <TheatreItem key={e.id} id={e.id} name={e.name} />
+        )
+      )}
     </div>
   );
 };

@@ -72,6 +72,17 @@ export interface TheatreEntry {
   src: string;
 }
 
+export interface ListOptions {
+  leastGreatest?: boolean;
+  sort?: "name" | "plays" | "search" | string;
+  reverse?: boolean;
+  limit?: number;
+  offset?: number;
+  limitPerCategory?: number;
+  search?: string;
+  category?: string;
+}
+
 export default class TheatreAPI {
   private api?: string;
   private signal?: AbortSignal;
@@ -79,9 +90,7 @@ export default class TheatreAPI {
     this.api = api;
     this.signal = signal;
   }
-  private sortParams(
-    params: Record<string, string | number | boolean | undefined>
-  ): Record<string, string> {
+  private sortParams(params: Record<string, any>): Record<string, string> {
     const result: Record<string, string> = {};
 
     for (const param in params) {
@@ -119,15 +128,7 @@ export default class TheatreAPI {
       method: "PUT",
     });
   }
-  async category(params: {
-    leastGreatest?: boolean;
-    sort?: string;
-    category?: string;
-    search?: string;
-    offset?: number;
-    limit?: number;
-    limitPerCategory?: number;
-  }) {
+  async list(params: ListOptions) {
     return await this.fetch<CategoryData>(
       "?" + new URLSearchParams(this.sortParams(params))
     );

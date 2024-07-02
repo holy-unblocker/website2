@@ -1,45 +1,73 @@
 ---
 import TheatreSearchBar from "@components/TheatreSearchBar";
-import { Category } from "./TheatreCategoryView";
+import TheatreCategoryView, { fetchData } from "./TheatreCategoryView";
 import ClientAPIs from "./ClientAPIs.astro";
 import styles from "@styles/TheatreCategory.module.scss";
 import ThemeSelect from "./ThemeSelect.astro";
+import { theatreAPI } from "@lib/theatre";
+import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
 
 interface Props {
   name: string;
   category: string;
   placeholder?: string;
-  showCategory?: boolean;
+  isGame?: boolean;
 }
 
-const sort = Astro.url.searchParams.get("sort");
+const pageParam = Astro.url.searchParams.get("page");
+// default to first page
+let page = pageParam === null ? 1 : parseInt(pageParam);
+if (isNaN(page)) page = 1;
+// visual offset by 1
+page -= 1;
+
+const sortOptions = [
+  { name: "Most Popular", value: "mostPopular" },
+  { name: "Least Popular", value: "leastPopular" },
+  { name: "Name (A-Z)", value: "nameASC" },
+  { name: "Name (Z-A)", value: "nameDES" },
+];
+
+const sortParam = Astro.url.searchParams.get("sort");
+const sort =
+  sortParam === null || !sortOptions.some((e) => e.value === sortParam)
+    ? "mostPopular"
+    : sortParam;
+
+const { category } = Astro.props;
+
+const data = await fetchData(theatreAPI, category, sort, page);
+
+const { isGame } = Astro.props;
 ---
 
 <main class={styles.main}>
-  <TheatreSearchBar
-    showCategory={Astro.props.showCategory}
-    category={Astro.props.category}
-    placeholder={Astro.props.placeholder}
-    client:load
-  />
+  <TheatreSearchBar client:load />
   <section>
-    <div class={styles.name}>
-      <h1>{Astro.props.name}</h1>
+    <h1 class="page-title sub">
+      {
+        isGame && (
+          <a class="back-button" href="/theatre/" set:html={ArrowBackIcon} />
+        )
+      }
+      {Astro.props.name}
       <ThemeSelect
-        options={[
-          { name: "Most Popular", value: "mostPopular" },
-          { name: "Least Popular", value: "leastPopular" },
-          { name: "Name (A-Z)", value: "nameASC" },
-          { name: "Name (Z-A)", value: "nameDES" },
-        ]}
+        options={sortOptions}
         id="sort"
         value={typeof sort === "string" &&
         ["mostPopular", "leastPopular", "nameASC", "nameDES"].includes(sort)
           ? sort
           : undefined}
       />
-      <Category category={Astro.props.category} client:only="preact" />
-    </div>
+    </h1>
+    <TheatreCategoryView
+      category={category}
+      initPage={page}
+      initSort={sort}
+      initData={data}
+      client:only="preact"
+    />
   </section>
 </main>
+
 <ClientAPIs />

@@ -21,17 +21,41 @@
     margin-top: 15px;
   }
 
-  svg:nth-child(1) {
-    display: none;
-  }
-
-  svg:nth-child(2) {
-    display: block;
-  }
-
   &[data-controls-expanded] {
     > .frame .controls {
       display: flex;
+    }
+  }
+
+  .panoramaButton {
+    > svg:nth-child(1) {
+      display: none;
+    }
+
+    > svg:nth-child(2) {
+      display: block;
+    }
+  }
+
+  .favoriteButton {
+    svg:nth-child(1) {
+      display: none;
+    }
+
+    svg:nth-child(2) {
+      display: block;
+    }
+  }
+
+  &[data-favorited] {
+    .favoriteButton {
+      svg:nth-child(1) {
+        display: block;
+      }
+
+      svg:nth-child(2) {
+        display: none;
+      }
     }
   }
 
@@ -45,6 +69,16 @@
     margin: 0px;
     padding: 0px;
     border-radius: 0px;
+
+    .panoramaButton {
+      svg:nth-child(1) {
+        display: block;
+      }
+
+      svg:nth-child(2) {
+        display: none;
+      }
+    }
 
     > .title {
       width: calc(100% - 20px);

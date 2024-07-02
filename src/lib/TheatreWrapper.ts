@@ -1,5 +1,10 @@
 import type { Client } from "pg";
-import type { CategoryData, TheatreEntry } from "@lib/TheatreAPI";
+import type {
+  CategoryData,
+  ListOptions,
+  TheatreEntry,
+  TheatreEntryMin,
+} from "@lib/TheatreAPI";
 import type { m } from "@lib/util";
 import type { TheatreModel } from "./models";
 
@@ -19,6 +24,14 @@ export function rowTo(entry: m.TheatreModel) {
     controls: JSON.parse(entry.controls),
     category: entry.category.split(","),
   } as TheatreEntry;
+}
+
+export function rowToMin(entry: m.TheatreModel): TheatreEntryMin {
+  return {
+    id: entry.id,
+    name: entry.name,
+    category: entry.category.split(","),
+  };
 }
 
 function validate(entry: TheatreEntry): entry is TheatreEntry {
@@ -58,17 +71,6 @@ function validate(entry: TheatreEntry): entry is TheatreEntry {
       );
 
   return true;
-}
-
-export interface ListOptions {
-  leastGreatest?: boolean;
-  sort?: "name" | "plays" | "search";
-  reverse?: boolean;
-  limit?: number;
-  offset?: number;
-  limitPerCategory?: number;
-  search?: string;
-  category?: string;
 }
 
 export default class TheatreWrapper {
@@ -216,7 +218,7 @@ export default class TheatreWrapper {
       `INSERT INTO theatre (id, name, type, category, src, plays, controls) VALUES ($${vars.push(
         entry.id
       )}, $${vars.push(entry.name)}, $${vars.push(entry.type)}, $${vars.push(
-        entry.category.join(", ")
+        entry.category.join(",")
       )}, $${vars.push(entry.src)}, $${vars.push(entry.plays)}, $${vars.push(
         JSON.stringify(entry.controls)
       )});`,
@@ -261,20 +263,20 @@ export default class TheatreWrapper {
 
     const vars: unknown[] = [];
 
-    return rowTo(
-      (
-        await this.client.query<TheatreModel>(
-          `UPDATE theatre SET name = $${vars.push(
-            entry.name
-          )}, type = $${vars.push(entry.type)}, category = $${vars.push(
-            entry.category.join(",")
-          )}, src = $${vars.push(entry.src)}, controls = $${vars.push(
-            JSON.stringify(entry.controls)
-          )} WHERE id = $${vars.push(entry.id)} RETURNING *;`,
-          vars
-        )
-      ).rows[0]
-    );
+    const res = (
+      await this.client.query<TheatreModel>(
+        `UPDATE theatre SET name = $${vars.push(
+          entry.name
+        )}, type = $${vars.push(entry.type)}, category = $${vars.push(
+          entry.category.join(",")
+        )}, src = $${vars.push(entry.src)}, controls = $${vars.push(
+          JSON.stringify(entry.controls)
+        )} WHERE id = $${vars.push(entry.id)} RETURNING *;`,
+        vars
+      )
+    ).rows[0];
+
+    return res === undefined ? undefined : rowTo(res);
   }
   async countPlay(id: string): Promise<boolean> {
     return (

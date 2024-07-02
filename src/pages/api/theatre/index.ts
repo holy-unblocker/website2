@@ -1,6 +1,5 @@
 import { theatreAPI } from "@lib/theatre";
-import type { CategoryData } from "@lib/TheatreAPI";
-import type { ListOptions } from "@lib/TheatreWrapper";
+import type { CategoryData, ListOptions } from "@lib/TheatreAPI";
 import type { APIRoute } from "astro";
 
 export const GET: APIRoute = async ({ url }) => {

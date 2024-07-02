@@ -131,3 +131,27 @@ a {
     border-color: #c3e6cb;
   }
 }
+
+.page-title {
+  display: flex;
+  align-items: center;
+  font-size: 29px;
+  font-family: $MontserratAlternates;
+
+  &.sub {
+    line-height: 29px;
+  }
+
+  .back-button {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 10px;
+    cursor: pointer;
+  }
+
+  // for putting a <ThemeSelect> inside of a page title
+  #sort {
+    margin-left: auto;
+  }
+}

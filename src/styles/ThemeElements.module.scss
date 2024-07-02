@@ -1,3 +1,5 @@
+@import "./common.scss";
+
 .themeLink {
   color: var(--link);
   text-decoration: none;
@@ -184,6 +186,9 @@ html[data-tab] {
   text-align: left;
   box-sizing: content-box;
   max-height: 40px;
+  font-family: $Lato;
+  font-weight: normal;
+  font-size: 16px;
 
   > .toggle {
     display: flex;

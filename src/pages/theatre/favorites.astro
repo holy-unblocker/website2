@@ -7,10 +7,8 @@ import TheatreFavorites from "@components/TheatreFavorites.tsx";
 
 <MainLayout title="Favorites">
   <main class={styles.main}>
-    <section>
-      <div class={styles.name}><h1>Favorites</h1></div>
-      <TheatreFavorites client:only="preact" />
-    </section>
+    <h1 class="page-title sub">Favorites</h1>
+    <TheatreFavorites client:only="preact" />
   </main>
 </MainLayout>
 <ClientAPIs />

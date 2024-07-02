@@ -3,14 +3,13 @@
 
 import TheatreSearchBar from "@components/TheatreSearchBar";
 import themeStyles from "@styles/ThemeElements.module.scss";
-import categories from "@lib/gameCategories";
-import type { Category } from "@lib/gameCategories";
+import categories, { type Category } from "@lib/gameCategories";
 import styles from "@styles/TheatreCategory.module.scss";
 import ArrowForward from "@icons/arrow_forward_24dp.svg?svgmin";
 import MainLayout from "@layouts/MainLayout.astro";
 import { dbEnabled, theatreAPI, theatreAPIMirror } from "@lib/theatre";
 import type { CategoryData, TheatreEntryMin } from "@lib/TheatreAPI";
-import LoadingItem from "@components/LoadingItem.astro";
+import TheatreItem from "@components/TheatreItem.astro";
 
 const entryLimit = 8;
 
@@ -28,7 +27,7 @@ if (dbEnabled) {
   });
 } else
   try {
-    data = await theatreAPIMirror.category({
+    data = await theatreAPIMirror.list({
       sort: "plays",
       category: categoryQuery,
       limitPerCategory: entryLimit,
@@ -42,20 +41,22 @@ if (dbEnabled) {
     Astro.response.status = 500;
   }
 
-const _categories: Record<
-  string,
-  { entries: TheatreEntryMin[]; category: Category }
-> = {};
+const renderCategories: { category: Category; entries: TheatreEntryMin[] }[] =
+  [];
 
-for (const category of categories)
-  _categories[category.id] = {
-    entries: [],
-    category: category,
-  };
+if (data !== undefined)
+  for (const category of categories) {
+    const entries = data.entries.filter((e) =>
+      e.category.includes(category.id)
+    );
 
-if (data)
-  for (const item of data.entries)
-    _categories[item.category[0]].entries.push(item);
+    // hide empty categories
+    if (entries.length !== 0)
+      renderCategories.push({
+        category,
+        entries,
+      });
+  }
 ---
 
 <MainLayout title="Popular Games">
@@ -76,19 +77,14 @@ if (data)
           </Fragment>
         )}
         <main class={styles.main}>
-          <TheatreSearchBar
-            showCategory
-            category={categoryQuery}
-            placeholder="Search by game name"
-            client:load
-          />
-          {Object.values(_categories).map((section) => (
+          <TheatreSearchBar client:load />
+          {renderCategories.map(({ category, entries }) => (
             <section class={styles.expand}>
               <div class={styles.name}>
-                <h1>{section.category.name}</h1>
+                <h1>{category.name}</h1>
                 <a
                   class={themeStyles.themeLink}
-                  href={`/theatre/${section.category.id}`}
+                  href={`/theatre/${category.id}`}
                   class={styles.seeAll}
                 >
                   See All
@@ -96,8 +92,8 @@ if (data)
                 </a>
               </div>
               <div class:list={[styles.items, styles.flex]}>
-                {section.entries.map((e) => (
-                  <LoadingItem name={e.name} id={e.id} />
+                {entries.map((e) => (
+                  <TheatreItem name={e.name} id={e.id} />
                 ))}
               </div>
             </section>

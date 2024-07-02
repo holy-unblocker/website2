@@ -7,7 +7,9 @@
   flex-direction: column;
 }
 
-section.expand {
+// has an expand button
+// used on popular games page
+.expand {
   position: relative;
 
   > .items {
@@ -50,12 +52,6 @@ section.expand {
       cursor: not-allowed;
     }
   }
-}
-
-#sort {
-  display: block;
-  margin-left: auto;
-  flex: none;
 }
 
 .name {

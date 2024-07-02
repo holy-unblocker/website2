@@ -53,7 +53,7 @@ for (const child of Astro.props.options) {
       }
 
       let open = false;
-      let selected = Number(ts.getAttribute("data-selected"));
+      let selected = Number(ts.getAttribute("data-selected") || "0");
       let lastSelect = -1;
       const input = ts.querySelector<HTMLInputElement>("input")!;
       const name = ts.querySelector<HTMLSpanElement>("[data-ts-name]")!;
@@ -69,51 +69,31 @@ for (const child of Astro.props.options) {
         },
       });
 
+      const setLastSelected = () => {};
+
       ts.addEventListener("keydown", (event) => {
         let preventDefault = true;
 
         switch (event.code) {
+          case "Escape":
+            break;
           case "ArrowDown":
           case "ArrowUp":
             {
-              const lastI = lastSelect;
-              const lastIAvailable = availableOptions.indexOf(
-                [...availableOptions].sort(
-                  (a, b) => Math.abs(a - lastI) - Math.abs(b - lastI)
-                )[0]
-              );
-
-              let next;
-
               switch (event.code) {
                 case "ArrowDown":
-                  if (lastIAvailable === availableOptions.length - 1) {
-                    next = 0;
-                  } else {
-                    next = lastIAvailable + 1;
-                    if (options[lastI].disabled) {
-                      next--;
-                    }
-                  }
+                  if (lastSelect === availableOptions.length - 1)
+                    lastSelect = 0;
+                  else lastSelect++;
                   break;
                 case "ArrowUp":
-                  if (lastIAvailable === 0) {
-                    next = availableOptions.length - 1;
-                  } else {
-                    next = lastIAvailable - 1;
-                    if (options[lastI].disabled) {
-                      next--;
-                    }
-                  }
+                  if (lastSelect === 0) {
+                    lastSelect = availableOptions.length - 1;
+                  } else lastSelect--;
                   break;
                 // no default
               }
-
-              const nextI = availableOptions[next];
-
-              setLastSelect(nextI);
-
-              if (!open) setSelected(nextI);
+              setLastSelected();
             }
             break;
           case "Enter":
@@ -151,7 +131,6 @@ for (const child of Astro.props.options) {
         selected = value;
         setOpen(false);
         name.textContent = options[selected].name;
-
         input.value = options[value]?.value || "";
         ts.dispatchEvent(new Event("change"));
       }
@@ -201,7 +180,7 @@ for (const child of Astro.props.options) {
   data-ts={JSON.stringify(options)}
   tabindex="0"
   class:list={[themeStyles.ThemeSelect, Astro.props.class]}
-  data-selected={defaultSelected}
+  data-selected={defaultSelected === 0 ? undefined : defaultSelected}
   id={Astro.props.id}
 >
   <input readonly hidden name={Astro.props.name} />
