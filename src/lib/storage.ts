@@ -1,6 +1,6 @@
 // import NotificationsManager from "./Notifications";
 // import type { NotificationsManagerRef } from "./Notifications";
-import Settings, { useSettings } from "@lib/Settings";
+import Settings from "@lib/Settings";
 
 export class Scroll {
   x: number;
@@ -29,5 +29,3 @@ export const getGlobalSettings = () =>
     favorites: [],
     seenGames: [],
   });
-
-export const useGlobalSettings = () => useSettings(getGlobalSettings());

@@ -1,5 +1,8 @@
 # <img src="./src/icons/hat.svg" style="width: 1em; vertical-align: middle"> Holy Unblocker Frontend
 
+> NOW WITH 0% REACT CODE >:)
+> Written in Astro, TypeScript, and SCSS
+
 [JOIN OUR DISCORD](https://discord.gg/JFDCJzFana)
 
 ## <img src="docs/quickstart.gif" alt="Quick Start" height="80px">
@@ -47,7 +50,7 @@ Within the boundaries of your Astro enterprise, you'll unveil the succeeding una
 
 Astro utilizes `.astro` or `.md` documents located in the `src/pages/` division. Each file is propagated as a route subject to its filenomenclature.
 
-The `src/components/` section holds no particular status, yet we find it a conducive locus for any Astro/React/Vue/Svelte/Preact constituents.
+The `src/components/` section holds no particular status, yet we find it a conducive locus for any Astro constituents.
 
 All static facets, such as metamorphic representations, can be allocated in the `public/` regiment.
 

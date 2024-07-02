@@ -1,5 +1,3 @@
-import { useEffect, useRef, useState } from "preact/hooks";
-
 export const settingsUpdates = new EventTarget();
 
 export default class Settings<T> {
@@ -80,35 +78,4 @@ export default class Settings<T> {
     localStorage[this.key] = JSON.stringify(this.value);
     return true;
   }
-}
-
-export function useSettings<T>(
-  settings: Settings<T>
-): [T, (state: T | ((prevState: T) => T)) => void] {
-  const [current, setCurrent] = useState<{ [K in keyof T]: T[K] }>({
-    ...settings.value,
-  });
-  const oldCurrent = useRef(current);
-
-  useEffect(() => {
-    if (oldCurrent.current !== current) settings.setObject(current);
-  }, [settings, current]);
-
-  useEffect(() => {
-    const listener = () => {
-      settings.sync();
-      const newValue = { ...settings.value };
-      // prevent infinite loop
-      oldCurrent.current = newValue;
-      setCurrent(newValue);
-    };
-
-    settingsUpdates.addEventListener(settings.key, listener);
-
-    return () => {
-      settingsUpdates.removeEventListener(settings.key, listener);
-    };
-  }, [settings]);
-
-  return [current, setCurrent];
 }

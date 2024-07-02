@@ -1,6 +1,5 @@
 import path from "node:path";
 import node from "@astrojs/node";
-import preact from "@astrojs/preact";
 import { defineConfig } from "astro/config";
 import wisp from "wisp-server-node";
 import { svga, svgr } from "./svgmin.mjs";
@@ -90,7 +89,6 @@ export default defineConfig({
     enabled: false,
   },
   integrations: [
-    preact(),
     {
       name: "Holy Unblocker dev server",
       hooks: {

@@ -8,9 +8,7 @@
       "@styles/*": ["src/styles/*"],
       "@components/*": ["src/components/*"],
       "@config/*": ["config/*"]
-    },
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact"
+    }
   },
   "extends": "astro/tsconfigs/strict",
   "exclude": ["dist", "public"]
