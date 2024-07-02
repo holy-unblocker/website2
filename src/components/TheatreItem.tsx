@@ -15,7 +15,7 @@ export default function TheatreItem({
       className={styles.item}
       href={`/theatre/play?id=${id}`}
       title={name}
-      data-load={loaded || undefined}
+      data-load={!loaded || undefined}
     >
       <div className={styles.thumbnail}>
         <img

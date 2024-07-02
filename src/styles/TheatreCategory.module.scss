@@ -108,7 +108,7 @@
       }
     }
 
-    &[data-load] > .thumbnail {
+    &:not([data-load]) > .thumbnail {
       background-image: none;
       animation: unset;
 

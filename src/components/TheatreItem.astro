@@ -12,12 +12,13 @@ interface Props {
   href={`/theatre/play?id=${Astro.props.id}`}
   title={Astro.props.name}
   data-item
+  data-load
 >
   <div class={styles.thumbnail}>
     <img
       alt=""
       loading="lazy"
-      onload="this.parentNode.parentNode.setAttribute('data-load', '')"
+      onload="this.parentNode.parentNode.removeAttribute('data-load')"
       src={`/cdn/thumbnails/${Astro.props.id}.webp`}
     />
   </div>

@@ -2,13 +2,84 @@
 import styles from "@styles/TheatreCategory.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import ClientAPIs from "@components/ClientAPIs.astro";
-import TheatreFavorites from "@components/TheatreFavorites.tsx";
 ---
 
 <MainLayout title="Favorites">
   <main class={styles.main}>
     <h1 class="page-title sub">Favorites</h1>
-    <TheatreFavorites client:only="preact" />
+    <div class={styles.items} id="favoriteItems"></div>
   </main>
 </MainLayout>
 <ClientAPIs />
+<script>
+  import { getGlobalSettings } from "@lib/storage";
+  import TheatreAPI, { type TheatreEntryMin } from "@lib/TheatreAPI";
+  import styles from "@styles/TheatreCategory.module.scss";
+
+  const globalSettings = getGlobalSettings();
+  const api = new TheatreAPI("/api/theatre/");
+
+  function renderTheatreItem(item?: TheatreEntryMin) {
+    const container = document.createElement(item === undefined ? "div" : "a");
+    container.className =
+      styles.item + (item === undefined ? " " + styles.unknown : "");
+
+    const thumb = document.createElement("div");
+    thumb.className = styles.thumbnail;
+    container.append(thumb);
+    thumb.setAttribute("data-load", "");
+
+    if (item !== undefined) {
+      (container as HTMLAnchorElement).href = "/theatre/play?id=" + item.id;
+
+      const img = document.createElement("img");
+      img.addEventListener("load", () => thumb.removeAttribute("data-load"));
+      img.src = `/cdn/thumbnails/${item.id}.webp`;
+      thumb.append(img);
+    }
+
+    const name = document.createElement("div");
+    name.className = styles.name;
+    if (item !== undefined) name.textContent = item.name;
+    container.append(name);
+
+    return container;
+  }
+
+  document.addEventListener("astro:page-load", () => {
+    const items = document.querySelector<HTMLDivElement>("#favoriteItems");
+    if (items === null) return;
+    const favorites = globalSettings.get("favorites");
+
+    if (favorites.length === 0) {
+      const p = document.createElement("p");
+      p.textContent = "Once you favorite some games, they will appear here.";
+      items.append(p);
+      return;
+    }
+
+    for (let i = 0; i < favorites.length; i++)
+      items.append(renderTheatreItem());
+
+    api
+      .list({
+        ids: favorites,
+      })
+      .then((data) => {
+        items.innerHTML = "";
+
+        for (const id of favorites) {
+          if (!data.entries.some((e) => e.id === id)) {
+            console.log(
+              "could not find entry id",
+              id,
+              "in result, assuming it was deleted"
+            );
+            favorites.splice(favorites.indexOf(id), 1);
+          }
+        }
+
+        for (const item of data.entries) items.append(renderTheatreItem(item));
+      });
+  });
+</script>
