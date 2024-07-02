@@ -1,5 +1,5 @@
 // @ts-ignore
-import BareMux from "@mercuryworkshop/bare-mux";
+import { SetTransport } from "@mercuryworkshop/bare-mux";
 
 // will register /sw.js and setup bare mux
 // reloads the page to activate the sw.js if it wasn't registered
@@ -28,7 +28,7 @@ export async function setupServiceWorker() {
   }
 
   console.log("Using wisp at", window.wisp_api);
-  await BareMux.SetTransport("EpxMod.EpoxyClient", {
+  await SetTransport("EpxMod.EpoxyClient", {
     wisp: window.wisp_api,
   });
 }

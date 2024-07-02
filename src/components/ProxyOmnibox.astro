@@ -134,14 +134,13 @@ const engine = searchEngines[Astro.locals.searchEngine];
         case "Enter":
           {
             event.preventDefault();
-            if (!suggest.children.length) break;
             const result = suggest.children[resultIndex];
-            if (result) {
-              const src = builder.query(result.textContent!);
-              setInputFocused(false);
-              setServiceSrc(src);
-              event.preventDefault();
-            }
+            const src = builder.query(
+              result === undefined ? inputBar.value : result.textContent!
+            );
+            setInputFocused(false);
+            setServiceSrc(src);
+            event.preventDefault();
           }
           break;
       }
