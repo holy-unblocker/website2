@@ -105,6 +105,23 @@ export default class TheatreWrapper {
     options: ListOptions = { search: undefined },
     _signal?: AbortSignal
   ): Promise<ListData> {
+    if (typeof options.sort === "string") {
+      switch (options.sort) {
+        case "leastPopular":
+          options.leastGreatest = true;
+        // fallthrough
+        case "mostPopular":
+          options.sort = "plays";
+          break;
+        case "nameASC":
+          options.leastGreatest = true;
+        // fallthrough
+        case "nameDES":
+          options.sort = "name";
+          break;
+      }
+    }
+
     // 0: select, 1: condition, 3: order, 3: limit, 4: offset
     const select = [];
     const conditions = [];

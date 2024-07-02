@@ -133,23 +133,6 @@ export default class TheatreAPI {
   }
   async list(params: ListOptions, signal?: AbortSignal) {
     const s: any = { ...params };
-    if (typeof params.search !== "string") delete params.search;
-    if (typeof params.sort === "string") {
-      switch (params.sort) {
-        case "leastPopular":
-          s.leastGreatest = true;
-        // fallthrough
-        case "mostPopular":
-          s.sort = "plays";
-          break;
-        case "nameASC":
-          s.leastGreatest = true;
-        // fallthrough
-        case "nameDES":
-          s.sort = "name";
-          break;
-      }
-    }
     return await this.fetch<ListData>(
       "?" + new URLSearchParams(this.sortParams(s)),
       undefined,

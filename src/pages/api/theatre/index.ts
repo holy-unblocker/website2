@@ -10,11 +10,7 @@ export const GET: APIRoute = async ({ url }) => {
   }
   if (url.searchParams.get("sort")) {
     const sortType = url.searchParams.get("sort")!;
-    if (["name", "plays", "search"].includes(sortType)) {
-      q.sort = sortType as ListOptions["sort"];
-    } else {
-      throw new Error(`Invalid sort parameter: ${sortType}`);
-    }
+    q.sort = sortType as ListOptions["sort"];
   }
   if (url.searchParams.has("reverse")) {
     q.reverse = url.searchParams.get("reverse") === "true";
