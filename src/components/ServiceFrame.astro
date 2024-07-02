@@ -123,6 +123,8 @@ import Public from "@icons/public_24dp.svg?react";
     }
   }
 
+  await setupServiceWorker();
+
   async function setServiceSrc(src?: string) {
     const serviceEmbed =
       document.querySelector<HTMLIFrameElement>("#serviceEmbed");
@@ -151,7 +153,6 @@ import Public from "@icons/public_24dp.svg?react";
       // for user convenience
       // and for this crap to work
       saveSrcInSearch(src);
-      await setupServiceWorker();
 
       const uvPage = `/uv/service/${__uv$config.encodeUrl!(src)}`;
       console.log("Ultraviolet URL:", uvPage);
