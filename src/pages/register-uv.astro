@@ -3,14 +3,12 @@ import "@fontsource/lato";
 import "@fontsource/lato/700.css";
 import "@styles/root.scss";
 import "@styles/theme.scss";
-import ClientAPIs from "@components/ClientAPIs.astro";
 ---
 
 <html lang="en" data-theme={Astro.locals.theme}>
   <head><meta charset="utf-8" /></head>
   <body>
     <main>Ultraviolet is loading...</main>
-    <ClientAPIs />
     <script>
       import { reportCompatError } from "@lib/compat";
       import { setupServiceWorker } from "@lib/sw";

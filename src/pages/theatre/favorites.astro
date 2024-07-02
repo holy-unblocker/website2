@@ -1,7 +1,6 @@
 ---
 import styles from "@styles/TheatreCategory.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
-import ClientAPIs from "@components/ClientAPIs.astro";
 import TheatreSearchBar from "@components/TheatreSearchBar.astro";
 ---
 
@@ -12,7 +11,6 @@ import TheatreSearchBar from "@components/TheatreSearchBar.astro";
     <div class={styles.items} id="favoriteItems"></div>
   </main>
 </MainLayout>
-<ClientAPIs />
 <script>
   import { getClientTheatreAPI, renderTheatreItem } from "@lib/renderTheatre";
   import { getGlobalSettings } from "@lib/storage";

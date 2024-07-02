@@ -1,5 +1,4 @@
 ---
-import ClientAPIs from "@components/ClientAPIs.astro";
 import styles from "@styles/TheatrePlayer.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import type { TheatreEntry } from "@lib/TheatreAPI";
@@ -187,7 +186,6 @@ if (mirrorError) {
     )
   }
 </MainLayout>
-<ClientAPIs />
 <script
   is:inline
   id="gameData"

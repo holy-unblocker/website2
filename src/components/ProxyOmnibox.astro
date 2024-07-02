@@ -4,12 +4,10 @@ import styles from "@styles/ProxyOmnibox.module.scss";
 import searchEngines from "@lib/searchEngines";
 import ServiceFrame from "@components/ServiceFrame.astro";
 import appDefs from "@icons/appDefs.svg?react";
-import ClientAPIs from "./ClientAPIs.astro";
 
 const engine = searchEngines[Astro.locals.searchEngine];
 ---
 
-<ClientAPIs />
 <form
   class={styles.omnibox}
   id="omnibox"
