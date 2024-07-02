@@ -164,6 +164,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
             event.preventDefault();
             const entry = suggest.children[resultIndex] as HTMLAnchorElement;
             if (entry === undefined) {
+              if (inputBar.value === "") break;
               navigate("/theatre/?q=" + encodeURIComponent(inputBar.value));
             } else {
               navigate(entry.getAttribute("data-href")!);
