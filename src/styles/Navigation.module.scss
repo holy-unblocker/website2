@@ -45,6 +45,7 @@ html[data-tab] {
   position: relative;
   cursor: pointer;
   font-size: 20px;
+  flex-shrink: 0; // caused by shiftRight
   width: 30px;
   height: 30px;
 
@@ -90,23 +91,17 @@ html[data-tab] {
   text-align: center;
   background: var(--background);
   align-items: center;
+  justify-content: space-between;
 
   > .collapsable {
     display: flex;
     flex-direction: row;
   }
+}
 
-  @include screenMobile {
-    > .shiftRight {
-      display: none;
-    }
-
-    justify-content: space-between;
-  }
-
-  > .shiftRight {
-    margin-left: auto;
-  }
+.shiftRight {
+  width: 100%;
+  display: block;
 }
 
 .content {
