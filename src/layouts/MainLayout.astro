@@ -213,28 +213,15 @@ const { cloak } = Astro.locals;
       <Footer transition:persist />
     </div>
     <div
-      data-wisp={appConfig.separateWispServer ||
-        "%{location.wsprotocol}//%{location.host}/wisp/"}
+      data-separateWispServer={(typeof appConfig.separateWispServer ===
+        "string" &&
+        appConfig.separateWispServer) ||
+        undefined}
     >
     </div>
     <script>
       import { setTheme } from "@lib/cookies";
-      const apis = document.querySelector<HTMLDivElement>("[data-wisp]")!;
 
-      window.wisp_api = format(apis.getAttribute("data-wisp")!);
-
-      function format(env: string) {
-        const { host, hostname, protocol } = globalThis.location;
-
-        return env
-          .replace("%{location.host}", host)
-          .replace("%{location.hostname}", hostname)
-          .replace("%{location.protocol}", protocol)
-          .replace(
-            "%{location.wsprotocol}",
-            protocol === "https:" ? "wss:" : "ws:"
-          );
-      }
       // set the initial theme to the user's preference
       if (!document.cookie.includes("theme=")) {
         const preference = window.matchMedia("(prefers-color-scheme: dark)")

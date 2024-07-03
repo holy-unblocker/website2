@@ -1,8 +1,32 @@
-import serveHandler from "serve-handler";
-import wisp from "wisp-server-node";
 import http from "node:http";
-import chalk from "chalk";
 import { readFile } from "node:fs/promises";
+
+/**
+ * @type {typeof import("serve-handler")}
+ */
+let serveHandler;
+
+try {
+  serveHandler = await import("serve-handler");
+} catch (err) {
+  if (err?.code === "ERR_MODULE_NOT_FOUND") {
+    console.log(
+      no,
+      chalk.bold("ERROR:"),
+      "You haven't installed dependencies for Holy Unblocker yet, so you can't start the frontend yet."
+    );
+    console.log(
+      "To fix this error, run `npm install` first, and then run `npm start`"
+    );
+    process.exit(1);
+  } else throw err; // WUT
+}
+
+// runtime only depends on serve-handler and chalk
+
+// dynamically import this, that way it isn't part of the imports tree
+// and the user can get an error for npm install
+const chalk = (await import("chalk")).default;
 
 const logoBg = chalk.bgBlueBright;
 const block = logoBg.blueBright.bold;
@@ -46,11 +70,15 @@ const st = [no, yes];
  */
 let astroMiddleware;
 
+const astroMiddlewareFile = new URL("./dist/server/entry.mjs", import.meta.url);
+
 try {
-  astroMiddleware = (await import("./dist/server/entry.mjs")).handler;
+  astroMiddleware = (await import(astroMiddlewareFile)).handler;
 } catch (err) {
-  console.error(err);
-  if (err?.code === "ERR_MODULE_NOT_FOUND") {
+  if (
+    err?.code === "ERR_MODULE_NOT_FOUND" &&
+    err.url === astroMiddlewareFile.toString()
+  ) {
     console.log(
       no,
       chalk.bold("ERROR:"),
@@ -59,16 +87,17 @@ try {
     console.log(
       "To fix this error, run `npm run build` first, and then run `npm start`"
     );
-  }
-  process.exit(1);
+    process.exit(1);
+  } else throw err; // wut
 }
+
 console.log(yes, chalk.red.bold("Loaded Astro"));
 
 // we have to dynamically import it because it's dynamically created when `npm run build` is ran
 const { appConfig } = await import("./config/config.js");
 
 // same principle
-const { handleReq } = await import("./config/runtime.js");
+const { handleReq, handleUpgrade } = await import("./runtime.js");
 
 if (!("configName" in appConfig)) {
   console.log("Missing 'configName', invalid config");
@@ -209,11 +238,7 @@ server.on("request", (req, res) => {
   });
 });
 
-server.on("upgrade", (req, socket, head) => {
-  if (!separateWisp && req.url.startsWith("/wisp/"))
-    wisp.routeRequest(req, socket, head);
-  else socket.end();
-});
+server.on("upgrade", handleUpgrade);
 
 server.on("listening", () => {
   console.log(

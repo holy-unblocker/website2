@@ -32,7 +32,12 @@ export const appConfig = {
   // wisp server url
   // If not specified, it will host wisp locally on /wisp/
   // holyubofficial.net hosts wisp on the `api.` subdomain
-  // separateWispServer: "%{location.wsprotocol}//api.%{location.host}/",
+  // string vars are calculated on the client-side, not by astro!!
+  // - %{ws} - `ws:` or `wss:` depending on whether the location is http: or https:
+  // - %{host} - the website host with the port appended, eg `127.0.0.1:4321`
+  // - %{hostname} - the website host WITHOUT the port appended - *why would you ever use this?*
+  // - %{ws} - `ws:` or `wss:` depending on whether the location is http: or https:
+  // separateWispServer: "%{ws}//api.%{host}/",
 
   // website support email
   // shown on /contact

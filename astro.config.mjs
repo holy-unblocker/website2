@@ -1,28 +1,20 @@
 import path from "node:path";
 import node from "@astrojs/node";
 import { defineConfig } from "astro/config";
-import wisp from "wisp-server-node";
 import { svga, svgr } from "./svgmin.mjs";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
 import { createRequire } from "node:module";
 import { viteStaticCopy } from "vite-plugin-static-copy";
-import { access, copyFile } from "node:fs/promises";
 
-try {
-  await access("./config/config.js");
-} catch (err) {
-  if (err?.code === "ENOENT") {
-    console.log("Holy Unblocker: No config.js file found. Making one.");
-    copyFile("./config/config.example.js", "./config/config.js");
-    console.log("Holy Unblocker: config.example.js -> config.js");
-  } else throw err; // wut
-}
+// LOAD RUNTIME FIRST
+// RUNTIME WILL COPY THE EXAMPLE CONFIG IF IT DOESNT EXIST
+
+// we add these hooks to the astro dev server
+const { handleReq, handleUpgrade } = await import("./runtime.js");
 
 // only needed for dev server host & port
 const { appConfig } = await import("./config/config.js");
-// and mirroring
-const { handleReq } = await import("./config/runtime.js");
 
 const require = createRequire(import.meta.url);
 const rufflePath = path.resolve(require.resolve("@ruffle-rs/ruffle"), "..");
@@ -96,9 +88,8 @@ export default defineConfig({
           // start a wisp server while letting HMR run
           const astroHMR = httpServer._events.upgrade;
           httpServer._events.upgrade = (req, socket, head) => {
-            if (req.url.startsWith("/wisp/"))
-              wisp.routeRequest(req, socket, head);
-            else astroHMR(req, socket, head);
+            if (req.url === "/") astroHMR(req, socket, head);
+            else handleUpgrade(req, socket, head);
           };
         },
       },

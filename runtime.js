@@ -1,14 +1,73 @@
+// HOLY UNBLOCKER RUNTIME!!
+
+// this code shouldn't be bundled by astro
+// vanilla JS = best
+
+// - starts the discord bot (if configured to do so)
+//   - checks permissions and verifies everything is OK
+// - exports http "request" event handler
+// -   sets x-robots-tag
+//   - sets cross-origin-resource-policy on /cdn/ and /compat/
+//   - sets up mirroring the game cdn, /cdn/
+//   - sets up mirroring the theatre API, /api/theatre/
+// - exports http "upgrade" event handler
+//   - wisp
+//   - that's just about it
+
+import { copyFile } from "node:fs/promises";
+
+// when vite bundles this, it will complain about being unable to import(configFile)
+// however, this is annoying and stupid
+// import.meta.url is very reliable for this!!
+
+const configFile = new URL("./config/config.js", import.meta.url);
+
+// console.log(configFile);
+
+import chalk from "chalk";
+
+/**
+ * @type {import("./config/config").AppConfig}
+ */
+let appConfig;
+try {
+  appConfig = (await import(/* @vite-ignore */ configFile)).appConfig;
+} catch (err) {
+  if (
+    err?.code === "ERR_MODULE_NOT_FOUND" &&
+    err.url === configFile.toString()
+  ) {
+    console.log("Holy Unblocker: No config.js file found. Making one.");
+    copyFile("./config/config.example.js", "./config/config.js");
+    console.log("Holy Unblocker: config.example.js -> config.js");
+    appConfig = (await import("./config/config.js")).appConfig;
+  } else {
+    // user config error
+    console.error(
+      chalk.bold("An error occurred while trying to load ./config/config.js!")
+    );
+    console.error(err);
+    console.error(
+      chalk.grey.italic(
+        "This error was likely caused as a result of you changing something."
+      )
+    );
+    console.error(
+      chalk.grey.italic("Please check your config then try again!")
+    );
+  }
+  process.exit(1);
+}
+
 import http from "node:http";
 import https from "node:https";
-import chalk from "chalk";
 import { resolve } from "node:path";
-import { appConfig } from "./config.js";
 import {
   db,
   getUserPayment,
   giveTierDiscordRoles,
   stripeEnabled,
-} from "./apis.js";
+} from "./config/apis.js";
 import serveHandler from "serve-handler";
 import { lstat, readdir, realpath } from "node:fs/promises";
 import { createReadStream } from "node:fs";
@@ -306,3 +365,14 @@ export function handleReq(req, res, middleware) {
 
   return middleware();
 }
+
+// handle 'upgrade' event on http server
+// the url / is reserved for astro dev server HMR
+
+export function handleUpgrade(req, socket, head) {
+  if (req.url.startsWith("/wisp/")) wisp.routeRequest(req, socket, head);
+  // don't infinitely load
+  else socket.end();
+}
+
+console.log("Holy Unblocker runtime loaded");
