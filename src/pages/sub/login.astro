@@ -11,7 +11,7 @@ import { compare } from "@lib/bcrypt";
 const { user, ip } = Astro.locals;
 // redirect to dashboard if they're already signed in
 
-let to = Astro.url.searchParams.get("to") || undefined;
+let to = Astro.url.searchParams.get("to") || null;
 if (!to || to === "/sub/" || !to.startsWith("/")) to = "/sub/dashboard";
 if (user) return Astro.redirect(to, 302);
 

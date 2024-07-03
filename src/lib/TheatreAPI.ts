@@ -1,4 +1,5 @@
-import { isError } from "@lib/isAbortError";
+const isError = (err: unknown): err is Error =>
+  typeof err === "object" && err instanceof Error;
 
 interface JSONError<T = unknown> extends Error {
   statusCode: number;
@@ -94,7 +95,12 @@ export default class TheatreAPI {
 
     for (const param in params) {
       const e = params[param];
-      if (e !== null && e !== undefined) result[param] = e.toString();
+      if (
+        typeof e === "string" ||
+        typeof e === "number" ||
+        (typeof e === "object" && e !== null)
+      )
+        result[param] = e.toString();
     }
 
     return result;

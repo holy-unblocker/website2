@@ -180,7 +180,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
     // allow querying omnibox
     // eg: https://holyubofficial.net/?q=hello+world will search for "Hello World"
     const query = new URLSearchParams(location.search).get("q");
-    if (query !== null) {
+    if (typeof query === "string") {
       const src = builder.query(query);
       setServiceSrc(src);
     }

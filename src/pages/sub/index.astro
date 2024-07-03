@@ -17,7 +17,7 @@ import {
 } from "@lib/util";
 
 const { ip, user, acc } = Astro.locals;
-let to = Astro.url.searchParams.get("to") || undefined;
+let to = Astro.url.searchParams.get("to") || null;
 if (!to || to === "/sub/" || !to.startsWith("/")) to = "/sub/dashboard";
 if (user) return Astro.redirect(to, 302);
 

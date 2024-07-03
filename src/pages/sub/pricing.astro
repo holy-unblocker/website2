@@ -13,6 +13,7 @@ import DeviceHub from "@icons/device_hub_24dp_FILL0_wght400_GRAD0_opsz24.svg?rea
 import ChatBot from "@icons/chatbot.svg?react";
 import Speed from "@icons/speed_24dp_FILL0_wght400_GRAD0_opsz24.svg?react";
 import type Stripe from "stripe";
+import { createStripeCustomer } from "@lib/util";
 
 const { user } = Astro.locals;
 
@@ -55,6 +56,11 @@ if (Astro.request.method === "POST")
         const proto = ["localhost", "127.0.0.1"].includes(Astro.url.hostname)
           ? "http:"
           : "https:";
+
+        let stripe_customer: string;
+        if (user.stripe_customer === null)
+          stripe_customer = (await createStripeCustomer(user)).id;
+        else stripe_customer = user.stripe_customer;
 
         // https://docs.stripe.com/billing/subscriptions/build-subscriptions
         stripeSession = await stripe!.checkout.sessions.create({
@@ -179,7 +185,7 @@ if (!error && exclusiveError) {
             <input
               type="submit"
               class={styles.prettySubmit}
-              data-owned={(payment && payment.tier >= 1) || undefined}
+              data-owned={(payment && payment.tier >= 1) || null}
               value={!payment || payment.tier < 1 ? "Buy" : "YOU HAVE THIS!"}
               disabled={!user ||
                 user.stripe_customer === null ||
@@ -209,7 +215,7 @@ if (!error && exclusiveError) {
             <input
               type="submit"
               class={styles.prettySubmit}
-              data-owned={(payment && payment.tier >= 2) || undefined}
+              data-owned={(payment && payment.tier >= 2) || null}
               value={!payment || payment.tier < 2 ? "Buy" : "YOU HAVE THIS!"}
               disabled={!user ||
                 user.stripe_customer === null ||

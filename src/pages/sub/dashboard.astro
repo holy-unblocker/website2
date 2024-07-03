@@ -164,7 +164,7 @@ if (Astro.request.method === "POST")
             method="post"
             class={styles.cancelSubscription}
             id="renewal"
-            data-stripe_renew={payment.stripe_renew || undefined}
+            data-stripe_renew={payment.stripe_renew || null}
           >
             <input type="text" name="type" value="renewal" hidden />
             <input

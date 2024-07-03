@@ -22,7 +22,7 @@ const id = Astro.url.searchParams.get("v");
 
 let data: TheatreEntry | undefined;
 
-if (id !== null) {
+if (typeof id === "string") {
   if (dbEnabled) {
     data = await theatreAPI.show(id);
   } else
@@ -221,7 +221,7 @@ if (mirrorError) {
   document.addEventListener("fullscreenchange", () => {
     const playerFrame =
       document.querySelector<HTMLIFrameElement>("#playerFrame");
-    if (playerFrame !== null)
+    if (typeof playerFrame === "object")
       setIFrameFocused(document.fullscreenElement === playerFrame);
   });
 

@@ -4,11 +4,7 @@ import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
 import { db } from "@config/apis";
-import {
-  canSendEmail,
-  sendEmailVerification,
-  createStripeCustomer,
-} from "@lib/util";
+import { canSendEmail, sendEmailVerification } from "@lib/util";
 
 const { user, ip, acc } = Astro.locals;
 if (!user) return acc.toLogin();
@@ -35,7 +31,6 @@ if (Astro.request.method === "POST")
               "UPDATE users SET email_verified = true WHERE id = $1;",
               [user.id]
             );
-            await createStripeCustomer(user);
             return Astro.redirect("/sub/dashboard?welcome", 302);
           }
         }

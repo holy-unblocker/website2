@@ -275,6 +275,7 @@ export async function createStripeCustomer(user: m.UserModel) {
     user.id,
   ]);
   console.log("new customer", customer);
+  return customer;
 }
 
 export * from "./validation";

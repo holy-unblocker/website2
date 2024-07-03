@@ -28,9 +28,9 @@ export const renderSearchResult = (
   ele.append(text);
 
   if (
+    typeof categories === "object" &&
     categories !== null &&
-    categories !== undefined &&
-    categories[0] !== undefined
+    typeof categories[0] === "string"
   ) {
     const e = document.createElement("div");
     e.className = styles.category;

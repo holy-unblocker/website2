@@ -143,7 +143,12 @@ export default class TheatreWrapper {
       );
     }
 
-    if (options.category !== undefined && options.category !== null) {
+    if (
+      typeof options.category === "object" &&
+      options.category !== null &&
+      options.category.every((e) => typeof e === "string") &&
+      typeof options.category[0] === "string"
+    ) {
       // split the entry category into an array
       // check if the input categories array has any elements in common with the entry category array
       conditions.push(

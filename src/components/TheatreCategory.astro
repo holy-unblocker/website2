@@ -33,7 +33,8 @@ const sortOptions = [
 
 const sortParam = Astro.url.searchParams.get("sort");
 const sort =
-  sortParam !== null && sortOptions.some((e) => e.value === sortParam)
+  typeof sortParam === "string" &&
+  sortOptions.some((e) => e.value === sortParam)
     ? sortParam
     : "mostPopular";
 const { category } = Astro.props;
@@ -78,20 +79,20 @@ const maxPage =
   </section>
   <div
     class={styles.pages}
-    data-useless={maxPage === 0 || data.entries.length === 0 || undefined}
+    data-useless={maxPage === 0 || data.entries.length === 0 || null}
     id="pages"
   >
     <div
       class={styles.button}
       id="pageBack"
       set:html={ChevronLeft}
-      data-disabled={page === 0 || undefined}
+      data-disabled={page === 0 || null}
     />
     <div
       class={styles.button}
       id="pageForward"
       set:html={ChevronRight}
-      data-disabled={page === maxPage || undefined}
+      data-disabled={page === maxPage || null}
     />
   </div>
 </main>

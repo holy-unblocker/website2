@@ -7,7 +7,7 @@ export const GET: APIRoute = async (context) => {
   const headers = new Headers();
   headers.set("cache-control", "public, max-age=31536000");
   const ct = res.headers.get("content-type");
-  if (ct !== null) headers.set("content-type", ct);
+  if (typeof ct === "string") headers.set("content-type", ct);
   return new Response(res.body, {
     headers,
   });

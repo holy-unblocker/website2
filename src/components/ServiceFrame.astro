@@ -248,7 +248,7 @@ import Public from "@icons/public_24dp.svg?react";
   });
 
   const savedSrc = new URLSearchParams(location.search).get("src");
-  if (savedSrc !== null) {
+  if (typeof savedSrc === "string") {
     console.log("Detected saved src");
     setServiceSrc(decryptURL(savedSrc));
   }

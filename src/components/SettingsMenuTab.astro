@@ -17,8 +17,8 @@ const selected = Astro.url.pathname === href;
 <a
   href={href}
   data-settings
-  data-selected={selected || undefined}
-  data-outlined={iconOutlined !== undefined || undefined}
+  data-selected={selected || null}
+  data-outlined={iconOutlined !== undefined || null}
   class={styles.entry}
   title={name}
 >
