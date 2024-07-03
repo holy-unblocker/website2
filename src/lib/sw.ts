@@ -48,14 +48,11 @@ export function getWispEndpoint() {
 
   // defaults to wisp on /wisp/, part of Holy Unblocker runtime
   // see: ./config/runtime.js
-  const wispAPI =
+  const wispAPI = formatURL(
     typeof separateWispServer === "string"
-      ? formatURL(
-          typeof separateWispServer === "string"
-            ? separateWispServer
-            : "%{ws}%{host}/wisp/"
-        )
-      : "/wisp/";
+      ? separateWispServer
+      : "%{ws}//%{host}/wisp/"
+  );
 
   return wispAPI;
 }
@@ -71,5 +68,6 @@ function formatURL(env: string): string {
     ws: protocol === "https:" ? "wss:" : "ws:",
   };
   for (const key in vars) env = env.replaceAll("%{" + key + "}", vars[key]);
+  console.log(env);
   return env;
 }

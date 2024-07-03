@@ -72,6 +72,7 @@ import serveHandler from "serve-handler";
 import { lstat, readdir, realpath } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { ActivityType, Client, PermissionsBitField } from "discord.js";
+import wisp from "wisp-server-node";
 
 // check runtime requirements
 // in both astro dev server & runtime

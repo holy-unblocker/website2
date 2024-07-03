@@ -7,7 +7,7 @@ import { readFile } from "node:fs/promises";
 let serveHandler;
 
 try {
-  serveHandler = await import("serve-handler");
+  serveHandler = (await import("serve-handler")).default;
 } catch (err) {
   if (err?.code === "ERR_MODULE_NOT_FOUND") {
     console.log(
