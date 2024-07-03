@@ -71,3 +71,31 @@ Execute all commands from the root of the project, employing a terminal:
 ## <img src="docs/acc.gif" alt="Account System" height="80px">
 
 - first account created will be given admin for convenience
+
+## how to format your SVGs
+
+im writing this here because I look crazy for updating like 30 svgs in one commit
+
+- keep `style=` attributes
+- NO BLOAT:
+
+  - all icons in `./src/icons/
+  - no CSS `class=` attributes
+  - no inkscape bloat:
+    - any inkscape:data tags
+    - no JS `id=` attributes
+
+- try to use <defs> if your code is high performance (eg. theatre search results, proxy omnibox search results)
+- ALWAYS SET `fill="none"` SO THE SVG DOESN'T LOAD UNTIL THE CSS IS READY
+
+  - if the file is meant to be a standalone .svg (eg. in [./public/](./public/)):
+
+    - set `xmlns`: `xmlns="http://www.w3.org/2000/svg"`
+    - add the `<?xml` thing: `<?xml version="1.0" encoding="UTF-8" standalone="no"?>`
+
+  - otherwise, DO NOT ADD THE ABOVE, IT IS USELESS IF THE ICON IS EMBEDDED ON THE PAGE
+
+  - `root.css` sets the fill to currentColor
+  - the only exception to this is [./src/icons/ultraviolet.svg](./src/icons/)
+  - the Ultraviolet SVG with colors doesn't exist anywhere else (yet?)
+    - I made the svg btw
