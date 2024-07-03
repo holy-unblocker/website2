@@ -41,6 +41,9 @@ export const appConfig = {
   // a link to the main Holy Unblocker website
   // - shown in emails
   // - used to not automatically set a cloak
+  // - used to determine if metadata should be inserted
+  // - used to determine if x-robots-tag should be set
+  mainWebsite: "127.0.0.1",
   // mainWebsite: "holyubofficial.net",
 
   // Postgres database credentials

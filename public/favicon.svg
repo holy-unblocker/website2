@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- inkscape :D -->
+<!-- this icon is different from the other hat SVGs in that: -->
+<!-- the hat is slightly smaller and the aspect ratio is 1:1 -->
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 100 100"
+   width="100"
+   height="100">
+   <!-- icon background, fill is set to the theme color for the PWA mask icon -->
+   <rect width="100" height="100" fill="none" />
+   <!-- center it for a 100.1 x 100.1 viewport -->
+   <g
+      transform="translate(6.5779991,11.2365)">
+      <ellipse
+         style="fill:#4c566a;stroke:#edf0f5;stroke-width:4px;paint-order:stroke"
+         cx="43.472"
+         cy="51.251999"
+         rx="41.472"
+         ry="24.375"
+         id="ellipse1" />
+      <path
+         d="m 68.655002,14.287 c 0,0.491 0.017,36.603 0.017,36.603 0,0 -0.017,1.001 -0.017,1.514 0,6.786 -11.275,12.287 -25.183,12.287 -13.908,0 -25.183,-5.501 -25.183,-12.287 0,-0.513 0,-37.626 0,-38.117 0,-6.786 11.275,-12.287 25.183,-12.287 13.908,0 25.183,5.501 25.183,12.287 z"
+         style="fill:#edf0f5;stroke:#edf0f5;stroke-width:4px;paint-order:stroke"
+         id="path1" />
+      <path
+         d="m 18.272002,19.991 c 10.042,11.58 40.694,11.16 50.4,0 V 50.89 c 0,0 -0.017,1.001 -0.017,1.514 0,6.786 -11.275,12.287 -25.183,12.287 -13.908,0 -25.183,-5.501 -25.183,-12.287 0,-0.513 -0.017,-32.413 -0.017,-32.413 z"
+         style="fill:#2e3440;stroke:#edf0f5;stroke-width:4px;paint-order:stroke"
+         id="path2" />
+      <ellipse
+         style="fill:#4c566a;stroke-width:4px;paint-order:stroke"
+         cx="43.472"
+         cy="14.287"
+         rx="25.183001"
+         ry="12.287"
+         id="ellipse2" />
+      <ellipse
+         style="fill:#4c566a;stroke:#edf0f5;stroke-width:4px;paint-order:stroke"
+         cx="33.042"
+         cy="42.159996"
+         rx="5.8400002"
+         ry="7.9489999"
+         id="ellipse3" />
+      <ellipse
+         style="fill:#4c566a;stroke:#edf0f5;stroke-width:4px;paint-order:stroke"
+         cx="53.902"
+         cy="42.159996"
+         rx="5.8400002"
+         ry="7.9489999"
+         id="ellipse4" />
+   </g>
+</svg>
