@@ -109,7 +109,7 @@ if (mirrorError) {
 } else if (!data) Astro.response.status = 404;
 ---
 
-<MainLayout title={data ? `Play ${data.name}` : undefined}>
+<MainLayout title={data ? data.name : undefined}>
   {
     mirrorError ? (
       <main>
@@ -122,7 +122,7 @@ if (mirrorError) {
           <Fragment slot="head">
             <meta
               name="description"
-              content={`Find games like ${data.name} on Holy Unblocker.`}
+              content={`Find games like ${data.name} and many more on Holy Unblocker.`}
             />
           </Fragment>
         )}
