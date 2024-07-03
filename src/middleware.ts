@@ -23,7 +23,7 @@ const randomCloaks: (string | AppCloak)[] = [
   "https://www.blackboard.com/student-resources",
   // 'https://www.sap.com/products/hcm/hxm-suite.html',
   // 'https://www.cornerstoneondemand.com/solutions/learning-and-development-lms/',
-  "https://bridgelt.com/lms",
+  "https://bridgelt.com/",
   {
     icon: "https://ssl.gstatic.com/classroom/ic_product_classroom_32.png",
     title: "Classes",
