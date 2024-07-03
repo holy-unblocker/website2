@@ -2,7 +2,7 @@
 import SettingsLayout from "@layouts/SettingsLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import styles from "@styles/Settings.module.scss";
-import Check from "@icons/check_24dp.svg?svgmin";
+import Check from "@icons/check_24dp.svg?react";
 import { extractCloakData } from "@lib/cloak";
 import Banner from "@components/Banner.astro";
 
@@ -56,13 +56,16 @@ if (Astro.request.method === "POST")
         <div class:list={[themeStyles.ThemeInputBar, styles.inputBar]}>
           <input
             class={themeStyles.themePadRight}
+            type="text"
             name="address"
             placeholder="https://example.org/"
             id="tabcloak-value"
           />
-          <button type="submit">
-            <Check class:list={[themeStyles.button, themeStyles.right]} />
-          </button>
+          <button
+            type="submit"
+            class:list={[themeStyles.button, themeStyles.right]}
+            set:html={Check}
+          />
         </div>
       </form>
     </div>

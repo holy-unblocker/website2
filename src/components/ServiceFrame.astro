@@ -46,10 +46,10 @@ import Public from "@icons/public_24dp.svg?react";
     }
   });
 
-  function saveSrcInSearch(src?: string) {
+  function saveSrcInSearch(src?: string | undefined) {
     const newParams = new URLSearchParams(location.search);
-    if (src === undefined) newParams.delete("src");
-    else newParams.set("src", encryptURL(src));
+    if (typeof src === "string") newParams.set("src", encryptURL(src));
+    else newParams.delete("src");
     const st = newParams.toString();
     history.pushState(
       {},
@@ -126,7 +126,7 @@ import Public from "@icons/public_24dp.svg?react";
 
   await setupServiceWorker();
 
-  async function setServiceSrc(src?: string) {
+  async function setServiceSrc(src?: string | null) {
     const serviceEmbed =
       document.querySelector<HTMLIFrameElement>("#serviceEmbed");
     if (!serviceEmbed) return;
@@ -136,69 +136,17 @@ import Public from "@icons/public_24dp.svg?react";
       document.querySelector<HTMLDivElement>("#serviceTitle")!;
     const defaultIcon = document.querySelector<HTMLDivElement>("#defaultIcon")!;
 
-    if (src === undefined) {
-      document.documentElement.removeAttribute("data-service");
-      serviceEmbed.src = "about:blank";
-      lastSrc = undefined;
-      saveSrcInSearch();
-    } else {
+    if (typeof src === "string") {
       try {
         new URL(src);
       } catch (err) {
         throw new TypeError(`service frame must be a valid URL, got: ${src}`);
       }
-
-      const proxyMode = document
-        .querySelector("[data-proxy-mode]")!
-        .getAttribute("data-proxy-mode");
-      console.log("ServiceFrame: loading", src, "with method", proxyMode);
-
-      // for user convenience
-      // and for this crap to work
-      saveSrcInSearch(src);
-
-      const uvPage = `/uv/service/${__uv$config.encodeUrl!(src)}`;
-      console.log("Ultraviolet URL:", uvPage);
-
-      switch (proxyMode) {
-        case "embedded":
-          serviceIcon.style.display = "none";
-          defaultIcon.style.display = "";
-          serviceTitle.textContent = src;
-          document.documentElement.setAttribute("data-service", "");
-          serviceEmbed.src = uvPage;
-          lastSrc = src;
-          break;
-        case "redirect":
-          window.location.assign(uvPage);
-          break;
-        case "about:blank":
-          const newWindow = window.open("about:blank");
-
-          if (!newWindow) throw new Error(`Could not create new window`);
-
-          newWindow.addEventListener(
-            "DOMContentLoaded",
-            () => {
-              const iframe = newWindow.document.createElement(
-                "iframe"
-              ) as HTMLIFrameElement;
-              iframe.src = src;
-              // expand iframe to fit window
-              iframe.style.border = "none";
-              iframe.style.position = "absolute";
-              iframe.style.top = "0px";
-              iframe.style.left = "0px";
-              iframe.style.width = "100%";
-              iframe.style.height = "100%";
-              newWindow.document.body.append(iframe);
-            },
-            // immediately attempt to dereference iframe
-            { once: true }
-          );
-
-          break;
-      }
+    } else {
+      document.documentElement.removeAttribute("data-service");
+      serviceEmbed.src = "about:blank";
+      lastSrc = undefined;
+      saveSrcInSearch();
     }
   }
 
@@ -237,7 +185,7 @@ import Public from "@icons/public_24dp.svg?react";
 
   openInNew.addEventListener("click", () => {
     console.log("Opening", lastSrc, "in new window");
-    window.open("/uv/service/" + __uv$config.encodeUrl!(lastSrc!));
+    window.open(__uv$config.prefix! + __uv$config.encodeUrl!(lastSrc!));
   });
 
   const closeService = document.querySelector<HTMLDivElement>("#closeService")!;

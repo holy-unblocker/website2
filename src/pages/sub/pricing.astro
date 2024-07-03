@@ -158,7 +158,7 @@ if (!error && exclusiveError) {
           </form>
         </div>
         <div>
-          <div class={styles.title}>Official Plan</div>
+          <div class={styles.title}>Official Tier</div>
           <div class={styles.price}>$3/month</div>
           <div class={styles.features}>
             <div>
@@ -194,7 +194,7 @@ if (!error && exclusiveError) {
           </form>
         </div>
         <div>
-          <div class={styles.title}>Ultimate Plan</div>
+          <div class={styles.title}>Ultimate Tier</div>
           <div class={styles.price}>$10/month</div>
           <div class={styles.features}>
             <div>
@@ -202,7 +202,7 @@ if (!error && exclusiveError) {
             </div>
             <div>
               <span class={styles.icon} set:html={Speed} />
-              <span>No Ratelimits</span>
+              <span>Faster Virtual Machines</span>
             </div>
             <div>
               <span class={styles.icon} set:html={Speed} />
@@ -216,7 +216,6 @@ if (!error && exclusiveError) {
               type="submit"
               class={styles.prettySubmit}
               data-owned={(payment && payment.tier >= 2) || null}
-              value={!payment || payment.tier < 2 ? "Buy" : "YOU HAVE THIS!"}
               disabled={!user ||
                 user.stripe_customer === null ||
                 (payment && payment.tier >= 2)}

@@ -86,6 +86,8 @@ const { cloak } = Astro.locals;
     }
   </head>
 
+  <div id="wispServerThing" data-wispServer={Astro.locals.wispServer}></div>
+
   <ViewTransitions />
 
   <body>
@@ -212,13 +214,6 @@ const { cloak } = Astro.locals;
       <slot />
       <Footer transition:persist />
     </div>
-    <div
-      data-separateWispServer={(typeof appConfig.separateWispServer ===
-        "string" &&
-        appConfig.separateWispServer) ||
-        undefined}
-    >
-    </div>
     <script>
       import { setTheme } from "@lib/cookies";
 
@@ -264,4 +259,6 @@ const { cloak } = Astro.locals;
       });
     </script>
   </body>
+
+
 </html>

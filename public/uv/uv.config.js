@@ -1,6 +1,6 @@
+// wisp server URL is handled by epoxy/bare mux :)
 self.__uv$config = {
-  wisp: `https://api.${location.host}/wisp/`,
-  prefix: `/uv/service/`,
+  prefix: `/~/`,
   encodeUrl: Ultraviolet.codec.xor.encode,
   decodeUrl: Ultraviolet.codec.xor.decode,
   handler: `/uv/uv.handler.js`,

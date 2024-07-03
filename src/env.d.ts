@@ -29,22 +29,30 @@ declare type CtxUser = import("@lib/models").UserModel & {
 type ServiceFrameSrc = [src: string, uvPage: string];
 
 // setting to undefined closes the ServicEFrame
-declare var setServiceSrc: (src?: string) => void;
+declare var setServiceSrc: (src?: string | null) => Promise<void> | void;
 
 namespace App {
   interface Locals {
     isMainWebsite: boolean;
+    theme: string;
+    // returns true if theme is "day" or "night", false if invalid
+    setTheme: (newTheme?: string | null) => boolean;
+    wispServer: string;
+    // returns true if valid wisp server url, false if invalid
+    setWispServer: (newWispServer?: string | null) => boolean;
     proxyMode: string;
     searchEngine: number;
     cloak?: import("@lib/cloak").AppCloak;
-    setCloak: (cloak?: import("@lib/cloak").AppCloak) => void;
+    // returns true if valid cloak data, false if invalid
+    setCloak: (cloak?: import("@lib/cloak").AppCloak | null) => boolean;
 
     user?: CtxUser;
     ip: string;
     /**
      * Set or clear the session cookie
+     * returns true if valid session data, false if invalid
      */
-    setSession: (secret?: string) => void;
+    setSession: (secret?: string | null) => boolean;
     // helpers for page permissions and redirects
     // for reused code
     acc: {
@@ -70,12 +78,6 @@ namespace App {
       toVerifyEmail: () => Response;
       toVerifyNewEmail: () => Response;
     };
-  }
-}
-
-declare namespace App {
-  interface Locals {
-    theme: string;
   }
 }
 

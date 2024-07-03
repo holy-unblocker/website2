@@ -91,9 +91,88 @@ export const onRequest = defineMiddleware(async (context, next) => {
     !("mainWebsite" in appConfig) ||
     context.url.hostname === appConfig.mainWebsite;
 
+  // saves the theme or delete it
+  context.locals.setTheme = (newTheme) => {
+    const validNewTheme = typeof newTheme === "string";
+    if (validNewTheme) {
+      if (!["day", "night"].includes(newTheme))
+        throw new TypeError("cookie 'theme' must be either 'day' or 'night'");
+    }
+    if (typeof newTheme === "string" && ["day", "night"].includes(newTheme)) {
+      context.cookies.set("theme", newTheme, {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        maxAge: maxAgeLimit,
+        secure: true,
+      });
+
+      return true;
+    } else {
+      // clear the cookie
+      context.cookies.set("theme", "", {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        expires: new Date(0), // set it to as old as possible!!
+        secure: true,
+      });
+
+      return false;
+    }
+  };
+
+  // we also want to set the cookie again
+  // in order to renew its duration
+  context.locals.setTheme(context.cookies.get("theme")?.value);
+
+  // saves the wispServer or delete it
+  context.locals.setWispServer = (newWispServer) => {
+    let validWispServer = typeof newWispServer === "string";
+
+    if (validWispServer)
+      try {
+        new URL(newWispServer as string);
+      } catch (err) {}
+
+    if (validWispServer) {
+      context.cookies.set("wispServer", newWispServer as string, {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        maxAge: maxAgeLimit,
+        secure: true,
+      });
+      context.locals.wispServer = newWispServer as string;
+      return true;
+    } else {
+      // clear the cookie
+      context.cookies.set("wispServer", "", {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        expires: new Date(0), // set it to as old as possible!!
+        secure: true,
+      });
+      // use our default wisp api, which is hosted at /bare/
+      // see separateWispServer in ./config/config.js to change this by default
+      context.locals.wispServer = "%{ws}//%{host}/wisp/";
+      return false;
+    }
+  };
+  context.locals.setWispServer(context.cookies.get("wispServer")?.value);
+
   // encode the cloak or delete it
   context.locals.setCloak = (cloak) => {
-    if (cloak)
+    let validCloak = typeof cloak === "object" && cloak !== null;
+
+    if (validCloak) {
+      if (typeof (cloak as AppCloak).icon !== "string") validCloak = false;
+      if (typeof (cloak as AppCloak).title !== "string") validCloak = false;
+      if (typeof (cloak as AppCloak).url !== "string") validCloak = false;
+    }
+
+    if (validCloak) {
       context.cookies.set(
         "cloak",
         new URLSearchParams({ ...cloak }).toString(),
@@ -105,8 +184,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
           secure: true,
         }
       );
-    // clear the cloak
-    else
+      return true;
+    } else {
+      // clear the cloak
       context.cookies.set("cloak", "", {
         domain: context.url.hostname,
         sameSite: "lax",
@@ -114,6 +194,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
         expires: new Date(0), // as old as possible
         secure: true,
       });
+      return false;
+    }
   };
 
   // pick a random cloak on the first load
@@ -181,7 +263,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   context.locals.setSession = (secret) => {
     // set the session
-    if (secret)
+    if (typeof secret === "string") {
       context.cookies.set("session", secret, {
         domain: context.url.hostname,
         sameSite: "lax",
@@ -190,16 +272,21 @@ export const onRequest = defineMiddleware(async (context, next) => {
         secure: true,
         httpOnly: true,
       });
-    // clear the session
-    else
+
+      return true;
+    } else {
+      // clear the session
       context.cookies.set("session", "", {
         domain: context.url.hostname,
         sameSite: "lax",
         path: "/sub/",
-        expires: new Date(0), // as old as possible
+        expires: new Date(0), // set it to as old as possible!!
         secure: true,
         httpOnly: true,
       });
+
+      return false;
+    }
   };
 
   const cookie = context.cookies.get("session")?.value;

@@ -12,7 +12,9 @@ export async function setupServiceWorker() {
 
   // this provides a HUGE performance improvement
   if (!window.crossOriginIsolated && !isDev)
-    throw new Error("crossOriginIsolated must be enabled to use Ultraviolet.");
+    console.warn(
+      "crossOriginIsolated must be enabled to increase performance."
+    );
 
   if (!navigator.serviceWorker)
     throw new Error("Your browser doesn't support service workers.");
@@ -40,19 +42,15 @@ export async function setupServiceWorker() {
 // get the Holy Unblocker wisp endpoint
 export function getWispEndpoint() {
   // HTML element inserted by astro
-  // - it contains the [data-wisp] attribute which tells the client what wisp server to use
+  // - it contains the [data-wispServer] attribute which tells the client what wisp server to use
   // - this value is directly from appConfig.
-  const separateWispServer = document
-    .querySelector("[data-separateWispServer]")
-    ?.getAttribute("data-separateWispServer");
+  const ele = document.getElementById("wispServerThing")!;
+  const separateWispServer = ele.getAttribute("data-wispServer")!;
 
-  // defaults to wisp on /wisp/, part of Holy Unblocker runtime
+  // defaults to wisp on /wisp/ which is hosted by the Holy Unblocker runtime
   // see: ./config/runtime.js
-  const wispAPI = formatURL(
-    typeof separateWispServer === "string"
-      ? separateWispServer
-      : "%{ws}//%{host}/wisp/"
-  );
+  // and see separateWispServer in ./config/config.js
+  const wispAPI = formatURL(separateWispServer);
 
   return wispAPI;
 }
