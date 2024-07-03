@@ -35,6 +35,7 @@ export interface PaymentModel {
   tier: number;
   period_start: Date;
   period_end: Date;
+  stripe_renew: boolean;
 }
 
 export interface EmailModel {

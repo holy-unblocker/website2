@@ -65,6 +65,11 @@ CREATE TABLE IF NOT EXISTS payment (
     -- how long this is valid for
     period_start TIMESTAMP NOT NULL,
     period_end TIMESTAMP NOT NULL,
+    -- if it will be renewed with stripe
+    stripe_renew BOOLEAN NOT NULL DEFAULT TRUE,
+    -- migrate existing db
+    -- ALTER TABLE payment ADD COLUMN stripe_renew BOOLEAN NOT NULL DEFAULT TRUE;
+
 	FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
