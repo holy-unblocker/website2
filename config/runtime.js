@@ -12,7 +12,7 @@ import {
 import serveHandler from "serve-handler";
 import { lstat, readdir, realpath } from "node:fs/promises";
 import { createReadStream } from "node:fs";
-import { Client, PermissionsBitField } from "discord.js";
+import { ActivityType, Client, PermissionsBitField } from "discord.js";
 
 // check runtime requirements
 // in both astro dev server & runtime
@@ -123,6 +123,18 @@ if (stripeEnabled && appConfig.discord.listenForJoins) {
     }
 
     console.log(chalk.bold("Discord bot permissions look good."));
+
+    client.user.setPresence({
+      status: "dnd",
+      activities: [
+        {
+          name: "for new members",
+          state: "",
+          url: appConfig.mainWebsite,
+          type: ActivityType.Watching,
+        },
+      ],
+    });
 
     // process.exit(1);
   });
