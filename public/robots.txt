@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /uv/
+Disallow: /cdn/
+Disallow: /api/
