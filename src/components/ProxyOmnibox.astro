@@ -108,6 +108,17 @@ const engine = searchEngines[Astro.locals.searchEngine];
       }
     };
 
+    inputBar.form!.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const result = suggest.children[resultIndex];
+      const lol =
+        result === undefined ? inputBar.value.trim() : result.textContent!;
+      if (lol.trim() === "") return;
+      const src = builder.query(lol);
+      setInputFocused(false);
+      setServiceSrc(src);
+    });
+
     function updateResults() {
       for (let i = 0; i < suggest.children.length; i++) {
         const e = suggest.children[i];
