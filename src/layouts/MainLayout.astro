@@ -192,7 +192,7 @@ const { cloak } = Astro.locals;
         </div>
       </div>
       <slot />
-      <Footer />
+      <Footer transition:persist />
     </div>
     <div
       data-wisp={appConfig.separateWispServer ||

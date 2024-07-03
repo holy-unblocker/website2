@@ -22,6 +22,8 @@ export function setSearchEngine(searchEngine: number) {
   setCookie("search", searchEngine.toString());
 }
 
+// used for dynamically applying the new tab cloak
+// thanks astro transitions...
 export function getCloak() {
   const cookie = getCookie("cloak");
   if (cookie === undefined) return;
@@ -30,10 +32,6 @@ export function getCloak() {
   ]) as any;
 
   return cloak;
-}
-
-export function getProxyMode() {
-  return getCookie("prx") || "embedded";
 }
 
 export function setProxyMode(proxyMode: string) {

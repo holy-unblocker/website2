@@ -18,9 +18,10 @@ import Public from "@icons/public_24dp.svg?react";
   </div>
   <iframe class={styles.embed} id="serviceEmbed" title="embed"></iframe>
 </div>
+<!-- this won't persist -->
+<div data-proxy-mode={Astro.locals.proxyMode}></div>
 
 <script>
-  import { getProxyMode } from "@lib/cookies";
   import { decryptURL, encryptURL } from "@lib/cryptURL";
   import { setupServiceWorker } from "@lib/sw";
 
@@ -147,7 +148,9 @@ import Public from "@icons/public_24dp.svg?react";
         throw new TypeError(`service frame must be a valid URL, got: ${src}`);
       }
 
-      const proxyMode = getProxyMode();
+      const proxyMode = document
+        .querySelector("[data-proxy-mode]")!
+        .getAttribute("data-proxy-mode");
       console.log("ServiceFrame: loading", src, "with method", proxyMode);
 
       // for user convenience
