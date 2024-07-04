@@ -2,8 +2,6 @@
 import ThemeSelect from "@components/ThemeSelect.astro";
 import SettingsLayout from "@layouts/SettingsLayout.astro";
 import styles from "@styles/Settings.module.scss";
-import Check from "@icons/check_24dp.svg?react";
-import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
 
 let error: string | undefined;
@@ -56,41 +54,6 @@ if (Astro.request.method === "POST")
         ]}
       />
     </form>
-    {
-      !Astro.locals.isMainWebsite && (
-        <p>
-          Are you the maintainer of this Holy Unblocker instance? If you want to
-          use a separate Wisp server by default, and even configure it on a
-          subdomain, you can change "separateWispServer" in ./config/config.js
-          of your instance :D
-        </p>
-      )
-    }
-    <p>Wisp server:</p>
-    <form method="post">
-      <!-- noscript support -->
-      <input type="text" name="type" value="wispServer" hidden />
-      <div class:list={[themeStyles.ThemeInputBar, styles.inputBar]}>
-        <input
-          class={themeStyles.themePadRight}
-          type="text"
-          name="newWispURL"
-          placeholder="https://api.holyubofficial.net/"
-          id="newWispURL"
-        />
-        <button
-          type="submit"
-          class:list={[themeStyles.button, themeStyles.right]}
-          set:html={Check}
-        />
-      </div>
-    </form>
-    <!-- noscript!!!! -->
-    <input
-      type="submit"
-      class:list={[themeStyles.save, themeStyles.button]}
-      set:text="Save"
-    />
   </section>
 </SettingsLayout>
 <script>

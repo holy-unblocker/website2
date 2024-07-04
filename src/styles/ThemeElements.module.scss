@@ -64,6 +64,7 @@ html[data-tab] {
 }
 
 .save {
+  width: min-content;
   margin-top: 15px;
 }
 
@@ -76,12 +77,6 @@ html[data-tab] {
   display: flex;
   flex-direction: row;
   box-sizing: border-box;
-
-  button {
-    padding: 0px;
-    background: none;
-    border: none;
-  }
 
   input[type="text"] {
     width: 100%;
@@ -103,22 +98,49 @@ html[data-tab] {
   }
 }
 
-.block,
-.button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  user-select: none;
-  width: 42px;
+.icon {
+  display: contents;
+  > svg {
+    width: 20px;
+    height: 20px;
+    padding: 12px;
+    color: var(--text-placeholder);
+    display: block;
+    text-align: center;
+    pointer-events: none;
+  }
+}
+
+.ThemeButton {
+  cursor: pointer;
   height: 42px;
-  box-sizing: content-box;
+  user-select: none;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  text-wrap: nowrap;
   display: flex;
-  text-align: center;
+  align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  padding: 0 15px;
 
   background-color: var(--action);
   color: var(--action-secondary);
+
+  &:hover {
+    background-color: var(--background-accent-deep-1);
+  }
+
+  &:active {
+    background-color: var(--background-accent-deep-2);
+  }
+
+  &.block {
+    padding: 0;
+    border: none;
+    width: 42px;
+  }
 
   &.left {
     border-right: 1px solid var(--border);
@@ -139,64 +161,11 @@ html[data-tab] {
   &:active {
     background-color: var(--action-active);
   }
-}
 
-.icon {
-  display: contents;
-  > svg {
-    width: 20px;
-    height: 20px;
-    padding: 12px;
-    color: var(--text-placeholder);
-    display: block;
-    text-align: center;
-    pointer-events: none;
-  }
-}
-
-.button {
-  display: inline-block;
-  width: auto;
-  flex-grow: 0;
-  border: none;
-  cursor: pointer;
-}
-
-.icon {
-  display: contents;
-  > svg {
-    width: 20px;
-    height: 20px;
-    padding: 12px;
-    color: var(--text-placeholder);
-    display: block;
-    text-align: center;
-    pointer-events: none;
-  }
-}
-
-.ThemeButton {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-  height: 30px;
-  user-select: none;
-  font-family: inherit;
-  background-color: var(--background-accent);
-  color: var(--text-accent);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 20px 15px;
-  text-wrap: nowrap;
-
-  &:hover {
-    background-color: var(--background-accent-deep-1);
-  }
-
-  &:active {
-    background-color: var(--background-accent-deep-2);
+  svg {
+    fill: var(--action-secondary);
+    width: 24px;
+    height: 24px;
   }
 }
 

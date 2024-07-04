@@ -1,12 +1,43 @@
 ---
-import SettingsLayout from "@layouts/SettingsLayout.astro";
 import ThemeSelect from "@components/ThemeSelect.astro";
-import searchEngines from "@lib/searchEngines";
+import SettingsLayout from "@layouts/SettingsLayout.astro";
 import styles from "@styles/Settings.module.scss";
+import Check from "@icons/check_24dp.svg?react";
+import themeStyles from "@styles/ThemeElements.module.scss";
+import Banner from "@components/Banner.astro";
+import searchEngines from "@lib/searchEngines";
+
+let error: string | undefined;
+
+// noscript support eeeeeeeee
+if (Astro.request.method === "POST")
+  try {
+    const data = await Astro.request.formData();
+    const type = data.get("type")?.toString();
+
+    switch (type) {
+      case "theme":
+        {
+          const theme = data.get("theme")?.toString();
+          if (!Astro.locals.setTheme(theme))
+            error = "Please enter a valid theme!";
+        }
+        break;
+      case "wispServer":
+        {
+          const wispServer = data.get("newWispURL")?.toString();
+          if (!Astro.locals.setWispServer(wispServer))
+            error = "Please enter a valid wisp server URL!";
+        }
+        break;
+    }
+  } catch (err) {
+    console.error(err);
+  }
 ---
 
 <SettingsLayout title="Proxy settings">
-  <section>
+  <section class={styles.section}>
     <div>
       <p>Mode</p>
       <ThemeSelect
@@ -32,6 +63,41 @@ import styles from "@styles/Settings.module.scss";
         value={Astro.locals.searchEngine.toString()}
       />
     </div>
+    {
+      !Astro.locals.isMainWebsite && (
+        <p>
+          Are you the maintainer of this Holy Unblocker instance? If you want to
+          use a separate Wisp server by default, and even configure it on a
+          subdomain, you can change "separateWispServer" in ./config/config.js
+          of your instance :D
+        </p>
+      )
+    }
+    <form method="post">
+      <!-- noscript support -->
+      <input type="text" name="type" value="wispServer" hidden />
+      <div class:list={[themeStyles.ThemeInputBar, styles.inputBar]}>
+        <input
+          class={themeStyles.themePadRight}
+          type="text"
+          name="newWispURL"
+          placeholder="https://api.holyubofficial.net/"
+          id="newWispURL"
+        />
+        <button
+          type="submit"
+          class:list={[themeStyles.ThemeButton, themeStyles.block]}
+          set:html={Check}
+        />
+      </div>
+    </form>
+    <!-- noscript!!!! -->
+
+    <input
+      type="submit"
+      class:list={[themeStyles.save, themeStyles.ThemeButton]}
+      value="Save"
+    />
   </section>
 </SettingsLayout>
 <script>

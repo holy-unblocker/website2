@@ -44,7 +44,7 @@ if (Astro.request.method === "POST")
 ---
 
 <SettingsLayout title="Tab Cloak Settings">
-  <section>
+  <section class={styles.section}>
     <Banner success={success} error={error} />
     <p>
       Tab Cloaking allows you to disguise Holy Unblocker as any website such as
@@ -63,7 +63,7 @@ if (Astro.request.method === "POST")
           />
           <button
             type="submit"
-            class:list={[themeStyles.button, themeStyles.right]}
+            class:list={[themeStyles.ThemeButton, themeStyles.block]}
             set:html={Check}
           />
         </div>
