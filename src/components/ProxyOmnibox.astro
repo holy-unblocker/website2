@@ -144,19 +144,6 @@ const engine = searchEngines[Astro.locals.searchEngine];
           else resultIndex -= 1;
           updateResults();
           break;
-        case "Enter":
-          {
-            event.preventDefault();
-            const result = suggest.children[resultIndex];
-            if (result === undefined && inputBar.value.trim() === "") break;
-            const src = builder.query(
-              result === undefined ? inputBar.value.trim() : result.textContent!
-            );
-            setInputFocused(false);
-            setServiceSrc(src);
-            event.preventDefault();
-          }
-          break;
       }
     });
 
