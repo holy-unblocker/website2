@@ -130,11 +130,6 @@ import Public from "@icons/public_24dp.svg?react";
     const serviceEmbed =
       document.querySelector<HTMLIFrameElement>("#serviceEmbed");
     if (!serviceEmbed) return;
-    const serviceIcon =
-      document.querySelector<HTMLImageElement>("#serviceIcon")!;
-    const serviceTitle =
-      document.querySelector<HTMLDivElement>("#serviceTitle")!;
-    const defaultIcon = document.querySelector<HTMLDivElement>("#defaultIcon")!;
 
     if (typeof src === "string") {
       try {
