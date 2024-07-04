@@ -132,12 +132,6 @@ const engine = searchEngines[Astro.locals.searchEngine];
       if (event.target !== inputBar) setInputFocused(false);
     });
 
-    const omniboxSubmit = (search: string) => {
-      const src = builder.query(search);
-      inputBar.blur();
-      if (src !== "") setServiceSrc(src);
-    };
-
     // set src using search params
     // allow querying omnibox
     // eg: https://holyubofficial.net/?q=hello+world will search for "Hello World"
@@ -149,7 +143,10 @@ const engine = searchEngines[Astro.locals.searchEngine];
 
     form.addEventListener("submit", (event) => {
       event.preventDefault();
-      omniboxSubmit(inputBar.value);
+      if (inputBar.value === "") return;
+      const src = builder.query(inputBar.value);
+      inputBar.blur();
+      setServiceSrc(src);
     });
 
     let abort = new AbortController();
