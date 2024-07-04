@@ -140,6 +140,12 @@ html[data-tab] {
     padding: 0;
     border: none;
     width: 42px;
+
+    svg {
+      fill: var(--action-secondary);
+      width: 24px;
+      height: 24px;
+    }
   }
 
   &.left {
@@ -160,12 +166,6 @@ html[data-tab] {
 
   &:active {
     background-color: var(--action-active);
-  }
-
-  svg {
-    fill: var(--action-secondary);
-    width: 24px;
-    height: 24px;
   }
 }
 
