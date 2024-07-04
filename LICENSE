@@ -1,6 +1,17 @@
-ISC License
+Copyright David Reed (c) 2024 Holy Unblocker
 
-Copyright (c) 2024 Holy Unblocker/David Reed
+The Holy Unblocker Frontend repository is licensed under ISC code and is accessible at https://github.com/holy-unblocker/website2
+
+The website2 repository is an instance of Holy Unblocker,
+this isn't to be confused with Holy Unblocker, the brand.
+
+Holy Unblocker's official website/instance of Holy Unblocker https://holyubofficial.net/
+
+You will not activate the stripe payment system without my prior permission.
+The rights to the name "Holy Unblocker" is reserved by me, and you will not use the name in any manner that I deem unfair.
+By default, any use of the name "Holy Unblocker" is fair. But making configuration changes or updates to this source code may change that,
+and if you feel like your change may violate what I deem "fair", please feel free to contact me :D
+reedswork@proton.me (email) or susshi7062 (Discord).
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
