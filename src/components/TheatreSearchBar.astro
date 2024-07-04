@@ -134,7 +134,15 @@ import styles from "@styles/ProxyOmnibox.module.scss";
 
     inputBar.addEventListener("submit", (event) => {
       event.preventDefault();
-      location.href = "/theatre/?q=" + encodeURIComponent(inputBar.value);
+      const entry = suggest.children[resultIndex] as HTMLAnchorElement;
+      if (entry === undefined) {
+        if (inputBar.value === "") return;
+        // navigate("/theatre/?q=" + encodeURIComponent(inputBar.value));
+        setServiceSrc(inputBar.value);
+      } else {
+        navigate(entry.getAttribute("data-href")!);
+      }
+      // location.href = "/theatre/?q=" + encodeURIComponent(inputBar.value);
     });
 
     function updateResults() {
@@ -163,18 +171,6 @@ import styles from "@styles/ProxyOmnibox.module.scss";
           if (resultIndex <= 0) resultIndex = suggest.children.length - 1;
           else resultIndex -= 1;
           updateResults();
-          break;
-        case "Enter":
-          {
-            event.preventDefault();
-            const entry = suggest.children[resultIndex] as HTMLAnchorElement;
-            if (entry === undefined) {
-              if (inputBar.value === "") break;
-              navigate("/theatre/?q=" + encodeURIComponent(inputBar.value));
-            } else {
-              navigate(entry.getAttribute("data-href")!);
-            }
-          }
           break;
       }
     });
