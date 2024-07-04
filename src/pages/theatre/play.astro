@@ -196,7 +196,7 @@ if (mirrorError) {
   import TheatreAPI from "@lib/TheatreAPI";
   import { encryptURL } from "@lib/cryptURL";
   import { getGlobalSettings } from "@lib/storage";
-  import { setupServiceWorker } from "@lib/sw";
+  import { setupServiceWorker } from "@lib/register-sw";
 
   window.addEventListener("focus", () => {
     setIFrameFocused(true);

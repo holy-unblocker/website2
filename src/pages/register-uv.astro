@@ -18,7 +18,7 @@ Astro.response.headers.set("x-robots-tag", "noindex");
     <div id="wispServerThing" data-wispServer={Astro.locals.wispServer}></div>
     <script>
       import { reportCompatError } from "@lib/compat";
-      import { setupServiceWorker } from "@lib/sw";
+      import { setupServiceWorker } from "@lib/register-sw";
 
       console.log(location.href);
 

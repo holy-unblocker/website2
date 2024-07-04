@@ -58,7 +58,7 @@ if (Astro.request.method === "POST")
 </SettingsLayout>
 <script>
   import { setTheme } from "@lib/cookies";
-  import { getWispEndpoint } from "@lib/sw";
+  import { getWispEndpoint } from "@lib/register-sw";
 
   document.addEventListener("astro:page-load", () => {
     const themeSwitcher =
