@@ -30,6 +30,7 @@ export interface AppConfig {
     priceIds: {
       official: string;
       ultimate: string;
+      meal: string;
     };
   };
   mailer: {
@@ -47,6 +48,7 @@ export interface AppConfig {
     roleIds: {
       official: string;
       ultimate: string;
+      meal: string;
     };
   };
   links: {

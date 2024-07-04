@@ -268,6 +268,12 @@ export function handleReq(req, res, middleware) {
   // THIS SHOULD ALWAYS BE SET ON THEATRE FILES AND /compat/
   // DO NOT DO NOT SET THIS ON /sub/ OR ACCOUNT DETAILS WILL BE LEAKED
   if (isCDN || req.url.startsWith("/compat/")) {
+    // this makes loading epoxy TLS faster
+    // thanks r58
+    res.setHeader(
+      "cross-origin-opener-policy-report-only",
+      "same-origin-allow-popups"
+    );
     res.setHeader("cross-origin-resource-policy", "same-origin");
   }
 

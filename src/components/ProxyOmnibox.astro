@@ -15,7 +15,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
   transition:persist
 >
   <div class={`${themeStyles.ThemeInputBar} ${styles.inputBar}`}>
-    <div class={themeStyles.icon}>
+    <div class={themeStyles.icon} id="searchIcon">
       <svg>
         <use href="#searchGlass"></use>
       </svg>
@@ -53,49 +53,14 @@ const engine = searchEngines[Astro.locals.searchEngine];
     return s;
   }
 
-  let resultIndex = -1;
-
-  // reuse the same function
-  function entryClick(this: HTMLDivElement, event: MouseEvent | TouchEvent) {
-    const form = document.querySelector<HTMLFormElement>("#omnibox");
-    if (!form) return;
-    const builder = new SearchBuilder(form.getAttribute("data-search-format")!);
-    const src = builder.query(this.textContent!);
-    setInputFocused(false);
-    setServiceSrc(src);
-    event.preventDefault();
-  }
-
-  const renderOmniboxSearchResult = (result: string, query: string) => {
-    const e = renderSearchResult(result, query);
-    e.addEventListener("mousedown", entryClick);
-    e.addEventListener("touchstart", entryClick);
-    return e;
-  };
-
-  declare global {
-    var setInputFocused: (newFocused: boolean) => void;
-  }
-
-  function detectClickOff(event: MouseEvent | TouchEvent) {
-    const form = document.querySelector<HTMLFormElement>("#omnibox");
-    if (form && !form.contains(event.target as any)) setInputFocused(false);
-  }
-
-  window.addEventListener("mousedown", detectClickOff);
-  window.addEventListener("touchstart", detectClickOff);
-
   document.addEventListener("astro:page-load", () => {
     const form = document.querySelector<HTMLFormElement>("#omnibox");
     if (!form) return;
-    resultIndex = -1;
+
+    let resultIndex = -1;
     // let lastQuery: string | undefined;
 
-    const builder = new SearchBuilder(form.getAttribute("data-search-format")!);
-    const inputBar = form.querySelector<HTMLInputElement>("input")!;
-    const suggest = document.querySelector<HTMLDivElement>("#omniboxSuggest")!;
-
-    window.setInputFocused = (inputFocused: boolean) => {
+    const setInputFocused = (inputFocused: boolean) => {
       resultIndex = -1;
       // lastQuery = undefined;
       if (inputFocused) {
@@ -107,6 +72,23 @@ const engine = searchEngines[Astro.locals.searchEngine];
         form.removeAttribute("data-suggested");
       }
     };
+
+    const renderOmniboxSearchResult = (result: string, query: string) => {
+      const e = renderSearchResult(result, query);
+      e.addEventListener("click", () => {
+        const builder = new SearchBuilder(
+          form.getAttribute("data-search-format")!
+        );
+        const src = builder.query(result);
+        setInputFocused(false);
+        setServiceSrc(src);
+      });
+      return e;
+    };
+
+    const builder = new SearchBuilder(form.getAttribute("data-search-format")!);
+    const inputBar = form.querySelector<HTMLInputElement>("input")!;
+    const suggest = document.querySelector<HTMLDivElement>("#omniboxSuggest")!;
 
     inputBar.form!.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -147,14 +129,18 @@ const engine = searchEngines[Astro.locals.searchEngine];
       }
     });
 
+    // allow clicking da icon
+    form.querySelector("#searchIcon")!.addEventListener("click", () => {
+      setInputFocused(true);
+      inputBar.focus();
+    });
+
     inputBar.addEventListener("focus", () => {
       setInputFocused(true);
     });
 
-    inputBar.addEventListener("blur", () => {
-      setTimeout(() => {
-        setInputFocused(false);
-      }, 100);
+    inputBar.addEventListener("blur", (event) => {
+      if (event.target !== inputBar) setInputFocused(false);
     });
 
     const omniboxSubmit = (search: string) => {

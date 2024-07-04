@@ -24,20 +24,26 @@ let stripeSession: Stripe.Response<Stripe.Checkout.Session> | undefined;
 if (Astro.request.method === "POST")
   try {
     const data = await Astro.request.formData();
-    const tier = Number(data.get("tier")?.toString());
+    const tier = data.get("tier")?.toString();
     // create an invoice
     let priceId: string | undefined;
 
     switch (tier) {
-      case 1:
-        // official subscriber
-        priceId = appConfig.stripe?.priceIds.official;
+      case "1":
+        // official
+        priceId = appConfig.stripe.priceIds.official;
         break;
-      case 2:
-        // ultimate subscriber
-        priceId = appConfig.stripe?.priceIds.ultimate;
+      case "2":
+        // the meal
+        priceId = appConfig.stripe.priceIds.ultimate;
+        break;
+      case "3":
+        // the meal
+        priceId = appConfig.stripe.priceIds.meal;
         break;
     }
+
+    console.log(tier);
 
     if (priceId === undefined) {
       Astro.response.status = 400;
@@ -45,11 +51,6 @@ if (Astro.request.method === "POST")
     } else if (!user) {
       Astro.response.status = 400;
       error = "You need an account";
-    } else if (user.stripe_customer === null) {
-      // this should never happen!
-      Astro.response.status = 500;
-      error = "ermm";
-      console.log(user);
     } else if (!error)
       try {
         // create the invoice and redirect
@@ -60,13 +61,24 @@ if (Astro.request.method === "POST")
 
         let stripe_customer: string;
         if (user.stripe_customer === null)
-          stripe_customer = (await createStripeCustomer(user)).id;
+          try {
+            // set the customer here!
+            user.stripe_customer = (await createStripeCustomer(user)).id;
+            // Astro.response.status = 500;
+            // error = "ermm";
+            // console.log(user);
+          } catch (err) {
+            Astro.response.status = 500;
+            error =
+              "Sorry! We were unable to create a stripe customer for you! THIS IS A BUG PLEASE REPORT IT";
+            console.error(err);
+          }
         else stripe_customer = user.stripe_customer;
 
         // https://docs.stripe.com/billing/subscriptions/build-subscriptions
-        stripeSession = await stripe!.checkout.sessions.create({
+        stripeSession = await stripe.checkout.sessions.create({
           mode: "subscription",
-          customer: user.stripe_customer,
+          customer: user.stripe_customer as string,
           line_items: [
             {
               price: priceId,
@@ -132,7 +144,7 @@ if (!error && exclusiveError) {
       </div>
       <div class={styles.list}>
         <div>
-          <div class={styles.title}>Free Plan</div>
+          <div class={styles.title}>Free</div>
           <div class={styles.price}>$0</div>
           <div class={styles.features}>
             <div>
@@ -159,8 +171,8 @@ if (!error && exclusiveError) {
           </form>
         </div>
         <div>
-          <div class={styles.title}>Official Tier</div>
-          <div class={styles.price}>$3/month</div>
+          <div class={styles.title}>Official</div>
+          <div class={styles.price}>$2.50/month</div>
           <div class={styles.features}>
             <div>
               <span>All Free Plan Perks!</span>
@@ -182,47 +194,71 @@ if (!error && exclusiveError) {
             </div>
           </div>
           <form class={styles.buy} method="post">
-            <input type="text" name="tier" value="1" hidden />
+            <input type="text" name="tier" value="2" hidden />
             <input
               type="submit"
               class={styles.prettySubmit}
               data-owned={(payment && payment.tier >= 1) || null}
               value={!payment || payment.tier < 1 ? "Buy" : "YOU HAVE THIS!"}
-              disabled={!user ||
-                user.stripe_customer === null ||
-                (payment && payment.tier >= 1)}
+              disabled={!user || (payment && payment.tier >= 1)}
             />
           </form>
         </div>
         <div>
-          <div class={styles.title}>Ultimate Tier</div>
+          <div class={styles.title}>Ultimate</div>
           <div class={styles.price}>$10/month</div>
+          <div class={styles.features}>
+            <div>
+              <span>All Free Plan Perks!</span>
+            </div>
+            <div>
+              <span class={styles.icon} set:html={Speed} />
+              <span>More resource allocation for VM</span>
+            </div>
+            <div>
+              <span class={styles.icon} set:html={Speed} />
+              <span>No Ratelimits</span>
+            </div>
+            <form class={styles.buy} method="post">
+              <input type="text" name="tier" value="2" hidden />
+              <input
+                type="submit"
+                class={styles.prettySubmit}
+                data-owned={(payment && payment.tier >= 1) || null}
+                value={!payment || payment.tier < 1 ? "Buy" : "YOU HAVE THIS!"}
+                disabled={!user || (payment && payment.tier >= 1)}
+              />
+            </form>
+          </div>
+        </div>
+        <div>
+          <div class={styles.title}>The Meal</div>
+          <div class={styles.price}>$15/month</div>
           <div class={styles.features}>
             <div>
               <span>All Official Plan Perks!</span>
             </div>
             <div>
               <span class={styles.icon} set:html={Speed} />
-              <span>Faster Virtual Machines</span>
+              <span>More resource allocation for VM</span>
             </div>
             <div>
               <span class={styles.icon} set:html={Speed} />
-              <span>No Ratelimits</span>
+              <span>ZERO Ratelimits!!!</span>
             </div>
             <div><span>TYSM :D</span></div>
           </div>
-          <form class={styles.buy} method="post">
-            <input type="text" name="tier" value="2" hidden />
-            <input
-              type="submit"
-              class={styles.prettySubmit}
-              data-owned={(payment && payment.tier >= 2) || null}
-              disabled={!user ||
-                user.stripe_customer === null ||
-                (payment && payment.tier >= 2)}
-            />
-          </form>
         </div>
+        <form class={styles.buy} method="post">
+          <input type="text" name="tier" value="2" hidden />
+          <input
+            type="submit"
+            class={styles.prettySubmit}
+            data-owned={(payment && payment.tier >= 3) || null}
+            value={!payment || payment.tier < 2 ? "Buy" : "YOU HAVE THIS!"}
+            disabled={!user || (payment && payment.tier >= 3)}
+          />
+        </form>
       </div>
     </div>
     <div class={styles.description}>
@@ -235,7 +271,11 @@ if (!error && exclusiveError) {
               purchase.
             </p>
             <p>Payments are handled by Stripe.</p>
-            <p>NO REFUNDS!!!</p>
+            <p>
+              NO REFUNDS!!! Unless you are found out to be either below the age
+              of 13 (where we will then delete ur account entirely) or did not
+              mean to purchase Holy Unblocker Premium.
+            </p>
           </>
         ) : (
           <>

@@ -64,6 +64,9 @@ export const POST: APIRoute = async ({ request }) => {
             case appConfig.stripe.priceIds.ultimate:
               tier = 2;
               break;
+            case appConfig.stripe.priceIds.meal:
+              tier = 3;
+              break;
           }
 
           if (tier === undefined) {

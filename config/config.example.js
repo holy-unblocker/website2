@@ -16,7 +16,7 @@ export const appConfig = {
   // FRONTEND LISTENING ADDRESS
   // website2 will start an http server
   host: "127.0.0.1",
-  port: 4321,
+  port: 8080,
 
   // specifies a mirror for the theatre api
   // this mirror is used if there are no database credentials
@@ -92,6 +92,7 @@ export const appConfig = {
   //   roleIds: {
   //     official: "1251473356188946544", // official & ultimate subscribers
   //     ultimate: "1256770749230874634", // ultimate subscribers
+  //     meal: "1258319860778270873", // meal-tier subscriber
   //   },
   // },
 

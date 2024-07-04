@@ -93,6 +93,7 @@ function getTierDiscordRoles(tier) {
   const roles = [];
   if (tier >= 1) roles.push(appConfig.discord.roleIds.official);
   if (tier >= 2) roles.push(appConfig.discord.roleIds.ultimate);
+  if (tier >= 3) roles.push(appConfig.discord.roleIds.meal);
   return roles;
 }
 
