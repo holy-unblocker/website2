@@ -137,6 +137,7 @@ import Public from "@icons/public_24dp.svg?react";
       } catch (err) {
         throw new TypeError(`service frame must be a valid URL, got: ${src}`);
       }
+      document.documentElement.setAttribute("data-service", "");
     } else {
       document.documentElement.removeAttribute("data-service");
       serviceEmbed.src = "about:blank";
