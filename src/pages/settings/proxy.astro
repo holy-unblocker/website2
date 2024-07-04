@@ -16,11 +16,11 @@ if (Astro.request.method === "POST")
     const type = data.get("type")?.toString();
 
     switch (type) {
-      case "theme":
+      case "proxyMode":
         {
-          const theme = data.get("theme")?.toString();
-          if (!Astro.locals.setTheme(theme))
-            error = "Please enter a valid theme!";
+          const proxyMode = data.get("proxyMode")?.toString();
+          if (!Astro.locals.setProxyMode(proxyMode))
+            error = "Please enter a valid proxyMode!";
         }
         break;
       case "wispServer":
@@ -38,9 +38,10 @@ if (Astro.request.method === "POST")
 
 <SettingsLayout title="Proxy settings">
   <section class={styles.section}>
-    <div>
+    <form method="post">
       <p>Mode</p>
       <ThemeSelect
+        name="proxyMode"
         id="proxyMode"
         class={styles.themeSelect}
         options={[
@@ -50,10 +51,11 @@ if (Astro.request.method === "POST")
         ]}
         value={Astro.locals.proxyMode}
       />
-    </div>
-    <div>
+    </form>
+    <form method="post">
       <p>Search Engine:</p>
       <ThemeSelect
+        name="searchEngine"
         class={styles.themeSelect}
         id="searchEngine"
         options={searchEngines.map(({ name }, i) => ({
@@ -62,7 +64,7 @@ if (Astro.request.method === "POST")
         }))}
         value={Astro.locals.searchEngine.toString()}
       />
-    </div>
+    </form>
     {
       !Astro.locals.isMainWebsite && (
         <p>

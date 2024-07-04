@@ -33,9 +33,10 @@ export async function setupServiceWorker() {
     return;
   }
 
-  console.log("Using wisp at", window.wisp_api);
+  const endpoint = getWispEndpoint();
+  console.log("Using wisp at", endpoint);
   SetTransport("EpxMod.EpoxyClient", {
-    wisp: getWispEndpoint(),
+    wisp: endpoint,
   });
 }
 

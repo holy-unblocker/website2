@@ -41,7 +41,9 @@ namespace App {
     // returns true if valid wisp server url, false if invalid
     setWispServer: (newWispServer?: string | null) => boolean;
     proxyMode: string;
+    setProxyMode: (newProxyMode?: string | null) => boolean;
     searchEngine: number;
+    setSearchEngine: (newSearchEngine?: string | number | null) => boolean;
     cloak?: import("@lib/cloak").AppCloak;
     // returns true if valid cloak data, false if invalid
     setCloak: (cloak?: import("@lib/cloak").AppCloak | null) => boolean;

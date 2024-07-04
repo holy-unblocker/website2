@@ -223,24 +223,88 @@ export const onRequest = defineMiddleware(async (context, next) => {
     httpOnly: true,
   });
 
-  context.locals.theme =
-    context.cookies.get("theme")?.value === "night" ? "night" : "day";
+  // saves the theme or delete it
+  context.locals.setTheme = (newTheme) => {
+    const validTheme =
+      typeof newTheme === "string" && ["day", "night"].includes(newTheme);
 
-  // proxy search engine
-  // 1 = google
-  // 2 = duckduckgo
-  // 3 = bing
-  // 4 = wikipedia
-  // 5 = reddit
-  // 6 = hacker
-  context.locals.searchEngine = 1;
-  const searchEngine = Number(context.cookies.get("search")?.value);
-  if (
-    !isNaN(searchEngine) &&
-    searchEngine >= 0 &&
-    searchEngine < engines.length
-  )
-    context.locals.searchEngine = searchEngine;
+    if (validTheme) {
+      context.cookies.set("theme", newTheme as string, {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        maxAge: maxAgeLimit,
+        secure: true,
+      });
+      context.locals.theme = newTheme as string;
+      return true;
+    } else {
+      // clear the cookie
+      context.cookies.set("theme", "", {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        expires: new Date(0), // set it to as old as possible!!
+        secure: true,
+      });
+      // use our default wisp api, which is hosted at /bare/
+      // see separateWispServer in ./config/config.js to change this by default
+      context.locals.wispServer = "%{ws}//%{host}/wisp/";
+      return false;
+    }
+  };
+
+  context.locals.setTheme(context.cookies.get("theme")?.value);
+
+  // saves the theme or delete it
+  context.locals.setSearchEngine = (newSearchEngine) => {
+    let validSearchEngine = true;
+    if (typeof newSearchEngine === "string")
+      newSearchEngine = parseInt(newSearchEngine);
+    if (
+      typeof newSearchEngine === "number" &&
+      (isNaN(newSearchEngine) ||
+        newSearchEngine < 0 ||
+        newSearchEngine < engines.length)
+    )
+      validSearchEngine = false;
+
+    if (validSearchEngine) {
+      context.cookies.set(
+        "searchEngine",
+        (newSearchEngine as number).toString(),
+        {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          maxAge: maxAgeLimit,
+          secure: true,
+        }
+      );
+      context.locals.searchEngine = newSearchEngine as number;
+      return true;
+    } else {
+      // clear the cookie
+      context.cookies.set("searchEngine", "", {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        expires: new Date(0), // set it to as old as possible!!
+        secure: true,
+      });
+
+      // default proxy search engine
+      // 0 = google
+      // 1 = duckduckgo
+      // 2 = bing
+      // 3 = wikipedia
+      // 4 = reddit
+      // 5 = hacker news
+      context.locals.searchEngine = 1;
+      return false;
+    }
+  };
+  context.locals.setSearchEngine(context.cookies.get("theme")?.value);
 
   // proxy mode
   context.locals.proxyMode = "embedded";
