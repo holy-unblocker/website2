@@ -16,8 +16,10 @@ export async function setupServiceWorker() {
       "crossOriginIsolated must be enabled to increase performance."
     );
 
-  if (!navigator.serviceWorker)
-    throw new Error("Your browser doesn't support service workers.");
+  if (!navigator.serviceWorker) {
+    if (location.protocol === "https:") alert("Please disable incognito mode!");
+    else throw new Error("Your browser doesn't support service workers.");
+  }
 
   const reg = await navigator.serviceWorker.getRegistration();
   if (reg) {
