@@ -194,7 +194,7 @@ if (!error && exclusiveError) {
             </div>
           </div>
           <form class={styles.buy} method="post">
-            <input type="text" name="tier" value="2" hidden />
+            <input type="text" name="tier" value="1" hidden />
             <input
               type="submit"
               class={styles.prettySubmit}
@@ -247,18 +247,18 @@ if (!error && exclusiveError) {
               <span>ZERO Ratelimits!!!</span>
             </div>
             <div><span>TYSM :D</span></div>
+            <form class={styles.buy} method="post">
+              <input type="text" name="tier" value="2" hidden />
+              <input
+                type="submit"
+                class={styles.prettySubmit}
+                data-owned={(payment && payment.tier >= 3) || null}
+                value={!payment || payment.tier < 2 ? "Buy" : "YOU HAVE THIS!"}
+                disabled={!user || (payment && payment.tier >= 3)}
+              />
+            </form>
           </div>
         </div>
-        <form class={styles.buy} method="post">
-          <input type="text" name="tier" value="2" hidden />
-          <input
-            type="submit"
-            class={styles.prettySubmit}
-            data-owned={(payment && payment.tier >= 3) || null}
-            value={!payment || payment.tier < 2 ? "Buy" : "YOU HAVE THIS!"}
-            disabled={!user || (payment && payment.tier >= 3)}
-          />
-        </form>
       </div>
     </div>
     <div class={styles.description}>
