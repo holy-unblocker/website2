@@ -1,5 +1,10 @@
 Holy Unblocker Frontend Code is under a modified version of the ISC LICENSE.
 
+To clarify any confusion about previous licenses available for Holy Unblocker:
+
+- The React version of Holy Unblocker (https://github.com/holy-unblocker/website) is licensed under GPLv3
+- The Astro rewrite of Holy Unblocker (this repository) is licensed under a modified ISC license.
+
 Copyright David Reed (c) 2024 Holy Unblocker
 
 The Holy Unblocker Frontend repository is licensed under a modified ISC license and is accessible at https://github.com/holy-unblocker/website2
