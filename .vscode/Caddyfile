@@ -1,0 +1,24 @@
+{
+    on_demand_tls {
+        ask # ENTER YOUR OWN THINGY!
+    }
+}
+
+https:// {
+    tls {
+        on_demand
+    }
+    # @wisp {
+    #     path /wisp/*
+    # }
+
+    # reverse_proxy @wisp 127.0.0.1:<port wisp is on?>
+
+    # IF YOU WANT TO LOAD BALANCE HU WITH MORE WISP SERVERS
+    # reverse_proxy @wisp <ip>:<port> <ip1>:<port1>
+    #     lb_policy weighted_round_robin 1 2
+    # }
+
+    reverse_proxy 127.0.0.1:8080
+    encode gzip
+}
