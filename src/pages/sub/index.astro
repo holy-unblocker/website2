@@ -38,8 +38,11 @@ if (Astro.request.method === "POST") {
     email = data.get("email")?.toString().trim() || "";
     password = data.get("password")?.toString() || "";
 
-    // const token = data.get("g-recaptcha-response")?.toString();
-    error = validateEmail(email) || validatePassword(password);
+    const consent = data.get("consent");
+
+    if (consent !== "true") {
+      error = "You must consent to create an account.";
+    } else error = validateEmail(email) || validatePassword(password);
 
     if (!error) {
       const verificationCode = generateVerificationCode();
@@ -145,6 +148,23 @@ if (Astro.request.method === "POST") {
           type="submit"
           value="Sign up"
         />
+        <p>
+          <label
+            ><input type="checkbox" required name="consent" /> By submitting my personal
+            data to create and manage a Holy Unblocker subscriber Account, I agree
+            that I am at least 13 years old, and that my personal data will be processed
+            in accordance with the Holy Unblocker <a
+              class={themeStyles.themeLink}
+              href="/privacy">Privacy Policy</a
+            > and Holy Unblocker <a
+              href="/cookies"
+              class={themeStyles.themeLink}>Cookies Policy</a
+            >, and agree to abide by the <a
+              href="/terms"
+              class={themeStyles.themeLink}>Terms of Service</a
+            >.</label
+          >
+        </p>
         <p>
           Already have an account? <a
             class={themeStyles.themeLink}

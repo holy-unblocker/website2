@@ -57,6 +57,14 @@ const engine = searchEngines[Astro.locals.searchEngine];
     const form = document.querySelector<HTMLFormElement>("#omnibox");
     if (!form) return;
 
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (inputBar.value === "") return;
+      const src = builder.query(inputBar.value);
+      inputBar.blur();
+      setServiceSrc(src);
+    });
+
     let resultIndex = -1;
     // let lastQuery: string | undefined;
 
@@ -140,14 +148,6 @@ const engine = searchEngines[Astro.locals.searchEngine];
       const src = builder.query(query);
       setServiceSrc(src);
     }
-
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      if (inputBar.value === "") return;
-      const src = builder.query(inputBar.value);
-      inputBar.blur();
-      setServiceSrc(src);
-    });
 
     let abort = new AbortController();
 

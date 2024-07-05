@@ -1,0 +1,29 @@
+---
+import themeStyles from "@styles/ThemeElements.module.scss";
+import MainLayout from "@layouts/MainLayout.astro";
+---
+
+<MainLayout title="Cookie Policy">
+  <Fragment slot="head">
+    <meta name="description" content="Holy Unblocker's cookie policy." />
+  </Fragment>
+  <main>
+    <h1>Cookie Policy</h1>
+    <p>
+      Holy Unblocker uses cookies to set the site theme, save a custom wisp
+      server, save tab cloak settings. When you sign into your Premium account,
+      you will automatically receive a "session cookie" which is used to provide
+      subscriber benefits.
+    </p>
+    <h2>Data Collection</h2>
+    <p>We do not use cookies to collect your data.</p>
+    <p>
+      Holy Unblocker is COPPA compliant. We do not willingly collect personally
+      identifiable information about anyone who is under 13.
+    </p>
+    <p>
+      If you have any questions about our Cookie Policy, please{" "}
+      <a class={themeStyles.themeLink} href="/contact">Contact Us</a>.
+    </p>
+  </main>
+</MainLayout>
