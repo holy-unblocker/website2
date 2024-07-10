@@ -87,5 +87,5 @@ export const GET: APIRoute = async (context) => {
     ]
   );
 
-  return context.redirect("/sub/dashboard?disc_connected", 302);
+  return context.redirect("/pro/dashboard?disc_connected", 302);
 };

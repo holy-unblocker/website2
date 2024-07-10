@@ -18,7 +18,7 @@ import {
 
 const { ip, user, acc } = Astro.locals;
 let to = Astro.url.searchParams.get("to") || null;
-if (!to || to === "/sub/" || !to.startsWith("/")) to = "/sub/dashboard";
+if (!to || to === "/pro/" || !to.startsWith("/")) to = "/pro/dashboard";
 if (user) return Astro.redirect(to, 302);
 
 let error: string | undefined;
@@ -101,7 +101,7 @@ if (Astro.request.method === "POST") {
         </p>
         <h3>What are the perks?</h3>
         <p>You can check out our pricing page to learn more:</p>
-        <a href="/sub/pricing">
+        <a href="/pro/pricing">
           <input
             type="button"
             class={styles.prettySubmit}
@@ -117,7 +117,7 @@ if (Astro.request.method === "POST") {
             <p class="prettyBanner" data-error>
               Email already exists.{" "}
               <u>
-                <a href="/sub/login">Did you mean to login?</a>
+                <a href="/pro/login">Did you mean to login?</a>
               </u>
             </p>
           )
@@ -168,7 +168,7 @@ if (Astro.request.method === "POST") {
         <p>
           Already have an account? <a
             class={themeStyles.themeLink}
-            href="/sub/login">Login</a
+            href="/pro/login">Login</a
           >
         </p>
       </form>

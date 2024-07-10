@@ -8,5 +8,5 @@ export const GET: APIRoute = async (context) => {
 
   console.log("got session from redirect", session_id);
 
-  return context.redirect("/sub/dashboard", 302);
+  return context.redirect("/pro/dashboard", 302);
 };

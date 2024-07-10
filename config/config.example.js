@@ -87,7 +87,7 @@ export const appConfig = {
   //   botToken: "DISCORD BOT TOKEN HERE",
   //   clientId: "OAUTH CLIENT ID",
   //   clientSecret: "OAUTH CLIENT SECRET",
-  //   clientRedirectURI: "https://holyubofficial.net/sub/linkdiscord",
+  //   clientRedirectURI: "https://holyubofficial.net/pro/linkdiscord",
   //   guildId: "1251447707529252896", // holy unblocker's discord server
   //   roleIds: {
   //     official: "1251473356188946544", // official & ultimate subscribers

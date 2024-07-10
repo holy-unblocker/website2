@@ -67,7 +67,7 @@ if (Astro.request.method === "POST")
     welcome ||
     discordConnected ||
     Astro.request.method === "POST") && (
-    <script>history.pushState({}, "", "/sub/dashboard")</script>
+    <script>history.pushState({}, "", "/pro/dashboard")</script>
   )
 }
 <MainLayout>
@@ -88,19 +88,19 @@ if (Astro.request.method === "POST")
     <div class={styles.userCard}>
       <h3>Account Actions:</h3>
       <p>
-        <a class={themeStyles.themeLink} href="/sub/change-password"
+        <a class={themeStyles.themeLink} href="/pro/change-password"
           >Change Password</a
         >
       </p>
       <p>
-        <a class={themeStyles.themeLink} href="/sub/change-email"
+        <a class={themeStyles.themeLink} href="/pro/change-email"
           >Change Email</a
         >
       </p>
       <p>
         <a
           class={themeStyles.themeLink}
-          href="/sub/logout"
+          href="/pro/logout"
           data-astro-prefetch="false">Log Out</a
         >
       </p>
@@ -140,7 +140,7 @@ if (Astro.request.method === "POST")
             value="TYSM FOR SUBSCRIBING TO ULTIMATE!!!"
           />
         ) : (
-          <a href="/sub/pricing">
+          <a href="/pro/pricing">
             <input
               type="button"
               class={styles.prettySubmit}

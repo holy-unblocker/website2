@@ -9,7 +9,7 @@ if (!user) return acc.toLogin();
 if (!user.email_verified) return acc.toVerifyEmail();
 // check if they paid
 const payment = await getUserPayment(user.id);
-if (!payment || payment.tier < 1) return Astro.redirect("/sub/pricing?vm", 302);
+if (!payment || payment.tier < 1) return Astro.redirect("/pro/pricing?vm", 302);
 ---
 
 <MainLayout>

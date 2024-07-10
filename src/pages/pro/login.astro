@@ -12,7 +12,7 @@ const { user, ip } = Astro.locals;
 // redirect to dashboard if they're already signed in
 
 let to = Astro.url.searchParams.get("to") || null;
-if (!to || to === "/sub/" || !to.startsWith("/")) to = "/sub/dashboard";
+if (!to || to === "/pro/" || !to.startsWith("/")) to = "/pro/dashboard";
 if (user) return Astro.redirect(to, 302);
 
 let error: string | undefined;
@@ -62,7 +62,7 @@ if (Astro.request.method === "POST")
 const bai = Astro.url.searchParams.has("bai");
 ---
 
-{bai && <script>history.pushState({}, "", "/sub/login")</script>}
+{bai && <script>history.pushState({}, "", "/pro/login")</script>}
 <MainLayout>
   <main class={styles.subscriberMain}>
     <form class:list={[styles.loginForm, styles.login]} method="post">
@@ -91,10 +91,10 @@ const bai = Astro.url.searchParams.has("bai");
         value="Login"
       />
       <p>
-        <a class={themeStyles.themeLink} href="/sub/">Create an account</a>
+        <a class={themeStyles.themeLink} href="/pro/">Create an account</a>
       </p>
       <p>
-        <a class={themeStyles.themeLink} href="/sub/forgot-password"
+        <a class={themeStyles.themeLink} href="/pro/forgot-password"
           >I forgot my password</a
         >
       </p>

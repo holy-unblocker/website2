@@ -266,7 +266,7 @@ export function handleReq(req, res, middleware) {
   const isCDN = req.url.startsWith("/cdn/");
 
   // THIS SHOULD ALWAYS BE SET ON THEATRE FILES AND /compat/
-  // DO NOT DO NOT SET THIS ON /sub/ OR ACCOUNT DETAILS WILL BE LEAKED
+  // DO NOT DO NOT SET THIS ON /pro/ OR ACCOUNT DETAILS WILL BE LEAKED
   if (isCDN || req.url.startsWith("/compat/")) {
     // this makes loading epoxy TLS faster
     // thanks r58

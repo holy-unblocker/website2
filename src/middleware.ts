@@ -317,7 +317,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   if (!stripeEnabled) {
     if (
-      context.url.pathname.startsWith("/sub/") ||
+      context.url.pathname.startsWith("/pro/") ||
       context.url.pathname === "/api/supersecretstripe"
     )
       return new Response("accounts are disabled", { status: 400 });
@@ -331,7 +331,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       context.cookies.set("session", secret, {
         domain: context.url.hostname,
         sameSite: "lax",
-        path: "/sub/",
+        path: "/pro/",
         maxAge: maxAgeLimit,
         secure: true,
         httpOnly: true,
@@ -343,7 +343,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       context.cookies.set("session", "", {
         domain: context.url.hostname,
         sameSite: "lax",
-        path: "/sub/",
+        path: "/pro/",
         expires: new Date(0), // set it to as old as possible!!
         secure: true,
         httpOnly: true,
@@ -383,7 +383,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.cookies.set("session", cookie, {
           domain: context.url.hostname,
           sameSite: "lax",
-          path: "/sub/",
+          path: "/pro/",
           maxAge: maxAgeLimit,
           secure: true,
           httpOnly: true,
@@ -417,29 +417,29 @@ export const onRequest = defineMiddleware(async (context, next) => {
         }
       }
     },
-    toDash: () => context.redirect("/sub/dashboard", 302),
-    toBan: () => context.redirect("/sub/ban", 302),
-    toPricing: () => context.redirect("/sub/pricing", 302),
+    toDash: () => context.redirect("/pro/dashboard", 302),
+    toBan: () => context.redirect("/pro/ban", 302),
+    toPricing: () => context.redirect("/pro/pricing", 302),
     toLogin: () =>
       context.redirect(
-        context.url.pathname === "/sub/login"
-          ? "/sub/login"
-          : `/sub/login?to=${encodeURIComponent(
+        context.url.pathname === "/pro/login"
+          ? "/pro/login"
+          : `/pro/login?to=${encodeURIComponent(
               context.url.pathname + context.url.search
             )}`,
         307
       ),
     toSignup: () =>
       context.redirect(
-        context.url.pathname === "/sub/"
-          ? "/sub/"
-          : `/sub/?to=${encodeURIComponent(
+        context.url.pathname === "/pro/"
+          ? "/pro/"
+          : `/pro/?to=${encodeURIComponent(
               context.url.pathname + context.url.search
             )}`,
         307
       ),
-    toVerifyEmail: () => context.redirect("/sub/verify-email", 302),
-    toVerifyNewEmail: () => context.redirect("/sub/verify-new-email", 302),
+    toVerifyEmail: () => context.redirect("/pro/verify-email", 302),
+    toVerifyNewEmail: () => context.redirect("/pro/verify-new-email", 302),
   };
 
   return next();

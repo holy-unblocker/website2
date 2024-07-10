@@ -88,8 +88,8 @@ if (Astro.request.method === "POST")
           ],
           success_url:
             proto +
-            `//${Astro.url.host}/sub/paid?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: proto + `//${Astro.url.host}/sub/pricing`,
+            `//${Astro.url.host}/pro/paid?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: proto + `//${Astro.url.host}/pro/pricing`,
         });
 
         console.log("checkout session created", stripeSession.id);
@@ -113,7 +113,7 @@ if (!error && exclusiveError) {
 }
 ---
 
-{exclusiveError && <script>history.pushState({}, "", "/sub/pricing")</script>}
+{exclusiveError && <script>history.pushState({}, "", "/pro/pricing")</script>}
 {
   stripeSession && (
     <script
@@ -136,7 +136,7 @@ if (!error && exclusiveError) {
           user && (
             <a
               class="back-button"
-              href="/sub/dashboard"
+              href="/pro/dashboard"
               set:html={ArrowBackIcon}
             />
           )
@@ -280,7 +280,7 @@ if (!error && exclusiveError) {
         ) : (
           <>
             <p>In order to subscribe, you need to create an account.</p>
-            <a href="/sub/">
+            <a href="/pro/">
               <input
                 type="button"
                 class={styles.prettySubmit}

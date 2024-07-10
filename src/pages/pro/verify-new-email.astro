@@ -61,13 +61,13 @@ if (secret !== "") {
       Astro.locals.setSession(session.secret);
     }
 
-    return Astro.redirect("/sub/dashboard?newEmailConfirmed", 302);
+    return Astro.redirect("/pro/dashboard?newEmailConfirmed", 302);
   }
 } else {
   if (!user) return acc.toLogin();
   if (!user.email_verified) return acc.toVerifyEmail();
   if (user.new_email === null)
-    return Astro.redirect("/sub/dashboard?newEmailConfirmed", 302);
+    return Astro.redirect("/pro/dashboard?newEmailConfirmed", 302);
 
   if (Astro.request.method === "POST")
     try {
@@ -93,7 +93,7 @@ if (secret !== "") {
     <h1 class="page-title sub">
       <a
         class="back-button"
-        href="/sub/dashboard"
+        href="/pro/dashboard"
         set:html={ArrowBackIcon}
       />Confirm your new email
     </h1>

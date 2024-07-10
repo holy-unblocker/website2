@@ -149,7 +149,7 @@ export async function sendChangeEmailVerification(
   newEmail: string,
   verificationSecret: string
 ) {
-  const url = `https://${host}/sub/verify-new-email?secret=${encodeURIComponent(
+  const url = `https://${host}/pro/verify-new-email?secret=${encodeURIComponent(
     verificationSecret
   )}`;
 
@@ -169,7 +169,7 @@ export async function sendChangeEmailVerification(
 <p>To finish changing your Holy Unblocker account's email address from ${user.email} to ${newEmail}, click the button below.</p>
 <a href="${url}" id="verify">Verify Email</a>
 <p>Or go to <a href="${url}">${url}</a></p>
-<p>You can log into your Holy Unblocker account at <a href="https://${appConfig.mainWebsite}/sub/">${appConfig.mainWebsite}</a></p>
+<p>You can log into your Holy Unblocker account at <a href="https://${appConfig.mainWebsite}/pro/">${appConfig.mainWebsite}</a></p>
 </div>`,
   });
 }
@@ -189,7 +189,7 @@ export async function sendChangePasswordNotification(
     html: `<style>${emailCSS}${verifyCSS}</style><div>
 <p>Your account's password was changed.</p>
 <p>This change was initiated by ${ip}</p>
-<p>You can log into your Holy Unblocker account at <a href="https://${appConfig.mainWebsite}/sub/">${appConfig.mainWebsite}</a></p>
+<p>You can log into your Holy Unblocker account at <a href="https://${appConfig.mainWebsite}/pro/">${appConfig.mainWebsite}</a></p>
 </div>`,
   });
 }
@@ -209,7 +209,7 @@ export async function sendChangeEmailNotification(
     html: `<style>${emailCSS}${verifyCSS}</style><div>
 <p>Your account's password was changed to ${user.new_email}.</p>
 <p>This change was initiated by ${ip}</p>
-<p>You can log into your Holy Unblocker account at <a href="https://${appConfig.mainWebsite}/sub/">${appConfig.mainWebsite}</a></p>
+<p>You can log into your Holy Unblocker account at <a href="https://${appConfig.mainWebsite}/pro/">${appConfig.mainWebsite}</a></p>
 </div>`,
   });
 }
@@ -229,7 +229,7 @@ export async function sendEmailVerification(user: m.UserModel) {
     html: `<style>${emailCSS}span{font-family:monospace}</style><div>
 <p>To finish creating your Holy Unblocker account, enter this verification code: <span>${user.email_verification_code}</span></p>
 <p>If this wasn't you, then you can ignore this email.</p>
-<p>You can log into your Holy Unblocker account at <a href="https://holyubof${appConfig.mainWebsite}/sub/">${appConfig.mainWebsite}</a></p>`,
+<p>You can log into your Holy Unblocker account at <a href="https://holyubof${appConfig.mainWebsite}/pro/">${appConfig.mainWebsite}</a></p>`,
   });
 }
 
@@ -238,7 +238,7 @@ export async function sendPasswordVerification(
   email: string,
   verificationSecret: string
 ) {
-  const url = `https://${host}/sub/forgot-password?secret=${encodeURIComponent(
+  const url = `https://${host}/pro/forgot-password?secret=${encodeURIComponent(
     verificationSecret
   )}`;
 
@@ -258,7 +258,7 @@ export async function sendPasswordVerification(
 <a href="${url}" id="verify">Change Password</a>
 <p>Or go to <a href="${url}">${url}</a></p>
 <p>If this wasn't you, then you can ignore this request.</p>
-<p>You can log into your Holy Unblocker account at <a href="https://${appConfig.mainWebsite}/sub/">${appConfig.mainWebsite}</a></p>`,
+<p>You can log into your Holy Unblocker account at <a href="https://${appConfig.mainWebsite}/pro/">${appConfig.mainWebsite}</a></p>`,
   });
 }
 
