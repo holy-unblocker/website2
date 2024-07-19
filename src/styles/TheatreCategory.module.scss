@@ -15,6 +15,13 @@
     flex-wrap: wrap;
     overflow-y: hidden;
   }
+
+  > .name {
+    a {
+      display: flex;
+      align-items: center;
+    }
+  }
 }
 
 .pages {
