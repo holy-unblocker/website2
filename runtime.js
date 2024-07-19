@@ -277,6 +277,8 @@ new Function("self", "window", uvBundleSrc)(globalThis, globalThis);
 
 /**
  *
+ * cursed ultraviolet config loader
+ * configs can be location-aware
  * @param {string} host
  * @param {string} url
  * @returns {import("@titaniumnetwork-dev/ultraviolet").UVConfig}
@@ -422,9 +424,11 @@ export function handleReq(req, res, middleware) {
 
 export function handleUpgrade(req, socket, head) {
   console.log("ws req", req.url);
-  if (!("separateWispServer" in appConfig) && req.url === "/api/wisp") {
-    wisp.routeRequest(req, socket, head);
+  if (req.url === "/api/wisp" && !("separateWispServer" in appConfig)) {
+    console.log("wispy");
+    wisp.routeRequest(req, socket, head, { logging: true });
   } else {
+    console.log("bad websocket req @", req.url);
     // kill the request so it isn't stuck loading
     socket.end();
   }

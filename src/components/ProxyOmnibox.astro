@@ -67,10 +67,12 @@ const engine = searchEngines[Astro.locals.searchEngine];
       setServiceSrc(src);
     });
 
+    let inputFocused = false;
     let resultIndex = -1;
     // let lastQuery: string | undefined;
 
-    const setInputFocused = (inputFocused: boolean) => {
+    const setInputFocused = (newValue: boolean) => {
+      inputFocused = newValue;
       resultIndex = -1;
       // lastQuery = undefined;
       if (inputFocused) {
@@ -243,17 +245,17 @@ const engine = searchEngines[Astro.locals.searchEngine];
       }
 
       // render the entries and new omnibox
-      for (const res of results)
-        if (res !== query)
-          suggest.append(renderOmniboxSearchResult(res, query));
+      // the input bar may have lost focus by the time this code is reached
+      if (inputFocused)
+        for (const res of results)
+          if (res !== query)
+            suggest.append(renderOmniboxSearchResult(res, query));
     };
 
     inputBar.addEventListener("input", () => {
       getSearchResults(inputBar.value);
     });
 
-    document.addEventListener("astro:page-load", () => {
-      resultIndex = -1;
-    });
+    setInputFocused(false);
   });
 </script>

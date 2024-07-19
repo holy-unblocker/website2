@@ -54,9 +54,11 @@ import styles from "@styles/ProxyOmnibox.module.scss";
     const suggest = document.querySelector<HTMLDivElement>("#theatreSuggest")!;
     const inputBar = form.querySelector<HTMLInputElement>("input")!;
 
+    let inputFocused = false;
     let resultIndex = -1;
 
-    window.setInputFocused = (inputFocused: boolean) => {
+    window.setInputFocused = (newValue: boolean) => {
+      inputFocused = newValue;
       const form =
         document.querySelector<HTMLFormElement>("#theatreSearchBar")!;
       const suggest =
@@ -112,10 +114,12 @@ import styles from "@styles/ProxyOmnibox.module.scss";
 
       //.. get additional results?
 
-      for (const res of listResults.entries)
-        suggest.append(
-          renderTheatreSearchResult(res.name, query, res.id, res.category)
-        );
+      // the input bar may have lost focus by the time this code is reached
+      if (inputFocused)
+        for (const res of listResults.entries)
+          suggest.append(
+            renderTheatreSearchResult(res.name, query, res.id, res.category)
+          );
     }
 
     // let lastQuery: string | undefined;
@@ -170,5 +174,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
     inputBar.addEventListener("input", () => {
       searchTheatre(inputBar.value);
     });
+
+    setInputFocused(false);
   });
 </script>
