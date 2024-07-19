@@ -8,7 +8,7 @@ import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
 import Delete from "@icons/delete_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
 import prettyMilliseconds from "pretty-ms";
-import { db, getTierName, getUserPayment } from "@config/apis";
+import { db, getTierName, getUserPayment, stripe } from "@config/apis";
 import { appConfig } from "@config/config";
 import { giveTierDiscordRoles } from "@config/apis";
 
@@ -38,9 +38,28 @@ if (Astro.request.method === "POST")
 
     switch (type) {
       case "renew":
-        error = "Not implemented yet! (please try again tomorrow - David)";
-        Astro.response.status = 500;
+        if (typeof payment?.subscription_id === "string") {
+          // error = "Not implemented yet! (please try again tomorrow - David)";
+          // Astro.response.status = 500;
+          payment.stripe_renew = !payment.stripe_renew;
+
+          await stripe.subscriptions.update(payment.subscription_id, {
+            pause_collection: payment.stripe_renew
+              ? null
+              : {
+                  behavior: "void",
+                },
+          });
+
+          await db.query(
+            "UPDATE payments SET stripe_renew = $1 WHERE invoice_id = $2;",
+            [payment.stripe_renew, payment.invoice_id]
+          );
+
+          success = `Renewal ${payment.stripe_renew ? "on" : "off"}.`;
+        } else console.log("bad payment", payment);
         break;
+
       case "unlink-discord":
         if (user.discord_id === null) {
           error = "You don't have a Discord linked.";

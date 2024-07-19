@@ -73,9 +73,11 @@ export const POST: APIRoute = async ({ request }) => {
           const start = new Date(line.period.start * 1000);
           const end = new Date(line.period.end * 1000);
 
+          console.log("invoice line:", line);
+
           await db.query(
-            "INSERT INTO payment(id,user_id,tier,period_start,period_end) VALUES($1,$2,$3,$4,$5);",
-            [line.id, user.id, tier, start, end]
+            "INSERT INTO payment(invoice_id,subscription_id,user_id,tier,period_start,period_end) VALUES($1,$2,$3,$4,$5,$6);",
+            [line.id, line.subscription, user.id, tier, start, end]
           );
         }
       }

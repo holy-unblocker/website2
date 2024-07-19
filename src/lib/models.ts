@@ -30,7 +30,8 @@ export interface UserModel {
 }
 
 export interface PaymentModel {
-  id: string;
+  invoice_id: string;
+  subscription_id: string | null;
   user_id: number;
   tier: number;
   period_start: Date;

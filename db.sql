@@ -66,8 +66,8 @@ CREATE TABLE IF NOT EXISTS email (
 -- and these are checked to make sure ur not p00r
 CREATE TABLE IF NOT EXISTS payment (
     -- invoice id 
-	id TEXT PRIMARY KEY,
-    -- user_email TEXT NOT NULL,
+	invoice_id TEXT PRIMARY KEY,
+    subscription_id SERIAL NOT NULL,
     user_id SERIAL NOT NULL, -- user might change their email
     -- set based on the event product id
 	tier INT NOT NULL,
