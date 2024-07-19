@@ -86,6 +86,9 @@ import Public from "@icons/public_24dp.svg?react";
       const serviceTitle =
         document.querySelector<HTMLDivElement>("#serviceTitle")!;
 
+      const newTitle = contentWindow.document.title;
+      serviceTitle.textContent = newTitle === "" ? "Loading..." : newTitle;
+
       // if (location === contentWindow.location) title.textContent = src[0] || null);
       // if we got a fake location object
       if (location !== contentWindow.location) {
@@ -93,7 +96,6 @@ import Public from "@icons/public_24dp.svg?react";
         defaultIcon.style.display = "none";
 
         const newSrc = location.href;
-        serviceTitle.textContent = contentWindow.document.title;
         const selector = contentWindow.document.querySelector(
           'link[rel*="icon"]'
         ) as HTMLLinkElement | null;
@@ -117,7 +119,6 @@ import Public from "@icons/public_24dp.svg?react";
       } else {
         serviceIcon.style.display = "none";
         defaultIcon.style.display = "";
-        serviceTitle.textContent = "Loading...";
       }
     } catch (err) {
       console.error(err);
