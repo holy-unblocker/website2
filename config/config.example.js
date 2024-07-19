@@ -14,8 +14,8 @@ export const appConfig = {
   configName: "example config",
 
   // FRONTEND LISTENING ADDRESS
-  // website2 will start an http server
-  host: "127.0.0.1",
+  // an http server will be created on this host & port
+  host: "localhost",
   port: 8080,
 
   // specifies a mirror for the theatre api
