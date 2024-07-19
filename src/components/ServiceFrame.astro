@@ -60,8 +60,8 @@ import Public from "@icons/public_24dp.svg?react";
 
   window.addEventListener("focus", () => {
     const serviceEmbed =
-      document.querySelector<HTMLIFrameElement>("#serviceEmbed")!;
-    if (lastSrc !== undefined && serviceEmbed) serviceEmbed.focus();
+      document.querySelector<HTMLIFrameElement>("#serviceEmbed");
+    if (serviceEmbed !== null) serviceEmbed.focus();
   });
 
   let embedChangeInterval: number | undefined;
@@ -140,6 +140,10 @@ import Public from "@icons/public_24dp.svg?react";
         throw new TypeError(`service frame must be a valid URL, got: ${src}`);
       }
       document.documentElement.setAttribute("data-service", "");
+      lastSrc = src;
+      serviceEmbed.src = __uv$config!.prefix + __uv$config.encodeUrl!(src);
+      // setTimeout(() => (serviceEmbed.src = serviceEmbed.src), 1e3);
+      checkForEmbedChanges();
     } else {
       document.documentElement.removeAttribute("data-service");
       serviceEmbed.src = "about:blank";

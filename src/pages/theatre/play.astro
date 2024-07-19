@@ -272,7 +272,7 @@ if (mirrorError) {
     switch (data.type) {
       case "proxy":
         setupServiceWorker().then(() => {
-          playerFrame.src = `/uv/service/${__uv$config.encodeUrl!(url)}`;
+          playerFrame.src = __uv$config!.prefix + __uv$config.encodeUrl!(url);
         });
         break;
       case "embed":

@@ -33,7 +33,7 @@ export async function setupServiceWorker() {
     });
     console.log("Service worker registered");
     console.log("Reloading the page to activate it.");
-    location.reload();
+    setTimeout(() => location.reload(), 100);
     return;
   }
 
@@ -42,6 +42,8 @@ export async function setupServiceWorker() {
   SetTransport("EpxMod.EpoxyClient", {
     wisp: endpoint,
   });
+  console.log(SetTransport.toString());
+  return new Promise((resolve) => setTimeout(resolve, 1e3));
 }
 
 // get the Holy Unblocker wisp endpoint
@@ -52,7 +54,7 @@ export function getWispEndpoint() {
   const ele = document.getElementById("wispServerThing")!;
   const separateWispServer = ele.getAttribute("data-wispServer")!;
 
-  // defaults to wisp on /wisp/ which is hosted by the Holy Unblocker runtime
+  // defaults to wisp on /api/wisp which is hosted by the Holy Unblocker runtime
   // see: ./config/runtime.js
   // and see separateWispServer in ./config/config.js
   const wispAPI = formatURL(separateWispServer);
@@ -61,7 +63,7 @@ export function getWispEndpoint() {
 }
 
 // Replaces %{} crap with their actual values
-// eg env: %{ws}%{host}/wisp/
+// eg env: %{ws}%{host}/api/wisp
 function formatURL(env: string): string {
   const { host, hostname, protocol } = globalThis.location;
   const vars: Record<string, string> = {
@@ -71,6 +73,6 @@ function formatURL(env: string): string {
     ws: protocol === "https:" ? "wss:" : "ws:",
   };
   for (const key in vars) env = env.replaceAll("%{" + key + "}", vars[key]);
-  console.log(env);
+  // console.log(env);
   return env;
 }

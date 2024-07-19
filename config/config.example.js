@@ -30,7 +30,7 @@ export const appConfig = {
   // theatreFilesPath: "/home/ubuntu/theatre/public/",
 
   // wisp server url
-  // If not specified, it will host wisp locally on /wisp/
+  // If not specified, it will host wisp locally on /api/wisp
   // holyubofficial.net hosts wisp on the `api.` subdomain
   // string vars are calculated on the client-side, not by astro!!
   // - %{ws} - `ws:` or `wss:` depending on whether the location is http: or https:

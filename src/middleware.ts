@@ -156,7 +156,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       });
       // use our default wisp api, which is hosted at /bare/
       // see separateWispServer in ./config/config.js to change this by default
-      context.locals.wispServer = "%{ws}//%{host}/wisp/";
+      context.locals.wispServer = "%{ws}//%{host}/api/wisp";
       return false;
     }
   };
@@ -247,9 +247,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         expires: new Date(0), // set it to as old as possible!!
         secure: true,
       });
-      // use our default wisp api, which is hosted at /bare/
-      // see separateWispServer in ./config/config.js to change this by default
-      context.locals.wispServer = "%{ws}//%{host}/wisp/";
+      context.locals.theme = "day"; // default is day
       return false;
     }
   };

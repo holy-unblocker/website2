@@ -14,54 +14,54 @@
 //   - wisp
 //   - that's just about it
 
-import { copyFile } from "node:fs/promises";
+import { access, copyFile, readFile } from "node:fs/promises";
 
 // when vite bundles this, it will complain about being unable to import(configFile)
 // however, this is annoying and stupid
 // import.meta.url is very reliable for this!!
 
-const configFile = new URL("./config/config.js", import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+
+const configFile = resolve("./config/config.js", __filename);
 
 // console.log(configFile);
 
 import chalk from "chalk";
 
+try {
+  await access(configFile);
+} catch (err) {
+  if (err.code !== "ENOENT") throw err;
+  console.log("Holy Unblocker: No config.js file found. Making one.");
+  copyFile("./config/config.example.js", "./config/config.js");
+  console.log("Holy Unblocker: config.example.js -> config.js");
+}
+
 /**
  * @type {import("./config/config").AppConfig}
  */
 let appConfig;
+
 try {
-  appConfig = (await import(/* @vite-ignore */ configFile)).appConfig;
+  appConfig = (await import("./config/config.js")).appConfig;
 } catch (err) {
-  if (
-    err?.code === "ERR_MODULE_NOT_FOUND" &&
-    err.url === configFile.toString()
-  ) {
-    console.log("Holy Unblocker: No config.js file found. Making one.");
-    copyFile("./config/config.example.js", "./config/config.js");
-    console.log("Holy Unblocker: config.example.js -> config.js");
-    appConfig = (await import("./config/config.js")).appConfig;
-  } else {
-    // user config error
-    console.error(
-      chalk.bold("An error occurred while trying to load ./config/config.js!")
-    );
-    console.error(err);
-    console.error(
-      chalk.grey.italic(
-        "This error was likely caused as a result of you changing something."
-      )
-    );
-    console.error(
-      chalk.grey.italic("Please check your config then try again!")
-    );
-  }
+  // user config error
+  console.error(
+    chalk.bold("An error occurred while trying to load ./config/config.js!")
+  );
+  console.error(err);
+  console.error(
+    chalk.grey.italic(
+      "This error was likely caused as a result of you changing something."
+    )
+  );
+  console.error(chalk.grey.italic("Please check your config then try again!"));
   process.exit(1);
 }
 
 import http from "node:http";
 import https from "node:https";
-import { resolve } from "node:path";
+import { join, resolve } from "node:path";
 import {
   db,
   getUserPayment,
@@ -73,6 +73,7 @@ import { lstat, readdir, realpath } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { ActivityType, Client, PermissionsBitField } from "discord.js";
 import wisp from "wisp-server-node";
+import { fileURLToPath } from "node:url";
 
 // check runtime requirements
 // in both astro dev server & runtime
@@ -255,6 +256,40 @@ function normalCDN(path) {
   return cdnAbs + "/" + path.slice("/theatre-files/cdn/".length);
 }
 
+// now we can use self.__uv$config in the backend
+// this is kinda cursed
+/*
+<script src="/epoxy/index.js" is:inline defer></script>
+<script src="/uv/uv.bundle.js" is:inline defer></script>
+<script src="/uv/uv.config.js" is:inline defer></script>
+*/
+await import("@mercuryworkshop/epoxy-transport");
+
+import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
+
+const uvBundleSrc = await readFile(join(uvPath, "uv.bundle.js"), "utf-8");
+const uvConfigSrc = await readFile(
+  new URL("./public/uv/uv.config.js", import.meta.url),
+  "utf-8"
+);
+
+new Function("self", "window", uvBundleSrc)(globalThis, globalThis);
+
+/**
+ *
+ * @param {string} host
+ * @param {string} url
+ * @returns {import("@titaniumnetwork-dev/ultraviolet").UVConfig}
+ */
+function getUVConfig(host, url) {
+  const self = {};
+  new Function("self", "location", uvConfigSrc)(
+    self,
+    new URL(`http://${host}${url}`)
+  );
+  return self.__uv$config;
+}
+
 /**
  *
  * @param {import("http").IncomingMessage} req
@@ -315,9 +350,12 @@ export function handleReq(req, res, middleware) {
     return;
   }
 
+  const __uv$config = getUVConfig(req.headers.host, req.url);
+  // console.log("got config", __uv$config);
+
   // we want the uv service page to fallback to a page that registers the service worker
   // internal redirect
-  if (req.url.startsWith("/uv/service/")) {
+  if (req.url.startsWith(__uv$config.prefix)) {
     req.url = "/register-uv";
     // app(req, res);
     return middleware();
@@ -383,9 +421,13 @@ export function handleReq(req, res, middleware) {
 // the url / is reserved for astro dev server HMR
 
 export function handleUpgrade(req, socket, head) {
-  if (req.url.startsWith("/wisp/")) wisp.routeRequest(req, socket, head);
-  // don't infinitely load
-  else socket.end();
+  console.log("ws req", req.url);
+  if (!("separateWispServer" in appConfig) && req.url === "/api/wisp") {
+    wisp.routeRequest(req, socket, head);
+  } else {
+    // kill the request so it isn't stuck loading
+    socket.end();
+  }
 }
 
 console.log("Holy Unblocker runtime loaded");

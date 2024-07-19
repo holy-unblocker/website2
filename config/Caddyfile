@@ -9,7 +9,7 @@ https:// {
         on_demand
     }
     # @wisp {
-    #     path /wisp/*
+    #     path /api/wisp
     # }
 
     # reverse_proxy @wisp 127.0.0.1:<port wisp is on?>
