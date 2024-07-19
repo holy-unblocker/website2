@@ -60,10 +60,12 @@ const engine = searchEngines[Astro.locals.searchEngine];
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       inputBar.blur();
+      let value = inputBar.value;
+      if (resultIndex !== -1)
+        value = suggest.children[resultIndex].textContent!;
       setInputFocused(false);
-      if (inputBar.value === "") return;
-      const src = builder.query(inputBar.value);
-      inputBar.blur();
+      if (value === "") return;
+      const src = builder.query(value);
       setServiceSrc(src);
     });
 
@@ -79,6 +81,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
         getSearchResults(inputBar.value);
         form.setAttribute("data-focused", "");
       } else {
+        inputBar.blur();
         suggest.innerHTML = "";
         form.removeAttribute("data-focused");
         form.removeAttribute("data-suggested");

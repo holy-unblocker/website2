@@ -429,7 +429,7 @@ export function handleUpgrade(req, socket, head) {
   } else {
     console.log("bad websocket req @", req.url);
     // kill the request so it isn't stuck loading
-    socket.end();
+    // socket.end();
   }
 }
 

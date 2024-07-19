@@ -72,6 +72,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
         form.setAttribute("data-suggested", "");
         searchTheatre(inputBar.value);
       } else {
+        inputBar.blur();
         suggest.innerHTML = "";
         form.removeAttribute("data-focused");
         form.removeAttribute("data-suggested");
@@ -133,8 +134,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
       const entry = suggest.children[resultIndex] as HTMLAnchorElement;
       if (entry === undefined) {
         if (inputBar.value === "") return;
-        // navigate("/theatre/?q=" + encodeURIComponent(inputBar.value));
-        setServiceSrc(inputBar.value);
+        navigate("/theatre/?q=" + encodeURIComponent(inputBar.value));
       } else {
         navigate(entry.getAttribute("data-href")!);
       }

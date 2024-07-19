@@ -1,4 +1,6 @@
-import { SetTransport } from "@mercuryworkshop/bare-mux";
+import { BareMuxConnection } from "@mercuryworkshop/bare-mux";
+
+const connection = new BareMuxConnection("/baremux/worker.js");
 
 // will register /sw.js and setup bare mux
 // reloads the page to activate the sw.js if it wasn't registered
@@ -37,17 +39,17 @@ export async function setupServiceWorker() {
     return;
   }
 
-  const endpoint = getWispEndpoint();
-  console.log("Using wisp at", endpoint);
-  SetTransport("EpxMod.EpoxyClient", {
-    wisp: endpoint,
-  });
-  console.log(SetTransport.toString());
-  return new Promise((resolve) => setTimeout(resolve, 1e3));
+  const wispUrl = getWispUrl();
+  console.log("Using wisp at", wispUrl);
+  if ((await connection.getTransport()) !== "/epoxy/index.mjs") {
+    await connection.setTransport("/epoxy/index.mjs", [{ wisp: wispUrl }]);
+    console.log("Transport set!");
+  }
+  // return new Promise((resolve) => setTimeout(resolve, 1e3));
 }
 
 // get the Holy Unblocker wisp endpoint
-export function getWispEndpoint() {
+export function getWispUrl() {
   // HTML element inserted by astro
   // - it contains the [data-wispServer] attribute which tells the client what wisp server to use
   // - this value is directly from appConfig.

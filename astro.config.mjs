@@ -4,6 +4,7 @@ import { defineConfig } from "astro/config";
 import { svga, svgr } from "./svgmin.mjs";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
+import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { createRequire } from "node:module";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
@@ -64,6 +65,11 @@ export default defineConfig({
             src: rufflePath,
             dest: "",
             rename: "ruffle",
+          },
+          {
+            src: baremuxPath,
+            dest: "",
+            rename: "baremux",
           },
         ],
       }),

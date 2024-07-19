@@ -6,6 +6,13 @@ import engines from "@lib/searchEngines";
 import { extractCloakData, type AppCloak } from "@lib/cloak";
 import { appConfig } from "@config/config";
 
+// use our default wisp api, which is hosted at /bare/
+// see separateWispServer in ./config/config.js to change this by default
+const defaultWispServer =
+  typeof appConfig.separateWispServer === "string"
+    ? appConfig.separateWispServer
+    : "%{ws}//%{host}/api/wisp";
+
 const randomCloaks: (string | AppCloak)[] = [
   // LMS:
   // // some  of these are links to the product, not the actual LMS...
@@ -91,41 +98,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
     !("mainWebsite" in appConfig) ||
     context.url.hostname === appConfig.mainWebsite;
 
-  // saves the theme or delete it
-  context.locals.setTheme = (newTheme) => {
-    const validNewTheme = typeof newTheme === "string";
-    if (validNewTheme) {
-      if (!["day", "night"].includes(newTheme))
-        throw new TypeError("cookie 'theme' must be either 'day' or 'night'");
-    }
-    if (typeof newTheme === "string" && ["day", "night"].includes(newTheme)) {
-      context.cookies.set("theme", newTheme, {
-        domain: context.url.hostname,
-        sameSite: "lax",
-        path: "/",
-        maxAge: maxAgeLimit,
-        secure: true,
-      });
-
-      return true;
-    } else {
-      // clear the cookie
-      context.cookies.set("theme", "", {
-        domain: context.url.hostname,
-        sameSite: "lax",
-        path: "/",
-        expires: new Date(0), // set it to as old as possible!!
-        secure: true,
-      });
-
-      return false;
-    }
-  };
-
-  // we also want to set the cookie again
-  // in order to renew its duration
-  context.locals.setTheme(context.cookies.get("theme")?.value);
-
   // saves the wispServer or delete it
   context.locals.setWispServer = (newWispServer) => {
     let validWispServer = typeof newWispServer === "string";
@@ -147,16 +119,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
       return true;
     } else {
       // clear the cookie
-      context.cookies.set("wispServer", "", {
-        domain: context.url.hostname,
-        sameSite: "lax",
-        path: "/",
-        expires: new Date(0), // set it to as old as possible!!
-        secure: true,
-      });
-      // use our default wisp api, which is hosted at /bare/
-      // see separateWispServer in ./config/config.js to change this by default
-      context.locals.wispServer = "%{ws}//%{host}/api/wisp";
+      if (context.cookies.has("wispServer"))
+        context.cookies.set("wispServer", "", {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          expires: new Date(0), // set it to as old as possible!!
+          secure: true,
+        });
+      context.locals.wispServer = defaultWispServer;
       return false;
     }
   };
@@ -187,13 +158,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
       return true;
     } else {
       // clear the cloak
-      context.cookies.set("cloak", "", {
-        domain: context.url.hostname,
-        sameSite: "lax",
-        path: "/",
-        expires: new Date(0), // as old as possible
-        secure: true,
-      });
+      if (context.cookies.has("cloak"))
+        context.cookies.set("cloak", "", {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          expires: new Date(0), // as old as possible
+          secure: true,
+        });
       return false;
     }
   };
@@ -240,13 +212,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
       return true;
     } else {
       // clear the cookie
-      context.cookies.set("theme", "", {
-        domain: context.url.hostname,
-        sameSite: "lax",
-        path: "/",
-        expires: new Date(0), // set it to as old as possible!!
-        secure: true,
-      });
+      if (context.cookies.has("theme"))
+        context.cookies.set("theme", "", {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          expires: new Date(0), // set it to as old as possible!!
+          secure: true,
+        });
       context.locals.theme = "day"; // default is day
       return false;
     }
@@ -283,13 +256,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
       return true;
     } else {
       // clear the cookie
-      context.cookies.set("searchEngine", "", {
-        domain: context.url.hostname,
-        sameSite: "lax",
-        path: "/",
-        expires: new Date(0), // set it to as old as possible!!
-        secure: true,
-      });
+      if (context.cookies.has("searchEngine"))
+        context.cookies.set("searchEngine", "", {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          expires: new Date(0), // set it to as old as possible!!
+          secure: true,
+        });
 
       // default proxy search engine
       // 0 = google
@@ -338,14 +312,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
       return true;
     } else {
       // clear the session
-      context.cookies.set("session", "", {
-        domain: context.url.hostname,
-        sameSite: "lax",
-        path: "/pro/",
-        expires: new Date(0), // set it to as old as possible!!
-        secure: true,
-        httpOnly: true,
-      });
+      if (context.cookies.has("session"))
+        context.cookies.set("session", "", {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/pro/",
+          expires: new Date(0), // set it to as old as possible!!
+          secure: true,
+          httpOnly: true,
+        });
 
       return false;
     }
@@ -377,15 +352,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       } else {
         e.session = session;
         context.locals.user = e;
-
-        context.cookies.set("session", cookie, {
-          domain: context.url.hostname,
-          sameSite: "lax",
-          path: "/pro/",
-          maxAge: maxAgeLimit,
-          secure: true,
-          httpOnly: true,
-        });
+        context.locals.setSession(cookie);
       }
     } else {
       // invalid
