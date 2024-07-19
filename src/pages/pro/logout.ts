@@ -12,5 +12,5 @@ export const GET: APIRoute = async (context) => {
     context.locals.setSession();
   }
 
-  return context.redirect("/pro/login?bai", 302);
+  return context.redirect("/pro/?bai", 302);
 };

@@ -1,0 +1,141 @@
+---
+// this is the register page
+import styles from "@styles/Subscriber.module.scss";
+import MainLayout from "@layouts/MainLayout.astro";
+import themeStyles from "@styles/ThemeElements.module.scss";
+import InputPassword from "@components/InputPassword.astro";
+import Banner from "@components/Banner.astro";
+import { db } from "@config/apis";
+import {
+  m,
+  createSession,
+  validateEmail,
+  validatePassword,
+  generateVerificationCode,
+  hashPassword,
+  sendEmailVerification,
+} from "@lib/util";
+
+const { ip, user, acc } = Astro.locals;
+let to = Astro.url.searchParams.get("to") || null;
+if (!to || to === "/pro/" || !to.startsWith("/")) to = "/pro/dashboard";
+if (user) return Astro.redirect(to, 302);
+
+let error: string | undefined;
+let internalError: boolean | undefined;
+let emailExists: boolean | undefined;
+
+let email: string | undefined;
+let password: string | undefined;
+
+// only check if they're banned when they submit the form
+
+if (Astro.request.method === "POST") {
+  if (await acc.isBanned()) return acc.toBan();
+
+  try {
+    const data = await Astro.request.formData();
+    email = data.get("email")?.toString().trim() || "";
+    password = data.get("password")?.toString() || "";
+
+    const consent = data.get("consent");
+
+    if (consent !== "true") {
+      error = "You must consent to create an account.";
+    } else error = validateEmail(email) || validatePassword(password);
+
+    if (!error) {
+      const verificationCode = generateVerificationCode();
+
+      try {
+        const user = (
+          await db.query<m.UserModel>(
+            "INSERT INTO users(email,email_verification_code,password_hash,signup_ip) VALUES($1,$2,$3,$4) RETURNING *;",
+            [email, verificationCode, await hashPassword(password), ip]
+          )
+        ).rows[0];
+
+        await sendEmailVerification(user);
+
+        const session = await createSession(ip, user.id);
+        Astro.locals.setSession(session.secret);
+        return acc.toVerifyEmail();
+      } catch (err) {
+        if (
+          // @ts-ignore
+          err?.message ===
+          'duplicate key value violates unique constraint "users_email_key"'
+        ) {
+          Astro.response.status = 401;
+          emailExists = true;
+        } else {
+          console.error("caught err:");
+          console.error(err);
+        }
+      }
+    }
+  } catch (err) {
+    console.error("caught err:");
+    console.error(err);
+    internalError = true;
+  }
+}
+---
+
+<MainLayout>
+  <main class={styles.subscriberMain}>
+    <form class:list={[styles.loginForm, styles.login]} method="post">
+      <h1 class={styles.formTitle}>Create an account</h1>
+      {error && <script>history.pushState({}, "")</script>}
+      {
+        emailExists && (
+          <p class="prettyBanner" data-error>
+            Email already exists.{" "}
+            <u>
+              <a href="/pro/">Did you mean to login?</a>
+            </u>
+          </p>
+        )
+      }
+      {internalError && <Banner error="An internal error occurred." />}
+      <Banner error={error} />
+      <label class={styles.manageField}>
+        <div>Email</div>
+        <input
+          type="text"
+          name="email"
+          class={styles.prettyinput}
+          required
+          value={email}
+        />
+      </label>
+      <label class={styles.manageField}>
+        <div>Password</div>
+        <InputPassword
+          id="password"
+          name="password"
+          value={password}
+          validate
+        />
+      </label>
+      <input
+        class:list={[styles.prettySubmit, styles.wide]}
+        type="submit"
+        value="Sign up"
+      />
+      <p>
+        <label
+          ><input type="checkbox" required name="consent" /> I agree to the <a
+            href="/terms"
+            class={themeStyles.themeLink}>Terms of Service</a
+          >.</label
+        >
+      </p>
+      <p>
+        Already have an account? <a class={themeStyles.themeLink} href="/pro/"
+          >Login</a
+        >
+      </p>
+    </form>
+  </main>
+</MainLayout>

@@ -388,9 +388,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     toPricing: () => context.redirect("/pro/tiers", 302),
     toLogin: () =>
       context.redirect(
-        context.url.pathname === "/pro/login"
-          ? "/pro/login"
-          : `/pro/login?to=${encodeURIComponent(
+        context.url.pathname === "/pro/signup"
+          ? "/pro/signup"
+          : `/pro/?to=${encodeURIComponent(
               context.url.pathname + context.url.search
             )}`,
         307
