@@ -23,12 +23,6 @@ export const POST: APIRoute = async ({ request }) => {
 
   // Handle the event
   switch (event.type) {
-    case "checkout.session.completed":
-      // Payment is successful and the subscription is created.
-      // You should provision the subscription and save the customer ID to your database.
-      // we already save the customer id!!
-
-      break;
     case "invoice.paid":
       // Continue to provision the subscription as payments continue to be made.
       // Store the status in your database and check when a user accesses your service.
