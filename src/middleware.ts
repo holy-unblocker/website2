@@ -232,6 +232,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     let validSearchEngine = true;
     if (typeof newSearchEngine === "string")
       newSearchEngine = parseInt(newSearchEngine);
+    else validSearchEngine = false;
     if (
       typeof newSearchEngine === "number" &&
       (isNaN(newSearchEngine) ||
