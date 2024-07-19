@@ -384,6 +384,8 @@ main.pricing {
             white-space: pre;
 
             .icon {
+              display: contents;
+
               &.disc svg {
                 height: 16px;
               }
@@ -392,7 +394,6 @@ main.pricing {
                 height: 21px;
               }
 
-              display: contents;
               svg {
                 display: inline-block;
                 width: 26px;

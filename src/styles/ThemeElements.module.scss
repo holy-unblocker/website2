@@ -219,12 +219,6 @@ html[data-tab] {
     background-color: var(--background-accent);
 
     > div {
-      &:last-of-type {
-        border-bottom: none;
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
-      }
-
       border-bottom: 1px solid var(--border);
       height: 40px;
       line-height: 40px;
@@ -233,6 +227,12 @@ html[data-tab] {
       // add 15 px to factor in 15px padding on both sides
       padding: 0px calc(30px + 15px) 0px 15px;
       cursor: pointer;
+
+      &:last-of-type {
+        border-bottom: none;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+      }
 
       &[data-disabled] {
         cursor: default;

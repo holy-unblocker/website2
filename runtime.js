@@ -61,7 +61,7 @@ try {
 
 import http from "node:http";
 import https from "node:https";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 import {
   db,
   getUserPayment,
@@ -265,15 +265,15 @@ function normalCDN(path) {
 */
 await import("@mercuryworkshop/epoxy-transport");
 
-import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
+// import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
 
-const uvBundleSrc = await readFile(join(uvPath, "uv.bundle.js"), "utf-8");
+// const uvBundleSrc = await readFile(join(uvPath, "uv.bundle.js"), "utf-8");
 const uvConfigSrc = await readFile(
   new URL("./public/uv/uv.config.js", import.meta.url),
   "utf-8"
 );
 
-new Function("self", "window", uvBundleSrc)(globalThis, globalThis);
+// new Function("self", "window", uvBundleSrc)(globalThis, globalThis);
 
 /**
  *
@@ -284,12 +284,16 @@ new Function("self", "window", uvBundleSrc)(globalThis, globalThis);
  * @returns {import("@titaniumnetwork-dev/ultraviolet").UVConfig}
  */
 function getUVConfig(host, url) {
-  const self = {};
-  new Function("self", "location", uvConfigSrc)(
-    self,
-    new URL(`http://${host}${url}`)
-  );
-  return self.__uv$config;
+  const mockEnv = {
+    Ultraviolet: {
+      codec: { xor: {} },
+    },
+    location: new URL(`http://${host}${url}`),
+  };
+  mockEnv.self = mockEnv;
+  new Function(...Object.keys(mockEnv), uvConfigSrc)(...Object.values(mockEnv));
+  // console.log(mockEnv);
+  return mockEnv.__uv$config;
 }
 
 /**

@@ -16,13 +16,12 @@
   color: inherit;
   white-space: nowrap;
   user-select: none;
+  width: 35px;
 
   > svg {
     width: inherit;
     height: inherit;
   }
-
-  width: 35px;
 
   @include screenMobile {
     position: absolute;
