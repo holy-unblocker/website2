@@ -28,6 +28,10 @@ try {
 // and the user can get an error for npm install
 const chalk = (await import("chalk")).default;
 
+const yes = chalk.green("✓"); // Check mark
+const no = chalk.red("✗"); // Ballot X
+const st = [no, yes];
+
 const logoBg = chalk.bgBlueBright;
 const block = logoBg.blueBright.bold;
 
@@ -60,10 +64,6 @@ for (const dep of [
       ": v" +
       pkg.packages["node_modules/" + dep].version
   );
-
-const yes = chalk.green("✓"); // Check mark
-const no = chalk.red("✗"); // Ballot X
-const st = [no, yes];
 
 /**
  * @type {typeof import("./dist/server/entry.mjs")['handler']}
