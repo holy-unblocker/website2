@@ -71,8 +71,9 @@ export const appConfig = {
   //   secret: "API secret",
   //   webhookEndpointSecret: "webhook secret",
   //   priceIds: {
-  //     official: "price id for official supporter",
-  //     ultimate: "price id for ultimate supporter",
+  //     official: "price id for 'official' supporter",
+  //     ultimate: "price id for 'ultimate' supporter",
+  //     meal: "price id for 'meal' supporter",
   //   },
   // },
 
@@ -88,11 +89,11 @@ export const appConfig = {
   //   clientId: "OAUTH CLIENT ID",
   //   clientSecret: "OAUTH CLIENT SECRET",
   //   clientRedirectURI: "https://holyubofficial.net/pro/linkdiscord",
-  //   guildId: "1251447707529252896", // holy unblocker's discord server
+  //   guildId: "1259258608340828222", // holy unblocker's discord server
   //   roleIds: {
-  //     official: "1251473356188946544", // official & ultimate subscribers
-  //     ultimate: "1256770749230874634", // ultimate subscribers
-  //     meal: "1258319860778270873", // meal-tier subscriber
+  //     official: "1259442296223432814", // official & ultimate subscribers
+  //     ultimate: "1259442370080935948", // ultimate subscribers
+  //     meal: "1259442013628272682", // meal-tier subscriber
   //   },
   // },
 
