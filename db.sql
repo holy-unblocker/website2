@@ -39,7 +39,16 @@ CREATE TABLE IF NOT EXISTS users (
     discord_username TEXT,
     discord_avatar TEXT,
     discord_name TEXT, -- aka 'global name'
-    discord_updated TIMESTAMP -- re-fetch this data using the bot after its older than like 1 day
+    discord_updated TIMESTAMP, -- re-fetch this data using the bot after its older than like 1 day
+    otp_secret TEXT UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS backup_codes (
+	secret TEXT PRIMARY KEY NOT NULL UNIQUE,
+    created TIMESTAMP DEFAULT NOW(),
+    used BOOLEAN DEFAULT false,
+    user_id SERIAL NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- log of a user's emails
