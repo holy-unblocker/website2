@@ -98,6 +98,17 @@ html[data-tab] {
   }
 }
 
+.title {
+  font-family: $MontserratAlternates;
+  font-weight: 900;
+  text-wrap: nowrap;
+  user-select: none;
+
+  @include screenMobile {
+    display: none;
+  }
+}
+
 .shiftRight {
   width: 100%;
   display: block;

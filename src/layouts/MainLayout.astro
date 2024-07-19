@@ -88,7 +88,7 @@ const { cloak } = Astro.locals;
   </head>
   <body>
     <div id="wispServerThing" data-wispServer={Astro.locals.wispServer}></div>
-    <nav class={styles.nav} transition:persist>
+    <nav class={styles.nav} tabindex="0" transition:persist>
       <div
         class:list={[styles.button, styles.center]}
         set:html={MenuIcon}
@@ -100,6 +100,7 @@ const { cloak } = Astro.locals;
         title="Home"
         set:html={Hat()}
       />
+      <a href="/" class={styles.title} tabindex="-1">Holy Unblocker</a>
       <div class={styles.shiftRight}></div>
       <a
         href={appConfig.links.github.holyunblocker}
