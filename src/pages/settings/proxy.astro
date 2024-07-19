@@ -25,7 +25,7 @@ if (Astro.request.method === "POST")
         break;
       case "wispServer":
         {
-          const wispServer = data.get("newWispURL")?.toString();
+          const wispServer = data.get("newWispUrl")?.toString();
           if (!Astro.locals.setWispServer(wispServer))
             error = "Please enter a valid wisp server URL!";
         }
@@ -84,9 +84,9 @@ if (Astro.request.method === "POST")
         <input
           class={themeStyles.themePadRight}
           type="text"
-          name="newWispURL"
-          placeholder="https://api.holyubofficial.net/"
-          id="newWispURL"
+          name="newWispUrl"
+          placeholder="wss://api.holyubofficial.net/"
+          id="newWispUrl"
         />
         <button
           type="submit"
@@ -96,20 +96,36 @@ if (Astro.request.method === "POST")
       </div>
     </form>
     <!-- noscript!!!! -->
-
-    <input
-      type="submit"
-      class:list={[themeStyles.save, themeStyles.ThemeButton]}
-      value="Save"
-    />
+    <noscript>
+      <input
+        type="submit"
+        class:list={[themeStyles.save, themeStyles.ThemeButton]}
+        value="Save"
+      />
+    </noscript>
   </section>
 </SettingsLayout>
 <script>
-  import { setSearchEngine, setProxyMode } from "@lib/cookies";
+  import { setSearchEngine, setProxyMode, setWispServer } from "@lib/cookies";
+  import { getWispUrl } from "@lib/register-sw";
 
   document.addEventListener("astro:page-load", () => {
     const proxyMode = document.querySelector<HTMLInputElement>("#proxyMode")!;
     if (proxyMode === null) return;
+
+    const newWispUrl = document.getElementById(
+      "newWispUrl"
+    )! as HTMLInputElement;
+    newWispUrl.placeholder = getWispUrl();
+    newWispUrl.form!.addEventListener("submit", (event) => {
+      event.preventDefault();
+      try {
+        new URL(newWispUrl.value);
+      } catch (err) {
+        alert("Invalid wisp url!");
+      }
+      setWispServer(newWispUrl.value);
+    });
 
     proxyMode.addEventListener("change", () => {
       setProxyMode(proxyMode.value);

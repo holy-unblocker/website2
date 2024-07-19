@@ -17,6 +17,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
       class={themeStyles.thinPadLeft}
       required
       placeholder="Search by game name"
+      tabindex="1"
     />
   </div>
   <div class={styles.suggested} id="theatreSuggest"></div>
@@ -80,7 +81,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
     };
 
     form.addEventListener("blur", (event) => {
-      if (event.target !== form) setInputFocused(false);
+      setInputFocused(false);
     });
 
     let searchAbort = new AbortController();

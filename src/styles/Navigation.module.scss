@@ -243,18 +243,14 @@ html[data-tab] {
       }
     }
 
-    &:hover {
+    &[data-selected] {
       color: var(--text);
       background-color: var(--background-accent);
+    }
 
-      &[data-selected] {
-        background-color: var(--background-accent);
-      }
-
-      @include screenMobile {
-        color: var(--contrast-background);
-        background-color: transparent;
-      }
+    &:hover {
+      color: var(--text);
+      background-color: var(--background-accent-deep-1);
     }
   }
 

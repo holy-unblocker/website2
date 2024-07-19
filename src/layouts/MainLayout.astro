@@ -84,13 +84,10 @@ const { cloak } = Astro.locals;
         </>
       )
     }
+    <ViewTransitions />
   </head>
-
-  <div id="wispServerThing" data-wispServer={Astro.locals.wispServer}></div>
-
-  <ViewTransitions />
-
   <body>
+    <div id="wispServerThing" data-wispServer={Astro.locals.wispServer}></div>
     <nav class={styles.nav} transition:persist>
       <div
         class:list={[styles.button, styles.center]}
@@ -259,6 +256,4 @@ const { cloak } = Astro.locals;
       });
     </script>
   </body>
-
-
 </html>

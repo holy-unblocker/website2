@@ -60,7 +60,7 @@ export function getWispUrl() {
   // see: ./config/runtime.js
   // and see separateWispServer in ./config/config.js
   const wispAPI = formatURL(separateWispServer);
-
+  console.log({ wispAPI });
   return wispAPI;
 }
 

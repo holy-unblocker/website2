@@ -20,13 +20,6 @@ if (Astro.request.method === "POST")
             error = "Please enter a valid theme!";
         }
         break;
-      case "wispServer":
-        {
-          const wispServer = data.get("newWispURL")?.toString();
-          if (!Astro.locals.setWispServer(wispServer))
-            error = "Please enter a valid wisp server URL!";
-        }
-        break;
     }
   } catch (err) {
     console.error(err);
@@ -59,17 +52,11 @@ if (Astro.request.method === "POST")
 </SettingsLayout>
 <script>
   import { setTheme } from "@lib/cookies";
-  import { getWispEndpoint } from "@lib/register-sw";
 
   document.addEventListener("astro:page-load", () => {
     const themeSwitcher =
       document.querySelector<HTMLInputElement>("#themeSwitcher");
     if (themeSwitcher === null) return;
-    const newWispURL = document.getElementById(
-      "newWispURL"
-    )! as HTMLInputElement;
-    newWispURL.placeholder = getWispEndpoint();
-
     themeSwitcher.addEventListener("change", () => {
       setTheme(themeSwitcher.value);
     });

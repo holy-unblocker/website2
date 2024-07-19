@@ -26,6 +26,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
       required
       autocomplete="off"
       class={themeStyles.thinPadLeft}
+      tabindex="1"
     />
   </div>
   <div class={styles.suggested} id="omniboxSuggest"></div>
@@ -90,14 +91,16 @@ const engine = searchEngines[Astro.locals.searchEngine];
 
     const renderOmniboxSearchResult = (result: string, query: string) => {
       const e = renderSearchResult(result, query);
-      e.addEventListener("click", () => {
+      const entryClick = () => {
         const builder = new SearchBuilder(
           form.getAttribute("data-search-format")!
         );
         const src = builder.query(result);
         setInputFocused(false);
         setServiceSrc(src);
-      });
+      };
+      e.addEventListener("mousedown", entryClick);
+      e.addEventListener("touchstart", entryClick);
       return e;
     };
 
@@ -143,8 +146,8 @@ const engine = searchEngines[Astro.locals.searchEngine];
       setInputFocused(true);
     });
 
-    inputBar.addEventListener("blur", (event) => {
-      if (event.target !== inputBar) setInputFocused(false);
+    inputBar.addEventListener("blur", () => {
+      setInputFocused(false);
     });
 
     // set src using search params

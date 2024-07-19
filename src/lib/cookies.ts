@@ -37,3 +37,7 @@ export function getCloak() {
 export function setProxyMode(proxyMode: string) {
   setCookie("prx", proxyMode);
 }
+
+export function setWispServer(wispServer: string) {
+  setCookie("wispServer", wispServer);
+}
