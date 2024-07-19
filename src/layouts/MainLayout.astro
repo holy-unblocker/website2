@@ -133,6 +133,7 @@ const { cloak } = Astro.locals;
             set:html={Hat()}
             onclick="setNavExpanded(false)"
           />
+          <a href="/" class={styles.title} tabindex="-1">Holy Unblocker</a>
         </div>
         <div class={styles.menuList}>
           <NavMenuTab
@@ -164,7 +165,7 @@ const { cloak } = Astro.locals;
                   iconFilled={ChatBot}
                 />
                 <NavMenuTab
-                  href="/pro/pricing"
+                  href="/pro/tiers"
                   name="Pricing"
                   iconFilled={Leaderboard}
                 />

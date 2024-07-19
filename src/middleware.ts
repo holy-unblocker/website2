@@ -385,7 +385,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     },
     toDash: () => context.redirect("/pro/dashboard", 302),
     toBan: () => context.redirect("/pro/ban", 302),
-    toPricing: () => context.redirect("/pro/pricing", 302),
+    toPricing: () => context.redirect("/pro/tiers", 302),
     toLogin: () =>
       context.redirect(
         context.url.pathname === "/pro/login"

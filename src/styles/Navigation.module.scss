@@ -103,6 +103,8 @@ html[data-tab] {
   font-weight: 900;
   text-wrap: nowrap;
   user-select: none;
+  display: flex;
+  align-items: center;
 
   @include screenMobile {
     display: none;

@@ -86,7 +86,7 @@ if (Astro.request.method === "POST")
           success_url:
             proto +
             `//${Astro.url.host}/pro/paid?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: proto + `//${Astro.url.host}/pro/pricing`,
+          cancel_url: proto + `//${Astro.url.host}/pro/tiers`,
         });
 
         console.log("checkout session created", stripeSession.id);
@@ -110,7 +110,7 @@ if (!error && exclusiveError) {
 }
 ---
 
-{exclusiveError && <script>history.pushState({}, "", "/pro/pricing")</script>}
+{exclusiveError && <script>history.pushState({}, "", "/pro/tiers")</script>}
 {
   stripeSession && (
     <script
@@ -169,14 +169,10 @@ if (!error && exclusiveError) {
         </div>
         <div>
           <div class={styles.title}>Official</div>
-          <div class={styles.price}>$2.50/month</div>
+          <div class={styles.price}>$5/month</div>
           <div class={styles.features}>
             <div>
               <span>All Free Plan Perks!</span>
-            </div>
-            <div>
-              <span class={styles.icon} set:html={DeviceHub} />
-              <span>Virtual Browser</span>
             </div>
             <div>
               <span class:list={[styles.icon, styles.ai]} set:html={ChatBot} />
@@ -209,12 +205,19 @@ if (!error && exclusiveError) {
               <span>All Free Plan Perks!</span>
             </div>
             <div>
-              <span class={styles.icon} set:html={Speed} />
-              <span>More resource allocation for VM</span>
+              <span class={styles.icon} set:html={DeviceHub} />
+              <span>Virtual Browser</span>
             </div>
             <div>
               <span class={styles.icon} set:html={Speed} />
               <span>No Ratelimits</span>
+            </div>
+            <div>
+              <span
+                class:list={[styles.icon, styles.disc]}
+                set:html={Discord}
+              />
+              <span>Discord Role</span>
             </div>
             <form class={styles.buy} method="post">
               <input type="text" name="tier" value="2" hidden />
@@ -224,34 +227,6 @@ if (!error && exclusiveError) {
                 data-owned={(payment && payment.tier >= 1) || null}
                 value={!payment || payment.tier < 1 ? "Buy" : "YOU HAVE THIS!"}
                 disabled={!user || (payment && payment.tier >= 1)}
-              />
-            </form>
-          </div>
-        </div>
-        <div>
-          <div class={styles.title}>The Meal</div>
-          <div class={styles.price}>$15/month</div>
-          <div class={styles.features}>
-            <div>
-              <span>All Official Plan Perks!</span>
-            </div>
-            <div>
-              <span class={styles.icon} set:html={Speed} />
-              <span>More resource allocation for VM</span>
-            </div>
-            <div>
-              <span class={styles.icon} set:html={Speed} />
-              <span>ZERO Ratelimits!!!</span>
-            </div>
-            <div><span>TYSM :D</span></div>
-            <form class={styles.buy} method="post">
-              <input type="text" name="tier" value="2" hidden />
-              <input
-                type="submit"
-                class={styles.prettySubmit}
-                data-owned={(payment && payment.tier >= 3) || null}
-                value={!payment || payment.tier < 2 ? "Buy" : "YOU HAVE THIS!"}
-                disabled={!user || (payment && payment.tier >= 3)}
               />
             </form>
           </div>
