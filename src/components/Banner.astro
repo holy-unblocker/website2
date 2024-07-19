@@ -1,4 +1,5 @@
 ---
+import themeStyles from "@styles/ThemeElements.module.scss";
 // a really simple wrapper wrapper for the prettybanner element
 // part of the subscriber css
 
@@ -8,7 +9,19 @@ interface Props {
 }
 
 const { error, success } = Astro.props;
+
+function markdown(content: string) {
+  return content.replace(
+    /\[(.*?)\]\((.*?)\)/g,
+    (_, name, href) =>
+      `<a href='${href}' class='${themeStyles.themeLink}'>${name}</a>`
+  );
+}
 ---
 
-{success && <p class="prettyBanner" data-success set:text={success} />}
-{error && <p class="prettyBanner" data-error set:text={error} />}
+{
+  success && (
+    <p class="prettyBanner" data-success set:text={markdown(success)} />
+  )
+}
+{error && <p class="prettyBanner" data-error set:html={markdown(error)} />}

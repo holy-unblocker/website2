@@ -341,6 +341,13 @@ export function handleReq(req, res, middleware) {
       }
     );
 
+    mirrorReq.on("error", (err) => {
+      console.error("error when loading proxy", mirrorURL);
+      console.error(err);
+      res.writeHead(502);
+      res.end();
+    });
+
     mirrorReq.on("response", (mirrorRes) => {
       if (mirrorRes.statusCode === 404) {
         // display astro 404 page

@@ -119,6 +119,11 @@ a {
   margin: 10px 0;
   border-radius: 4px;
 
+  a {
+    font-weight: bold;
+    color: inherit;
+  }
+
   &[data-error] {
     color: #b94a48;
     background-color: #f2dede;

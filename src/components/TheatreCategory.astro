@@ -8,6 +8,8 @@ import TheatreItem from "./TheatreItem.astro";
 import { fetchListData, maxResultsPerPage } from "@lib/renderTheatre";
 import ChevronLeft from "@icons/chevron_left_24dp.svg?react";
 import ChevronRight from "@icons/chevron_right_24dp.svg?react";
+import Banner from "@components/Banner.astro";
+import type { ListData } from "@lib/TheatreAPI";
 
 interface Props {
   name: string;
@@ -39,15 +41,27 @@ const sort =
     : "mostPopular";
 const { category } = Astro.props;
 
+let error: string | undefined;
+let data: ListData | undefined = undefined;
+
 const q = Astro.url.searchParams.get("q");
 
-const data = await fetchListData(
-  dbEnabled ? theatreAPI : theatreAPIMirror,
-  q,
-  category,
-  sort,
-  page
-);
+try {
+  data = await fetchListData(
+    dbEnabled ? theatreAPI : theatreAPIMirror,
+    q,
+    category,
+    sort,
+    page
+  );
+} catch (err) {
+  // refresh after 5 seconds
+  error =
+    "We were unable to process your request. Please try again later, or [contact us](/contact) if this continues to happen";
+  Astro.response.headers.set("reload", "5");
+  Astro.response.status = 502;
+  console.error(err);
+}
 
 const { isGame } = Astro.props;
 const maxPage =
@@ -66,35 +80,46 @@ const maxPage =
       {Astro.props.name}
       <ThemeSelect options={sortOptions} id="sort" value={sort} />
     </h1>
-    <div
-      class={styles.items}
-      id="theatreItems"
-      data-category={category}
-      data-total={data.total}
-      data-sort={sort}
-      data-page={page}
-    >
-      {data.entries.map((e) => <TheatreItem name={e.name} id={e.id} />)}
-    </div>
+    <Banner error={error} />
+    {
+      data && (
+        <div
+          class={styles.items}
+          id="theatreItems"
+          data-category={category}
+          data-total={data.total}
+          data-sort={sort}
+          data-page={page}
+        >
+          {data.entries.map((e) => (
+            <TheatreItem name={e.name} id={e.id} />
+          ))}
+        </div>
+      )
+    }
   </section>
-  <div
-    class={styles.pages}
-    data-useless={maxPage === 0 || data.entries.length === 0 || null}
-    id="pages"
-  >
-    <div
-      class={styles.button}
-      id="pageBack"
-      set:html={ChevronLeft}
-      data-disabled={page === 0 || null}
-    />
-    <div
-      class={styles.button}
-      id="pageForward"
-      set:html={ChevronRight}
-      data-disabled={page === maxPage || null}
-    />
-  </div>
+  {
+    data && (
+      <div
+        class={styles.pages}
+        data-useless={maxPage === 0 || data.entries.length === 0 || null}
+        id="pages"
+      >
+        <div
+          class={styles.button}
+          id="pageBack"
+          set:html={ChevronLeft}
+          data-disabled={page === 0 || null}
+        />
+        <div
+          class={styles.button}
+          id="pageForward"
+          set:html={ChevronRight}
+          data-disabled={page === maxPage || null}
+        />
+      </div>
+    )
+  }
 </main>
 <script>
   import type { ListData } from "@lib/TheatreAPI";

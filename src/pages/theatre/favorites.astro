@@ -25,11 +25,13 @@ import TheatreSearchBar from "@components/TheatreSearchBar.astro";
     const favorites = globalSettings.get("favorites");
 
     if (favorites.length === 0) {
+      items.style.display = "none";
       const p = document.createElement("p");
       p.textContent = "Once you favorite some games, they will appear here.";
       main.append(p);
       return;
     }
+    items.style.display = "";
 
     for (let i = 0; i < favorites.length; i++)
       items.append(renderTheatreItem());

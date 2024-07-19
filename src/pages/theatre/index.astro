@@ -11,37 +11,31 @@ import { dbEnabled, theatreAPI, theatreAPIMirror } from "@lib/theatre";
 import type { ListData, TheatreEntryMin } from "@lib/TheatreAPI";
 import TheatreItem from "@components/TheatreItem.astro";
 import TheatreCategory from "@components/TheatreCategory.astro";
+import Banner from "@components/Banner.astro";
 
 const entryLimit = 8;
 
 // const categoryQuery = categories.map((category) => category.id).join(",");
 
-let mirrorError = false;
-
+let error: string | undefined;
 let data: ListData | undefined;
 
 const q = Astro.url.searchParams.get("q");
 
-if (dbEnabled) {
-  data = await theatreAPI.list({
+try {
+  data = await (dbEnabled ? theatreAPI : theatreAPIMirror).list({
     sort: "plays",
     limitPerCategory: entryLimit,
     search: q,
   });
-} else
-  try {
-    data = await theatreAPIMirror.list({
-      sort: "plays",
-      limitPerCategory: entryLimit,
-    });
-  } catch (err) {
-    mirrorError = true;
-    console.error(err);
-
-    // refresh after 5 seconds
-    Astro.response.headers.set("reload", "5");
-    Astro.response.status = 500;
-  }
+} catch (err) {
+  // refresh after 5 seconds
+  error =
+    "We were unable to process your request. Please try again later, or [contact us](/contact) if this continues to happen";
+  Astro.response.headers.set("reload", "5");
+  Astro.response.status = 502;
+  console.error(err);
+}
 
 const renderCategories: { category: Category; entries: TheatreEntryMin[] }[] =
   [];
@@ -71,57 +65,51 @@ if (data !== undefined) {
 
 <MainLayout title="Popular Games">
   {
-    mirrorError ? (
-      <main>
-        <p>An error occurred while trying to access the theatre API mirror.</p>
-        <p>This page will refresh in 5 seconds.</p>
-      </main>
-    ) : (
+    Astro.locals.isMainWebsite && (
+      <Fragment slot="head">
+        <meta
+          name="description"
+          content={
+            q === null
+              ? "Popular games on Holy Unblocker."
+              : `Find ${q} games on Holy Unblocker`
+          }
+        />
+      </Fragment>
+    )
+  }
+  {
+    q === null ? (
       <>
-        {Astro.locals.isMainWebsite && (
-          <Fragment slot="head">
-            <meta
-              name="description"
-              content={
-                q === null
-                  ? "Popular games on Holy Unblocker."
-                  : `Find ${q} games on Holy Unblocker`
-              }
-            />
-          </Fragment>
-        )}
-        {q === null ? (
-          <>
-            <TheatreSearchBar />
-            {renderCategories.map(({ category, entries }) => (
-              <main class={styles.expand}>
-                <div class={styles.name}>
-                  <h1>{category.name}</h1>
-                  <a
-                    class={themeStyles.themeLink}
-                    href={`/theatre/${category.id}`}
-                    class={styles.seeAll}
-                  >
-                    See All
-                    <ArrowForward />
-                  </a>
-                </div>
-                <div class:list={[styles.items, styles.flex]}>
-                  {entries.map((e) => (
-                    <TheatreItem name={e.name} id={e.id} />
-                  ))}
-                </div>
-              </main>
-            ))}
-          </>
-        ) : (
-          <TheatreCategory
-            name={`Search results for '${q}'`}
-            search={q}
-            placeholder="Search by game name"
-          />
-        )}
+        <TheatreSearchBar />
+        <Banner error={error} />
+        {renderCategories.map(({ category, entries }) => (
+          <main class={styles.expand}>
+            <div class={styles.name}>
+              <h1>{category.name}</h1>
+              <a
+                class={themeStyles.themeLink}
+                href={`/theatre/${category.id}`}
+                class={styles.seeAll}
+              >
+                See All
+                <ArrowForward />
+              </a>
+            </div>
+            <div class:list={[styles.items, styles.flex]}>
+              {entries.map((e) => (
+                <TheatreItem name={e.name} id={e.id} />
+              ))}
+            </div>
+          </main>
+        ))}
       </>
+    ) : (
+      <TheatreCategory
+        name={`Search results for '${q}'`}
+        search={q}
+        placeholder="Search by game name"
+      />
     )
   }
 </MainLayout>
