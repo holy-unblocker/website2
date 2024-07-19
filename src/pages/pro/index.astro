@@ -27,6 +27,7 @@ if (Astro.request.method === "POST")
     const data = await Astro.request.formData();
     const email = data.get("email")?.toString() || "";
     const password = data.get("password")?.toString() || "";
+    const staySignedIn = data.get("staySignedIn")?.toString() === "on";
 
     if (email === "") {
       error = "Please enter your email.";
@@ -46,7 +47,7 @@ if (Astro.request.method === "POST")
 
         if (passwordCorrect) {
           const session = await createSession(ip, user.id);
-          Astro.locals.setSession(session.secret);
+          Astro.locals.setSession(session.secret, staySignedIn);
           return Astro.redirect(to, 302);
         }
       }
@@ -117,13 +118,20 @@ const bai = Astro.url.searchParams.has("bai");
           value="Login"
         />
         <p>
-          <a class={themeStyles.themeLink} href="/pro/signup"
-            >Create an account</a
+          <label
+            ><input type="checkbox" name="staySignedIn" /> Stay signed in.</label
           >
         </p>
         <p>
-          <a class={themeStyles.themeLink} href="/pro/forgot-password"
-            >I forgot my password</a
+          New to Holy Unblocker? <a
+            class={themeStyles.themeLink}
+            href="/pro/signup">Create an account</a
+          >
+        </p>
+        <p>
+          Forgot your login? <a
+            class={themeStyles.themeLink}
+            href="/pro/forgot-password">Reset password</a
           >
         </p>
       </form>

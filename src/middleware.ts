@@ -227,7 +227,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   context.locals.setTheme(context.cookies.get("theme")?.value);
 
-  // saves the theme or delete it
+  // saves the search engine or delete it
   context.locals.setSearchEngine = (newSearchEngine) => {
     let validSearchEngine = true;
     if (typeof newSearchEngine === "string")
@@ -298,14 +298,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   }
 
-  context.locals.setSession = (secret) => {
+  context.locals.setSession = (secret, staySignedIn = true) => {
     // set the session
     if (typeof secret === "string") {
       context.cookies.set("session", secret, {
         domain: context.url.hostname,
         sameSite: "lax",
         path: "/pro/",
-        maxAge: maxAgeLimit,
+        maxAge: staySignedIn ? maxAgeLimit : undefined,
         secure: true,
         httpOnly: true,
       });
@@ -353,7 +353,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
       } else {
         e.session = session;
         context.locals.user = e;
-        context.locals.setSession(cookie);
+        // don't set it again
+        // respect whether the user picked to stay signed in or not
+        // context.locals.setSession(cookie);
       }
     } else {
       // invalid

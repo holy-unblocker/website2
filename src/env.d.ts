@@ -56,7 +56,10 @@ namespace App {
      * Set or clear the session cookie
      * returns true if valid session data, false if invalid
      */
-    setSession: (secret?: string | null) => boolean;
+    setSession: (
+      secret?: string | null,
+      staySignedIn: boolean = true
+    ) => boolean;
     // helpers for page permissions and redirects
     // for reused code
     acc: {
