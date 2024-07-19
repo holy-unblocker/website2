@@ -4,8 +4,10 @@ import { appConfig } from "./config.js";
 import { Stripe } from "stripe";
 
 export const dbEnabled = "db" in appConfig;
-// basically whether the account system is enabled or not
 export const stripeEnabled = dbEnabled && "stripe" in appConfig;
+export const discordEnabled = stripeEnabled && "discord" in appConfig;
+export const discordListening =
+  discordEnabled && "listenForJoins" in appConfig.discord;
 
 export const db = await initDB();
 

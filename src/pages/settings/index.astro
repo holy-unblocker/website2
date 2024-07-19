@@ -36,6 +36,7 @@ if (Astro.request.method === "POST")
 <SettingsLayout title="General">
   {error && <Banner error={error} />}
   <section class={styles.section}>
+    <h1 class="page-title sub settings">Theme Settings</h1>
     <p>Theme:</p>
     <form>
       <!-- noscript support -->

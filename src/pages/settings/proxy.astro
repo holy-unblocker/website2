@@ -38,6 +38,8 @@ if (Astro.request.method === "POST")
 
 <SettingsLayout title="Proxy settings">
   <section class={styles.section}>
+    <h1 class="page-title sub settings">Proxy Settings</h1>
+    <Banner error={error} />
     <form method="post">
       <p>Mode</p>
       <ThemeSelect

@@ -98,6 +98,7 @@ const { appConfig } = await import("./config/config.js");
 
 // same principle
 const { handleReq, handleUpgrade } = await import("./runtime.js");
+const apis = await import("./config/apis.js");
 
 if (!("configName" in appConfig)) {
   console.log("Missing 'configName', invalid config");
@@ -112,15 +113,8 @@ console.log(
 
 console.log(chalk.italic("Checking config..."));
 
-const hasDB = "db" in appConfig;
-const hasDiscord = "discord" in appConfig;
-const hasTheatreFiles = "theatreFilesPath" in appConfig;
-const hasMailer = "mailer" in appConfig;
-const hasStripe = "stripe" in appConfig;
-const separateWisp = "separateWispServer" in appConfig;
-
-console.log(st[+hasDB], chalk.bold("Postgres credentials"));
-if (!hasDB) {
+console.log(st[+apis.dbEnabled], chalk.bold("Postgres credentials"));
+if (!apis.dbEnabled) {
   console.log(` - ${no} no database credentials found`);
 
   console.log(` - ${yes} proxying API requests to`, appConfig.theatreApiMirror);
@@ -140,6 +134,7 @@ if (!hasDB) {
   console.log(chalk.grey("    and it uses postgres"));
 }
 
+const hasTheatreFiles = "theatreFilesPath" in appConfig;
 console.log(st[+hasTheatreFiles], chalk.bold("Theatre files"));
 if (!hasTheatreFiles) {
   console.log(
@@ -165,6 +160,7 @@ if (!hasTheatreFiles) {
   );
 }
 
+const separateWisp = "separateWispServer" in appConfig;
 console.log(st[+!separateWisp], chalk.bold("Wisp server"));
 
 if (separateWisp)
@@ -172,28 +168,27 @@ if (separateWisp)
     ` - ${yes} Using separate wisp server: ${appConfig.separateWispServer}`
   );
 
-console.log(st[+hasStripe], chalk.bold("Stripe payment processing"));
+console.log(st[+apis.stripeEnabled], chalk.bold("Stripe payment processing"));
 console.log(
-  ` - ${st[+hasStripe]} Account system`,
-  ["disabled", "enabled"][+hasStripe]
+  ` - ${st[+apis.stripeEnabled]} Account system`,
+  ["disabled", "enabled"][+apis.stripeEnabled]
 );
 
-if (hasStripe) {
+if (apis.discordEnabled) {
+  const hasMailer = "mailer" in appConfig;
   console.log(st[+hasMailer], chalk.bold("Mailer"));
   if (!hasMailer) {
     console.error("You need to configure your mailer.");
     process.exit(1);
   }
 
-  console.log(st[+hasDiscord], chalk.bold("Discord integration"));
-  if (!hasDiscord) {
+  console.log(st[+apis.discordEnabled], chalk.bold("Discord integration"));
+  if (!apis.discordEnabled) {
     console.error("You need to configure your discord integration.");
     process.exit(1);
   }
 
-  const hasDiscordBot = "listenForJoins" in appConfig.discord;
-
-  console.log(st[+hasDiscordBot], chalk.bold("Discord bot running"));
+  console.log(st[+apis], chalk.bold("Discord bot running"));
   console.log(
     "   " +
       chalk.grey("you can turn this off by setting listenForJoins to false")

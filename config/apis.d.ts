@@ -3,8 +3,23 @@ import nodemailer from "nodemailer";
 import { Stripe } from "stripe";
 import * as m from "@lib/models";
 
+/**
+ * database
+ */
 export const dbEnabled: boolean;
+/**
+ * payment processing/accounts
+ * basically whether the account system is enabled or not
+ */
 export const stripeEnabled: boolean;
+/**
+ * discord bot integration
+ */
+export const discordEnabled: boolean;
+/**
+ * whether the client should be signed in and actually do stuff
+ */
+export const discordListening: boolean;
 /**
  * postgres instance
  */
