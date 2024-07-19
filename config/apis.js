@@ -16,7 +16,10 @@ async function initDB() {
 
   const cli = new pg.Client(appConfig.db);
 
-  cli.connect();
+  cli.connect().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
 
   return cli;
 }
