@@ -59,6 +59,8 @@ const engine = searchEngines[Astro.locals.searchEngine];
 
     form.addEventListener("submit", (event) => {
       event.preventDefault();
+      inputBar.blur();
+      setInputFocused(false);
       if (inputBar.value === "") return;
       const src = builder.query(inputBar.value);
       inputBar.blur();

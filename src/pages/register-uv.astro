@@ -12,6 +12,7 @@ Astro.response.headers.set("x-robots-tag", "noindex");
     ><meta charset="utf-8" />
     <script src="/uv/uv.bundle.js" is:inline defer></script>
     <script src="/uv/uv.config.js" is:inline defer></script>
+    <script src="/epoxy/index.js" is:inline defer></script>
   </head>
   <body>
     <main>Ultraviolet is loading...</main>
@@ -22,7 +23,7 @@ Astro.response.headers.set("x-robots-tag", "noindex");
 
       console.log(location.href);
 
-      document.addEventListener("DOMContentLoaded", async () => {
+      document.addEventListener("DOMContentLoaded", () => {
         let errorCause: string | undefined;
 
         try {
@@ -33,9 +34,10 @@ Astro.response.headers.set("x-robots-tag", "noindex");
             )
           );
 
-          await setupServiceWorker();
-
-          location.reload();
+          setupServiceWorker().then(() => {
+            console.log("SW registered");
+            setTimeout(() => location.reload(), 1000);
+          });
         } catch (err) {
           reportCompatError(err, errorCause, "Ultraviolet");
         }

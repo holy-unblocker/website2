@@ -79,18 +79,20 @@ import Public from "@icons/public_24dp.svg?react";
       // page hasn't loaded so location isn't rewritten
       const location = new contentWindow.Function("return location")();
 
+      const serviceIcon =
+        document.querySelector<HTMLImageElement>("#serviceIcon")!;
+      const defaultIcon =
+        document.querySelector<HTMLDivElement>("#defaultIcon")!;
+      const serviceTitle =
+        document.querySelector<HTMLDivElement>("#serviceTitle")!;
+
       // if (location === contentWindow.location) title.textContent = src[0] || null);
       // if we got a fake location object
       if (location !== contentWindow.location) {
+        serviceIcon.style.display = "";
+        defaultIcon.style.display = "none";
+
         const newSrc = location.href;
-
-        const serviceIcon =
-          document.querySelector<HTMLImageElement>("#serviceIcon")!;
-        const serviceTitle =
-          document.querySelector<HTMLDivElement>("#serviceTitle")!;
-        const defaultIcon =
-          document.querySelector<HTMLDivElement>("#defaultIcon")!;
-
         serviceTitle.textContent = contentWindow.document.title;
         const selector = contentWindow.document.querySelector(
           'link[rel*="icon"]'
@@ -105,17 +107,17 @@ import Public from "@icons/public_24dp.svg?react";
         const newIcon =
           window.location.origin + "/api/cloakicon?" + encodeURIComponent(icon);
 
-        if (serviceIcon.src !== newIcon) {
-          serviceIcon.style.display = "";
-          defaultIcon.style.display = "none";
-          serviceIcon.src = newIcon;
-        }
+        if (serviceIcon.src !== newIcon) serviceIcon.src = newIcon;
 
         // if (newSrc === "about:blank") return;
         if (newSrc !== lastSrc) {
           lastSrc = newSrc;
           saveSrcInSearch(newSrc);
         }
+      } else {
+        serviceIcon.style.display = "none";
+        defaultIcon.style.display = "";
+        serviceTitle.textContent = "Loading...";
       }
     } catch (err) {
       console.error(err);

@@ -88,136 +88,135 @@ if (majorNodeVersion < 19) {
   process.exit(1);
 }
 
-// start the discord bot here
-if (stripeEnabled && appConfig.discord.listenForJoins) {
-  const client = new Client({ intents: [] });
+const client = new Client({ intents: [] });
 
-  client.on("ready", async () => {
-    console.log(`${chalk.bold("Discord:")} Logged in as ${client.user.tag}!`);
+client.on("ready", async () => {
+  console.log(`${chalk.bold("Discord:")} Logged in as ${client.user.tag}!`);
 
-    const rolesRes = await fetch(
-      `https://discord.com/api/v10/guilds/${appConfig.discord.guildId}/roles`,
+  const rolesRes = await fetch(
+    `https://discord.com/api/v10/guilds/${appConfig.discord.guildId}/roles`,
+    {
+      headers: {
+        authorization: `Bot ${appConfig.discord.botToken}`,
+      },
+    }
+  );
+
+  if (rolesRes.status !== 200) {
+    console.error(
+      "Error fetching roles for guild:",
+      appConfig.discord.guildId,
+      rolesRes.status
+    );
+    console.error(await rolesRes.text());
+    if (rolesRes.status === 404) {
+      console.log(
+        "Make sure you invited the bot to your server! Or that the guild ID is correct"
+      );
+      console.log("Use this link to invite the bot:");
+      // we need MANAGE_ROLES to assign ppl their roles
+      // this link should have that permission set
+      console.log(
+        `https://discord.com/oauth2/authorize?client_id=${appConfig.discord.clientId}&scope=bot&permissions=268435456`
+      );
+    }
+  }
+
+  const serverRoles = await rolesRes.json();
+
+  const clientMember = await (
+    await fetch(
+      `https://discord.com/api/v10/guilds/${appConfig.discord.guildId}/members/${appConfig.discord.clientId}`,
       {
         headers: {
           authorization: `Bot ${appConfig.discord.botToken}`,
         },
       }
+    )
+  ).json();
+
+  if (clientMember.roles.length === 0) {
+    console.error(
+      "In order to give users their subscription roles, the discord bot needs a role with Manage Roles."
     );
+    console.error(
+      "You need to create a role, move it above the subscriber roles, and assign it to the Discord bot."
+    );
+    process.exit(1);
+  }
 
-    if (rolesRes.status !== 200) {
-      console.error(
-        "Error fetching roles for guild:",
-        appConfig.discord.guildId,
-        rolesRes.status
-      );
-      console.error(await rolesRes.text());
-      if (rolesRes.status === 404) {
-        console.log(
-          "Make sure you invited the bot to your server! Or that the guild ID is correct"
-        );
-        console.log("Use this link to invite the bot:");
-        // we need MANAGE_ROLES to assign ppl their roles
-        // this link should have that permission set
-        console.log(
-          `https://discord.com/oauth2/authorize?client_id=${appConfig.discord.clientId}&scope=bot&permissions=268435456`
-        );
-      }
-    }
+  // check if we can manage roles
+  const canManageRoles = clientMember.roles.some((role) =>
+    new PermissionsBitField(
+      serverRoles.find((e) => e.id === role).permissions
+    ).has("ManageRoles")
+  );
 
-    const serverRoles = await rolesRes.json();
+  if (!canManageRoles) {
+    console.error(
+      "In order to give users their subscription roles, the Discord bot needs the Manage Roles permission."
+    );
+    console.error("You need to give the Discord bot a role with permission.");
+    process.exit(1);
+  }
 
-    const clientMember = await (
-      await fetch(
-        `https://discord.com/api/v10/guilds/${appConfig.discord.guildId}/members/${appConfig.discord.clientId}`,
-        {
-          headers: {
-            authorization: `Bot ${appConfig.discord.botToken}`,
-          },
-        }
-      )
-    ).json();
+  const highestRoleId = clientMember.roles[clientMember.roles.length - 1];
+  const highestRole = serverRoles.find((e) => e.id === highestRoleId);
 
-    if (clientMember.roles.length === 0) {
-      console.error(
-        "In order to give users their subscription roles, the discord bot needs a role with Manage Roles."
-      );
-      console.error(
-        "You need to create a role, move it above the subscriber roles, and assign it to the Discord bot."
-      );
+  for (const tier in appConfig.discord.roleIds) {
+    const id = appConfig.discord.roleIds[tier];
+    const role = serverRoles.find((r) => r.id === id);
+    if (role === undefined) {
+      console.error("Invalid role id", id, "for tier", tier);
       process.exit(1);
     }
-
-    // check if we can manage roles
-    const canManageRoles = clientMember.roles.some((role) =>
-      new PermissionsBitField(
-        serverRoles.find((e) => e.id === role).permissions
-      ).has("ManageRoles")
-    );
-
-    if (!canManageRoles) {
+    if (role.position > highestRole.position) {
+      console.error("Cannot give users the role", role.name);
       console.error(
-        "In order to give users their subscription roles, the Discord bot needs the Manage Roles permission."
+        "You need to give the Discord bot a role that's higher than",
+        role.name
       );
-      console.error("You need to give the Discord bot a role with permission.");
-      process.exit(1);
+      process.exit();
     }
+  }
 
-    const highestRoleId = clientMember.roles[clientMember.roles.length - 1];
-    const highestRole = serverRoles.find((e) => e.id === highestRoleId);
+  console.log(chalk.bold("Discord bot permissions look good."));
 
-    for (const tier in appConfig.discord.roleIds) {
-      const id = appConfig.discord.roleIds[tier];
-      const role = serverRoles.find((r) => r.id === id);
-      if (role === undefined) {
-        console.error("Invalid role id", id, "for tier", tier);
-        process.exit(1);
-      }
-      if (role.position > highestRole.position) {
-        console.error("Cannot give users the role", role.name);
-        console.error(
-          "You need to give the Discord bot a role that's higher than",
-          role.name
-        );
-        process.exit();
-      }
-    }
-
-    console.log(chalk.bold("Discord bot permissions look good."));
-
-    client.user.setPresence({
-      status: "dnd",
-      activities: [
-        {
-          name: "for new members",
-          state: "",
-          url: appConfig.mainWebsite,
-          type: ActivityType.Watching,
-        },
-      ],
-    });
-
-    // process.exit(1);
+  client.user.setPresence({
+    status: "dnd",
+    activities: [
+      {
+        name: "for new members",
+        state: "",
+        url: appConfig.mainWebsite,
+        type: ActivityType.Watching,
+      },
+    ],
   });
 
-  client.on("guildMemberAdd", async (member) => {
-    console.log("Member", member.id, "just joined guild", member.guild.id);
-    if (member.guild.id !== appConfig.discord.guildId) {
-      console.log("Guild isn't part of config, ignoring!");
-      return;
-    }
+  // process.exit(1);
+});
 
-    const user = await db.query("SELECT * FROM users WHERE discord_id = $1;", [
-      member.user.id,
-    ]);
-    if (user) {
-      console.log("Found user:", user);
-      const payment = await getUserPayment(user.id);
-      await giveTierDiscordRoles(user, payment?.tier);
-    }
-  });
+client.on("guildMemberAdd", async (member) => {
+  console.log("Member", member.id, "just joined guild", member.guild.id);
+  if (member.guild.id !== appConfig.discord.guildId) {
+    console.log("Guild isn't part of config, ignoring!");
+    return;
+  }
 
+  const user = await db.query("SELECT * FROM users WHERE discord_id = $1;", [
+    member.user.id,
+  ]);
+  if (user) {
+    console.log("Found user:", user);
+    const payment = await getUserPayment(user.id);
+    await giveTierDiscordRoles(user, payment?.tier);
+  }
+});
+
+// start the discord bot here
+if (stripeEnabled && appConfig.discord.listenForJoins)
   client.login(appConfig.discord.botToken);
-}
 
 /**
  * @typedef {Object} AppMirror

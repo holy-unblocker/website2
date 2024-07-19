@@ -40,7 +40,7 @@ let controlsHTML = "";
 // https://www.toptal.com/developers/keycode
 
 const renderControlKey = (keyCode: string) => {
-  if (/^[a-z ]/i.test(keyCode)) {
+  if (!/^[a-z ]/i.test(keyCode)) {
     console.error("Invalid keyCode:", keyCode);
     return "";
   }
@@ -224,10 +224,6 @@ if (mirrorError) {
     if (typeof playerFrame === "object")
       setIFrameFocused(document.fullscreenElement === playerFrame);
   });
-
-  declare global {
-    var setInputFocused: (newFocused: boolean) => void;
-  }
 
   document.addEventListener("astro:page-load", () => {
     const dataElement = document.querySelector<HTMLScriptElement>("#gameData");

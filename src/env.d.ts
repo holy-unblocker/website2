@@ -20,6 +20,8 @@ declare module "*/i18n?min" {
   export * from "@lib/i18n";
 }
 
+declare var setInputFocused: (newFocused: boolean) => void;
+
 declare var setNavExpanded: (expanded: boolean) => void;
 
 declare type CtxUser = import("@lib/models").UserModel & {

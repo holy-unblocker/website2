@@ -48,18 +48,6 @@ import styles from "@styles/ProxyOmnibox.module.scss";
     return e;
   }
 
-  declare global {
-    var setInputFocused: (newFocused: boolean) => void;
-  }
-
-  function detectClickOff(event: MouseEvent | TouchEvent) {
-    const form = document.querySelector<HTMLFormElement>("#theatreSearchBar");
-    if (form && !form.contains(event.target as any)) setInputFocused(false);
-  }
-
-  window.addEventListener("mousedown", detectClickOff);
-  window.addEventListener("touchstart", detectClickOff);
-
   document.addEventListener("astro:page-load", () => {
     const form = document.querySelector<HTMLFormElement>("#theatreSearchBar")!;
     if (!form) return;
@@ -87,6 +75,10 @@ import styles from "@styles/ProxyOmnibox.module.scss";
         form.removeAttribute("data-suggested");
       }
     };
+
+    form.addEventListener("blur", (event) => {
+      if (event.target !== form) setInputFocused(false);
+    });
 
     let searchAbort = new AbortController();
 
@@ -132,7 +124,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
       setInputFocused(true);
     });
 
-    inputBar.addEventListener("submit", (event) => {
+    inputBar.form!.addEventListener("submit", (event) => {
       event.preventDefault();
       const entry = suggest.children[resultIndex] as HTMLAnchorElement;
       if (entry === undefined) {
