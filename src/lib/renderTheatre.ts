@@ -21,7 +21,7 @@ export function renderTheatreItem(item?: TheatreEntryMin) {
 
   if (item !== undefined) {
     (container as HTMLAnchorElement).href = "/theatre/play?v=" + item.id;
-
+    container.setAttribute("data-astro-prefetch", "false");
     const img = document.createElement("img");
     img.addEventListener("load", () => thumb.removeAttribute("data-load"));
     img.src = `/cdn/thumbnails/${item.id}.webp`;
