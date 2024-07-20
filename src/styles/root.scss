@@ -113,6 +113,11 @@ a {
   color: inherit;
 }
 
+main > .prettyBanner {
+  margin: 0 10px;
+  box-sizing: border-box;
+}
+
 .prettyBanner {
   font-size: 15px;
   padding: 15px;
@@ -122,6 +127,7 @@ a {
   a {
     font-weight: bold;
     color: inherit;
+    text-decoration: underline;
   }
 
   &[data-error] {

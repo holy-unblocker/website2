@@ -80,11 +80,11 @@ if (data !== undefined) {
   }
   {
     q === null ? (
-      <>
+      <main>
         <TheatreSearchBar />
         <Banner error={error} />
         {renderCategories.map(({ category, entries }) => (
-          <main class={styles.expand}>
+          <section class={styles.expand}>
             <div class={styles.name}>
               <h1>{category.name}</h1>
               <a
@@ -101,9 +101,9 @@ if (data !== undefined) {
                 <TheatreItem name={e.name} id={e.id} />
               ))}
             </div>
-          </main>
+          </section>
         ))}
-      </>
+      </main>
     ) : (
       <TheatreCategory
         name={`Search results for '${q}'`}

@@ -70,34 +70,32 @@ const maxPage =
 
 <main>
   <TheatreSearchBar />
-  <section>
-    <h1 class="page-title sub">
-      {
-        isGame && (
-          <a class="back-button" href="/theatre/" set:html={ArrowBackIcon} />
-        )
-      }
-      {Astro.props.name}
-      <ThemeSelect options={sortOptions} id="sort" value={sort} />
-    </h1>
-    <Banner error={error} />
+  <h1 class="page-title sub">
     {
-      data && (
-        <div
-          class={styles.items}
-          id="theatreItems"
-          data-category={category}
-          data-total={data.total}
-          data-sort={sort}
-          data-page={page}
-        >
-          {data.entries.map((e) => (
-            <TheatreItem name={e.name} id={e.id} />
-          ))}
-        </div>
+      isGame && (
+        <a class="back-button" href="/theatre/" set:html={ArrowBackIcon} />
       )
     }
-  </section>
+    {Astro.props.name}
+    <ThemeSelect options={sortOptions} id="sort" value={sort} />
+  </h1>
+  <Banner error={error} />
+  {
+    data && (
+      <div
+        class={styles.items}
+        id="theatreItems"
+        data-category={category}
+        data-total={data.total}
+        data-sort={sort}
+        data-page={page}
+      >
+        {data.entries.map((e) => (
+          <TheatreItem name={e.name} id={e.id} />
+        ))}
+      </div>
+    )
+  }
   {
     data && (
       <div
