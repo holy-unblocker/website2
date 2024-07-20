@@ -10,7 +10,7 @@ function getCookie(name: string) {
 function setCookie(name: string, value: string) {
   // 400 days
   const maxAge = 60 * 24 * 400;
-  document.cookie = `${name}=${value}; max-age=${maxAge}; samesite=strict; path=/`;
+  document.cookie = `${name}=${value}; max-age=${maxAge}; samesite=strict; path=/; domain=.${location.host}`;
 }
 
 export function setTheme(theme: string) {
