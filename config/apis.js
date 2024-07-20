@@ -9,15 +9,20 @@ export const discordEnabled = stripeEnabled && "discord" in appConfig;
 export const discordListening =
   discordEnabled && "listenForJoins" in appConfig.discord;
 
-export const db = dbEnabled ? new pg.Client(appConfig.db) : undefined;
+export const db = await initDB();
 
-export function connectDB() {
-  if (dbEnabled)
-    db.connect().catch((err) => {
-      console.log("failure connecting to db");
-      console.error(err);
-      process.exit(1);
-    });
+async function initDB() {
+  if (!dbEnabled) return undefined;
+
+  const cli = new pg.Client(appConfig.db);
+
+  cli.connect().catch((err) => {
+    console.log("failure connecting to db");
+    console.error(err);
+    process.exit(1);
+  });
+
+  return cli;
 }
 
 export const stripe = stripeEnabled
