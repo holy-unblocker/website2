@@ -45,9 +45,6 @@ export async function fetchListData(
 ) {
   let leastGreatest = false;
 
-  // const api = new TheatreAPI("/api/theatre/");
-  console.log({ sort, search });
-
   return await api.list({
     category,
     sort,
