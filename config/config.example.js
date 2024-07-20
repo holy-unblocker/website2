@@ -27,7 +27,7 @@ export const appConfig = {
   // specifies the path to where theatre files are hosted.
   // See https://github.com/holy-unblocker/theatre/
   // If not specified, it will proxy the mirror
-  // theatreFilesPath: "/home/ubuntu/theatre/public/",
+  //theatreFilesPath: "/home/ubuntu/theatre/public/",
 
   // wisp server url
   // If not specified, it will host wisp locally on /api/wisp
@@ -37,11 +37,11 @@ export const appConfig = {
   // - %{host} - the website host with the port appended, eg `127.0.0.1:4321`
   // - %{hostname} - the website host WITHOUT the port appended - *why would you ever use this?*
   // - %{ws} - `ws:` or `wss:` depending on whether the location is http: or https:
-  // separateWispServer: "%{ws}//api.%{host}/",
+  //separateWispServer: "%{ws}//api.%{host}/",
 
-  // website support email
+  // SUPPORT EMAIL
   // shown on /contact
-  // supportEmail: "support@holyubofficial.net",
+  //supportEmail: "support@holyubofficial.net",
 
   // a link to the main Holy Unblocker website
   // - shown in emails
@@ -49,33 +49,37 @@ export const appConfig = {
   // - used to determine if metadata should be inserted
   // - used to determine if x-robots-tag should be set
   mainWebsite: "127.0.0.1",
-  // mainWebsite: "holyubofficial.net",
+  //mainWebsite: "holyubofficial.net",
 
-  // Postgres database credentials
+  // POSTGRES DATABASE CONFIG
   // if no credentials are specified, it will proxy the mirror
   // optionally string
   // strings are also acceptable
-  // local postgresql server: db: "postgresql://user:secret@localhost/dbname",
-  // db: {
-  //   user: "user",
-  //   password: "secret",
-  //   host: "localhost",
-  //   port: 5432,
-  //   database: "dbname",
-  // },
+
+  // local postgresql server:
+  //db: "postgresql://user:secret@localhost/dbname",
+
+  //db: {
+  //  user: "user",
+  //  password: "secret",
+  //  host: "localhost",
+  //  port: 5432,
+  //  database: "dbname",
+  //},
 
   /// STRIPE CONFIG
   // - ASSIGN A STRIPE CUSTOMER ID TO EACH USER
   // - CREATE INVOICES FOR SUBSCRIPTIONS
-  // stripe: {
-  //   secret: "API secret",
-  //   webhookEndpointSecret: "webhook secret",
-  //   priceIds: {
-  //     official: "price id for 'official' supporter",
-  //     ultimate: "price id for 'ultimate' supporter",
-  //     meal: "price id for 'meal' supporter",
-  //   },
-  // },
+
+  //stripe: {
+  //  secret: "API secret",
+  //  webhookEndpointSecret: "webhook secret",
+  //  priceIds: {
+  //    official: "price id for 'official' supporter",
+  //    ultimate: "price id for 'ultimate' supporter",
+  //    meal: "price id for 'meal' supporter",
+  //  },
+  //},
 
   // DISCORD CONFIG
   // - USES OAUTH2 TO LINK DISCORD ACC TO DASHBOARD
@@ -83,46 +87,48 @@ export const appConfig = {
   // - Official Subscriber -> Awesome role
   // - Ultimate Subscriber -> ULTIMATE SUBSCRIBER role
   // https://discord.com/developers/applications
-  // discord: {
-  //   listenForJoins: false, // if you're developing, you don't want to spam discord's api
-  //   botToken: "DISCORD BOT TOKEN HERE",
-  //   clientId: "OAUTH CLIENT ID",
-  //   clientSecret: "OAUTH CLIENT SECRET",
-  //   clientRedirectURI: "https://holyubofficial.net/pro/linkdiscord",
-  //   guildId: "1259258608340828222", // holy unblocker's discord server
-  //   roleIds: {
-  //     official: "1259442296223432814", // official & ultimate subscribers
-  //     ultimate: "1259442370080935948", // ultimate subscribers
-  //     meal: "1259442013628272682", // meal-tier subscriber
-  //   },
-  // },
+
+  //discord: {
+  //  listenForJoins: false, // if you're developing, you don't want to spam discord's api
+  //  botToken: "DISCORD BOT TOKEN HERE",
+  //  clientId: "OAUTH CLIENT ID",
+  //  clientSecret: "OAUTH CLIENT SECRET",
+  //  clientRedirectURI: "https://holyubofficial.net/pro/linkdiscord",
+  //  guildId: "1259258608340828222", // holy unblocker's discord server
+  //  roleIds: {
+  //    official: "1259442296223432814", // official & ultimate subscribers
+  //    ultimate: "1259442370080935948", // ultimate subscribers
+  //    meal: "1259442013628272682", // meal-tier subscriber
+  //  },
+  //},
 
   // MAILER CONFIG
   // receipts, recovery, contacting, password resets, etc..
   // holyuboffical.net hosts postfix
   // you can setup POP with a burner gmail to send emails
   // these options are passed to nodemailer.createTransport
-  // mailer: {
-  //   // enter your SMTP server configuration.
-  //   // strings are also acceptable
-  //   // local smtp server: transport: "smtp://127.0.0.1:25",
-  //   transport: {
-  //     host: "smtp.ethereal.email",
-  //     port: 587,
-  //     secure: false, // Use `true` for port 465, `false` for all other ports
-  //     auth: {
-  //       user: "maddison53@ethereal.email",
-  //       pass: "jn7jnAPss4f63QBp6D",
-  //     },
-  //   },
-  //   // people can contact us via our support email
-  //   sender: {
-  //     address: "support@holyubofficial.net",
-  //     name: "Holy Unblocker Team",
-  //   },
-  //   // email to send verifications from
-  //   noreply: "noreply@holyubofficial.net",
-  // },
+
+  //mailer: {
+  //  // enter your SMTP server configuration.
+  //  // strings are also acceptable
+  //  // local smtp server: transport: "smtp://127.0.0.1:25",
+  //  transport: {
+  //    host: "smtp.ethereal.email",
+  //    port: 587,
+  //    secure: false, // Use `true` for port 465, `false` for all other ports
+  //    auth: {
+  //      user: "maddison53@ethereal.email",
+  //      pass: "jn7jnAPss4f63QBp6D",
+  //    },
+  //  },
+  //  // people can contact us via our support email
+  //  sender: {
+  //    address: "support@holyubofficial.net",
+  //    name: "Holy Unblocker Team",
+  //  },
+  //  // email to send verifications from
+  //  noreply: "noreply@holyubofficial.net",
+  //},
 
   // general website links
   links: {
