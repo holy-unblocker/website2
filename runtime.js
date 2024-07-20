@@ -16,17 +16,9 @@
 import http from "node:http";
 import https from "node:https";
 import { dirname, resolve } from "node:path";
-import {
-  access,
-  copyFile,
-  readFile,
-  lstat,
-  readdir,
-  realpath,
-} from "node:fs/promises";
-import { createReadStream } from "node:fs";
+import { access, copyFile, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import serveHandler from "serve-handler";
+import send from "@fastify/send";
 import wisp from "wisp-server-node";
 import { ActivityType, Client, PermissionsBitField } from "discord.js";
 import chalk from "chalk";
@@ -244,39 +236,12 @@ if (!("db" in appConfig))
 
 const hasTheatreFiles = "theatreFilesPath" in appConfig;
 
-const cdnAbs =
-  hasTheatreFiles && resolve(__dirname, appConfig.theatreFilesPath);
-
-/**
- * normalizes a /cdn/ path for static files
- */
-function normalCDN(path) {
-  // try to serve an index page if there's a trailing slash
-  // this also breaks the directory listing
-  if (path.endsWith("/")) path += "index.html";
-
-  // this will work on windows & posix paths
-  return cdnAbs + "/" + path.slice("/theatre-files/cdn/".length);
-}
-
 // now we can use self.__uv$config in the backend
 // this is kinda cursed
-/*
-<script src="/epoxy/index.js" is:inline defer></script>
-<script src="/uv/uv.bundle.js" is:inline defer></script>
-<script src="/uv/uv.config.js" is:inline defer></script>
-*/
-await import("@mercuryworkshop/epoxy-transport");
-
-// import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
-
-// const uvBundleSrc = await readFile(join(uvPath, "uv.bundle.js"), "utf-8");
 const uvConfigSrc = await readFile(
   new URL("./public/uv/uv.config.js", import.meta.url),
   "utf-8"
 );
-
-// new Function("self", "window", uvBundleSrc)(globalThis, globalThis);
 
 /**
  *
@@ -298,6 +263,9 @@ function getUVConfig(host, url) {
   // console.log(mockEnv);
   return mockEnv.__uv$config;
 }
+
+const cdnAbs =
+  hasTheatreFiles && resolve(__dirname, appConfig.theatreFilesPath);
 
 /**
  *
@@ -328,32 +296,17 @@ export function handleReq(req, res, middleware) {
 
   // docs: https://github.com/vercel/serve-handler
   if (isCDN && hasTheatreFiles) {
-    serveHandler(
-      req,
-      res,
-      {
-        cleanUrls: false, // too freaky
-        public: "/theatre-files/",
-        trailingSlash: true,
-        directoryListing: false,
-      },
-      {
-        lstat(path) {
-          return lstat(normalCDN(path));
-        },
-        realpath(path) {
-          return realpath(normalCDN(path));
-        },
-        createReadStream(path, config) {
-          return createReadStream(normalCDN(path), config);
-        },
-        readdir(path) {
-          return readdir(normalCDN(path));
-        },
-        sendError() {
+    // docs: https://www.npmjs.com/package/@fastify/send
+    send(req, parseUrl(req).pathname, { root: cdnAbs }).then(
+      ({ statusCode, headers, stream }) => {
+        if (statusCode === 404) {
+          // internal redirect to 404 page
           req.url = "/404";
-          middleware();
-        },
+          middleware(req, res);
+        } else {
+          res.writeHead(statusCode, headers);
+          stream.pipe(res);
+        }
       }
     );
     return;

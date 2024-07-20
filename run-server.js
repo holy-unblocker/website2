@@ -1,17 +1,18 @@
 // HOLY UNBLOCKER FRONTEND!!
 import http from "node:http";
 import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 
 // dynamically import all external modules
 // we want to display a custom error for when node modules r missing
 
 /**
- * @type {typeof import("serve-handler")}
+ * @type {typeof import("@fastify/send")}
  */
-let serveHandler;
+let send;
 
 try {
-  serveHandler = (await import("serve-handler")).default;
+  send = (await import("@fastify/send")).default;
 } catch (err) {
   if (err?.code === "ERR_MODULE_NOT_FOUND") {
     console.log(
@@ -24,6 +25,7 @@ try {
   } else throw err; // WUT
 }
 
+const parseUrl = (await import("parseurl")).default;
 const chalk = (await import("chalk")).default;
 
 const yes = chalk.green("✓"); // Check mark
@@ -207,22 +209,22 @@ console.log(chalk.italic("Configuration is valid."));
 
 const server = http.createServer();
 
+const clientDir = fileURLToPath(new URL("./dist/client/", import.meta.url));
+
 server.on("request", (req, res) => {
   handleReq(req, res, () => {
     astroMiddleware(req, res, () => {
-      // docs: https://github.com/vercel/serve-handler
-      serveHandler(
-        req,
-        res,
-        {
-          public: "dist/client/",
-        },
-        {
-          sendError() {
-            // display astro 404 page
+      // docs: https://www.npmjs.com/package/@fastify/send
+      send(req, parseUrl(req).pathname, { root: clientDir }).then(
+        ({ statusCode, headers, stream }) => {
+          if (statusCode === 404) {
+            // internal redirect to 404 page
             req.url = "/404";
             astroMiddleware(req, res);
-          },
+          } else {
+            res.writeHead(statusCode, headers);
+            stream.pipe(res);
+          }
         }
       );
     });
