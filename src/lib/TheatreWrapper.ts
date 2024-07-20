@@ -102,7 +102,7 @@ export default class TheatreWrapper {
     if (row) return rowTo(row);
   }
   async list(
-    options: ListOptions = { search: undefined },
+    options: ListOptions = {},
     _signal?: AbortSignal
   ): Promise<ListData> {
     if (typeof options.sort === "string") {
@@ -166,24 +166,20 @@ export default class TheatreWrapper {
 
     const order = [];
 
-    switch (options.sort) {
-      case "name":
-        order.push("name", "id");
-        break;
-      case "plays":
-        order.push("-plays", "name", "id");
-        break;
-      case "search":
-        if (typeof options.search === "string") {
-          selection.push(
-            `similarity(name, $${vars.push(
-              options.search.toUpperCase()
-            )}) as sml`
-          );
-          order.push("sml DESC", "name");
-        }
-        break;
-    }
+    if (typeof options.search === "string") {
+      selection.push(
+        `similarity(name, $${vars.push(options.search.toUpperCase())}) as sml`
+      );
+      order.push("sml DESC", "name");
+    } else
+      switch (options.sort) {
+        case "name":
+          order.push("name", "id");
+          break;
+        case "plays":
+          order.push("-plays", "name", "id");
+          break;
+      }
 
     if (order.length) {
       select[2] = [

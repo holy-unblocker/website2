@@ -75,7 +75,7 @@ export interface TheatreEntry {
 
 export interface ListOptions {
   leastGreatest?: boolean;
-  sort?: "name" | "plays" | "search" | string;
+  sort?: "name" | "plays" | string;
   reverse?: boolean;
   limit?: number;
   offset?: number;
