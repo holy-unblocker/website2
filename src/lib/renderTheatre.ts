@@ -38,7 +38,7 @@ export function renderTheatreItem(item?: TheatreEntryMin) {
 
 export async function fetchListData(
   api: TheatreAPI | TheatreWrapper,
-  search: string | null,
+  search: string | undefined | null,
   category: string[] | undefined | null,
   sort: string,
   page: number
@@ -46,6 +46,7 @@ export async function fetchListData(
   let leastGreatest = false;
 
   // const api = new TheatreAPI("/api/theatre/");
+  console.log({ sort, search });
 
   return await api.list({
     category,

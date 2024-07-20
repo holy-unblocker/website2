@@ -44,12 +44,10 @@ const { category } = Astro.props;
 let error: string | undefined;
 let data: ListData | undefined = undefined;
 
-const q = Astro.url.searchParams.get("q");
-
 try {
   data = await fetchListData(
     dbEnabled ? theatreAPI : theatreAPIMirror,
-    q,
+    Astro.props.search,
     category,
     sort,
     page
@@ -77,7 +75,11 @@ const maxPage =
       )
     }
     {Astro.props.name}
-    <ThemeSelect options={sortOptions} id="sort" value={sort} />
+    {
+      typeof Astro.props.search !== "string" && (
+        <ThemeSelect options={sortOptions} id="sort" value={sort} />
+      )
+    }
   </h1>
   <Banner error={error} />
   {
@@ -143,8 +145,6 @@ const maxPage =
     let page = parseInt(theatreItems.getAttribute("data-page")!);
     let sort = theatreItems.getAttribute("data-sort")!;
 
-    const sortInput = document.querySelector<HTMLInputElement>("#sort")!;
-
     const fillWithLoading = () => {
       theatreItems.innerHTML = "";
       for (let i = 0; i < maxResultsPerPage; i++)
@@ -190,11 +190,14 @@ const maxPage =
       else pageBack.removeAttribute("data-disabled");
     };
 
-    sortInput.addEventListener("change", () => {
-      page = 0;
-      sort = sortInput.value;
-      fetchPage();
-    });
+    const sortInput = document.querySelector<HTMLInputElement>("#sort");
+
+    if (sortInput !== null)
+      sortInput.addEventListener("change", () => {
+        page = 0;
+        sort = sortInput.value;
+        fetchPage();
+      });
 
     const pages = document.querySelector<HTMLDivElement>("#pages")!;
     const pageForward = document.querySelector<HTMLDivElement>("#pageForward")!;
