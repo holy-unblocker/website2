@@ -44,11 +44,12 @@ export const appConfig = {
   //supportEmail: "support@holyubofficial.net",
 
   // a link to the main Holy Unblocker website
+  // - is a hostname, doesn't include the port
   // - shown in emails
   // - used to not automatically set a cloak
   // - used to determine if metadata should be inserted
   // - used to determine if x-robots-tag should be set
-  mainWebsite: "127.0.0.1",
+  mainWebsite: "localhost",
   //mainWebsite: "holyubofficial.net",
 
   // POSTGRES DATABASE CONFIG
