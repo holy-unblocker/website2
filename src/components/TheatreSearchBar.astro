@@ -41,7 +41,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
     categories: string[] | null
   ) {
     const e = renderSearchResult(result, query, categories);
-    const href = id === null ? `/theatre/?q=${result}` : `/theatre/?v=${id}`;
+    const href = id === null ? `/hub/?q=${result}` : `/hub/?v=${id}`;
     e.setAttribute("data-href", href);
     e.addEventListener("mousedown", entryClick);
     e.addEventListener("touchstart", entryClick);
@@ -133,11 +133,10 @@ import styles from "@styles/ProxyOmnibox.module.scss";
       const entry = suggest.children[resultIndex] as HTMLAnchorElement;
       if (entry === undefined) {
         if (inputBar.value === "") return;
-        navigate("/theatre/?q=" + encodeURIComponent(inputBar.value));
+        navigate("/hub/?q=" + encodeURIComponent(inputBar.value));
       } else {
         navigate(entry.getAttribute("data-href")!);
       }
-      // location.href = "/theatre/?q=" + encodeURIComponent(inputBar.value);
     });
 
     function updateResults() {

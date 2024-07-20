@@ -69,11 +69,7 @@ const maxPage =
 <main>
   <TheatreSearchBar />
   <h1 class="page-title sub">
-    {
-      isGame && (
-        <a class="back-button" href="/theatre/" set:html={ArrowBackIcon} />
-      )
-    }
+    {isGame && <a class="back-button" href="/hub/" set:html={ArrowBackIcon} />}
     {Astro.props.name}
     {
       typeof Astro.props.search !== "string" && (
