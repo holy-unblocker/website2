@@ -41,8 +41,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
     categories: string[] | null
   ) {
     const e = renderSearchResult(result, query, categories);
-    const href =
-      id === null ? `/theatre/?q=${result}` : `/theatre/play?v=${id}`;
+    const href = id === null ? `/theatre/?q=${result}` : `/theatre/?v=${id}`;
     e.setAttribute("data-href", href);
     e.addEventListener("mousedown", entryClick);
     e.addEventListener("touchstart", entryClick);
@@ -105,7 +104,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
 
       for (const res of listResults.entries) {
         const cont = document.createElement("a");
-        cont.href = "/theatre/play?v=" + res.id;
+        cont.href = "/theatre/?v=" + res.id;
       }
 
       //.. get additional results?

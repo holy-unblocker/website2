@@ -18,20 +18,20 @@ import TheatreSearchBar from "@components/TheatreSearchBar.astro";
 
 let mirrorError = false;
 
-const id = Astro.url.searchParams.get("v");
+interface Props {
+  id: string; // id of game
+}
 
 let data: TheatreEntry | undefined;
 
-if (typeof id === "string") {
-  if (dbEnabled) {
-    data = await theatreAPI.show(id);
-  } else
-    try {
-      data = await theatreAPIMirror.show(id);
-    } catch (err) {
-      mirrorError = true;
-    }
-}
+if (dbEnabled) {
+  data = await theatreAPI.show(Astro.props.id);
+} else
+  try {
+    data = await theatreAPIMirror.show(Astro.props.id);
+  } catch (err) {
+    mirrorError = true;
+  }
 
 // we build the controls popup with raw HTML
 let controlsHTML = "";
