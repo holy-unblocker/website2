@@ -1,5 +1,9 @@
+// HOLY UNBLOCKER FRONTEND!!
 import http from "node:http";
 import { readFile } from "node:fs/promises";
+
+// dynamically import all external modules
+// we want to display a custom error for when node modules r missing
 
 /**
  * @type {typeof import("serve-handler")}
@@ -22,10 +26,6 @@ try {
   } else throw err; // WUT
 }
 
-// runtime only depends on serve-handler and chalk
-
-// dynamically import this, that way it isn't part of the imports tree
-// and the user can get an error for npm install
 const chalk = (await import("chalk")).default;
 
 const yes = chalk.green("✓"); // Check mark
@@ -41,6 +41,11 @@ console.log(
 );
 console.log(block("███████████████████████████"));
 console.log(chalk.italic(`Logs start ${new Date().toTimeString()}`));
+
+// we have to dynamically import it because it's dynamically created when `npm run build` is ran
+const { handleReq, handleUpgrade } = await import("./runtime.js");
+const apis = await import("./config/apis.js");
+const { appConfig } = await import("./config/config.js");
 
 // display package versions
 const pkg = JSON.parse(
@@ -92,13 +97,6 @@ try {
 }
 
 console.log(yes, chalk.red.bold("Loaded Astro"));
-
-// we have to dynamically import it because it's dynamically created when `npm run build` is ran
-const { appConfig } = await import("./config/config.js");
-
-// same principle
-const { handleReq, handleUpgrade } = await import("./runtime.js");
-const apis = await import("./config/apis.js");
 
 if (!("configName" in appConfig)) {
   console.log("Missing 'configName', invalid config");

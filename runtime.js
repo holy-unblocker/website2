@@ -13,28 +13,43 @@
 // - exports http "upgrade" event handler
 //   - wisp
 //   - that's just about it
+import http from "node:http";
+import https from "node:https";
+import { dirname, resolve } from "node:path";
+import {
+  access,
+  copyFile,
+  readFile,
+  lstat,
+  readdir,
+  realpath,
+} from "node:fs/promises";
+import { createReadStream } from "node:fs";
+import { fileURLToPath } from "node:url";
+import serveHandler from "serve-handler";
+import wisp from "wisp-server-node";
+import { ActivityType, Client, PermissionsBitField } from "discord.js";
+import chalk from "chalk";
 
-import { access, copyFile, readFile } from "node:fs/promises";
+let startupTag = chalk.grey(chalk.bold("Holy Unblocker:"));
 
 // when vite bundles this, it will complain about being unable to import(configFile)
 // however, this is annoying and stupid
 // import.meta.url is very reliable for this!!
-
 const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-const configFile = resolve("./config/config.js", __filename);
-
-// console.log(configFile);
-
-import chalk from "chalk";
-
+const configFile = resolve(__dirname, "./config/config.js");
 try {
   await access(configFile);
 } catch (err) {
   if (err.code !== "ENOENT") throw err;
-  console.log("Holy Unblocker: No config.js file found. Making one.");
+  console.log(startupTag, chalk.yellow("No config.js file found. Making one."));
   copyFile("./config/config.example.js", "./config/config.js");
-  console.log("Holy Unblocker: config.example.js -> config.js");
+  console.log(
+    startupTag,
+    chalk.italic("copying config.example.js -> config.js")
+  );
 }
 
 /**
@@ -59,21 +74,8 @@ try {
   process.exit(1);
 }
 
-import http from "node:http";
-import https from "node:https";
-import { resolve } from "node:path";
-import {
-  db,
-  getUserPayment,
-  giveTierDiscordRoles,
-  stripeEnabled,
-} from "./config/apis.js";
-import serveHandler from "serve-handler";
-import { lstat, readdir, realpath } from "node:fs/promises";
-import { createReadStream } from "node:fs";
-import { ActivityType, Client, PermissionsBitField } from "discord.js";
-import wisp from "wisp-server-node";
-import { fileURLToPath } from "node:url";
+const { db, getUserPayment, giveTierDiscordRoles, stripeEnabled } =
+  await import("./config/apis.js");
 
 // check runtime requirements
 // in both astro dev server & runtime
@@ -242,7 +244,8 @@ if (!("db" in appConfig))
 
 const hasTheatreFiles = "theatreFilesPath" in appConfig;
 
-const cdnAbs = hasTheatreFiles && resolve(appConfig.theatreFilesPath);
+const cdnAbs =
+  hasTheatreFiles && resolve(__dirname, appConfig.theatreFilesPath);
 
 /**
  * normalizes a /cdn/ path for static files
@@ -437,4 +440,4 @@ export function handleUpgrade(req, socket, head) {
   }
 }
 
-console.log("Holy Unblocker runtime loaded");
+console.log(startupTag, "Runtime loaded");
