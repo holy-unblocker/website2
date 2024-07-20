@@ -121,7 +121,7 @@ export const appConfig = {
   //      pass: "jn7jnAPss4f63QBp6D",
   //    },
   //  },
-  //  // people can contact us via our support email
+  // people can contact us via our support email
   //  sender: {
   //    address: "support@holyubofficial.net",
   //    name: "Holy Unblocker Team",
