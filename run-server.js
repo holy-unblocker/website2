@@ -15,9 +15,7 @@ try {
 } catch (err) {
   if (err?.code === "ERR_MODULE_NOT_FOUND") {
     console.log(
-      no,
-      chalk.bold("ERROR:"),
-      "You haven't installed dependencies for Holy Unblocker yet, so you can't start the frontend yet."
+      "ERROR: You haven't installed dependencies for Holy Unblocker yet, so you can't start the frontend yet."
     );
     console.log(
       "To fix this error, run `npm install` first, and then run `npm start`"
