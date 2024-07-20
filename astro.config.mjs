@@ -16,6 +16,8 @@ const { handleReq, handleUpgrade } = await import("./runtime.js");
 
 // only needed for dev server host & port
 const { appConfig } = await import("./config/config.js");
+// connect to db
+const apis = await import("./config/apis.js");
 
 const require = createRequire(import.meta.url);
 const rufflePath = path.resolve(require.resolve("@ruffle-rs/ruffle"), "..");
@@ -84,6 +86,8 @@ export default defineConfig({
       name: "Holy Unblocker dev server",
       hooks: {
         "astro:server:setup": (opts) => {
+          apis.connectDB();
+
           const { httpServer } = opts.server;
           const astroMiddleware = httpServer._events.request;
           httpServer._events.request = (req, res) => {

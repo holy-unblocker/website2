@@ -244,3 +244,5 @@ server.listen({
   port: appConfig.port,
   host: appConfig.host,
 });
+
+apis.connectDB();

@@ -24,6 +24,11 @@ export const discordListening: boolean;
  * postgres instance
  */
 export const db: pg.Client;
+/**
+ * called once during runtime
+ */
+export function connectDB(): void;
+
 export const stripe: Stripe;
 export const mailer: nodemailer.Transporter;
 
