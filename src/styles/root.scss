@@ -66,6 +66,10 @@ html[data-tab] {
   }
 }
 
+:root[data-service] body {
+  overflow: hidden;
+}
+
 /*@include screenMobile {
 	body {
 		width: 100%;

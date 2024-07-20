@@ -60,7 +60,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
 
     form.addEventListener("submit", (event) => {
       event.preventDefault();
-      inputBar.blur();
+      setInputFocused(false);
       let value = inputBar.value;
       if (resultIndex !== -1)
         value = suggest.children[resultIndex].textContent!;
@@ -77,15 +77,16 @@ const engine = searchEngines[Astro.locals.searchEngine];
     const setInputFocused = (newValue: boolean) => {
       inputFocused = newValue;
       resultIndex = -1;
-      // lastQuery = undefined;
       if (inputFocused) {
         getSearchResults(inputBar.value);
         form.setAttribute("data-focused", "");
+        document.documentElement.setAttribute("data-omnibox-focused", "");
       } else {
         inputBar.blur();
         suggest.innerHTML = "";
         form.removeAttribute("data-focused");
         form.removeAttribute("data-suggested");
+        document.documentElement.removeAttribute("data-omnibox-focused");
       }
     };
 

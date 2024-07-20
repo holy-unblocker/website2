@@ -60,23 +60,18 @@ import styles from "@styles/ProxyOmnibox.module.scss";
 
     window.setInputFocused = (newValue: boolean) => {
       inputFocused = newValue;
-      const form =
-        document.querySelector<HTMLFormElement>("#theatreSearchBar")!;
-      const suggest =
-        document.querySelector<HTMLDivElement>("#theatreSuggest")!;
-      const inputBar = form.querySelector<HTMLInputElement>("input")!;
-      if (!form) return;
       resultIndex = -1;
       if (inputFocused) {
-        // lastQuery = null
+        searchTheatre(inputBar.value);
         form.setAttribute("data-focused", "");
         form.setAttribute("data-suggested", "");
-        searchTheatre(inputBar.value);
+        document.documentElement.setAttribute("data-omnibox-focused", "");
       } else {
         inputBar.blur();
         suggest.innerHTML = "";
         form.removeAttribute("data-focused");
         form.removeAttribute("data-suggested");
+        document.documentElement.removeAttribute("data-omnibox-focused");
       }
     };
 
@@ -130,8 +125,13 @@ import styles from "@styles/ProxyOmnibox.module.scss";
       setInputFocused(true);
     });
 
+    inputBar.addEventListener("blur", () => {
+      setInputFocused(false);
+    });
+
     inputBar.form!.addEventListener("submit", (event) => {
       event.preventDefault();
+      setInputFocused(false);
       const entry = suggest.children[resultIndex] as HTMLAnchorElement;
       if (entry === undefined) {
         if (inputBar.value === "") return;
