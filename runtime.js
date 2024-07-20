@@ -19,6 +19,7 @@ import { dirname, resolve } from "node:path";
 import { access, copyFile, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import send from "@fastify/send";
+import parseUrl from "parseurl";
 import wisp from "wisp-server-node";
 import { ActivityType, Client, PermissionsBitField } from "discord.js";
 import chalk from "chalk";
@@ -297,18 +298,21 @@ export function handleReq(req, res, middleware) {
   // docs: https://github.com/vercel/serve-handler
   if (isCDN && hasTheatreFiles) {
     // docs: https://www.npmjs.com/package/@fastify/send
-    send(req, parseUrl(req).pathname, { root: cdnAbs }).then(
-      ({ statusCode, headers, stream }) => {
-        if (statusCode === 404) {
-          // internal redirect to 404 page
-          req.url = "/404";
-          middleware(req, res);
-        } else {
-          res.writeHead(statusCode, headers);
-          stream.pipe(res);
-        }
+    req.url = req.url.slice("/cdn".length);
+    send(req, parseUrl(req).pathname, {
+      root: cdnAbs,
+    }).then(({ statusCode, headers, stream }) => {
+      if (statusCode === 404) {
+        // internal redirect to 404 page
+        req.url = "/404";
+        middleware(req, res);
+      } else {
+        // normalize the url
+        if ("Location" in headers) headers.Location = "/cdn" + headers.Location;
+        res.writeHead(statusCode, headers);
+        stream.pipe(res);
       }
-    );
+    });
     return;
   }
 
