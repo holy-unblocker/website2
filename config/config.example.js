@@ -147,7 +147,7 @@ export const appConfig = {
     },
     discord: {
       titaniumnetwork: "https://discord.gg/unblock",
-      holyunblocker: "https://discord.gg/JJy3YhBdBe",
+      holyunblocker: "https://discord.gg/VZguJSmMcN",
     },
   },
 };

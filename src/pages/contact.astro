@@ -33,6 +33,16 @@ import { appConfig } from "@config/config";
             />
           </td>
         </tr>
+        <tr>
+          <td>Discord:</td>
+          <td>
+            <a
+              class={themeStyles.themeLink}
+              href={appConfig.links.discord.holyunblocker}
+              set:text={appConfig.links.discord.holyunblocker}
+            />
+          </td>
+        </tr>
         {
           "supportEmail" in appConfig && (
             <tr>
