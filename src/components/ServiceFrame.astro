@@ -35,19 +35,6 @@ import UltravioletScripts from "./UltravioletScripts.astro";
     return location.pathname === "/" || location.pathname === "/proxy";
   }
 
-  window.addEventListener("popstate", () => {
-    if (isProxyPage()) {
-      console.log("detected popstate");
-      const savedSrc = new URLSearchParams(location.search).get("src");
-      if (savedSrc === null) {
-        setServiceSrc();
-      } else {
-        console.log("Detected saved src");
-        setServiceSrc(decryptURL(savedSrc));
-      }
-    } else setServiceSrc();
-  });
-
   function saveSrcInSearch(src?: string | undefined) {
     const newParams = new URLSearchParams(location.search);
     if (typeof src === "string") newParams.set("src", encryptURL(src));
@@ -155,6 +142,7 @@ import UltravioletScripts from "./UltravioletScripts.astro";
           document.documentElement.setAttribute("data-service", "");
           lastSrc = src;
           serviceEmbed.src = uvURL;
+          saveSrcInSearch(src);
           // setTimeout(() => (serviceEmbed.src = serviceEmbed.src), 1e3);
           checkForEmbedChanges();
           break;
@@ -175,52 +163,56 @@ import UltravioletScripts from "./UltravioletScripts.astro";
 
   window.setServiceSrc = setServiceSrc;
 
+  setInterval(checkForEmbedChanges, 500);
+
   document.addEventListener("astro:page-load", () => {
     if (!isProxyPage()) {
       window.setServiceSrc();
       return;
     }
+
+    console.trace("page load");
+
+    const serviceEmbed =
+      document.querySelector<HTMLIFrameElement>("#serviceEmbed")!;
+
+    const serviceIcon =
+      document.querySelector<HTMLImageElement>("#serviceIcon")!;
+    const defaultIcon = document.querySelector<HTMLDivElement>("#defaultIcon")!;
+
+    serviceIcon.addEventListener("error", (err) => {
+      console.log("failed to load icon", err);
+      // load default
+      serviceIcon.style.display = "none";
+      defaultIcon.style.display = "";
+    });
+
+    const openInFullscreen =
+      document.querySelector<HTMLDivElement>("#openInFullscreen")!;
+    openInFullscreen.addEventListener("click", () => {
+      console.log("Requesting fullscreen");
+      serviceEmbed.requestFullscreen();
+    });
+
+    const openInNew = document.querySelector<HTMLDivElement>("#openInNew")!;
+
+    openInNew.addEventListener("click", () => {
+      console.log("Opening", lastSrc, "in new window");
+      window.open(__uv$config.prefix! + __uv$config.encodeUrl!(lastSrc!));
+    });
+
+    const closeService =
+      document.querySelector<HTMLDivElement>("#closeService")!;
+
+    closeService.addEventListener("click", () => {
+      console.log("Closing ServiceFrame");
+      window.setServiceSrc();
+    });
+
+    const savedSrc = new URLSearchParams(location.search).get("src");
+    if (typeof savedSrc === "string") {
+      console.log("Detected saved src");
+      setServiceSrc(decryptURL(savedSrc));
+    }
   });
-
-  setInterval(checkForEmbedChanges, 500);
-
-  const serviceEmbed =
-    document.querySelector<HTMLIFrameElement>("#serviceEmbed")!;
-
-  const serviceIcon = document.querySelector<HTMLImageElement>("#serviceIcon")!;
-  const defaultIcon = document.querySelector<HTMLDivElement>("#defaultIcon")!;
-
-  serviceIcon.addEventListener("error", (err) => {
-    console.log("failed to load icon", err);
-    // load default
-    serviceIcon.style.display = "none";
-    defaultIcon.style.display = "";
-  });
-
-  const openInFullscreen =
-    document.querySelector<HTMLDivElement>("#openInFullscreen")!;
-  openInFullscreen.addEventListener("click", () => {
-    console.log("Requesting fullscreen");
-    serviceEmbed.requestFullscreen();
-  });
-
-  const openInNew = document.querySelector<HTMLDivElement>("#openInNew")!;
-
-  openInNew.addEventListener("click", () => {
-    console.log("Opening", lastSrc, "in new window");
-    window.open(__uv$config.prefix! + __uv$config.encodeUrl!(lastSrc!));
-  });
-
-  const closeService = document.querySelector<HTMLDivElement>("#closeService")!;
-
-  closeService.addEventListener("click", () => {
-    console.log("Closing ServiceFrame");
-    window.setServiceSrc();
-  });
-
-  const savedSrc = new URLSearchParams(location.search).get("src");
-  if (typeof savedSrc === "string") {
-    console.log("Detected saved src");
-    setServiceSrc(decryptURL(savedSrc));
-  }
 </script>
