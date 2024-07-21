@@ -1,55 +1,28 @@
 import { theatreAPI } from "@lib/theatre";
-import type { ListData, ListOptions } from "@lib/TheatreAPI";
+import type { ListAPIQuery, ListData, ListOptions } from "@lib/TheatreAPI";
+import { rowToMin } from "@lib/TheatreWrapper";
 import type { APIRoute } from "astro";
 
 export const GET: APIRoute = async ({ url }) => {
   const q: ListOptions = {};
 
-  if (url.searchParams.has("leastGreatest")) {
-    q.leastGreatest = url.searchParams.get("leastGreatest") === "true";
-  }
-  if (url.searchParams.get("sort")) {
-    const sortType = url.searchParams.get("sort")!;
-    q.sort = sortType as ListOptions["sort"];
-  }
-  if (url.searchParams.has("reverse")) {
-    q.reverse = url.searchParams.get("reverse") === "true";
-  }
-  if (url.searchParams.has("limit")) {
-    const limit = parseInt(url.searchParams.get("limit")!);
-    if (!isNaN(limit) && limit >= 0) q.limit = limit;
-  }
-  if (url.searchParams.has("offset")) {
-    const offset = parseInt(url.searchParams.get("offset")!);
-    if (!isNaN(offset) && offset >= 0) q.offset = offset;
-  }
-  if (url.searchParams.has("limitPerCategory")) {
-    const limitPerCategory = Number(url.searchParams.get("limitPerCategory"));
-    if (!isNaN(limitPerCategory)) q.limitPerCategory = limitPerCategory;
-  }
-  if (url.searchParams.has("search")) {
-    q.search = url.searchParams.get("search")!;
-  }
-  if (url.searchParams.has("category")) {
-    q.category = url.searchParams.get("category")!.split(",");
-  }
-  if (url.searchParams.has("ids")) {
-    q.ids = url.searchParams.get("ids")!.split(",");
-  }
+  const query = Object.fromEntries(url.searchParams) as ListAPIQuery;
+
+  if (typeof query.search === "string") q.search = query.search;
+  if (typeof query.order === "string") q.order = query.order;
+  if (typeof query.sort === "string") q.sort = query.sort;
+  if (typeof query.limit === "string")
+    if (isNaN((q.limit = parseInt(query.limit)))) delete q.limit;
+  if (typeof query.offset === "string")
+    if (isNaN((q.offset = parseInt(query.offset)))) delete q.offset;
+  if (typeof query.limitPerCategory === "string")
+    if (isNaN((q.limitPerCategory = parseInt(query.limitPerCategory))))
+      delete q.limitPerCategory;
+  if (typeof query.category === "string")
+    q.category = query.category.split(",");
+  if (typeof query.ids === "string") q.ids = query.ids.split(",");
 
   const data = await theatreAPI.list(q);
-
-  const send = {
-    entries: [],
-    total: data.total,
-  } as ListData;
-
-  for (const entry of data.entries)
-    send.entries.push({
-      name: entry.name,
-      id: entry.id,
-      category: entry.category,
-    });
 
   return new Response(JSON.stringify(data), {
     headers: {

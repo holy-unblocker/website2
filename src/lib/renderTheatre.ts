@@ -45,10 +45,30 @@ export async function fetchListData(
 ) {
   let leastGreatest = false;
 
+  let apiSort: string | undefined;
+  let apiOrder: string | undefined;
+
+  switch (sort) {
+    case "leastPopular":
+      apiOrder = "asc";
+      break;
+    case "mostPopular":
+      apiSort = "plays";
+      break;
+    case "nameASC":
+      apiSort = "name";
+      apiOrder = "asc";
+      break;
+    case "nameDESC":
+      apiSort = "name";
+      apiOrder = "desc";
+      break;
+  }
+
   return await api.list({
     category,
-    sort,
-    leastGreatest,
+    sort: apiSort,
+    order: apiOrder,
     offset: page * maxResultsPerPage,
     limit: maxResultsPerPage,
     search,

@@ -74,15 +74,28 @@ export interface TheatreEntry {
 }
 
 export interface ListOptions {
-  leastGreatest?: boolean;
-  sort?: "name" | "plays" | string;
-  reverse?: boolean;
+  search?: string | null;
+  /**
+   * default is desc, unless 'search' is specified
+   */
+  order?: "desc" | "asc" | string | null;
+  sort?: "name" | "plays" | string | null;
   limit?: number;
   offset?: number;
   limitPerCategory?: number;
-  search?: string | null;
   category?: string[] | null;
   ids?: string[];
+}
+
+export interface ListAPIQuery {
+  search?: string;
+  order?: string;
+  sort?: string;
+  limit?: string;
+  offset?: string;
+  limitPerCategory?: string;
+  category?: string;
+  ids?: string;
 }
 
 export default class TheatreAPI {
