@@ -79,7 +79,8 @@ html[data-tab] {
 
 .nav {
   display: flex;
-  width: $fixed-width;
+  width: 100vw;
+  // width: $fixed-width;
   height: $nav-height;
   box-sizing: border-box;
   align-content: center;
@@ -117,6 +118,7 @@ html[data-tab] {
 }
 
 .content {
+  padding: 0 16px;
   padding-top: $nav-height-border;
   flex-direction: column;
   min-height: calc(100vh - $nav-height-border);
@@ -157,7 +159,8 @@ html[data-tab] {
       transition: none;
 
       > .menuList {
-        width: $fixed-width;
+        width: 100vw;
+        // width: $fixed-width;
         padding: 6px 5px;
 
         > .entry {
@@ -172,7 +175,8 @@ html[data-tab] {
       height: $nav-height;
       box-sizing: border-box;
       border-bottom: var(--border) 1px solid;
-      width: $fixed-width;
+      width: 100vw;
+      // width: $fixed-width;
       display: flex;
       flex-direction: row;
       flex-shrink: 0;

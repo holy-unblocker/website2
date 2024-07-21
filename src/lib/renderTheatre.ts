@@ -43,8 +43,6 @@ export async function fetchListData(
   sort: string,
   page: number
 ) {
-  let leastGreatest = false;
-
   let apiSort: string | undefined;
   let apiOrder: string | undefined;
 

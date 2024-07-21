@@ -1,6 +1,5 @@
 import { theatreAPI } from "@lib/theatre";
-import type { ListAPIQuery, ListData, ListOptions } from "@lib/TheatreAPI";
-import { rowToMin } from "@lib/TheatreWrapper";
+import type { ListAPIQuery, ListOptions } from "@lib/TheatreAPI";
 import type { APIRoute } from "astro";
 
 export const GET: APIRoute = async ({ url }) => {

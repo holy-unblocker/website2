@@ -43,7 +43,11 @@ function Hat() {
   }
 }
 
-const { title } = Astro.props;
+interface Props {
+  title?: string;
+  noFooter?: boolean;
+}
+
 const { cloak } = Astro.locals;
 ---
 
@@ -52,7 +56,9 @@ const { cloak } = Astro.locals;
     <meta charset="utf-8" />
     {
       (cloak && <title set:text={cloak.title} />) ||
-        (title && <title set:text={title} />)
+        (typeof Astro.props.title === "string" && (
+          <title set:text={Astro.props.title} />
+        ))
     }
     <link
       rel="shortcut icon"
@@ -204,7 +210,7 @@ const { cloak } = Astro.locals;
         </div>
       </div>
       <slot />
-      <Footer transition:persist />
+      {!Astro.props.noFooter && <Footer transition:persist />}
     </div>
     <script>
       import { setTheme } from "@lib/cookies";

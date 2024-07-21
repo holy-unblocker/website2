@@ -264,14 +264,7 @@
   }
 }
 
-html:not([data-player-focused]) .frame > .iframeContainer > .iframeCover {
+html:not([data-player-focused]) .iframeCover {
   opacity: 1;
   visibility: visible;
-}
-
-html[data-player-focused] {
-  body {
-    margin-right: 16px;
-    overflow: hidden;
-  }
 }

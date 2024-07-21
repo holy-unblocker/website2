@@ -110,7 +110,7 @@ if (mirrorError) {
 } else if (!data) Astro.response.status = 404;
 ---
 
-<MainLayout title={data ? data.name : undefined}>
+<MainLayout title={data ? data.name : undefined} noFooter>
   {
     mirrorError ? (
       <main>

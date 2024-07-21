@@ -81,7 +81,7 @@ html[data-tab] {
 }*/
 
 body {
-  width: $fixed-width;
+  // width: $fixed-width;
   font-family: $Lato;
   font-weight: 400;
   color: var(--text);
@@ -92,8 +92,9 @@ body {
 }
 
 main {
-  padding: 20px 5vw;
-  width: calc(100vw - 16px);
+  padding: 20px 0;
+  // width: $fixed-width;
+  // width: calc(100vw - 16px);
   box-sizing: border-box;
   flex: none;
 
