@@ -229,36 +229,30 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // saves the search engine or delete it
   context.locals.setSearchEngine = (newSearchEngine) => {
-    let validSearchEngine = true;
+    let validSearchEngine = false;
     if (typeof newSearchEngine === "string")
       newSearchEngine = parseInt(newSearchEngine);
-    else validSearchEngine = false;
     if (
       typeof newSearchEngine === "number" &&
-      (isNaN(newSearchEngine) ||
-        newSearchEngine < 0 ||
-        newSearchEngine < engines.length)
+      !isNaN(newSearchEngine) &&
+      newSearchEngine >= 0 &&
+      newSearchEngine < engines.length
     )
-      validSearchEngine = false;
-
+      validSearchEngine = true;
     if (validSearchEngine) {
-      context.cookies.set(
-        "searchEngine",
-        (newSearchEngine as number).toString(),
-        {
-          domain: context.url.hostname,
-          sameSite: "lax",
-          path: "/",
-          maxAge: maxAgeLimit,
-          secure: true,
-        }
-      );
+      context.cookies.set("srch", (newSearchEngine as number).toString(), {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        maxAge: maxAgeLimit,
+        secure: true,
+      });
       context.locals.searchEngine = newSearchEngine as number;
       return true;
     } else {
       // clear the cookie
-      if (context.cookies.has("searchEngine"))
-        context.cookies.set("searchEngine", "", {
+      if (context.cookies.has("srch"))
+        context.cookies.set("srch", "", {
           domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
@@ -277,7 +271,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       return false;
     }
   };
-  context.locals.setSearchEngine(context.cookies.get("theme")?.value);
+  context.locals.setSearchEngine(context.cookies.get("srch")?.value);
 
   // proxy mode
   context.locals.proxyMode = "embedded";

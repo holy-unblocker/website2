@@ -10,7 +10,7 @@ function getCookie(name: string) {
 function setCookie(name: string, value: string) {
   // 400 days
   const maxAge = 60 * 24 * 400;
-  document.cookie = `${name}=${value}; max-age=${maxAge}; samesite=strict; path=/; domain=.${location.host}`;
+  document.cookie = `${name}=${value}; max-age=${maxAge}; samesite=strict; path=/; domain=.${location.hostname}`;
 }
 
 export function setTheme(theme: string) {
@@ -19,7 +19,7 @@ export function setTheme(theme: string) {
 }
 
 export function setSearchEngine(searchEngine: number) {
-  setCookie("search", searchEngine.toString());
+  setCookie("srch", searchEngine.toString());
 }
 
 // used for dynamically applying the new tab cloak

@@ -156,6 +156,14 @@ const engine = searchEngines[Astro.locals.searchEngine];
     // eg: https://holyubofficial.net/?q=hello+world will search for "Hello World"
     const query = new URLSearchParams(location.search).get("q");
     if (typeof query === "string") {
+      const newParams = new URLSearchParams(location.search);
+      newParams.delete("q");
+      const st = newParams.toString();
+      history.replaceState(
+        {},
+        "",
+        st === "" ? location.pathname : `${location.pathname}?${st}`
+      );
       const src = builder.query(query);
       setServiceSrc(src);
     }

@@ -6,6 +6,7 @@ import Check from "@icons/check_24dp.svg?react";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
 import searchEngines from "@lib/searchEngines";
+import UltravioletScripts from "@components/UltravioletScripts.astro";
 
 let error: string | undefined;
 
@@ -105,6 +106,7 @@ if (Astro.request.method === "POST")
     </noscript>
   </section>
 </SettingsLayout>
+<UltravioletScripts />
 <script>
   import { setSearchEngine, setProxyMode, setWispServer } from "@lib/cookies";
   import { getWispUrl } from "@lib/register-sw";
@@ -112,7 +114,6 @@ if (Astro.request.method === "POST")
   document.addEventListener("astro:page-load", () => {
     const proxyMode = document.querySelector<HTMLInputElement>("#proxyMode")!;
     if (proxyMode === null) return;
-
     const newWispUrl = document.getElementById(
       "newWispUrl"
     )! as HTMLInputElement;
@@ -128,6 +129,7 @@ if (Astro.request.method === "POST")
     });
 
     proxyMode.addEventListener("change", () => {
+      console.log("new shit", proxyMode, proxyMode.value);
       setProxyMode(proxyMode.value);
     });
 

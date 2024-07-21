@@ -20,11 +20,12 @@ import UltravioletScripts from "./UltravioletScripts.astro";
   <iframe class={styles.embed} id="serviceEmbed" title="embed"></iframe>
 </div>
 <!-- this won't persist -->
-<div data-proxy-mode={Astro.locals.proxyMode}></div>
+<div data-proxy-mode={Astro.locals.proxyMode} id="proxyModeSetting"></div>
 <UltravioletScripts />
 <script>
   import { decryptURL, encryptURL } from "@lib/cryptURL";
   import { setupServiceWorker } from "@lib/register-sw";
+  import { presentAboutBlank } from "@lib/aboutBlank";
 
   // stores the URL of the last proxied page
   // used for opening in new tabs...
@@ -44,7 +45,7 @@ import UltravioletScripts from "./UltravioletScripts.astro";
         console.log("Detected saved src");
         setServiceSrc(decryptURL(savedSrc));
       }
-    }
+    } else setServiceSrc();
   });
 
   function saveSrcInSearch(src?: string | undefined) {
@@ -128,12 +129,21 @@ import UltravioletScripts from "./UltravioletScripts.astro";
     }
   }
 
-  await setupServiceWorker();
+  setupServiceWorker();
+
+  const pageLoaded = new Promise((resolve) =>
+    window.addEventListener("DOMContentLoaded", resolve)
+  );
 
   async function setServiceSrc(src?: string | null) {
+    await pageLoaded;
     const serviceEmbed =
       document.querySelector<HTMLIFrameElement>("#serviceEmbed");
     if (!serviceEmbed) return;
+
+    const proxyMode = document
+      .getElementById("proxyModeSetting")!
+      .getAttribute("data-proxy-mode")!;
 
     if (typeof src === "string") {
       try {
@@ -141,11 +151,25 @@ import UltravioletScripts from "./UltravioletScripts.astro";
       } catch (err) {
         throw new TypeError(`service frame must be a valid URL, got: ${src}`);
       }
-      document.documentElement.setAttribute("data-service", "");
-      lastSrc = src;
-      serviceEmbed.src = __uv$config!.prefix + __uv$config.encodeUrl!(src);
-      // setTimeout(() => (serviceEmbed.src = serviceEmbed.src), 1e3);
-      checkForEmbedChanges();
+
+      const uvURL = __uv$config!.prefix + __uv$config.encodeUrl!(src);
+
+      console.log({ proxyMode });
+      switch (proxyMode) {
+        case "embedded":
+          document.documentElement.setAttribute("data-service", "");
+          lastSrc = src;
+          serviceEmbed.src = uvURL;
+          // setTimeout(() => (serviceEmbed.src = serviceEmbed.src), 1e3);
+          checkForEmbedChanges();
+          break;
+        case "redirect":
+          location.href = uvURL;
+          break;
+        case "about:blank":
+          presentAboutBlank(uvURL);
+          break;
+      }
     } else {
       document.documentElement.removeAttribute("data-service");
       serviceEmbed.src = "about:blank";
@@ -153,6 +177,8 @@ import UltravioletScripts from "./UltravioletScripts.astro";
       saveSrcInSearch();
     }
   }
+
+  window.setServiceSrc = setServiceSrc;
 
   document.addEventListener("astro:page-load", () => {
     if (!isProxyPage()) {
@@ -162,8 +188,6 @@ import UltravioletScripts from "./UltravioletScripts.astro";
   });
 
   setInterval(checkForEmbedChanges, 500);
-
-  window.setServiceSrc = setServiceSrc;
 
   const serviceEmbed =
     document.querySelector<HTMLIFrameElement>("#serviceEmbed")!;
