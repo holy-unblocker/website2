@@ -180,7 +180,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
       const results: string[] = [];
 
       try {
-        abort.abort("aborted due to user input");
+        abort.abort("aborted autocomplete request because of a user input");
         abort = new AbortController();
 
         switch (searchProvider as SearchProvider) {

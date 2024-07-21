@@ -83,7 +83,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
     async function searchTheatre(query: string) {
       const suggest =
         document.querySelector<HTMLDivElement>("#theatreSuggest")!;
-      searchAbort.abort("there was a user input");
+      searchAbort.abort("aborted autocomplete request because of a user input");
       searchAbort = new AbortController();
 
       suggest.innerHTML = "";
