@@ -4,6 +4,7 @@ import ChevronLeft from "@icons/chevron_left_24dp.svg?react";
 import Fullscreen from "@icons/fullscreen_24dp.svg?react";
 import OpenInNew from "@icons/open_in_new_24dp.svg?react";
 import Public from "@icons/public_24dp.svg?react";
+import UltravioletScripts from "./UltravioletScripts.astro";
 ---
 
 <div class={styles.service} transition:persist>
@@ -20,7 +21,7 @@ import Public from "@icons/public_24dp.svg?react";
 </div>
 <!-- this won't persist -->
 <div data-proxy-mode={Astro.locals.proxyMode}></div>
-
+<UltravioletScripts />
 <script>
   import { decryptURL, encryptURL } from "@lib/cryptURL";
   import { setupServiceWorker } from "@lib/register-sw";

@@ -11,7 +11,7 @@ import { appConfig } from "@config/config";
 const defaultWispServer =
   typeof appConfig.separateWispServer === "string"
     ? appConfig.separateWispServer
-    : "%{ws}//%{host}/api/wisp";
+    : "%{ws}//%{host}/api/wisp/";
 
 const randomCloaks: (string | AppCloak)[] = [
   // LMS:

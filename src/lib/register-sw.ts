@@ -30,13 +30,11 @@ export async function setupServiceWorker() {
     await navigator.serviceWorker.ready;
     console.log("Service worker registered");
   } else {
-    await navigator.serviceWorker.register("/sw.js", {
-      scope: "/",
-    });
+    await navigator.serviceWorker.register("/sw.js");
     console.log("Service worker registered");
-    console.log("Reloading the page to activate it.");
-    setTimeout(() => location.reload(), 100);
-    return;
+    // console.log("Reloading the page to activate it.");
+    // setTimeout(() => location.reload(), 100);
+    // return;
   }
 
   const wispUrl = getWispUrl();

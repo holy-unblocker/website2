@@ -286,7 +286,7 @@ export function handleReq(req, res, middleware) {
       "cross-origin-opener-policy-report-only",
       "same-origin-allow-popups"
     );
-    res.setHeader("cross-origin-resource-policy", "same-origin");
+    // res.setHeader("cross-origin-resource-policy", "same-origin");
   }
 
   const isMainWebsite =
@@ -387,8 +387,7 @@ export function handleReq(req, res, middleware) {
 // the url / is reserved for astro dev server HMR
 
 export function handleUpgrade(req, socket, head) {
-  // console.log("ws req", req.url);
-  if (req.url === "/api/wisp" && !("separateWispServer" in appConfig)) {
+  if (req.url === "/api/wisp/" && !("separateWispServer" in appConfig)) {
     wisp.routeRequest(req, socket, head, { logging: true });
   } else {
     console.log("bad websocket req @", req.url);

@@ -15,6 +15,7 @@ import Star from "@icons/star_24dp.svg?react";
 import StarBorder from "@icons/star_outline_24dp.svg?react";
 import VideogameAsset from "@icons/videogame_asset_24dp.svg?react";
 import TheatreSearchBar from "@components/TheatreSearchBar.astro";
+import UltravioletScripts from "./UltravioletScripts.astro";
 
 let mirrorError = false;
 
@@ -185,13 +186,14 @@ if (mirrorError) {
       </main>
     )
   }
+  <UltravioletScripts />
+  <script
+    is:inline
+    id="gameData"
+    type="application/json"
+    set:html={JSON.stringify(data)}
+  />
 </MainLayout>
-<script
-  is:inline
-  id="gameData"
-  type="application/json"
-  set:html={JSON.stringify(data)}
-/>
 <script>
   import TheatreAPI from "@lib/TheatreAPI";
   import { encryptURL } from "@lib/cryptURL";

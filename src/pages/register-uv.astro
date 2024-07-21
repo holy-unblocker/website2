@@ -1,4 +1,5 @@
 ---
+import UltravioletScripts from "@components/UltravioletScripts.astro";
 import "@fontsource/lato";
 import "@fontsource/lato/700.css";
 import "@styles/root.scss";
@@ -8,15 +9,10 @@ Astro.response.headers.set("x-robots-tag", "noindex");
 ---
 
 <html lang="en" data-theme={Astro.locals.theme}>
-  <head
-    ><meta charset="utf-8" />
-    <script src="/epoxy/index.js" is:inline defer></script>
-    <script src="/uv/uv.bundle.js" is:inline defer></script>
-    <script src="/uv/uv.config.js" is:inline defer></script>
-  </head>
+  <head><meta charset="utf-8" /> </head>
   <body>
     <main>Ultraviolet is loading...</main>
-    <div id="wispServerThing" data-wispServer={Astro.locals.wispServer}></div>
+    <UltravioletScripts />
     <script>
       import { reportCompatError } from "@lib/compat";
       import { setupServiceWorker } from "@lib/register-sw";
