@@ -7,6 +7,7 @@
 
 export interface AppConfig {
   configName: string;
+  hatBadge?: "dev" | "beta" | "normal";
   host: string;
   port: number;
   theatreApiMirror: string;

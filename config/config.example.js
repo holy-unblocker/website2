@@ -13,6 +13,10 @@ export const appConfig = {
   // for troubleshooting
   configName: "example config",
 
+  // flavor of HU hat icon to display
+  // accepted values are "normal", "beta", "dev" (default is "dev")
+  hatBadge: "dev",
+
   // FRONTEND LISTENING ADDRESS
   // an http server will be created on this host & port
   host: "localhost",

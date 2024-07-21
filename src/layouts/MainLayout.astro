@@ -32,13 +32,14 @@ import { ViewTransitions } from "astro:transitions";
 import { appConfig } from "@config/config";
 
 function Hat() {
-  switch (import.meta.env.VITE_HAT_BADGE) {
-    case "DEV":
-      return HatDev;
-    case "BETA":
-      return HatBeta;
-    default:
+  switch (appConfig.hatBadge) {
+    case "normal":
       return HatPlain;
+    case "beta":
+      return HatBeta;
+    case "dev":
+    default:
+      return HatDev;
   }
 }
 
