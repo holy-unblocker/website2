@@ -35,8 +35,8 @@ import UltravioletScripts from "./UltravioletScripts.astro";
   }
 
   window.addEventListener("popstate", () => {
-    console.log("detected popstate");
     if (isProxyPage()) {
+      console.log("detected popstate");
       const savedSrc = new URLSearchParams(location.search).get("src");
       if (savedSrc === null) {
         setServiceSrc();
