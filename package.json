@@ -16,11 +16,11 @@
     "@fontsource/catamaran": "^5.0.20",
     "@fontsource/lato": "^5.0.21",
     "@fontsource/montserrat-alternates": "^5.0.13",
-    "@mercuryworkshop/bare-mux": "^2.0.2",
+    "@mercuryworkshop/bare-mux": "^2.0.3",
     "@mercuryworkshop/epoxy-transport": "^2.1.3",
     "@node-rs/bcrypt": "^1.10.4",
     "@ruffle-rs/ruffle": "^0.1.0-nightly.2024.7.20",
-    "@titaniumnetwork-dev/ultraviolet": "^3.2.4",
+    "@titaniumnetwork-dev/ultraviolet": "^3.2.5",
     "@types/crypto-js": "^4.2.2",
     "@types/node": "^20.14.11",
     "@types/nodemailer": "^6.4.15",
@@ -40,6 +40,6 @@
     "svgo": "^3.3.2",
     "typescript": "^5.5.3",
     "vite-plugin-static-copy": "^1.0.6",
-    "wisp-server-node": "^1.1.1"
+    "wisp-server-node": "^1.1.3"
   }
 }
