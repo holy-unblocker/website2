@@ -279,7 +279,8 @@ export function handleReq(req, res, middleware) {
 
   // THIS SHOULD ALWAYS BE SET ON THEATRE FILES AND /compat/
   // DO NOT DO NOT SET THIS ON /pro/ OR ACCOUNT DETAILS WILL BE LEAKED
-  if (isCDN || req.url.startsWith("/compat/")) {
+  // if (isCDN || req.url.startsWith("/compat/")) {
+  if (!req.url.startsWith("/pro")) {
     // this makes loading epoxy TLS faster
     // thanks r58
     res.setHeader(
