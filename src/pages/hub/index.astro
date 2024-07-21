@@ -83,30 +83,32 @@ if (data !== undefined) {
         </Fragment>
       )}
       {q === null ? (
-        <main>
+        <>
           <TheatreSearchBar />
-          <Banner error={error} />
-          {renderCategories.map(({ category, entries }) => (
-            <section class={styles.expand}>
-              <div class={styles.name}>
-                <h1>{category.name}</h1>
-                <a
-                  class={themeStyles.themeLink}
-                  href={`/hub/${category.id}`}
-                  class={styles.seeAll}
-                >
-                  See All
-                  <ArrowForward />
-                </a>
-              </div>
-              <div class:list={[styles.items, styles.flex]}>
-                {entries.map((e) => (
-                  <TheatreItem name={e.name} id={e.id} />
-                ))}
-              </div>
-            </section>
-          ))}
-        </main>
+          <main class={styles.main}>
+            <Banner error={error} />
+            {renderCategories.map(({ category, entries }) => (
+              <section class={styles.expand}>
+                <div class={styles.name}>
+                  <h1>{category.name}</h1>
+                  <a
+                    class={themeStyles.themeLink}
+                    href={`/hub/${category.id}`}
+                    class={styles.seeAll}
+                  >
+                    See All
+                    <ArrowForward />
+                  </a>
+                </div>
+                <div class:list={[styles.items, styles.flex]}>
+                  {entries.map((e) => (
+                    <TheatreItem name={e.name} id={e.id} />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </main>
+        </>
       ) : (
         <TheatreCategory
           name={`Search results for '${q}'`}

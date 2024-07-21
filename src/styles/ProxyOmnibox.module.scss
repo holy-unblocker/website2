@@ -19,7 +19,11 @@ $height: 44px;
   display: flex;
   flex-direction: column;
   position: relative;
-  margin: 10px auto;
+  margin: 0 auto;
+
+  &.theatreSearch {
+    margin-top: 20px;
+  }
 
   &[data-suggested] {
     .inputBar {

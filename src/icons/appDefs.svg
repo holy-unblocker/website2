@@ -1,4 +1,4 @@
-<svg height="0" width="0" fill="none">
+<svg height="0" width="0" fill="none" style="position:fixed">
     <defs>
         <svg fill="none" id="searchGlass" viewBox="0 0 24 24">
             <!-- "Search" from Google Material Icons -->

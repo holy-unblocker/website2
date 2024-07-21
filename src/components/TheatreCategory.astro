@@ -66,8 +66,8 @@ const maxPage =
   data === undefined ? -1 : Math.floor(data.total / maxResultsPerPage);
 ---
 
-<main>
-  <TheatreSearchBar />
+<TheatreSearchBar />
+<main class={styles.main}>
   <h1 class="page-title sub">
     {isGame && <a class="back-button" href="/hub/" set:html={ArrowBackIcon} />}
     {Astro.props.name}

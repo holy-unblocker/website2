@@ -4,8 +4,7 @@ import appDefs from "@icons/appDefs.svg?react";
 import styles from "@styles/ProxyOmnibox.module.scss";
 ---
 
-<Fragment set:html={appDefs} />
-<form class={styles.omnibox} id="theatreSearchBar">
+<form class:list={[styles.omnibox, styles.theatreSearch]} id="theatreSearchBar">
   <div class={`${themeStyles.ThemeInputBar} ${styles.inputBar}`}>
     <div class={themeStyles.icon}>
       <svg>
@@ -22,6 +21,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
   </div>
   <div class={styles.suggested} id="theatreSuggest"></div>
 </form>
+<Fragment set:html={appDefs} />
 <script>
   import { getClientTheatreAPI } from "@lib/renderTheatre";
   import { renderSearchResult } from "@lib/searchResult";
