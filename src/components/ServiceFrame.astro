@@ -131,12 +131,7 @@ import UltravioletScripts from "./UltravioletScripts.astro";
 
   setupServiceWorker();
 
-  const pageLoaded = new Promise((resolve) =>
-    window.addEventListener("DOMContentLoaded", resolve)
-  );
-
-  async function setServiceSrc(src?: string | null) {
-    await pageLoaded;
+  function setServiceSrc(src?: string | null) {
     const serviceEmbed =
       document.querySelector<HTMLIFrameElement>("#serviceEmbed");
     if (!serviceEmbed) return;

@@ -15,19 +15,23 @@ const engine = searchEngines[Astro.locals.searchEngine];
   transition:persist
 >
   <div class={`${themeStyles.ThemeInputBar} ${styles.inputBar}`}>
-    <div class={themeStyles.icon} id="searchIcon">
-      <svg>
-        <use href="#searchGlass"></use>
-      </svg>
-    </div>
     <input
       type="text"
       placeholder={`Search ${engine.name} or type a URL`}
-      required
       autocomplete="off"
-      class={themeStyles.thinPadLeft}
+      class={themeStyles.thinPadRight}
       tabindex="1"
     />
+    <button class={styles.clearButton} id="searchClear">
+      <svg>
+        <use href="#searchClear"></use>
+      </svg>
+    </button>
+    <button type="submit" class={styles.searchButton} id="searchIcon">
+      <svg>
+        <use href="#searchGlass"></use>
+      </svg>
+    </button>
   </div>
   <div class={styles.suggested} id="omniboxSuggest"></div>
 </form>
@@ -58,16 +62,24 @@ const engine = searchEngines[Astro.locals.searchEngine];
     const form = document.querySelector<HTMLFormElement>("#omnibox");
     if (!form) return;
 
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      setInputFocused(false);
+    const submitOmnibox = () => {
+      console.log("submit go brr");
       let value = inputBar.value;
-      if (resultIndex !== -1)
+      if (resultIndex !== -1) {
         value = suggest.children[resultIndex].textContent!;
+        console.log("erm got value", { value });
+        inputBar.value = value;
+      }
       setInputFocused(false);
       if (value === "") return;
       const src = builder.query(value);
+      setInputFocused(false);
       setServiceSrc(src);
+    };
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      submitOmnibox();
     });
 
     let inputFocused = false;
@@ -134,13 +146,29 @@ const engine = searchEngines[Astro.locals.searchEngine];
           else resultIndex -= 1;
           updateResults();
           break;
+        case "Enter":
+          event.preventDefault();
+          submitOmnibox();
+          break;
       }
     });
 
-    // allow clicking da icon
-    form.querySelector("#searchIcon")!.addEventListener("click", () => {
+    inputBar.addEventListener("input", () => {
+      if (inputBar.value === "") form.removeAttribute("data-text");
+      else form.setAttribute("data-text", "");
+    });
+
+    form.querySelector("#searchClear")!.addEventListener("click", () => {
+      inputBar.value = "";
+      form.removeAttribute("data-text");
       setInputFocused(true);
       inputBar.focus();
+    });
+
+    // allow clicking da icon
+    form.querySelector("#searchIcon")!.addEventListener("click", (event) => {
+      event.preventDefault();
+      submitOmnibox();
     });
 
     inputBar.addEventListener("focus", () => {

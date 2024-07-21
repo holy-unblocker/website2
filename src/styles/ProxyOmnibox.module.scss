@@ -21,6 +21,66 @@ $height: 44px;
   position: relative;
   margin: 0 auto;
 
+  // a search glass icon
+  .searchButton {
+    border: 0;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 100%;
+    flex-shrink: 0;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    color: var(--text-placeholder);
+
+    > svg {
+      width: 20px !important;
+      height: 20px !important;
+      display: block;
+      text-align: center;
+      pointer-events: none;
+    }
+  }
+
+  // a clear search icon
+  .clearButton {
+    border: 0;
+    background-color: transparent;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 100%;
+    flex-shrink: 0;
+    color: var(--text-placeholder);
+    cursor: pointer;
+
+    > svg {
+      width: 20px !important;
+      height: 20px !important;
+      display: block;
+      text-align: center;
+      pointer-events: none;
+    }
+  }
+
+  &[data-text] {
+    .clearButton {
+      display: flex;
+    }
+
+    &:hover,
+    &[data-focused] {
+      .searchButton {
+        cursor: pointer;
+        background-color: var(--action) !important;
+        color: white;
+      }
+    }
+  }
+
   &.theatreSearch {
     margin-top: 20px;
   }
@@ -30,6 +90,10 @@ $height: 44px;
       border-bottom-left-radius: 0px;
       border-bottom-right-radius: 0px;
       border-bottom: 1px solid var(--border);
+    }
+
+    .searchButton {
+      border-bottom-right-radius: 0px;
     }
 
     .suggested {

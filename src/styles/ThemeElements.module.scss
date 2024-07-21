@@ -98,21 +98,6 @@ html[data-tab] {
   }
 }
 
-// icon used inside of the ThemeInputBar
-// eg a search glass icon
-.icon {
-  display: contents;
-  > svg {
-    width: 20px !important;
-    height: 20px !important;
-    padding: 12px;
-    color: var(--text-placeholder);
-    display: block;
-    text-align: center;
-    pointer-events: none;
-  }
-}
-
 .ThemeButton {
   cursor: pointer;
   height: 42px;

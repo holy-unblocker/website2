@@ -6,7 +6,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
 
 <form class:list={[styles.omnibox, styles.theatreSearch]} id="theatreSearchBar">
   <div class={`${themeStyles.ThemeInputBar} ${styles.inputBar}`}>
-    <div class={themeStyles.icon}>
+    <div class={styles.searchButton}>
       <svg>
         <use href="#searchGlass"></use>
       </svg>
@@ -63,7 +63,6 @@ import styles from "@styles/ProxyOmnibox.module.scss";
       if (inputFocused) {
         searchTheatre(inputBar.value);
         form.setAttribute("data-focused", "");
-        form.setAttribute("data-suggested", "");
         document.documentElement.setAttribute("data-omnibox-focused", "");
       } else {
         inputBar.blur();
@@ -88,8 +87,10 @@ import styles from "@styles/ProxyOmnibox.module.scss";
 
       suggest.innerHTML = "";
 
-      if (query !== "")
+      if (query !== "") {
         suggest.append(renderTheatreSearchResult(query, query, null, null));
+        form.setAttribute("data-suggested", "");
+      } else form.removeAttribute("data-suggested");
 
       // if (query === lastQuery) return;
       // lastQuery = query;
@@ -110,11 +111,13 @@ import styles from "@styles/ProxyOmnibox.module.scss";
       //.. get additional results?
 
       // the input bar may have lost focus by the time this code is reached
-      if (inputFocused)
+      if (inputFocused) {
         for (const res of listResults.entries)
           suggest.append(
             renderTheatreSearchResult(res.name, query, res.id, res.category)
           );
+        form.setAttribute("data-suggested", "");
+      }
     }
 
     // let lastQuery: string | undefined;
