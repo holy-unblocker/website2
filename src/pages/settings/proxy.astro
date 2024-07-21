@@ -120,10 +120,16 @@ if (Astro.request.method === "POST")
     newWispUrl.placeholder = getWispUrl();
     newWispUrl.form!.addEventListener("submit", (event) => {
       event.preventDefault();
+      if (newWispUrl.value === "") {
+        document.cookie = `wisp=; expires=${new Date(0)}`;
+        location.reload();
+        return;
+      }
       try {
         new URL(newWispUrl.value);
       } catch (err) {
         alert("Invalid wisp url!");
+        return;
       }
       setWispServer(newWispUrl.value);
     });
