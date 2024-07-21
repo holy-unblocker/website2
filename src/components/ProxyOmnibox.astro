@@ -63,14 +63,13 @@ const engine = searchEngines[Astro.locals.searchEngine];
     if (!form) return;
 
     const submitOmnibox = () => {
-      console.log("submit go brr");
+      console.trace("submit go brr");
       let value = inputBar.value;
       if (resultIndex !== -1) {
         value = suggest.children[resultIndex].textContent!;
         console.log("erm got value", { value });
         inputBar.value = value;
       }
-      setInputFocused(false);
       if (value === "") return;
       const src = builder.query(value);
       setInputFocused(false);
