@@ -23,6 +23,7 @@ import parseUrl from "parseurl";
 import wisp from "wisp-server-node";
 import { ActivityType, Client, PermissionsBitField } from "discord.js";
 import chalk from "chalk";
+import compression from "compression";
 
 let startupTag = chalk.grey(chalk.bold("Holy Unblocker:"));
 
@@ -268,6 +269,8 @@ function getUVConfig(host, url) {
 const cdnAbs =
   hasTheatreFiles && resolve(__dirname, appConfig.theatreFilesPath);
 
+const compress = compression();
+
 /**
  *
  * @param {import("http").IncomingMessage} req
@@ -275,6 +278,9 @@ const cdnAbs =
  * @param {() => void} middleware
  */
 export function handleReq(req, res, middleware) {
+  // hooks the res
+  compress(req, res, () => {});
+
   const isCDN = req.url.startsWith("/cdn/");
 
   // THIS SHOULD ALWAYS BE SET ON THEATRE FILES AND /compat/
@@ -310,8 +316,8 @@ export function handleReq(req, res, middleware) {
       } else {
         // normalize the url
         if ("Location" in headers) headers.Location = "/cdn" + headers.Location;
-        res.writeHead(statusCode, headers);
         stream.pipe(res);
+        res.writeHead(statusCode, headers);
       }
     });
     return;
