@@ -1,18 +1,10 @@
 export function presentAboutBlank(src: string) {
-  const newWindow = window.open("about:blank");
-  if (!newWindow) throw new Error(`Could not create new window`);
-  const dom = newWindow.document;
+  const n = window.open("about:blank");
+  if (n === null) throw new Error("Could not create about:blank window");
+  const dom = n.document;
   dom.open();
-  dom.write("<!doctype html><html></html>");
-  const iframe = dom.createElement("iframe");
-  iframe.src = src;
-  // expand iframe to fit window
-  iframe.style.border = "none";
-  iframe.style.position = "absolute";
-  iframe.style.top = "0px";
-  iframe.style.left = "0px";
-  iframe.style.width = "100%";
-  iframe.style.height = "100%";
-  dom.documentElement.append(iframe);
+  dom.write(
+    `<!doctype html><html><body><iframe style="border:0;position:fixed;top:0;left:0;width:100%;height:100%" id="tool" src="${src}"></iframe><script>window.onfocus=()=>tool.contentWindow.focus()</script></body></html>`
+  );
   dom.close();
 }
