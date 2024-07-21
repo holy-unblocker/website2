@@ -157,7 +157,9 @@ const engine = searchEngines[Astro.locals.searchEngine];
       else form.setAttribute("data-text", "");
     });
 
-    form.querySelector("#searchClear")!.addEventListener("click", () => {
+    const searchClear = form.querySelector<HTMLButtonElement>("#searchClear")!;
+
+    searchClear.addEventListener("click", () => {
       inputBar.value = "";
       form.removeAttribute("data-text");
       setInputFocused(true);
@@ -165,10 +167,18 @@ const engine = searchEngines[Astro.locals.searchEngine];
     });
 
     // allow clicking da icon
-    form.querySelector("#searchIcon")!.addEventListener("click", (event) => {
+    const searchIcon = form.querySelector<HTMLButtonElement>("#searchIcon")!;
+
+    searchIcon.addEventListener("click", (event) => {
       event.preventDefault();
       submitOmnibox();
     });
+
+    for (const ele of [searchClear, searchIcon])
+      for (const e of ["mousedown", "touchstart"])
+        ele.addEventListener(e, (event) => {
+          event.preventDefault();
+        });
 
     inputBar.addEventListener("focus", () => {
       setInputFocused(true);
