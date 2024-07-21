@@ -286,7 +286,7 @@ export function handleReq(req, res, middleware) {
       "cross-origin-opener-policy-report-only",
       "same-origin-allow-popups"
     );
-    // res.setHeader("cross-origin-resource-policy", "same-origin");
+    res.setHeader("cross-origin-resource-policy", "same-origin");
   }
 
   const isMainWebsite =
