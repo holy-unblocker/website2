@@ -386,9 +386,11 @@ export function handleReq(req, res, middleware) {
 // handle 'upgrade' event on http server
 // the url / is reserved for astro dev server HMR
 
+const wispServerLogging = false;
+
 export function handleUpgrade(req, socket, head) {
   if (req.url === "/api/wisp/" && !("separateWispServer" in appConfig)) {
-    wisp.routeRequest(req, socket, head, { logging: true });
+    wisp.routeRequest(req, socket, head, { logging: wispServerLogging });
   } else {
     console.log("bad websocket req @", req.url);
     // kill the request so it isn't stuck loading
