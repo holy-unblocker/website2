@@ -67,17 +67,20 @@ $height: 44px;
   }
 
   &[data-text] {
-    .clearButton {
-      display: flex;
-    }
-
-    &:hover,
-    &[data-focused] {
-      .searchButton {
-        cursor: pointer;
-        background-color: var(--action) !important;
-        color: white;
+    &[data-focused],
+    &:hover {
+      .clearButton {
+        display: flex;
       }
+    }
+  }
+
+  &:hover,
+  &[data-focused] {
+    .searchButton {
+      cursor: pointer;
+      background-color: var(--action) !important;
+      color: white;
     }
   }
 
