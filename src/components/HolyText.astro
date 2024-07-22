@@ -1,0 +1,31 @@
+---
+import CryptoJS from "crypto-js";
+
+type Props = astroHTML.JSX.IntrinsicElements["div"] & {
+  text: string;
+};
+
+const { text, ...props } = Astro.props;
+---
+
+<span
+  {...props}
+  data-ectext={CryptoJS.AES.encrypt(text, Astro.locals.clientKey)}></span>
+<script>
+  import { holyDecrypt } from "@lib/holyDecrypt";
+
+  const parseText = () => {
+    for (const t of document.querySelectorAll<HTMLSpanElement>(
+      "[data-ectext]"
+    )) {
+      const ectext = t.getAttribute("data-ectext")!;
+      t.removeAttribute("data-ectext");
+      const text = holyDecrypt(ectext);
+      const root = t.attachShadow({ mode: "closed" });
+      root.append(text);
+    }
+  };
+
+  parseText();
+  document.addEventListener("astro:page-load", parseText);
+</script>

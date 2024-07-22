@@ -1,17 +1,1 @@
 <div id="eckey" style="display:none" set:text={Astro.locals.clientKey} />
-<script>
-  import CryptoJS from "crypto-js";
-
-  declare global {
-    function decrypt(text: string): string;
-  }
-
-  document.addEventListener("astro:page-load", () => {
-    const e = document.getElementById("eckey")!;
-    const key = e.innerHTML;
-
-    window.decrypt = (text) => {
-      return CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
-    };
-  });
-</script>

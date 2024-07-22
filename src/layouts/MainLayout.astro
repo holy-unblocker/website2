@@ -91,6 +91,7 @@ const { cloak } = Astro.locals;
       )
     }
     <ViewTransitions />
+    <EncryptionKey />
   </head>
   <body>
     <nav class={styles.nav} tabindex="0" transition:persist>
@@ -259,6 +260,5 @@ const { cloak } = Astro.locals;
       });
     </script>
     <UltravioletScripts />
-    <EncryptionKey />
   </body>
 </html>

@@ -2,6 +2,7 @@
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Waves from "@icons/waves.svg?svgmin";
 import styles from "@styles/Footer.module.scss";
+import HolyText from "./HolyText.astro";
 ---
 
 <footer class={styles.footer}>
@@ -15,7 +16,11 @@ import styles from "@styles/Footer.module.scss";
         <span class={styles.long}>Terms of Use</span>
         <span class={styles.short}>Terms</span>
       </a>
-      <div>&copy; Holy Unblocker {new Date().getUTCFullYear()}</div>
+      <div>
+        <HolyText
+          text={`\u00A9 Holy Unblocker ${new Date().getUTCFullYear()}`}
+        />
+      </div>
     </div>
   </div>
 </footer>

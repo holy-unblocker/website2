@@ -17,22 +17,24 @@ const { href, target, ...props } = Astro.props;
   <slot />
 </span>
 <script>
-  document.addEventListener("astro:page-load", () => {
-    for (const a of document.querySelectorAll<HTMLAnchorElement>(
+  import { holyDecrypt } from "@lib/holyDecrypt";
+
+  const parseLinks = () => {
+    for (const s of document.querySelectorAll<HTMLSpanElement>(
       "[data-eclink]"
     )) {
-      const link = a.getAttribute("data-eclink")!;
-      const href = window.decrypt(link);
-      const target = a.getAttribute("data-target");
+      const eclink = s.getAttribute("data-eclink")!;
+      const href = holyDecrypt(eclink);
+      const target = s.getAttribute("data-target");
 
-      a.addEventListener("mouseup", (event) => {
+      s.addEventListener("mouseup", (event) => {
         if (event.button === 1) {
           event.preventDefault();
           window.open(href, "_blank");
         }
       });
 
-      a.addEventListener("click", (event) => {
+      s.addEventListener("click", (event) => {
         event.preventDefault();
 
         if (event.ctrlKey) {
@@ -42,5 +44,7 @@ const { href, target, ...props } = Astro.props;
         }
       });
     }
-  });
+  };
+  parseLinks();
+  document.addEventListener("astro:page-load", parseLinks);
 </script>
