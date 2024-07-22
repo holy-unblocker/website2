@@ -136,6 +136,7 @@ export const appConfig = {
 
   // general website links
   links: {
+    // add your affiliate link here
     billigerhost: "https://billing.billigerhost.com/",
     patreon: {
       holyunblocker: "https://www.patreon.com/holyunblocker",

@@ -44,13 +44,17 @@ import { appConfig } from "@config/config";
       </button>
       <ProxyOmnibox searchEngine={Astro.locals.searchEngine} />
     </div>
-    <div class={styles.nag}>
-      <HolyLink
-        class={themeStyles.themeLink}
-        href={appConfig.links.billigerhost}
-        text="Proxy site hosting starting at $6.99. Check out BilligerHost"
-      />
-    </div>
+    {
+      "billigerhost" in appConfig.links && (
+        <div class={styles.nag}>
+          <HolyLink
+            class={themeStyles.themeLink}
+            href={appConfig.links.billigerhost}
+            text="Proxy site hosting starting at $6.99. Check out BilligerHost."
+          />
+        </div>
+      )
+    }
     <a class={styles.poweredBy} href="/uv">
       <Fragment set:html={UltravioletIcon} />
       <span>Powered by <b><HolyText text="Ultraviolet" /></b></span>

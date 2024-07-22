@@ -53,7 +53,7 @@ export interface AppConfig {
     };
   };
   links: {
-    billigerhost: string;
+    billigerhost?: string;
     patreon: {
       holyunblocker: string;
     };

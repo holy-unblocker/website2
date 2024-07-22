@@ -1,5 +1,7 @@
 # <img src="./src/icons/hat.svg" style="width: 1em; vertical-align: middle"> Holy Unblocker Frontend
 
+## [PROXY SITE HOSTING STARTING AT $6.99. CHECK OUT BILLIGERHOST.](https://billing.billigerhost.com/aff.php?aff=94)
+
 > NOW WITH 0% REACT CODE >:)
 > Written in Astro, TypeScript, and SCSS
 
