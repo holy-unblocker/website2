@@ -1,24 +1,22 @@
-{
-    on_demand_tls {
-        ask # ENTER YOUR OWN THINGY!
-    }
-}
+#{
+#  on_demand_tls {
+#    ask # ENTER YOUR OWN THINGY!
+#  }
+#}
 
 https:// {
-    tls {
-        on_demand
-    }
-    # @wisp {
-    #     path /api/wisp
-    # }
+  tls {
+    on_demand
+  }
 
-    # reverse_proxy @wisp 127.0.0.1:<port wisp is on?>
+  # by default, HU uses wisp-server-node, which is slower than epoxy-tls.
+  # Consider setting up https://github.com/MercuryWorkshop/epoxy-tls
+  #reverse_proxy /api/wisp/ 127.0.0.1:4000
 
-    # IF YOU WANT TO LOAD BALANCE HU WITH MORE WISP SERVERS
-    # reverse_proxy @wisp <ip>:<port> <ip1>:<port1>
-    #     lb_policy weighted_round_robin 1 2
-    # }
+  # IF YOU WANT TO LOAD BALANCE HU WITH MORE WISP SERVERS
+  #reverse_proxy @wisp <ip>:4000 <ip1>:4000
+  #    lb_policy weighted_round_robin 1 2
+  #}
 
-    reverse_proxy 127.0.0.1:8080
-    encode gzip
+  reverse_proxy 127.0.0.1:8080
 }
