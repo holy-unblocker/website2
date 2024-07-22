@@ -212,6 +212,7 @@ html[data-tab] {
     font-size: 14px;
     height: 24px;
     padding: 10px 25px;
+    user-select: none;
 
     @include screenMobile {
       height: 30px;
@@ -302,6 +303,8 @@ html[data-tab] {
       font-family: $MontserratAlternates;
       color: var(--text-placeholder);
       white-space: nowrap;
+      user-select: none;
+      cursor: pointer;
 
       &:hover {
         background-color: var(--background-accent);

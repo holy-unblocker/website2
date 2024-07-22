@@ -200,17 +200,16 @@ const { cloak } = Astro.locals;
 
           <NavMenuTab href="/hub/" name="Popular" iconFilled={SortRounded} />
           <NavMenuTab href="/hub/all" name="All" iconFilled={List} />
-          <div class={styles.title}>Genre</div>
+          <div class={styles.title}><HolyText text="Genre" /></div>
           <div class={styles.genres}>
             {
               gameCategories.map((category) => (
-                <a
+                <HolyLink
                   href={`/hub/${category.id}`}
                   title={category.name}
                   class:list={[styles.entry, styles.text]}
-                >
-                  {category.name}
-                </a>
+                  text={category.name}
+                />
               ))
             }
           </div>

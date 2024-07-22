@@ -32,6 +32,7 @@ const { href, target, text, ...props } = Astro.props;
 }
 <script>
   import { holyDecrypt } from "@lib/holyDecrypt";
+  import { navigate } from "astro:transitions/client";
 
   const parseLinks = () => {
     for (const s of document.querySelectorAll<HTMLSpanElement>(
@@ -55,7 +56,8 @@ const { href, target, text, ...props } = Astro.props;
         if (event.ctrlKey) {
           window.open(href, "_blank");
         } else {
-          window.open(href, target === null ? "_self" : target);
+          if (target !== null) window.open(href, target);
+          else navigate(href);
         }
       });
     }
