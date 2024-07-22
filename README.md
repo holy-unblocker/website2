@@ -29,11 +29,83 @@ cp ./config/config.example.js ./config.js
 
 We provide an example configuration in [./config/config.example.js](./config/config.example.js)
 
-```sh
-npm create astro@latest -- --template minimal
-```
+## <img src="docs/hosting.gif" alt="Hosting" height="80px">
 
-> 🚀 **Boardroom veteran?** Eliminate this parchment. Seamless creation awaits!
+> This guide assumes your using linux as your host
+
+1. Install dependencies
+
+   You will need to install [git](https://git-scm.com/download/linux).
+
+2. Install NodeJS
+
+   > You need at least NodeJS v17 to deploy Holy Unblocker.
+
+   We recommend installing from [NodeSource](https://github.com/nodesource/distributions#table-of-contents), or using [Node Version Manager](https://github.com/nvm-sh/nvm#table-of-contents) to install the latest version.
+
+   [Most distros usually have very outdated versions of NodeJS.](https://gist.github.com/e9x/b549f46081ce794914461f2fbb9566bd#file-nodejs-across-linux-distributions-md)
+
+   Verify you're using NodeJS v17 or higher:
+
+   ```sh
+   node -v
+   ```
+
+3. Install [PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
+
+   > PM2 is a daemon process manager that will help you manage and keep your application online. Getting started with PM2 is straightforward, it is offered as a simple and intuitive CLI, installable via NPM.
+
+   ```sh
+   npm i -g pm2
+   ```
+
+4. Install the repo
+
+   ```sh
+   git clone https://github.com/holy-unblocker/website2
+   cd website2
+   npm install
+   npm run build
+   ```
+
+5. Start the frontend in PM2
+
+   This will start a process in PM2 called "holy".
+
+   ```sh
+   pm2 start ./run-server.js --name holy
+   ```
+
+6. View the logs
+
+   > Press <kbd>CTRL</kbd> + <kbd>C</kbd> to exit the logs.
+
+   ```sh
+   pm2 logs holy
+   ```
+
+7. Save your PM2 config and enable running on startup
+
+   This will make it so `pm2` runs automatically when your VPS restarts.
+
+   ```sh
+   pm2 save
+   pm2 startup
+   ```
+
+8. Setup a reverse proxy
+
+   By default, Holy Unblocker listens on http://127.0.0.1:8080/ and isn't accessible over the internet.
+
+   Keep in mind that you want to setup HTTPS/SSL, otherwise Ultraviolet won't work.
+
+   I personally recommend Caddy as a reverse proxy.
+
+   > Caddy is a powerful, extensible platform to serve your sites, services, and apps...
+
+   https://caddyserver.com/docs/
+
+   You can view the example Caddyfile at [./config/Caddyfile](./config/Caddyfile)
 
 ## <img src="docs/struct.gif" alt="Project Structure" height="80px">
 
@@ -70,9 +142,9 @@ Execute all commands from the root of the project, employing a terminal:
 
 ## <img src="docs/acc.gif" alt="Account System" height="80px">
 
-- first account created will be given admin for convenience
+The first account created will be given admin for convenience.
 
-## how to format your SVGs
+## SVG formatting guide
 
 im writing this here because I look crazy for updating like 30 svgs in one commit
 
