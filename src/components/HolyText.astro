@@ -15,7 +15,7 @@ const { text, ...props } = Astro.props;
     <span
       {...props}
       data-ectext={CryptoJS.AES.encrypt(text, Astro.locals.clientKey)}
-      set:text={text.split("").map((e) => (e === " " ? e : "_"))}
+      set:text={text.split("").map((e) => (e === " " ? e : "-"))}
     />
   )
 }
