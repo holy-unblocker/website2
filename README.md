@@ -1,4 +1,4 @@
-# <img src="./src/icons/hat.svg" style="width: 1em; vertical-align: middle"> Holy Unblocker Frontend
+# <img src="./src/icons/hat.svg" style="width: 1em; vertical-align: middle"> Holy Unblocker Frontend 2
 
 ## [PROXY SITE HOSTING STARTING AT $6.99. CHECK OUT BILLIGERHOST.](https://billing.billigerhost.com/aff.php?aff=94)
 
