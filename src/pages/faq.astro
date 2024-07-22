@@ -4,29 +4,6 @@ import { appConfig } from "@config/config";
 import MainLayout from "@layouts/MainLayout.astro";
 import HolyText from "@components/HolyText.astro";
 import HolyLink from "@components/HolyLink.astro";
-
-const faq = [
-  {
-    title: "How can I self-host Holy Unblocker?",
-    content: `You can self-host/deploy Holy Unblocker by using our [all-in-one script](${appConfig.links.github.holyunblocker}).`,
-  },
-  {
-    title: "How do I get more links?",
-    content: `You can join the [TitaniumNetwork Discord Server](${appConfig.links.discord.titaniumnetwork}) to receive more links. In any channel, enter /proxy and select Holy Unblocker.`,
-  },
-  {
-    title: "The proxy is slow.",
-    content: `Our proxy servers are paid for by our subscribers. [You can see our subscription plans here.](/pro/tiers). If you subscribe, you can help us purchase faster servers in the future.`,
-  },
-  {
-    title: "Where is this website's source code?",
-    content: `The source code to this website can be found in our [Git repository](${appConfig.links.github.holyunblocker}).`,
-  },
-  {
-    title: "Is my information on the proxy secure?",
-    content: `We do not collect any data, your information is only as secure as the sites you are accessing. For privacy concerns, you can review our [Privacy Policy](/privacy).`,
-  },
-];
 ---
 
 <MainLayout title="FAQ">

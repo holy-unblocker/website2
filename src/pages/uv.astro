@@ -65,18 +65,19 @@ import HolyLink from "@components/HolyLink.astro";
         <HolyText
           text="Our servers are paid for by our supporters. If you want to help us maintain our servers and get access to exclusive features, consider subscribing to our"
         />
-        <HolyLink href={appConfig.links.patreon.holyunblocker}>Patreon</HolyLink
-        >.
-      </p>
-      <p>
-        <HolyLink
-          class={themeStyles.themeLink}
-          href={appConfig.links.discord.holyunblocker}
-          text="Join the Holy Unblocker Discord"
-        />
-        <HolyText
-          text="to talk to the community and gain access to more links."
-        />
+        <HolyLink href={appConfig.links.patreon.holyunblocker} text="Patreon"
+          >.
+        </HolyLink>
+        <p>
+          <HolyLink
+            class={themeStyles.themeLink}
+            href={appConfig.links.discord.holyunblocker}
+            text="Join the Holy Unblocker Discord"
+          />
+          <HolyText
+            text="to talk to the community and gain access to more links."
+          />
+        </p>
       </p>
     </div>
   </main>
