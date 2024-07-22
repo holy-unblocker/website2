@@ -6,7 +6,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
 
 <form class:list={[styles.omnibox, styles.theatreSearch]} id="theatreSearchBar">
   <div class={`${themeStyles.ThemeInputBar} ${styles.inputBar}`}>
-    <div class={styles.searchButton}>
+    <div class={styles.searchIcon} id="searchIcon">
       <svg>
         <use href="#searchGlass"></use>
       </svg>
@@ -18,6 +18,11 @@ import styles from "@styles/ProxyOmnibox.module.scss";
       placeholder="Search by game name"
       tabindex="1"
     />
+    <button class={styles.clearButton} id="searchClear">
+      <svg>
+        <use href="#clearButton"></use>
+      </svg>
+    </button>
   </div>
   <div class={styles.suggested} id="theatreSuggest"></div>
 </form>
@@ -173,7 +178,27 @@ import styles from "@styles/ProxyOmnibox.module.scss";
     });
 
     inputBar.addEventListener("input", () => {
+      if (inputBar.value === "") form.removeAttribute("data-text");
+      else form.setAttribute("data-text", "");
       searchTheatre(inputBar.value);
+    });
+
+    const searchClear = form.querySelector<HTMLButtonElement>("#searchClear")!;
+
+    searchClear.addEventListener("click", (event) => {
+      event.preventDefault();
+      inputBar.value = "";
+      form.removeAttribute("data-text");
+      setInputFocused(true);
+      inputBar.focus();
+    });
+
+    // allow clicking da icon
+    const searchIcon = form.querySelector<HTMLButtonElement>("#searchIcon")!;
+
+    searchIcon.addEventListener("click", (event) => {
+      event.preventDefault();
+      inputBar.focus();
     });
 
     setInputFocused(false);

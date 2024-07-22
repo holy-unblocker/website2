@@ -159,7 +159,8 @@ const engine = searchEngines[Astro.locals.searchEngine];
 
     const searchClear = form.querySelector<HTMLButtonElement>("#searchClear")!;
 
-    searchClear.addEventListener("click", () => {
+    searchClear.addEventListener("click", (event) => {
+      event.preventDefault();
       inputBar.value = "";
       form.removeAttribute("data-text");
       setInputFocused(true);

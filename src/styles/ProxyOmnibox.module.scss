@@ -22,6 +22,8 @@ $height: 44px;
   margin: 0 auto;
 
   // a search glass icon
+  // search icon is just the button except it isn't clickable
+  .searchIcon,
   .searchButton {
     border: 0;
     background-color: transparent;
