@@ -1,21 +1,35 @@
 ---
 import CryptoJS from "crypto-js";
+import HolyText from "@components/HolyText.astro";
 
 type Props = astroHTML.JSX.IntrinsicElements["div"] & {
-  href: string;
+  href?: string;
   target?: string;
+  text?: string;
 };
 
-const { href, target, ...props } = Astro.props;
+const { href, target, text, ...props } = Astro.props;
 ---
 
-<span
-  {...props}
-  data-target={target}
-  data-eclink={CryptoJS.AES.encrypt(href, Astro.locals.clientKey)}
->
-  <slot />
-</span>
+{
+  Astro.locals.isMainWebsite ? (
+    <a {...props} href={href} target={target}>
+      {typeof text === "string" ? text : <slot />}
+    </a>
+  ) : (
+    <span
+      {...props}
+      data-target={target}
+      data-eclink={
+        typeof href == "string"
+          ? CryptoJS.AES.encrypt(href, Astro.locals.clientKey)
+          : undefined
+      }
+    >
+      {typeof text === "string" ? <HolyText text={text} /> : <slot />}
+    </span>
+  )
+}
 <script>
   import { holyDecrypt } from "@lib/holyDecrypt";
 
@@ -24,6 +38,7 @@ const { href, target, ...props } = Astro.props;
       "[data-eclink]"
     )) {
       const eclink = s.getAttribute("data-eclink")!;
+      s.removeAttribute("data-eclink");
       const href = holyDecrypt(eclink);
       const target = s.getAttribute("data-target");
 

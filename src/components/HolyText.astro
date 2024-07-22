@@ -8,13 +8,23 @@ type Props = astroHTML.JSX.IntrinsicElements["div"] & {
 const { text, ...props } = Astro.props;
 ---
 
-<span
-  {...props}
-  data-ectext={CryptoJS.AES.encrypt(text, Astro.locals.clientKey)}></span>
+{
+  Astro.locals.isMainWebsite ? (
+    <span set:text={text} />
+  ) : (
+    <span
+      {...props}
+      data-ectext={CryptoJS.AES.encrypt(text, Astro.locals.clientKey)}
+      set:text={text.split("").map((e) => (e === " " ? e : "_"))}
+    />
+  )
+}
 <script>
   import { holyDecrypt } from "@lib/holyDecrypt";
 
   const parseText = () => {
+    if (navigator.webdriver) return;
+
     for (const t of document.querySelectorAll<HTMLSpanElement>(
       "[data-ectext]"
     )) {

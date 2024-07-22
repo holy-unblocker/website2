@@ -1,5 +1,7 @@
 ---
 import styles from "@styles/Navigation.module.scss";
+import HolyLink from "./HolyLink.astro";
+import HolyText from "./HolyText.astro";
 
 type Props = Record<string, any> & {
   href?: string;
@@ -25,6 +27,6 @@ const selected = Astro.url.pathname === href;
   title={name}
 >
   <span class={styles.icon} set:html={iconFilled + (iconOutlined || "")} />
-  <span class={styles.name}>{name}</span>
+  <HolyText class={styles.name} text={name} />
   {isNew && <span class={styles.new}>new</span>}
 </a>

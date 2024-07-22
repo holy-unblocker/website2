@@ -32,6 +32,8 @@ import { ViewTransitions } from "astro:transitions";
 import { appConfig } from "@config/config";
 import UltravioletScripts from "@components/UltravioletScripts.astro";
 import EncryptionKey from "@components/EncryptionKey.astro";
+import HolyText from "@components/HolyText.astro";
+import HolyLink from "@components/HolyLink.astro";
 
 function Hat() {
   switch (appConfig.hatBadge) {
@@ -106,9 +108,11 @@ const { cloak } = Astro.locals;
         title="Home"
         set:html={Hat()}
       />
-      <a href="/" class={styles.title} tabindex="-1">Holy Unblocker</a>
+      <a href="/" class={styles.title} tabindex="-1"
+        ><HolyText text="Holy Unblocker" /></a
+      >
       <div class={styles.shiftRight}></div>
-      <a
+      <HolyLink
         href={appConfig.links.github.holyunblocker}
         title="GitHub"
         class:list={[styles.button, styles.git]}
@@ -192,7 +196,7 @@ const { cloak } = Astro.locals;
 
           <div class={styles.bar}></div>
 
-          <div class={styles.title}>Arcade</div>
+          <div class={styles.title}><HolyText text="Arcade" /></div>
 
           <NavMenuTab href="/hub/" name="Popular" iconFilled={SortRounded} />
           <NavMenuTab href="/hub/all" name="All" iconFilled={List} />

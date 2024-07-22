@@ -4,6 +4,8 @@ import ProxyOmnibox from "@components/ProxyOmnibox.astro";
 import styles from "@styles/Proxy.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
+import HolyText from "@components/HolyText.astro";
+import HolyLink from "@components/HolyLink.astro";
 
 /*const ProxyMeta = () => (
   <Meta
@@ -43,30 +45,38 @@ import themeStyles from "@styles/ThemeElements.module.scss";
       <h1 class={styles.title}>Ultraviolet</h1>
       <ProxyOmnibox searchEngine={Astro.locals.searchEngine} />
       <p>
-        If you're having issues with the proxy, try troubleshooting your problem
-        by looking at the <a href="/faq">FAQ</a>.
+        <HolyText
+          text="If you're having issues with the proxy, try troubleshooting your problem by looking at the"
+        />
+        <a href="/faq">FAQ</a>.
       </p>
       <p>
-        Ultraviolet is <a
+        <HolyText text="Ultraviolet is" />
+        <HolyLink
           class={themeStyles.themeLink}
-          href={appConfig.links.github.ultraviolet}>open source</a
-        > proxy software that lets you browse the internet and bypass your network
-        firewall.
+          href={appConfig.links.github.ultraviolet}
+          text="open source"
+        />
+        <HolyText
+          text="proxy software that lets you browse the internet and bypass your network firewall."
+        />
       </p>
       <p>
-        Our servers are paid for by our premium subscribers. If you want to help
-        us maintain our servers and get access to exclusive features, consider
-        subscribing to
-        <a class={themeStyles.themeLink} href="/pro/tiers"
-          >Holy Unblocker Premium</a
+        <HolyText
+          text="Our servers are paid for by our supporters. If you want to help us maintain our servers and get access to exclusive features, consider subscribing to our"
+        />
+        <HolyLink href={appConfig.links.patreon.holyunblocker}>Patreon</HolyLink
         >.
       </p>
       <p>
-        <a
+        <HolyLink
           class={themeStyles.themeLink}
           href={appConfig.links.discord.holyunblocker}
-          >Join the Holy Unblocker Discord</a
-        > to talk to the community and gain access to more links.
+          text="Join the Holy Unblocker Discord"
+        />
+        <HolyText
+          text="to talk to the community and gain access to more links."
+        />
       </p>
     </div>
   </main>

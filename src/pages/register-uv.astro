@@ -1,4 +1,6 @@
 ---
+import EncryptionKey from "@components/EncryptionKey.astro";
+import HolyText from "@components/HolyText.astro";
 import UltravioletScripts from "@components/UltravioletScripts.astro";
 import "@fontsource/lato";
 import "@fontsource/lato/700.css";
@@ -11,7 +13,8 @@ Astro.response.headers.set("x-robots-tag", "noindex");
 <html lang="en" data-theme={Astro.locals.theme}>
   <head><meta charset="utf-8" /> </head>
   <body>
-    <main>Ultraviolet is loading...</main>
+    <EncryptionKey />
+    <main><HolyText text="Ultraviolet is loading..." /></main>
     <UltravioletScripts />
     <script>
       import { reportCompatError } from "@lib/compat";

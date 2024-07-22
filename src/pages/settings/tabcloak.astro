@@ -5,6 +5,7 @@ import styles from "@styles/Settings.module.scss";
 import Check from "@icons/check_24dp.svg?react";
 import { extractCloakData } from "@lib/cloak";
 import Banner from "@components/Banner.astro";
+import HolyText from "@components/HolyText.astro";
 
 let success: string | undefined;
 let error: string | undefined;
@@ -45,11 +46,14 @@ if (Astro.request.method === "POST")
 
 <SettingsLayout title="Tab Cloak Settings">
   <section class={styles.section}>
-    <h1 class="page-title sub settings">Tab Cloak Settings</h1>
+    <h1 class="page-title sub settings">
+      <HolyText text="Tab Cloak Settings" />
+    </h1>
     <Banner success={success} error={error} />
     <p>
-      Tab Cloaking allows you to disguise Holy Unblocker as any website such as
-      your school's home page, new tab, etc.
+      <HolyText
+        text="Tab Cloaking allows you to disguise Holy Unblocker as any website such as your school's home page, new tab, etc."
+      />
     </p>
     <div>
       <p>URL</p>
@@ -73,7 +77,9 @@ if (Astro.request.method === "POST")
     </div>
     <div>
       <form method="post">
-        <button class={themeStyles.ThemeButton}>Reset Cloak</button>
+        <button class={themeStyles.ThemeButton}
+          ><HolyText text="Reset Cloak" /></button
+        >
       </form>
     </div>
   </section>

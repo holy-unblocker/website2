@@ -3,39 +3,51 @@ import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import { appConfig } from "@config/config";
 import HolyLink from "@components/HolyLink.astro";
+import HolyText from "@components/HolyText.astro";
+import { stripeEnabled } from "@config/apis";
 ---
 
 <MainLayout title="Credits">
-  <main>
-    <h3>THANK YOU FOR SUPPORTING US :D</h3>
+  <main class="padded">
+    <h3><HolyText text="THANK YOU FOR SUPPORTING US :D" /></h3>
 
-    <h2>Credits</h2>
+    <h2><HolyText text="Credits" /></h2>
 
-    <h4>Operations</h4>
+    <h4><HolyText text="Operations" /></h4>
 
     <ul>
       <li>
-        <HolyLink href="https://github.com/e9x" class={themeStyles.themeLink}
-          >David</HolyLink
-        >
-        - Owner of Holy Unblocker, main developer
+        <HolyLink
+          href="https://github.com/e9x"
+          class={themeStyles.themeLink}
+          text="Susshi/Divide"
+        />
+        - <HolyText text="Owner of Holy Unblocker, main developer" />
       </li>
-      <li>Eli - CFO/NFT specialist</li>
+      <li><HolyText text="Eli - CFO/NFT specialist" /></li>
     </ul>
 
-    <h4>Sponsors</h4>
+    <h4><HolyText text="Sponsors" /></h4>
 
     <ul>
+      {
+        stripeEnabled && (
+          <li>
+            <HolyLink
+              href="/pro/tiers"
+              class={themeStyles.themeLink}
+              text="Premium Subscribers"
+            />
+          </li>
+        )
+      }
       <li>
-        <a href="/pro/tiers" class={themeStyles.themeLink}
-          >Premium Subscribers</a
-        >
-      </li>
-      <li>
-        <HolyLink href="https://github.com/z3db0y" class={themeStyles.themeLink}
-          >z3db0y</HolyLink
-        >
-        - MASSIVE DONATOR :D
+        <HolyLink
+          href="https://github.com/z3db0y"
+          class={themeStyles.themeLink}
+          text="z3db0y"
+        />
+        - <HolyText text="MASSIVE DONATOR :D" />
       </li>
       {
         !Astro.locals.isMainWebsite && (
@@ -44,50 +56,49 @@ import HolyLink from "@components/HolyLink.astro";
               <HolyLink
                 href="https://www.my.gov.sa/wps/portal/snp/main?lang=en"
                 class={themeStyles.themeLink}
-              >
-                The Kingdom of Saudi Arabia
-              </HolyLink>
+                text="The Kingdom of Saudi Arabia"
+              />
             </li>
             <li>
               <HolyLink
                 href="https://www.mturk.com/"
                 class={themeStyles.themeLink}
-              >
-                Jeff Bezos - Amazon Mechanical Turk/AI Chatbot
-              </HolyLink>
+                text="Jeff Bezos"
+              />{" "}
+              - <HolyText text="Amazon Mechanical Turk/AI Chatbot" />
             </li>
           </>
         )
       }
     </ul>
 
-    <h4>Community</h4>
+    <h4><HolyText text="Community" /></h4>
     <ul>
       <li>
         <HolyLink
           href={appConfig.links.discord.holyunblocker}
           class={themeStyles.themeLink}
-          >Click to join our Discord server!</HolyLink
-        >
+          text="Click to join our Discord server!"
+        />
       </li>
       <li>
         <HolyLink
           href="https://github.com/s1monlol"
           class={themeStyles.themeLink}>Simon</HolyLink
-        > - Chat Mod, Professional Gambler
+        > - <HolyText text="Chat Mod, Professional Gambler" />
       </li>
       <li>
         <HolyLink
           href="https://github.com/Degen-dev"
           class={themeStyles.themeLink}>DG0Xe3</HolyLink
-        > - Chat Mod, The Meal
+        > - <HolyText text="Chat Mod, The Meal" />
       </li>
       <li>
         <HolyLink
           href="https://github.com/QuiteAFancyEmerald"
           class={themeStyles.themeLink}
-          >Quite A Fancy Emerald
-        </HolyLink> - Founder of Holy Unblocker
+          text="Quite A Fancy Emerald"
+        /> - <HolyText text="Original creator of Holy Unblocker" />
       </li>
     </ul>
 
@@ -96,26 +107,30 @@ import HolyLink from "@components/HolyLink.astro";
       <li>
         <HolyLink
           href="https://github.com/BinBashBanana"
-          class={themeStyles.themeLink}>OlyB</HolyLink
-        > - Creator of WebRetro
+          class={themeStyles.themeLink}
+          text="OlyB"
+        /> - <HolyText text="Creator of WebRetro" />
       </li>
       <li>
         <HolyLink
           href="https://github.com/caracal-js"
-          class={themeStyles.themeLink}>sexyduceduce</HolyLink
-        > - Creator of Ultraviolet
+          class={themeStyles.themeLink}
+          text="sexyduceduce"
+        /> - <HolyText text="Creator of Ultraviolet" />
       </li>
       <li>
         <HolyLink
           href={appConfig.links.github.mercuryworkshop}
-          class={themeStyles.themeLink}>Mercury Workshop</HolyLink
-        > - Creators of Wisp
+          class={themeStyles.themeLink}
+          text="Mercury Workshop"
+        /> - <HolyText text="Creators of Wisp" />
       </li>
       <li>
         <HolyLink
           href={appConfig.links.discord.titaniumnetwork}
-          class={themeStyles.themeLink}>TitaniumNetwork</HolyLink
-        > - Maintainers of Ultraviolet
+          class={themeStyles.themeLink}
+          text="TitaniumNetwork"
+        /> - <HolyText text="Maintainers of Ultraviolet" />
       </li>
     </ul>
   </main>

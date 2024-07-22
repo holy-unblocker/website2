@@ -2,6 +2,8 @@
 import themeStyles from "@styles/ThemeElements.module.scss";
 import { appConfig } from "@config/config";
 import MainLayout from "@layouts/MainLayout.astro";
+import HolyText from "@components/HolyText.astro";
+import HolyLink from "@components/HolyLink.astro";
 
 const faq = [
   {
@@ -34,21 +36,88 @@ const faq = [
       content="Holy Unblocker's frequently asked questions."
     />
   </Fragment>
-  <main>
-    {
-      faq.map(({ title, content }) => (
-        <section>
-          <h1 set:html={title} />
-          <p
-            set:html={content.replace(
-              /\[(.*?)\]\((.*?)\)/g,
-              (_, name, href) =>
-                `<a href='${href}' class='${themeStyles.themeLink}'>${name}</a>`
-            )}
-          />
-        </section>
-      ))
-    }
+  <main class="padded">
+    <section>
+      <h1>
+        <HolyText text="How can I self-host Holy Unblocker?" />
+      </h1>
+      <p>
+        <HolyText
+          text="You can self-host/deploy Holy Unblocker by using our "
+        />
+        <HolyLink
+          href={appConfig.links.github.holyunblocker}
+          text="all-in-one script"
+          class={themeStyles.themeLink}
+        />
+        <HolyText text="." />
+      </p>
+    </section>
+
+    <section>
+      <h1>
+        <HolyText text="How do I get more links?" />
+      </h1>
+      <p>
+        <HolyText text="You can join the " />
+        <HolyLink
+          href={appConfig.links.discord.titaniumnetwork}
+          text="TitaniumNetwork Discord Server"
+          class={themeStyles.themeLink}
+        />
+        <HolyText
+          text=" to receive more links. In any channel, enter /proxy and select Holy Unblocker."
+        />
+      </p>
+    </section>
+
+    <section>
+      <h1>
+        <HolyText text="The proxy is slow." />
+      </h1>
+      <p>
+        <HolyText text="Our proxy servers are paid for by our subscribers. " />
+        <HolyLink
+          href="/pro/tiers"
+          text="You can see our subscription plans here."
+          class={themeStyles.themeLink}
+        />
+        <HolyText
+          text=" If you subscribe, you can help us purchase faster servers in the future."
+        />
+      </p>
+    </section>
+
+    <section>
+      <h1>
+        <HolyText text="Where is this website's source code?" />
+      </h1>
+      <p>
+        <HolyText text="The source code to this website can be found in our " />
+        <HolyLink
+          href={appConfig.links.github.holyunblocker}
+          text="Git repository"
+          class={themeStyles.themeLink}
+        />
+        <HolyText text="." />
+      </p>
+    </section>
+
+    <section>
+      <h1>
+        <HolyText text="Is my information on the proxy secure?" />
+      </h1>
+      <p>
+        <HolyText
+          text="We do not collect any data. The information you send is end to end encrypted, depending on whether the website you're trying to access supports HTTPS or not. Your information is only as secure as the sites you are accessing."
+        />
+        <HolyLink
+          href="/privacy"
+          text="You can view our privacy policy here."
+          class={themeStyles.themeLink}
+        />
+      </p>
+    </section>
     <p style={{ marginTop: 30, opacity: 0.75 }}>
       Not what you're looking for? <a
         class={themeStyles.themeLink}

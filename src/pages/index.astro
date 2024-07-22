@@ -5,6 +5,7 @@ import Underline from "@icons/underline.svg?svgmin";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import ProxyOmnibox from "@components/ProxyOmnibox.astro";
 import UltravioletIcon from "@icons/ultraviolet_icon.svg?react";
+import HolyText from "@components/HolyText.astro";
 ---
 
 <MainLayout title="Holy Unblocker">
@@ -21,13 +22,15 @@ import UltravioletIcon from "@icons/ultraviolet_icon.svg?react";
   <main class={styles.main}>
     <div class={styles.title}>
       <span class={styles.big}
-        >Ending Internet
+        ><HolyText text="Ending Internet" />
         <span class={styles.pretty}>
-          Censorship.
+          <HolyText text="Censorship." />
           <Underline class={styles.prettyUnderline} />
         </span>
       </span>
-      <h3 class={styles.small}>Privacy right at your fingertips.</h3>
+      <h3 class={styles.small}>
+        <HolyText text="Privacy right at your fingertips." />
+      </h3>
     </div>
     <div class={styles.focus}>
       <button
@@ -41,7 +44,7 @@ import UltravioletIcon from "@icons/ultraviolet_icon.svg?react";
     </div>
     <a class={styles.poweredBy} href="/proxy">
       <Fragment set:html={UltravioletIcon} />
-      <span>Powered by <b>Ultraviolet</b></span>
+      <span>Powered by <b><HolyText text="Ultraviolet" /></b></span>
     </a>
   </main>
 </MainLayout>

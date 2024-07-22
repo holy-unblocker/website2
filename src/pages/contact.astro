@@ -3,14 +3,7 @@ import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import { appConfig } from "@config/config";
 import HolyLink from "@components/HolyLink.astro";
-
-/*faq={["
-{name: "What is Holy Unblocker's GitHub?",
-	acceptedAnswer: {
-	text: "https://github.com/holy-unblocker",
-	},
-}}
-]}*/
+import HolyText from "@components/HolyText.astro";
 ---
 
 <MainLayout title="Contact Us">
@@ -20,47 +13,51 @@ import HolyLink from "@components/HolyLink.astro";
       content="If you need help or need to contact Holy Unblocker, you can contact us here."
     />
   </Fragment>
-  <main>
+  <main class="padded">
     <h1>Contact Us</h1>
     <table>
       <tbody>
         <tr>
-          <td>GitHub:</td>
+          <td><HolyText text="GitHub:" /></td>
           <td>
             <HolyLink
               class={themeStyles.themeLink}
               href={appConfig.links.github.holyunblocker}
-              set:text={appConfig.links.github.holyunblocker}
+              text={appConfig.links.github.holyunblocker}
             />
           </td>
         </tr>
         <tr>
-          <td>Discord:</td>
+          <td><HolyText text="Discord:" /></td>
           <td>
             <HolyLink
               class={themeStyles.themeLink}
               href={appConfig.links.discord.holyunblocker}
-              set:text={appConfig.links.discord.holyunblocker}
+              text={appConfig.links.discord.holyunblocker}
             />
           </td>
           {
             "supportEmail" in appConfig && (
               <tr>
-                <td>Email:</td>
+                <td>
+                  <HolyText text="Email:" />
+                </td>
                 <td>
                   <HolyLink
                     class={themeStyles.themeLink}
                     href={"mailto:" + appConfig.supportEmail}
-                    set:text={appConfig.supportEmail}
+                    text={appConfig.supportEmail}
                   />
                 </td>
               </tr>
             )
           }
         </tr>
-        <p
-          set:text="Please do not contact us from your school email! Although we try to read and respond to emails, we will simply ignore emails coming from student email addresses to avoid any legal problems."
-        />
+        <p>
+          <HolyText
+            text="Please do not contact us from your school email! Although we try to read and respond to emails, we will simply ignore emails coming from student email addresses to avoid any legal problems."
+          />
+        </p>
       </tbody>
     </table>
   </main>

@@ -17,9 +17,8 @@ import HolyText from "./HolyText.astro";
         <span class={styles.short}>Terms</span>
       </a>
       <div>
-        <HolyText
-          text={`\u00A9 Holy Unblocker ${new Date().getUTCFullYear()}`}
-        />
+        &copy; <HolyText text="Holy Unblocker" />
+        {new Date().getUTCFullYear()}
       </div>
     </div>
   </div>

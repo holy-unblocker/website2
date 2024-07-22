@@ -98,6 +98,10 @@ main {
   box-sizing: border-box;
   flex: none;
 
+  &.padded {
+    padding: 20px 5vw;
+  }
+
   &.error {
     pre {
       white-space: break-spaces;

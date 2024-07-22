@@ -6,7 +6,7 @@ import Check from "@icons/check_24dp.svg?react";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
 import searchEngines from "@lib/searchEngines";
-import UltravioletScripts from "@components/UltravioletScripts.astro";
+import HolyText from "@components/HolyText.astro";
 
 let error: string | undefined;
 
@@ -39,7 +39,7 @@ if (Astro.request.method === "POST")
 
 <SettingsLayout title="Proxy settings">
   <section class={styles.section}>
-    <h1 class="page-title sub settings">Proxy Settings</h1>
+    <h1 class="page-title sub settings"><HolyText text="Proxy Settings" /></h1>
     <Banner error={error} />
     <form method="post">
       <p>Mode</p>
@@ -71,10 +71,7 @@ if (Astro.request.method === "POST")
     {
       !Astro.locals.isMainWebsite && (
         <p>
-          Are you the maintainer of this Holy Unblocker instance? If you want to
-          use a separate Wisp server by default, and even configure it on a
-          subdomain, you can change "separateWispServer" in ./config/config.js
-          of your instance :D
+          <HolyText text="Are you the maintainer of this instance? If you want to use a separate Wisp server by default, and even configure it on a subdomain, you can change 'separateWispServer' in ./config/config.js of your instance." />
         </p>
       )
     }
