@@ -2,6 +2,7 @@
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import { appConfig } from "@config/config";
+import HolyLink from "@components/HolyLink.astro";
 ---
 
 <MainLayout title="Credits">
@@ -14,15 +15,10 @@ import { appConfig } from "@config/config";
 
     <ul>
       <li>
-        <a href="https://github.com/e9x" class={themeStyles.themeLink}>David</a>
+        <HolyLink href="https://github.com/e9x" class={themeStyles.themeLink}
+          >David</HolyLink
+        >
         - Owner of Holy Unblocker, main developer
-      </li>
-      <li>
-        <a
-          href="https://github.com/QuiteAFancyEmerald"
-          class={themeStyles.themeLink}
-          >Quite A Fancy Emerald
-        </a> - Founder of Holy Unblocker
       </li>
       <li>Eli - CFO/NFT specialist</li>
     </ul>
@@ -36,8 +32,8 @@ import { appConfig } from "@config/config";
         >
       </li>
       <li>
-        <a href="https://github.com/z3db0y" class={themeStyles.themeLink}
-          >z3db0y</a
+        <HolyLink href="https://github.com/z3db0y" class={themeStyles.themeLink}
+          >z3db0y</HolyLink
         >
         - MASSIVE DONATOR :D
       </li>
@@ -45,17 +41,20 @@ import { appConfig } from "@config/config";
         !Astro.locals.isMainWebsite && (
           <>
             <li>
-              <a
+              <HolyLink
                 href="https://www.my.gov.sa/wps/portal/snp/main?lang=en"
                 class={themeStyles.themeLink}
               >
                 The Kingdom of Saudi Arabia
-              </a>
+              </HolyLink>
             </li>
             <li>
-              <a href="https://www.mturk.com/" class={themeStyles.themeLink}>
+              <HolyLink
+                href="https://www.mturk.com/"
+                class={themeStyles.themeLink}
+              >
                 Jeff Bezos - Amazon Mechanical Turk/AI Chatbot
-              </a>
+              </HolyLink>
             </li>
           </>
         )
@@ -65,45 +64,57 @@ import { appConfig } from "@config/config";
     <h4>Community</h4>
     <ul>
       <li>
-        <a
+        <HolyLink
           href={appConfig.links.discord.holyunblocker}
-          class={themeStyles.themeLink}>Click to join our Discord server!</a
+          class={themeStyles.themeLink}
+          >Click to join our Discord server!</HolyLink
         >
       </li>
       <li>
-        <a href="https://github.com/s1monlol" class={themeStyles.themeLink}
-          >Simon</a
+        <HolyLink
+          href="https://github.com/s1monlol"
+          class={themeStyles.themeLink}>Simon</HolyLink
         > - Chat Mod, Professional Gambler
       </li>
       <li>
-        <a href="https://github.com/Degen-dev" class={themeStyles.themeLink}
-          >DG0Xe3</a
+        <HolyLink
+          href="https://github.com/Degen-dev"
+          class={themeStyles.themeLink}>DG0Xe3</HolyLink
         > - Chat Mod, The Meal
+      </li>
+      <li>
+        <HolyLink
+          href="https://github.com/QuiteAFancyEmerald"
+          class={themeStyles.themeLink}
+          >Quite A Fancy Emerald
+        </HolyLink> - Founder of Holy Unblocker
       </li>
     </ul>
 
     <h4>Software</h4>
     <ul>
       <li>
-        <a href="https://github.com/BinBashBanana" class={themeStyles.themeLink}
-          >OlyB</a
-        > - WebRetro
+        <HolyLink
+          href="https://github.com/BinBashBanana"
+          class={themeStyles.themeLink}>OlyB</HolyLink
+        > - Creator of WebRetro
       </li>
       <li>
-        <a href="https://github.com/caracal-js" class={themeStyles.themeLink}
-          >sexyduceduce</a
+        <HolyLink
+          href="https://github.com/caracal-js"
+          class={themeStyles.themeLink}>sexyduceduce</HolyLink
         > - Creator of Ultraviolet
       </li>
       <li>
-        <a
+        <HolyLink
           href={appConfig.links.github.mercuryworkshop}
-          class={themeStyles.themeLink}>Mercury Workshop</a
+          class={themeStyles.themeLink}>Mercury Workshop</HolyLink
         > - Creators of Wisp
       </li>
       <li>
-        <a
+        <HolyLink
           href={appConfig.links.discord.titaniumnetwork}
-          class={themeStyles.themeLink}>TitaniumNetwork</a
+          class={themeStyles.themeLink}>TitaniumNetwork</HolyLink
         > - Maintainers of Ultraviolet
       </li>
     </ul>

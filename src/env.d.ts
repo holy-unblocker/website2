@@ -36,6 +36,12 @@ declare var setServiceSrc: (src?: string | null) => Promise<void> | void;
 namespace App {
   interface Locals {
     isMainWebsite: boolean;
+
+    // unique encryption key
+    clientKey: string;
+
+    // obfus: import("@lib/Obfuscator").default;
+
     theme: string;
     // returns true if theme is "day" or "night", false if invalid
     setTheme: (newTheme?: string | null) => boolean;

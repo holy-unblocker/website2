@@ -21,7 +21,6 @@ import UltravioletScripts from "./UltravioletScripts.astro";
 </div>
 <!-- this won't persist -->
 <div data-proxy-mode={Astro.locals.proxyMode} id="proxyModeSetting"></div>
-<UltravioletScripts />
 <script>
   import { decryptURL, encryptURL } from "@lib/cryptURL";
   import { setupServiceWorker } from "@lib/register-sw";
@@ -170,8 +169,6 @@ import UltravioletScripts from "./UltravioletScripts.astro";
       window.setServiceSrc();
       return;
     }
-
-    console.trace("page load");
 
     const serviceEmbed =
       document.querySelector<HTMLIFrameElement>("#serviceEmbed")!;

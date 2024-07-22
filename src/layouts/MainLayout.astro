@@ -30,6 +30,8 @@ import Footer from "@components/Footer.astro";
 import { stripeEnabled } from "@config/apis";
 import { ViewTransitions } from "astro:transitions";
 import { appConfig } from "@config/config";
+import UltravioletScripts from "@components/UltravioletScripts.astro";
+import EncryptionKey from "@components/EncryptionKey.astro";
 
 function Hat() {
   switch (appConfig.hatBadge) {
@@ -256,5 +258,7 @@ const { cloak } = Astro.locals;
           else setting.removeAttribute("data-selected");
       });
     </script>
+    <UltravioletScripts />
+    <EncryptionKey />
   </body>
 </html>

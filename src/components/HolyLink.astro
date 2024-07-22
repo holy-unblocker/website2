@@ -1,0 +1,46 @@
+---
+import CryptoJS from "crypto-js";
+
+type Props = astroHTML.JSX.IntrinsicElements["div"] & {
+  href: string;
+  target?: string;
+};
+
+const { href, target, ...props } = Astro.props;
+---
+
+<span
+  {...props}
+  data-target={target}
+  data-eclink={CryptoJS.AES.encrypt(href, Astro.locals.clientKey)}
+>
+  <slot />
+</span>
+<script>
+  document.addEventListener("astro:page-load", () => {
+    for (const a of document.querySelectorAll<HTMLAnchorElement>(
+      "[data-eclink]"
+    )) {
+      const link = a.getAttribute("data-eclink")!;
+      const href = window.decrypt(link);
+      const target = a.getAttribute("data-target");
+
+      a.addEventListener("mouseup", (event) => {
+        if (event.button === 1) {
+          event.preventDefault();
+          window.open(href, "_blank");
+        }
+      });
+
+      a.addEventListener("click", (event) => {
+        event.preventDefault();
+
+        if (event.ctrlKey) {
+          window.open(href, "_blank");
+        } else {
+          window.open(href, target === null ? "_self" : target);
+        }
+      });
+    }
+  });
+</script>

@@ -2,6 +2,7 @@
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import { appConfig } from "@config/config";
+import HolyLink from "@components/HolyLink.astro";
 
 /*faq={["
 {name: "What is Holy Unblocker's GitHub?",
@@ -26,7 +27,7 @@ import { appConfig } from "@config/config";
         <tr>
           <td>GitHub:</td>
           <td>
-            <a
+            <HolyLink
               class={themeStyles.themeLink}
               href={appConfig.links.github.holyunblocker}
               set:text={appConfig.links.github.holyunblocker}
@@ -36,31 +37,31 @@ import { appConfig } from "@config/config";
         <tr>
           <td>Discord:</td>
           <td>
-            <a
+            <HolyLink
               class={themeStyles.themeLink}
               href={appConfig.links.discord.holyunblocker}
               set:text={appConfig.links.discord.holyunblocker}
             />
           </td>
+          {
+            "supportEmail" in appConfig && (
+              <tr>
+                <td>Email:</td>
+                <td>
+                  <HolyLink
+                    class={themeStyles.themeLink}
+                    href={"mailto:" + appConfig.supportEmail}
+                    set:text={appConfig.supportEmail}
+                  />
+                </td>
+              </tr>
+            )
+          }
         </tr>
-        {
-          "supportEmail" in appConfig && (
-            <tr>
-              <td>Email:</td>
-              <td>
-                <a
-                  class={themeStyles.themeLink}
-                  href={"mailto:" + appConfig.supportEmail}
-                  set:text={appConfig.supportEmail}
-                />
-              </td>
-            </tr>
-          )
-        }
+        <p
+          set:text="Please do not contact us from your school email! Although we try to read and respond to emails, we will simply ignore emails coming from student email addresses to avoid any legal problems."
+        />
       </tbody>
-      <p
-        set:text="Please do not contact us from your school email! Although we try to read and respond to emails, we will simply ignore emails coming from student email addresses to avoid any legal problems."
-      />
     </table>
   </main>
 </MainLayout>

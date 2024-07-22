@@ -5,6 +5,7 @@ import { defineMiddleware } from "astro:middleware";
 import engines from "@lib/searchEngines";
 import { extractCloakData, type AppCloak } from "@lib/cloak";
 import { appConfig } from "@config/config";
+import CryptoJS from "crypto-js";
 
 // use our default wisp api, which is hosted at /bare/
 // see separateWispServer in ./config/config.js to change this by default
@@ -87,12 +88,22 @@ async function getRandomCloak(): Promise<AppCloak | undefined> {
 
 // `context` and `next` are automatically typed
 export const onRequest = defineMiddleware(async (context, next) => {
+  // do redirect stuff because im an idiot
   // oops
   if (context.url.pathname.startsWith("/donate/"))
     return context.redirect(
-      "/sub" + context.url.pathname.slice("/donate".length),
+      "/pro" + context.url.pathname.slice("/donate".length),
       301
     );
+  if (context.url.pathname.startsWith("/sub/"))
+    return context.redirect(
+      "/pro" + context.url.pathname.slice("/sub".length),
+      301
+    );
+
+  context.locals.clientKey = CryptoJS.lib.WordArray.random(128 / 8).toString();
+
+  // context.locals.obfus = new HolyObfuscator(context.url.hostname, context.locals.isMainWebsite);
 
   context.locals.isMainWebsite =
     !("mainWebsite" in appConfig) ||
