@@ -53,6 +53,9 @@ export interface AppConfig {
     };
   };
   links: {
+    patreon: {
+      holyunblocker: string;
+    };
     github: {
       ultraviolet: string;
       titaniumnetwork: string;

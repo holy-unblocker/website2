@@ -53,8 +53,7 @@ export const appConfig = {
   // - used to not automatically set a cloak
   // - used to determine if metadata should be inserted
   // - used to determine if x-robots-tag should be set
-  mainWebsite: "127.0.0.1",
-  //mainWebsite: "holyubofficial.net",
+  mainWebsite: "holyubofficial.net",
 
   // POSTGRES DATABASE CONFIG
   // if no credentials are specified, it will proxy the mirror
@@ -137,6 +136,9 @@ export const appConfig = {
 
   // general website links
   links: {
+    patreon: {
+      holyunblocker: "https://www.patreon.com/holyunblocker",
+    },
     github: {
       ultraviolet: "https://github.com/titaniumnetwork-dev/Ultraviolet",
       titaniumnetwork: "https://github.com/titaniumnetwork-dev",
