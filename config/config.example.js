@@ -53,7 +53,7 @@ export const appConfig = {
   // - used to not automatically set a cloak
   // - used to determine if metadata should be inserted
   // - used to determine if x-robots-tag should be set
-  mainWebsite: "localhost",
+  mainWebsite: "127.0.0.1",
   //mainWebsite: "holyubofficial.net",
 
   // POSTGRES DATABASE CONFIG
@@ -62,12 +62,12 @@ export const appConfig = {
   // strings are also acceptable
 
   // local postgresql server:
-  //db: "postgresql://user:secret@localhost/dbname",
+  //db: "postgresql://user:secret@127.0.0.1/dbname",
 
   //db: {
   //  user: "user",
   //  password: "secret",
-  //  host: "localhost",
+  //  host: "127.0.0.1",
   //  port: 5432,
   //  database: "dbname",
   //},
