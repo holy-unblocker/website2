@@ -4,7 +4,7 @@ import { theatreCategories } from "@lib/gameCategories";
 export const renderSearchResult = (
   result: string,
   query: string,
-  categories?: string[] | null
+  categories?: string[] | null,
 ) => {
   const ele = document.createElement("div");
 

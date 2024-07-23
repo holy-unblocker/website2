@@ -32,7 +32,7 @@ export const mailer: nodemailer.Transporter;
 
 // returns undefined = no current payment plan
 export async function getUserPayment(
-  userId: number
+  userId: number,
 ): Promise<m.PaymentModel | undefined>;
 
 /**
@@ -50,5 +50,5 @@ export function getTierName(tier: number = 0): string;
 export async function giveTierDiscordRoles(
   user: m.UserModel,
   tier: number = 0,
-  deleteRoles: boolean = false
+  deleteRoles: boolean = false,
 ): Promise<boolean>;

@@ -35,7 +35,7 @@ export interface AppConfig {
     };
   };
   mailer: {
-    transport: Parameters<typeof import("nodemailer")["createTransport"]>[0];
+    transport: Parameters<(typeof import("nodemailer"))["createTransport"]>[0];
     sender: import("nodemailer").SendMailOptions["sender"];
     noreply: string;
   };

@@ -24,7 +24,9 @@
   box-sizing: border-box;
   border: 1px solid hsl(210, 13.8%, 88.6%);
   border-radius: 5px;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
 
   // for entering email verify code
   &.code {
@@ -72,7 +74,9 @@
   background-position: right 0.75rem center;
   background-size: 16px 12px;
   border: 1px solid #dee2e6;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
 }
 
 @media (prefers-reduced-motion: reduce) {

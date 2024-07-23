@@ -39,21 +39,21 @@ if (!stripeEnabled)
     stripe: {
       get: () => {
         throw new TypeError(
-          "Tried to get appConfig.stripe, but stripe support isn't enabled."
+          "Tried to get appConfig.stripe, but stripe support isn't enabled.",
         );
       },
     },
     mailer: {
       get: () => {
         throw new TypeError(
-          "Tried to get appConfig.mailer, but stripe support isn't enabled."
+          "Tried to get appConfig.mailer, but stripe support isn't enabled.",
         );
       },
     },
     discord: {
       get: () => {
         throw new TypeError(
-          "Tried to get appConfig.discord, but stripe support isn't enabled."
+          "Tried to get appConfig.discord, but stripe support isn't enabled.",
         );
       },
     },
@@ -63,7 +63,7 @@ export async function getUserPayment(userId) {
   const payment = (
     await db.query(
       "SELECT * FROM payment WHERE user_id = $1 AND NOW() > period_start AND NOW() < period_end ORDER BY tier DESC;",
-      [userId]
+      [userId],
     )
   ).rows[0];
 
@@ -113,7 +113,7 @@ function getTierDiscordRoles(tier) {
 export async function giveTierDiscordRoles(
   user,
   tier = 0,
-  deleteRoles = false
+  deleteRoles = false,
 ) {
   const roleIds = getTierDiscordRoles(tier);
 
@@ -125,7 +125,7 @@ export async function giveTierDiscordRoles(
       "to",
       user.discord_id,
       "in guild",
-      appConfig.discord.guildId
+      appConfig.discord.guildId,
     );
 
     // https://discord.com/developers/docs/resources/guild#add-guild-member-role
@@ -139,7 +139,7 @@ export async function giveTierDiscordRoles(
             user.id
           }) this role as part of their tier (${getTierName(tier)})`,
         },
-      }
+      },
     );
 
     if (res.status !== 204) {

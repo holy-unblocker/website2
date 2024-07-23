@@ -7,7 +7,7 @@ export class Scroll {
   y: number;
   constructor(
     x = document.documentElement.scrollLeft,
-    y = document.documentElement.scrollTop
+    y = document.documentElement.scrollTop,
   ) {
     this.x = x;
     this.y = y;

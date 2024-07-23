@@ -2,7 +2,7 @@
 import { createRequire } from "module";
 
 const bcrypt = createRequire(import.meta.url)(
-  "@node-rs/bcrypt"
+  "@node-rs/bcrypt",
 ) as typeof import("@node-rs/bcrypt");
 
 export const hash = bcrypt.hash;

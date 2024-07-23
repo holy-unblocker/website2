@@ -67,7 +67,7 @@ function validate(entry: TheatreEntry): entry is TheatreEntry {
   if ("type" in entry)
     if (!theatreTypes.includes(entry.type))
       throw new TypeError(
-        `Entry type was not one of the following: ${theatreTypes}`
+        `Entry type was not one of the following: ${theatreTypes}`,
       );
 
   return true;
@@ -95,7 +95,7 @@ export default class TheatreWrapper {
     const row = (
       await this.client.query<TheatreModel>(
         "SELECT * FROM theatre WHERE id = $1",
-        [id]
+        [id],
       )
     ).rows[0];
 
@@ -103,7 +103,7 @@ export default class TheatreWrapper {
   }
   async list(
     options: ListOptions = {},
-    _signal?: AbortSignal
+    _signal?: AbortSignal,
   ): Promise<ListData> {
     // 0: select, 1: condition, 3: order, 3: limit, 4: offset
     const select = [];
@@ -114,15 +114,15 @@ export default class TheatreWrapper {
     if (typeof options.limitPerCategory === "number")
       conditions.push(
         `(SELECT COUNT(*) FROM theatre b WHERE string_to_array(b."category", ',') && string_to_array(a."category", ',') AND a."index" < b."index") < $${vars.push(
-          options.limitPerCategory
-        )}`
+          options.limitPerCategory,
+        )}`,
       );
 
     if (typeof options.ids === "object") {
       // split the entry category into an array
       // check if the input categories array has any elements in common with the entry category array
       conditions.push(
-        `id = ANY(string_to_array($${vars.push(options.ids.join(","))}, ','))`
+        `id = ANY(string_to_array($${vars.push(options.ids.join(","))}, ','))`,
       );
     }
 
@@ -136,14 +136,14 @@ export default class TheatreWrapper {
       // check if the input categories array has any elements in common with the entry category array
       conditions.push(
         `string_to_array(category, ',') && string_to_array($${vars.push(
-          options.category.join(",")
-        )}, ',')`
+          options.category.join(","),
+        )}, ',')`,
       );
     }
 
     if (typeof options.category === "string") {
       conditions.push(
-        `$${vars.push(options.category)} = ANY(string_to_array(category, ','))`
+        `$${vars.push(options.category)} = ANY(string_to_array(category, ','))`,
       );
     }
 
@@ -160,7 +160,7 @@ export default class TheatreWrapper {
 
     if (typeof options.search === "string") {
       selection.push(
-        `similarity(name, $${vars.push(options.search.toUpperCase())}) as sml`
+        `similarity(name, $${vars.push(options.search.toUpperCase())}) as sml`,
       );
       order.push("sml DESC", "name");
     }
@@ -194,7 +194,7 @@ export default class TheatreWrapper {
 
     const { rows } = await this.client.query<TheatreModel & { total: string }>(
       query,
-      vars
+      vars,
     );
 
     const total = parseInt(rows[0]?.total);
@@ -217,7 +217,7 @@ export default class TheatreWrapper {
     type: TheatreEntry["type"],
     src: TheatreEntry["src"],
     category: TheatreEntry["category"],
-    controls: TheatreEntry["controls"]
+    controls: TheatreEntry["controls"],
   ) {
     const entry = {
       id: Math.random().toString(36).slice(2),
@@ -235,13 +235,13 @@ export default class TheatreWrapper {
 
     await this.client.query(
       `INSERT INTO theatre (id, name, type, category, src, plays, controls) VALUES ($${vars.push(
-        entry.id
+        entry.id,
       )}, $${vars.push(entry.name)}, $${vars.push(entry.type)}, $${vars.push(
-        entry.category.join(",")
+        entry.category.join(","),
       )}, $${vars.push(entry.src)}, $${vars.push(entry.plays)}, $${vars.push(
-        JSON.stringify(entry.controls)
+        JSON.stringify(entry.controls),
       )});`,
-      vars
+      vars,
     );
 
     return entry;
@@ -252,7 +252,7 @@ export default class TheatreWrapper {
     type: TheatreEntry["type"],
     src: TheatreEntry["src"],
     category: TheatreEntry["category"],
-    controls: TheatreEntry["controls"]
+    controls: TheatreEntry["controls"],
   ) {
     let entry = await this.show(id);
 
@@ -285,13 +285,13 @@ export default class TheatreWrapper {
     const res = (
       await this.client.query<TheatreModel>(
         `UPDATE theatre SET name = $${vars.push(
-          entry.name
+          entry.name,
         )}, type = $${vars.push(entry.type)}, category = $${vars.push(
-          entry.category.join(",")
+          entry.category.join(","),
         )}, src = $${vars.push(entry.src)}, controls = $${vars.push(
-          JSON.stringify(entry.controls)
+          JSON.stringify(entry.controls),
         )} WHERE id = $${vars.push(entry.id)} RETURNING *;`,
-        vars
+        vars,
       )
     ).rows[0];
 
@@ -302,7 +302,7 @@ export default class TheatreWrapper {
       (
         await this.client.query(
           `UPDATE theatre SET plays = plays + 1 WHERE id = $1`,
-          [id]
+          [id],
         )
       ).rowCount !== 0
     );

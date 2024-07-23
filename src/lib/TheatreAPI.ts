@@ -121,7 +121,7 @@ export default class TheatreAPI {
   async fetch<JSONData>(
     url: string,
     init: RequestInit = {},
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ) {
     const outgoing = await fetch(this.api + url, {
       ...init,
@@ -133,7 +133,7 @@ export default class TheatreAPI {
     if (!outgoing.ok) {
       const error: Partial<JSONError<unknown>> = new Error(
         ("message" in json && (json as { message: string }).message) ||
-          outgoing.statusText
+          outgoing.statusText,
       );
       error.statusCode = outgoing.status;
       error.json = json;
@@ -155,7 +155,7 @@ export default class TheatreAPI {
     return await this.fetch<ListData>(
       "?" + new URLSearchParams(this.sortParams(s)),
       undefined,
-      signal
+      signal,
     );
   }
 }

@@ -41,7 +41,7 @@ export async function fetchListData(
   search: string | undefined | null,
   category: string[] | undefined | null,
   sort: string,
-  page: number
+  page: number,
 ) {
   let apiSort: string | undefined;
   let apiOrder: string | undefined;

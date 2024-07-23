@@ -132,7 +132,9 @@ html[data-tab] {
     left: 0;
     width: 100%;
     height: 100%;
-    transition: opacity 0.3s, visibility 0.3s;
+    transition:
+      opacity 0.3s,
+      visibility 0.3s;
     opacity: 0;
     visibility: hidden;
   }
@@ -150,7 +152,9 @@ html[data-tab] {
     height: 100vh;
     box-sizing: border-box;
     transform: translateX(-100%);
-    transition: transform 0.3s, visibility 0.3s 0.3s;
+    transition:
+      transform 0.3s,
+      visibility 0.3s 0.3s;
     overflow: hidden;
 
     @include screenMobile {

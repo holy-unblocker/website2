@@ -18,7 +18,7 @@ export const getCompatDest = () => {
 export function reportCompatError(
   error: any,
   cause: string | undefined,
-  what: string
+  what: string,
 ) {
   console.log(error, cause);
   const container = document.querySelector<HTMLElement>("main")!;

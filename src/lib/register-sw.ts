@@ -15,7 +15,7 @@ export async function setupServiceWorker() {
   // this provides a HUGE performance improvement
   if (!window.crossOriginIsolated && !isDev)
     console.warn(
-      "crossOriginIsolated should be enabled to increase performance."
+      "crossOriginIsolated should be enabled to increase performance.",
     );
 
   if (!navigator.serviceWorker) {
