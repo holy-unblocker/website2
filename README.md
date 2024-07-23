@@ -5,7 +5,7 @@
 > NOW WITH 0% REACT CODE >:)
 > Written in Astro, TypeScript, and SCSS
 
-[JOIN OUR DISCORD](https://discord.gg/JFDCJzFana)
+[JOIN OUR DISCORD](https://discord.gg/VZguJSmMcN)
 
 ## <img src="docs/quickstart.gif" alt="Quick Start" height="80px">
 
