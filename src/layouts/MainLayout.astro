@@ -93,9 +93,9 @@ const { cloak } = Astro.locals;
       )
     }
     <ViewTransitions />
-    <EncryptionKey />
   </head>
   <body>
+    <EncryptionKey />
     <nav class={styles.nav} tabindex="0" transition:persist>
       <div
         class:list={[styles.button, styles.center]}
@@ -108,9 +108,12 @@ const { cloak } = Astro.locals;
         title="Home"
         set:html={Hat()}
       />
-      <a href="/" class={styles.title} tabindex="-1"
-        ><HolyText text="Holy Unblocker" /></a
-      >
+      <HolyLink
+        href="/"
+        class={styles.title}
+        tabindex="-1"
+        text="Holy Unblocker"
+      />
       <div class={styles.shiftRight}></div>
       <HolyLink
         href={appConfig.links.github.holyunblocker}
@@ -136,14 +139,19 @@ const { cloak } = Astro.locals;
             set:html={MenuIcon}
             onclick="setNavExpanded(false)"
           />
-          <a
-            href="/"
+          <div
             class:list={[styles.entry, styles.logo]}
             title="Home"
             set:html={Hat()}
             onclick="setNavExpanded(false)"
           />
-          <a href="/" class={styles.title} tabindex="-1">Holy Unblocker</a>
+          <div
+            class={styles.title}
+            tabindex="-1"
+            onclick="setNavExpanded(false)"
+          >
+            Holy Unblocker
+          </div>
         </div>
         <div class={styles.menuList}>
           <NavMenuTab

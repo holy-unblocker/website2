@@ -147,6 +147,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
           break;
         case "Enter":
           event.preventDefault();
+          event.stopImmediatePropagation();
           submitOmnibox();
           break;
       }

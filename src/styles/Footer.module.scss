@@ -80,7 +80,7 @@
       font-size: 12px;
       line-height: 16px;
 
-      > a,
+      > span,
       > div {
         margin-left: 15px;
 
@@ -89,7 +89,7 @@
         }
       }
 
-      > a {
+      > span {
         color: inherit;
 
         &:hover {

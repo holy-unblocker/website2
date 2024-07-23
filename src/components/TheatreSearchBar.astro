@@ -135,8 +135,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
       setInputFocused(false);
     });
 
-    inputBar.form!.addEventListener("submit", (event) => {
-      event.preventDefault();
+    const submitSearchBar = () => {
       setInputFocused(false);
       const entry = suggest.children[resultIndex] as HTMLAnchorElement;
       if (entry === undefined) {
@@ -145,6 +144,11 @@ import styles from "@styles/ProxyOmnibox.module.scss";
       } else {
         navigate(entry.getAttribute("data-href")!);
       }
+    };
+
+    inputBar.form!.addEventListener("submit", (event) => {
+      event.preventDefault();
+      submitSearchBar();
     });
 
     function updateResults() {
@@ -174,6 +178,11 @@ import styles from "@styles/ProxyOmnibox.module.scss";
           else resultIndex -= 1;
           updateResults();
           break;
+        case "Enter":
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          submitSearchBar();
+          break;
       }
     });
 
@@ -187,6 +196,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
 
     searchClear.addEventListener("click", (event) => {
       event.preventDefault();
+      console.trace("what the fuc,", event);
       inputBar.value = "";
       form.removeAttribute("data-text");
       setInputFocused(true);

@@ -55,9 +55,9 @@ import { appConfig } from "@config/config";
         </div>
       )
     }
-    <a class={styles.poweredBy} href="/uv">
+    <HolyLink class={styles.poweredBy} href="/uv">
       <Fragment set:html={UltravioletIcon} />
       <span>Powered by <b><HolyText text="Ultraviolet" /></b></span>
-    </a>
+    </HolyLink>
   </main>
 </MainLayout>

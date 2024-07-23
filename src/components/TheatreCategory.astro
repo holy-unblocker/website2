@@ -11,6 +11,7 @@ import ChevronRight from "@icons/chevron_right_24dp.svg?react";
 import Banner from "@components/Banner.astro";
 import type { ListData } from "@lib/TheatreAPI";
 import HolyText from "./HolyText.astro";
+import HolyLink from "./HolyLink.astro";
 
 interface Props {
   name: string;
@@ -70,7 +71,11 @@ const maxPage =
 <TheatreSearchBar />
 <main class={styles.main}>
   <h1 class="page-title sub">
-    {isGame && <a class="back-button" href="/hub/" set:html={ArrowBackIcon} />}
+    {
+      isGame && (
+        <HolyLink class="back-button" href="/hub/" set:html={ArrowBackIcon} />
+      )
+    }
     <HolyText text={Astro.props.name} />
     {
       typeof Astro.props.search !== "string" && (

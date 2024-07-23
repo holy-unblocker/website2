@@ -42,6 +42,7 @@ const { href, target, text, ...props } = Astro.props;
       s.removeAttribute("data-eclink");
       const href = holyDecrypt(eclink);
       const target = s.getAttribute("data-target");
+      s.removeAttribute("data-target");
 
       s.addEventListener("mouseup", (event) => {
         if (event.button === 1) {

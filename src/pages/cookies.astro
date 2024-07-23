@@ -2,6 +2,7 @@
 import themeStyles from "@styles/ThemeElements.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import HolyText from "@components/HolyText.astro";
+import HolyLink from "@components/HolyLink.astro";
 ---
 
 <MainLayout title="Cookie Policy">
@@ -24,7 +25,9 @@ import HolyText from "@components/HolyText.astro";
     </p>
     <p>
       If you have any questions about our Cookie Policy, please{" "}
-      <a class={themeStyles.themeLink} href="/contact">Contact Us</a>.
+      <HolyLink class={themeStyles.themeLink} href="/contact"
+        >Contact Us</HolyLink
+      >.
     </p>
   </main>
 </MainLayout>

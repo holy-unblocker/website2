@@ -18,8 +18,8 @@ import HolyLink from "@components/HolyLink.astro";
     </p>
     <h2>Cookie Policy</h2>
     <p>
-      <a href="/cookies" class={themeStyles.themeLink}
-        >You can find our cookie policy here.</a
+      <HolyLink href="/cookies" class={themeStyles.themeLink}
+        >You can find our cookie policy here.</HolyLink
       >
     </p>
     <h2>Data Collection</h2>
@@ -37,8 +37,9 @@ import HolyLink from "@components/HolyLink.astro";
       We take the protection of your data seriously and implement appropriate
       measures to secure any information we collect. If you would like any
       information to be removed, please{" "}
-      <a class={themeStyles.themeLink} href="/contact">contact us</a> to remove your
-      data and we will promptly comply with your request.
+      <HolyLink class={themeStyles.themeLink} href="/contact"
+        >contact us</HolyLink
+      > to remove your data and we will promptly comply with your request.
     </p>
     <h2><HolyText text="Holy Unblocker Premium" /></h2>
     <p>
@@ -100,7 +101,9 @@ import HolyLink from "@components/HolyLink.astro";
       <HolyText
         text="If you have any questions about our Privacy Policy, please "
       />
-      <a href="/contact" class={themeStyles.themeLink}>Contact Us</a>.
+      <HolyLink href="/contact" class={themeStyles.themeLink}
+        >Contact Us</HolyLink
+      >.
     </p>
   </main>
 </MainLayout>

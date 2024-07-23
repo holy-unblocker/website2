@@ -153,6 +153,8 @@ html {
   align-items: center;
   height: 30px;
   color: var(--text-disabled);
+  user-select: none;
+  cursor: pointer;
 
   svg {
     margin-right: 1px;
