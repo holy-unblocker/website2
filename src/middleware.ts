@@ -1,11 +1,13 @@
 import { db, stripeEnabled } from "@config/apis";
 import { m, isIPBanned, isUserBanned } from "@lib/util";
-import { maxAgeLimit } from "@lib/url";
 import { defineMiddleware } from "astro:middleware";
 import engines from "@lib/searchEngines";
 import { extractCloakData, type AppCloak } from "@lib/cloak";
 import { appConfig } from "@config/config";
 import CryptoJS from "crypto-js";
+
+// 400 days in seconds
+const maxAgeLimit = 60 * 60 * 24 * 400;
 
 // use our default wisp api, which is hosted at /bare/
 // see separateWispServer in ./config/config.js to change this by default
@@ -93,12 +95,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (context.url.pathname.startsWith("/donate/"))
     return context.redirect(
       "/pro" + context.url.pathname.slice("/donate".length),
-      301,
+      301
     );
   if (context.url.pathname.startsWith("/sub/"))
     return context.redirect(
       "/pro" + context.url.pathname.slice("/sub".length),
-      301,
+      301
     );
 
   context.locals.clientKey = CryptoJS.lib.WordArray.random(128 / 8).toString();
@@ -164,7 +166,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
           path: "/",
           maxAge: maxAgeLimit,
           secure: true,
-        },
+        }
       );
       return true;
     } else {
@@ -338,7 +340,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const session = (
       await db.query<m.SessionModel>(
         `SELECT * FROM session WHERE secret = $1;`,
-        [cookie],
+        [cookie]
       )
     ).rows[0];
 
@@ -352,7 +354,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
       if (!e) {
         console.error(
-          "session had a reference to a non existant user...,erm what",
+          "session had a reference to a non existant user...,erm what"
         );
         context.locals.setSession();
       } else {
@@ -398,18 +400,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.url.pathname === "/pro/signup"
           ? "/pro/signup"
           : `/pro/?to=${encodeURIComponent(
-              context.url.pathname + context.url.search,
+              context.url.pathname + context.url.search
             )}`,
-        307,
+        307
       ),
     toSignup: () =>
       context.redirect(
         context.url.pathname === "/pro/"
           ? "/pro/"
           : `/pro/?to=${encodeURIComponent(
-              context.url.pathname + context.url.search,
+              context.url.pathname + context.url.search
             )}`,
-        307,
+        307
       ),
     toVerifyEmail: () => context.redirect("/pro/verify-email", 302),
     toVerifyNewEmail: () => context.redirect("/pro/verify-new-email", 302),
