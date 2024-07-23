@@ -30,9 +30,6 @@ export default defineConfig({
     port: appConfig.port,
     host: appConfig.host,
   },
-  experimental: {
-    rewriting: true, // used for dev server mirrors
-  },
   vite: {
     build: {
       dynamicImportVarsOptions: {
