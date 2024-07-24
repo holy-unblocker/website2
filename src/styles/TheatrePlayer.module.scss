@@ -12,7 +12,7 @@
   margin: calc($nav-height-border / 4) auto;
   display: flex;
   flex-direction: column;
-  width: 95%;
+  width: 100%;
   box-sizing: border-box;
   padding: 0px 15px;
   border-radius: 10px;
@@ -108,6 +108,9 @@
   > .name {
     margin: 0px;
     height: fit-content;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   > .shiftRight {
@@ -115,23 +118,28 @@
   }
 
   > .button {
-    display: contents;
-    > svg {
-      cursor: pointer;
-      margin-left: 15px;
-      border: 1px solid var(--border);
-      background-color: var(--background);
-      color: var(--text);
-      border-radius: 5px;
-      width: 40px;
-      height: 40px;
-      padding: 7px;
-      box-sizing: border-box;
+    cursor: pointer;
+    margin-left: 5px;
+    border: 1px solid var(--border);
+    background-color: var(--background);
+    color: var(--text);
+    border-radius: 5px;
+    width: 40px;
+    height: 40px;
+    box-sizing: border-box;
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    align-items: center;
 
-      &:hover {
-        background-color: var(--background-accent);
-        color: var(--text-accent);
-      }
+    &:hover {
+      background-color: var(--background-accent);
+      color: var(--text-accent);
+    }
+
+    > svg {
+      width: unset;
+      height: unset;
     }
   }
 }
@@ -153,9 +161,7 @@
       height: 100%;
       opacity: 0;
       background-color: rgba(0, 0, 0, 0.2);
-      transition:
-        opacity 0.1s,
-        visibility 0.1s;
+      transition: opacity 0.1s, visibility 0.1s;
       cursor: pointer;
       visibility: hidden;
       position: absolute;

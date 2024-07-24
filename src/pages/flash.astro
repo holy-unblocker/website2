@@ -1,8 +1,13 @@
 ---
 import CompatLayout from "@layouts/CompatLayout.astro";
-import styles from "@styles/CompatFlash.module.scss";
+import styles from "@styles/FlashPlayer.module.scss";
 ---
 
+<CompatLayout>
+  <main class={styles.main}>
+    <script src="/ruffle/ruffle.js" is:inline></script>
+  </main>
+</CompatLayout>
 <script>
   import { getCompatDest, reportCompatError } from "@lib/compat";
 
@@ -48,8 +53,3 @@ import styles from "@styles/CompatFlash.module.scss";
     }
   });
 </script>
-<CompatLayout>
-  <main class={styles.main}>
-    <script src="/ruffle/ruffle.js" is:inline></script>
-  </main>
-</CompatLayout>

@@ -4,43 +4,46 @@ import HolyText from "@components/HolyText.astro";
 import UltravioletScripts from "@components/UltravioletScripts.astro";
 import "@fontsource/lato";
 import "@fontsource/lato/700.css";
+import CompatLayout from "@layouts/CompatLayout.astro";
 import "@styles/root.scss";
 import "@styles/theme.scss";
 
 Astro.response.headers.set("x-robots-tag", "noindex");
 ---
 
-<html lang="en" data-theme={Astro.locals.theme}>
-  <head><meta charset="utf-8" /> </head>
-  <body>
-    <EncryptionKey />
-    <main class="padded"><HolyText text="Ultraviolet is loading..." /></main>
-    <UltravioletScripts />
-    <script>
-      import { reportCompatError } from "@lib/compat";
-      import { setupServiceWorker } from "@lib/register-sw";
+<CompatLayout>
+  <EncryptionKey />
+  <main class="padded"><HolyText text="Ultraviolet is loading..." /></main>
+  <UltravioletScripts />
+</CompatLayout>
+<script>
+  import { reportCompatError } from "@lib/compat";
+  import { setupServiceWorker } from "@lib/register-sw";
 
-      console.log(location.href);
+  console.log(location.href);
 
-      document.addEventListener("DOMContentLoaded", () => {
-        let errorCause: string | undefined;
+  document.addEventListener("DOMContentLoaded", () => {
+    let errorCause: string | undefined;
 
-        try {
-          console.log(
-            "Destination:",
-            __uv$config.decodeUrl!(
-              location.pathname.slice(__uv$config.prefix!.length)
-            )
-          );
+    try {
+      if (!location.pathname.startsWith(__uv$config.prefix!))
+        throw new TypeError(
+          `register-uv was served on a non-uv path: ${location.pathname}`
+        );
 
-          setupServiceWorker().then(() => {
-            console.log("SW registered");
-            setTimeout(() => location.reload(), 1000);
-          });
-        } catch (err) {
-          reportCompatError(err, errorCause, "Ultraviolet");
-        }
+      console.log(
+        "Destination:",
+        __uv$config.decodeUrl!(
+          location.pathname.slice(__uv$config.prefix!.length)
+        )
+      );
+
+      setupServiceWorker().then(() => {
+        console.log("SW registered");
+        setTimeout(() => location.reload(), 1000);
       });
-    </script>
-  </body>
-</html>
+    } catch (err) {
+      reportCompatError(err, errorCause, "Ultraviolet");
+    }
+  });
+</script>
