@@ -1,5 +1,6 @@
 // loaded on client
-import CryptoJS from "crypto-js";
+import aes from "crypto-js/aes";
+import Utf8 from "crypto-js/enc-utf8";
 
 let key: string;
 
@@ -18,5 +19,5 @@ export const holyDecrypt = (text: string) => {
   if (key === undefined) {
     if (!loadKey()) throw new Error("key isn't ready yet,. PLEASE WAIT");
   }
-  return CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
+  return aes.decrypt(text, key).toString(Utf8);
 };

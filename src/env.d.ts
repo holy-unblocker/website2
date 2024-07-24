@@ -5,7 +5,7 @@ declare module "*.svg?svgmin" {
   import type { HTMLAttributes } from "astro/types";
 
   const component: (
-    props: HTMLAttributes<"svg">,
+    props: HTMLAttributes<"svg">
   ) => astroHTML.JSX.DefinedIntrinsicElements["svg"];
 
   export default component;
@@ -39,6 +39,7 @@ namespace App {
 
     // unique encryption key
     clientKey: string;
+    encryptText: (data: string) => string;
 
     // obfus: import("@lib/Obfuscator").default;
 
@@ -64,7 +65,7 @@ namespace App {
      */
     setSession: (
       secret?: string | null,
-      staySignedIn: boolean = true,
+      staySignedIn: boolean = true
     ) => boolean;
     // helpers for page permissions and redirects
     // for reused code

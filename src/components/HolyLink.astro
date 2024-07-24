@@ -1,5 +1,4 @@
 ---
-import CryptoJS from "crypto-js";
 import HolyText from "@components/HolyText.astro";
 
 type Props = astroHTML.JSX.IntrinsicElements["div"] & {
@@ -21,9 +20,7 @@ const { href, target, text, ...props } = Astro.props;
       {...props}
       data-target={target}
       data-eclink={
-        typeof href == "string"
-          ? CryptoJS.AES.encrypt(href, Astro.locals.clientKey)
-          : undefined
+        typeof href == "string" ? Astro.locals.encryptText(href) : undefined
       }
     >
       {typeof text === "string" ? <HolyText text={text} /> : <slot />}
