@@ -4,6 +4,10 @@ $height: 44px;
 
 .inputBar {
   width: 100%;
+
+  form {
+    display: contents;
+  }
 }
 
 :root[data-omnibox-focused] body {

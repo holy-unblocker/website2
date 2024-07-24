@@ -8,32 +8,34 @@ import appDefs from "@icons/appDefs.svg?react";
 const engine = searchEngines[Astro.locals.searchEngine];
 ---
 
-<form
+<div
   class={styles.omnibox}
   id="omnibox"
   data-search-format={engine.format}
   transition:persist
 >
   <div class={`${themeStyles.ThemeInputBar} ${styles.inputBar}`}>
-    <input
-      type="text"
-      placeholder={`Search ${engine.name} or type a URL`}
-      autocomplete="off"
-      class={themeStyles.thinPadRight}
-    />
+    <form>
+      <input
+        type="text"
+        placeholder={`Search ${engine.name} or type a URL`}
+        autocomplete="off"
+        class={themeStyles.thinPadRight}
+      />
+    </form>
     <button class={styles.clearButton} id="searchClear">
       <svg>
         <use href="#clearButton"></use>
       </svg>
     </button>
-    <button type="submit" class={styles.searchButton} id="searchIcon">
+    <button class={styles.searchButton} id="searchIcon">
       <svg>
         <use href="#searchGlass"></use>
       </svg>
     </button>
   </div>
   <div class={styles.suggested} id="omniboxSuggest"></div>
-</form>
+</div>
 <Fragment set:html={appDefs} />
 <ServiceFrame />
 <script>
