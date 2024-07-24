@@ -1,20 +1,9 @@
 import { BareMuxConnection } from "@mercuryworkshop/bare-mux";
 
-let connection: BareMuxConnection | undefined;
-
-try {
-  connection = new BareMuxConnection("/baremux/worker.js");
-} catch (err) {
-  console.error("error creating connection:");
-  console.error(err);
-}
-
 // will register /sw.js and setup bare mux
 // reloads the page to activate the sw.js if it wasn't registered
 export async function setupServiceWorker() {
-  if (!connection) {
-    throw new Error("no connection available");
-  }
+  const connection = new BareMuxConnection("/baremux/worker.js");
 
   // add your network hostname here or whatever
   // this is any page that does NOT have http: but can register a serviceworker
