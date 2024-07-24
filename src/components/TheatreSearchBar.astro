@@ -9,7 +9,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
     <form>
       <input
         type="text"
-        class={themeStyles.thinPadLeft}
+        class={themeStyles.thinPadRight}
         required
         placeholder="Search by game name"
       />
@@ -209,7 +209,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
 
     searchIcon.addEventListener("click", (event) => {
       event.preventDefault();
-      inputBar.focus();
+      submitSearchBar();
     });
 
     setInputFocused(false);
