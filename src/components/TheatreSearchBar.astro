@@ -6,22 +6,22 @@ import styles from "@styles/ProxyOmnibox.module.scss";
 
 <form class:list={[styles.omnibox, styles.theatreSearch]} id="theatreSearchBar">
   <div class={`${themeStyles.ThemeInputBar} ${styles.inputBar}`}>
-    <button class={styles.clearButton} id="searchClear">
+    <div class={styles.searchIcon} id="searchIcon">
       <svg>
-        <use href="#clearButton"></use>
+        <use href="#searchGlass"></use>
       </svg>
-    </button>
+    </div>
     <input
       type="text"
       class={themeStyles.thinPadLeft}
       required
       placeholder="Search by game name"
     />
-    <div class={styles.searchIcon} id="searchIcon">
+    <button class={styles.clearButton} id="searchClear">
       <svg>
-        <use href="#searchGlass"></use>
+        <use href="#clearButton"></use>
       </svg>
-    </div>
+    </button>
   </div>
   <div class={styles.suggested} id="theatreSuggest"></div>
 </form>
