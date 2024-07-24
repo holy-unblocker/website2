@@ -1,10 +1,21 @@
 import { BareMuxConnection } from "@mercuryworkshop/bare-mux";
 
-const connection = new BareMuxConnection("/baremux/worker.js");
+let connection: BareMuxConnection | undefined;
+
+try {
+  connection = new BareMuxConnection("/baremux/worker.js");
+} catch (err) {
+  console.error("error creating connection:");
+  console.error(err);
+}
 
 // will register /sw.js and setup bare mux
 // reloads the page to activate the sw.js if it wasn't registered
 export async function setupServiceWorker() {
+  if (!connection) {
+    throw new Error("no connection available");
+  }
+
   // add your network hostname here or whatever
   // this is any page that does NOT have http: but can register a serviceworker
   const isDev = ["localhost", "127.0.0.1"].includes(location.hostname);
@@ -15,7 +26,7 @@ export async function setupServiceWorker() {
   // this provides a HUGE performance improvement
   if (!window.crossOriginIsolated && !isDev)
     console.warn(
-      "crossOriginIsolated should be enabled to increase performance.",
+      "crossOriginIsolated should be enabled to increase performance."
     );
 
   if (!navigator.serviceWorker) {
