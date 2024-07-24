@@ -3,6 +3,11 @@ import { BareMuxConnection } from "@mercuryworkshop/bare-mux";
 // will register /sw.js and setup bare mux
 // reloads the page to activate the sw.js if it wasn't registered
 export async function setupServiceWorker() {
+  if (!("SharedWorker" in window))
+    throw new Error(
+      "Your browser doesn't support the 'SharedWorker' API. Ultraviolet currently doesn't work on mobile. Sorry!"
+    );
+
   const connection = new BareMuxConnection("/baremux/worker.js");
 
   // add your network hostname here or whatever
