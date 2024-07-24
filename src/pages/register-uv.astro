@@ -41,7 +41,7 @@ Astro.response.headers.set("x-robots-tag", "noindex");
       await setupServiceWorker();
 
       console.log("SW registered");
-      setTimeout(() => location.reload(), 1000);
+      setTimeout(() => location.reload(), 500);
     } catch (err) {
       reportCompatError(err, errorCause, "Ultraviolet");
     }
