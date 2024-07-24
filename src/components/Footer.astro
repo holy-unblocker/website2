@@ -12,12 +12,12 @@ const linkCSS = [themeStyles.themeLink, styles.footerLink];
   <Waves />
   <div class={styles.background}>
     <div class={styles.content}>
-      <HolyLink class:list={linkCSS} href="/contact">Contact</HolyLink>
-      <HolyLink class:list={linkCSS} href="/credits">Credits</HolyLink>
-      <HolyLink class:list={linkCSS} href="/privacy">Privacy</HolyLink>
+      <HolyLink class:list={linkCSS} href="/contact" text="Contact" />
+      <HolyLink class:list={linkCSS} href="/credits" text="Credits" />
+      <HolyLink class:list={linkCSS} href="/privacy" text="Privacy" />
       <HolyLink class:list={linkCSS} href="/terms">
-        <span class={styles.long}>Terms of Use</span>
-        <span class={styles.short}>Terms</span>
+        <span class={styles.long}><HolyText text="Terms of Use" /></span>
+        <span class={styles.short}><HolyText text="Terms" /></span>
       </HolyLink>
       <div class:list={linkCSS}>
         &copy; <HolyText text="Holy Unblocker" />

@@ -10,24 +10,27 @@ import HolyLink from "@components/HolyLink.astro";
     <meta name="description" content="Holy Unblocker's cookie policy." />
   </Fragment>
   <main class="padded">
-    <h1>Cookie Policy</h1>
+    <h1><HolyText text="Cookie Policy" /></h1>
     <p>
       <HolyText
         text="Holy Unblocker uses cookies to set the site theme, save a custom wisp server, save tab cloak settings. When you sign into your Premium account, you will automatically receive a 'session cookie' which is used to provide premium benefits."
       />
     </p>
-    <h2>Data Collection</h2>
-    <p>We do not use cookies to collect your data.</p>
+    <h2><HolyText text="Data Collection" /></h2>
+    <p><HolyText text="We do not use cookies to collect your data." /></p>
+    <h2><HolyText text="COPPA" /></h2>
     <p>
       <HolyText
         text="Holy Unblocker is COPPA compliant. We do not willingly collect personally identifiable information about anyone who is under 13."
       />
     </p>
     <p>
-      If you have any questions about our Cookie Policy, please{" "}
+      <HolyText
+        text="If you have any questions about our Cookie Policy, please feel free to "
+      />
       <HolyLink class={themeStyles.themeLink} href="/contact"
-        >Contact Us</HolyLink
-      >.
+        >Contact Us.</HolyLink
+      >
     </p>
   </main>
 </MainLayout>
