@@ -4,20 +4,22 @@ import Waves from "@icons/waves.svg?svgmin";
 import styles from "@styles/Footer.module.scss";
 import HolyText from "./HolyText.astro";
 import HolyLink from "./HolyLink.astro";
+
+const linkCSS = [themeStyles.themeLink, styles.footerLink];
 ---
 
 <footer class={styles.footer}>
   <Waves />
   <div class={styles.background}>
     <div class={styles.content}>
-      <HolyLink class={themeStyles.themeLink} href="/contact">Contact</HolyLink>
-      <HolyLink class={themeStyles.themeLink} href="/credits">Credits</HolyLink>
-      <HolyLink class={themeStyles.themeLink} href="/privacy">Privacy</HolyLink>
-      <HolyLink class={themeStyles.themeLink} href="/terms">
+      <HolyLink class:list={linkCSS} href="/contact">Contact</HolyLink>
+      <HolyLink class:list={linkCSS} href="/credits">Credits</HolyLink>
+      <HolyLink class:list={linkCSS} href="/privacy">Privacy</HolyLink>
+      <HolyLink class:list={linkCSS} href="/terms">
         <span class={styles.long}>Terms of Use</span>
         <span class={styles.short}>Terms</span>
       </HolyLink>
-      <div>
+      <div class:list={linkCSS}>
         &copy; <HolyText text="Holy Unblocker" />
         {new Date().getUTCFullYear()}
       </div>

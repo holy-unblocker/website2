@@ -80,17 +80,13 @@
       font-size: 12px;
       line-height: 16px;
 
-      > span,
-      > div {
+      > .footerLink {
         margin-left: 15px;
+        color: inherit;
 
         &:nth-child(1) {
           margin-left: auto;
         }
-      }
-
-      > span {
-        color: inherit;
 
         &:hover {
           color: var(--text);
