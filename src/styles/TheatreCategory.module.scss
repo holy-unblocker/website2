@@ -9,7 +9,7 @@
 
   > .items {
     position: relative;
-    height: 240px;
+    height: 170px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
     flex-wrap: wrap;
@@ -185,12 +185,17 @@
       font-size: 14px;
       $padding-lr: 10px;
       padding: 0px $padding-lr;
-      line-height: 40px;
+      line-height: 20px;
       text-align: center;
       white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
       box-sizing: border-box;
+
+      > span {
+        width: 145px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
 
     &.unknown {
@@ -229,11 +234,11 @@
 
     .item {
       padding-bottom: 0px;
-      width: unset;
+      width: 145px;
 
       > .thumbnail {
-        width: 200px;
-        height: 200px;
+        width: 145px;
+        height: 145px;
         padding-bottom: 0;
 
         > img {
@@ -243,7 +248,7 @@
 
       > .name {
         position: relative;
-        margin: 10px 0px;
+        margin: 3px 0px;
       }
     }
   }
