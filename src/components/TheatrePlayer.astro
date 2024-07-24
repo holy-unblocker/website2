@@ -198,10 +198,6 @@ if (mirrorError) {
   import { getGlobalSettings } from "@lib/storage";
   import { setupServiceWorker } from "@lib/register-sw";
 
-  window.addEventListener("focus", () => {
-    setIFrameFocused(true);
-  });
-
   // called on page load and when fullscreen changes
   // to fix clicks/keyboard input not going to the game
   const setIFrameFocused = (focused: boolean) => {
@@ -260,6 +256,10 @@ if (mirrorError) {
     window.addEventListener("keydown", (event) => {
       if (event.target === null || !(event.target instanceof HTMLInputElement))
         playerFrame.contentWindow?.focus();
+    });
+
+    playerFrame.addEventListener("focus", () => {
+      setIFrameFocused(true);
     });
 
     playerFrame.addEventListener("load", () => {
