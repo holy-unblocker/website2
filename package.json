@@ -16,7 +16,7 @@
     "@fontsource/catamaran": "^5.0.20",
     "@fontsource/lato": "^5.0.21",
     "@fontsource/montserrat-alternates": "^5.0.13",
-    "@mercuryworkshop/bare-mux": "^2.0.3",
+    "@mercuryworkshop/bare-mux": "^2.0.4",
     "@mercuryworkshop/epoxy-transport": "^2.1.3",
     "@node-rs/bcrypt": "^1.10.4",
     "@ruffle-rs/ruffle": "^0.1.0-nightly.2024.7.22",
