@@ -91,6 +91,7 @@ html {
   flex-direction: column;
   margin-top: 9vh;
   font-family: "Catamaran", sans-serif;
+  text-align: center;
 
   .big {
     display: inline;
@@ -125,18 +126,13 @@ html {
     }
   }
 
-  .pretty {
-    @include screenMobile {
-      top: 10px;
-    }
-  }
-
   .small,
   .pretty {
     color: var(--home-pretty);
   }
 
   .pretty {
+    top: 3px;
     position: relative;
 
     .prettyUnderline {
