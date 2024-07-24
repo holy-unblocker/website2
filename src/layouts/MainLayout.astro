@@ -263,7 +263,7 @@ const { cloak } = Astro.locals;
 
       document.addEventListener("astro:page-load", () => {
         for (const setting of document.querySelectorAll<HTMLAnchorElement>(
-          "[data-nav]"
+          "a[data-nav]"
         ))
           if (new URL(setting.href).pathname === location.pathname)
             setting.setAttribute("data-selected", "");

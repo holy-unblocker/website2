@@ -15,7 +15,7 @@ export async function setupServiceWorker() {
   // this provides a HUGE performance improvement
   if (!window.crossOriginIsolated && !isDev)
     console.warn(
-      "crossOriginIsolated should be enabled to increase performance.",
+      "crossOriginIsolated should be enabled to increase performance."
     );
 
   if (!navigator.serviceWorker) {
@@ -58,7 +58,6 @@ export function getWispUrl() {
   // see: ./config/runtime.js
   // and see separateWispServer in ./config/config.js
   const wispAPI = formatURL(separateWispServer);
-  console.log({ wispAPI });
   return wispAPI;
 }
 

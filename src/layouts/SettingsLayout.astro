@@ -37,7 +37,7 @@ const { title } = Astro.props;
 <script>
   document.addEventListener("astro:page-load", () => {
     for (const setting of document.querySelectorAll<HTMLAnchorElement>(
-      "[data-settings]"
+      "a[data-settings]"
     )) {
       if (new URL(setting.href).pathname === location.pathname)
         setting.setAttribute("data-selected", "");
