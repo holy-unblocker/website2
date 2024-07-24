@@ -22,7 +22,7 @@ Astro.response.headers.set("x-robots-tag", "noindex");
 
   console.log(location.href);
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
     let errorCause: string | undefined;
 
     try {
@@ -38,10 +38,10 @@ Astro.response.headers.set("x-robots-tag", "noindex");
         )
       );
 
-      setupServiceWorker().then(() => {
-        console.log("SW registered");
-        setTimeout(() => location.reload(), 1000);
-      });
+      await setupServiceWorker();
+
+      console.log("SW registered");
+      setTimeout(() => location.reload(), 1000);
     } catch (err) {
       reportCompatError(err, errorCause, "Ultraviolet");
     }
