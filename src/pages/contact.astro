@@ -7,12 +7,16 @@ import HolyText from "@components/HolyText.astro";
 ---
 
 <MainLayout title="Contact Us">
-  <Fragment slot="head">
-    <meta
-      name="description"
-      content="If you need help or need to contact Holy Unblocker, you can contact us here."
-    />
-  </Fragment>
+  {
+    Astro.locals.isMainWebsite && (
+      <Fragment slot="head">
+        <meta
+          name="description"
+          content="If you need help or need to contact Holy Unblocker, you can contact us here."
+        />
+      </Fragment>
+    )
+  }
   <main class="padded">
     <h1>Contact Us</h1>
     <table>

@@ -15,7 +15,6 @@ const { title } = Astro.props;
 ---
 
 <MainLayout title={title}>
-  <Fragment slot="head"><slot name="head" /></Fragment>
   <main class={styles.main}>
     <div class={styles.menu} transition:persist>
       <SettingsMenuTab

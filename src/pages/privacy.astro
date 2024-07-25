@@ -6,9 +6,13 @@ import HolyLink from "@components/HolyLink.astro";
 ---
 
 <MainLayout title="Privacy Policy">
-  <Fragment slot="head">
-    <meta name="description" content="Holy Unblocker's privacy policy." />
-  </Fragment>
+  {
+    Astro.locals.isMainWebsite && (
+      <Fragment slot="head">
+        <meta name="description" content="Holy Unblocker's privacy policy." />
+      </Fragment>
+    )
+  }
   <main class="padded">
     <h1>Privacy Policy</h1>
     <p>

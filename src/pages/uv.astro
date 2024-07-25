@@ -34,12 +34,16 @@ import HolyLink from "@components/HolyLink.astro";
 ---
 
 <MainLayout title="Proxy">
-  <Fragment slot="head">
-    <meta
-      name="description"
-      content="Bypass blocks on your internet traffic with Holy Unblocker's web proxy."
-    />
-  </Fragment>
+  {
+    Astro.locals.isMainWebsite && (
+      <Fragment slot="head">
+        <meta
+          name="description"
+          content="Bypass blocks on your internet traffic with Holy Unblocker's web proxy."
+        />
+      </Fragment>
+    )
+  }
   <main>
     <div class={styles.content}>
       <h1 class={styles.title}><HolyText text="Ultraviolet" /></h1>
