@@ -5,7 +5,7 @@ import styles from "@styles/Footer.module.scss";
 import HolyText from "./HolyText.astro";
 import HolyLink from "./HolyLink.astro";
 
-const linkCSS = [themeStyles.themeLink, styles.footerLink];
+const linkCSS = [styles.thing, styles.link];
 ---
 
 <footer class={styles.footer}>
@@ -16,10 +16,10 @@ const linkCSS = [themeStyles.themeLink, styles.footerLink];
       <HolyLink class:list={linkCSS} href="/credits" text="Credits" />
       <HolyLink class:list={linkCSS} href="/privacy" text="Privacy" />
       <HolyLink class:list={linkCSS} href="/terms">
-        <span class={styles.long}><HolyText text="Terms of Use" /></span>
-        <span class={styles.short}><HolyText text="Terms" /></span>
+        <HolyText class={styles.long} text="Terms of Use" />
+        <HolyText class={styles.short} text="Terms" />
       </HolyLink>
-      <div class:list={linkCSS}>
+      <div class:list={[styles.thing]}>
         &copy; <HolyText text="Holy Unblocker" />
         {new Date().getUTCFullYear()}
       </div>

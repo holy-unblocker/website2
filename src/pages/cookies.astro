@@ -3,6 +3,7 @@ import themeStyles from "@styles/ThemeElements.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import HolyText from "@components/HolyText.astro";
 import HolyLink from "@components/HolyLink.astro";
+import { stripeEnabled } from "@config/apis";
 ---
 
 <MainLayout title="Cookie Policy">
@@ -17,9 +18,21 @@ import HolyLink from "@components/HolyLink.astro";
     <h1><HolyText text="Cookie Policy" /></h1>
     <p>
       <HolyText
-        text="Holy Unblocker uses cookies to set the site theme, save a custom wisp server, save tab cloak settings. When you sign into your Premium account, you will automatically receive a 'session cookie' which is used to provide premium benefits."
+        text="Holy Unblocker uses cookies to set the site theme, save a custom wisp server, save tab cloak settings, and store session information."
       />
     </p>
+    {
+      stripeEnabled && (
+        <>
+          <h2>
+            <HolyText text="Holy Unblocker Premium" />
+          </h2>
+          <p>
+            <HolyText text="When you sign into your Premium account, you will automatically receive a 'session cookie' which is used to provide premium benefits." />
+          </p>
+        </>
+      )
+    }
     <h2><HolyText text="Data Collection" /></h2>
     <p><HolyText text="We do not use cookies to collect your data." /></p>
     <h2><HolyText text="COPPA" /></h2>

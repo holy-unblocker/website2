@@ -3,6 +3,7 @@ import themeStyles from "@styles/ThemeElements.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import HolyText from "@components/HolyText.astro";
 import HolyLink from "@components/HolyLink.astro";
+import { stripeEnabled } from "@config/apis";
 ---
 
 <MainLayout title="Privacy Policy">
@@ -50,18 +51,32 @@ import HolyLink from "@components/HolyLink.astro";
         text=" to remove your data and we will promptly comply with your request."
       />
     </p>
-    <h2><HolyText text="Holy Unblocker Premium" /></h2>
-    <p>
-      <HolyText
-        text="In order to create a Holy Unblocker Premium account, you need to be at least 13 years old. By signing up to Holy Unblocker Premium, you agree to let us collect the following information:"
-      />
-    </p>
-    <ul>
-      <li><HolyText text="email address" /></li>
-      <li><HolyText text="crytographic hash of your password" /></li>
-      <li><HolyText text="signup IP address" /></li>
-      <li><HolyText text="a record of invoices" /></li>
-    </ul>
+    {
+      stripeEnabled && (
+        <>
+          <h2>
+            <HolyText text="Holy Unblocker Premium" />
+          </h2>
+          <p>
+            <HolyText text="In order to create a Holy Unblocker Premium account, you need to be at least 13 years old. By signing up to Holy Unblocker Premium, you agree to let us collect the following information:" />
+          </p>
+          <ul>
+            <li>
+              <HolyText text="email address" />
+            </li>
+            <li>
+              <HolyText text="crytographic hash of your password" />
+            </li>
+            <li>
+              <HolyText text="signup IP address" />
+            </li>
+            <li>
+              <HolyText text="a record of invoices" />
+            </li>
+          </ul>
+        </>
+      )
+    }
     <h2><HolyText text="Services & Partners" /></h2>
     <p>
       <HolyText
@@ -97,7 +112,7 @@ import HolyLink from "@components/HolyLink.astro";
       </li>
       <li>
         <HolyText
-          text="Websites that do enable HTTPS won't leak any of the above, and are fully end to end encrypted, however it is still possible for the site your reaching to be identified using the SNI "
+          text="Websites that do enable HTTPS won't leak any of the above, and are fully end to end encrypted, however it is still possible for the site your reaching to be identified through "
         />
         <HolyLink
           href="https://www.cloudflare.com/learning/ssl/what-is-sni/"
