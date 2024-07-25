@@ -21,7 +21,6 @@ const randomCloaks: (string | AppCloak)[] = [
   // // some  of these are links to the product, not the actual LMS...
   "https://clever.com/oauth/district-picker",
   "https://kahoot.it/",
-  "https://moodle.com/login/",
   // 'https://www.opensesame.com/',
   "https://www.opensesame.com/user/login",
   // 'https://www.instructure.com/en-au/canvas',
