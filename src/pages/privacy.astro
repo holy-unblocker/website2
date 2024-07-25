@@ -14,19 +14,19 @@ import HolyLink from "@components/HolyLink.astro";
     )
   }
   <main class="padded">
-    <h1>Privacy Policy</h1>
+    <h1><HolyText text="Privacy Policy" /></h1>
     <p>
       <HolyText
         text="Holy Unblocker does not log any user traffic or collect user information without consent."
       />
     </p>
-    <h2>Cookie Policy</h2>
+    <h2><HolyText text="Cookie Policy" /></h2>
     <p>
       <HolyLink href="/cookies" class={themeStyles.themeLink}
         >You can find our cookie policy here.</HolyLink
       >
     </p>
-    <h2>Data Collection</h2>
+    <h2><HolyText text="Data Collection" /></h2>
     <p>
       <HolyText
         text="We use our own analytics service to collect information about your use of our website, such as the timestamps of pages accessed and internet protocol (IP) addresses. This information is used for analyzing trends, administering the site, tracking users' movement on the website, and gathering demographic information. We do not collect any personal data, and any information collected is not linked to personally identifiable information."
@@ -41,9 +41,11 @@ import HolyLink from "@components/HolyLink.astro";
       <HolyText
         text="We take the protection of your data seriously and implement appropriate measures to secure any information we collect. If you would like any information to be removed, please"
       />
-      <HolyLink class={themeStyles.themeLink} href="/contact"
-        >contact us</HolyLink
-      >
+      <HolyLink
+        class={themeStyles.themeLink}
+        href="/contact"
+        text="contact us"
+      />
       <HolyText
         text=" to remove your data and we will promptly comply with your request."
       />
@@ -55,12 +57,12 @@ import HolyLink from "@components/HolyLink.astro";
       />
     </p>
     <ul>
-      <li>email address</li>
-      <li>crytographic hash of your password</li>
-      <li>signup IP address</li>
-      <li>a record of invoices</li>
+      <li><HolyText text="email address" /></li>
+      <li><HolyText text="crytographic hash of your password" /></li>
+      <li><HolyText text="signup IP address" /></li>
+      <li><HolyText text="a record of invoices" /></li>
     </ul>
-    <h2>Services & Partners</h2>
+    <h2><HolyText text="Services & Partners" /></h2>
     <p>
       <HolyText
         text="By using the Ultraviolet feature of Holy Unblocker, your browser automatically creates a secure tunnel to the destination server using the Wisp protocol."
@@ -108,9 +110,11 @@ import HolyLink from "@components/HolyLink.astro";
       <HolyText
         text="If you have any questions about our Privacy Policy, please "
       />
-      <HolyLink href="/contact" class={themeStyles.themeLink}
-        >Contact Us</HolyLink
-      >.
+      <HolyLink
+        href="/contact"
+        class={themeStyles.themeLink}
+        text="Contact Us."
+      />
     </p>
   </main>
 </MainLayout>

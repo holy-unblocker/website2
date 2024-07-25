@@ -24,14 +24,13 @@ import HolyLink from "@components/HolyLink.astro";
       </h1>
       <p>
         <HolyText
-          text="You can self-host/deploy Holy Unblocker by using our "
+          text="You can easily self-host/deploy Holy Unblocker by following the instructions on our "
         />
         <HolyLink
           href={appConfig.links.github.holyunblocker}
-          text="all-in-one script"
+          text="GitHub repository."
           class={themeStyles.themeLink}
         />
-        <HolyText text="." />
       </p>
     </section>
 
@@ -42,8 +41,8 @@ import HolyLink from "@components/HolyLink.astro";
       <p>
         <HolyText text="You can join the " />
         <HolyLink
-          href={appConfig.links.discord.titaniumnetwork}
-          text="TitaniumNetwork Discord Server"
+          href={appConfig.links.discord.holyunblocker}
+          text="Holy Unblocker Discord Server"
           class={themeStyles.themeLink}
         />
         <HolyText
@@ -57,14 +56,13 @@ import HolyLink from "@components/HolyLink.astro";
         <HolyText text="The proxy is slow." />
       </h1>
       <p>
-        <HolyText text="Our proxy servers are paid for by our subscribers. " />
+        <HolyText
+          text="We try our best to purchase fast servers for everyone. If you want to help us buy faster servers in the future, please "
+        />
         <HolyLink
           href="/pro/tiers"
-          text="You can see our subscription plans here."
+          text="consider donating to our Patreon!"
           class={themeStyles.themeLink}
-        />
-        <HolyText
-          text=" If you subscribe, you can help us purchase faster servers in the future."
         />
       </p>
     </section>
@@ -77,10 +75,9 @@ import HolyLink from "@components/HolyLink.astro";
         <HolyText text="The source code to this website can be found in our " />
         <HolyLink
           href={appConfig.links.github.holyunblocker}
-          text="Git repository"
+          text="GitHub repository."
           class={themeStyles.themeLink}
         />
-        <HolyText text="." />
       </p>
     </section>
 
