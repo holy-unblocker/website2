@@ -7,23 +7,6 @@
    viewBox="0 0 100 100"
    width="100"
    height="100">
-     id="namedview1"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="5.7770624"
-     inkscape:cx="50.198523"
-     inkscape:cy="54.958728"
-     inkscape:window-width="1920"
-     inkscape:window-height="1025"
-     inkscape:window-x="0"
-     inkscape:window-y="55"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
   <!-- icon background, fill is set to the theme color for the PWA mask icon -->
   <rect
      width="100"
