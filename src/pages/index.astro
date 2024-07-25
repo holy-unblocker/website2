@@ -18,6 +18,53 @@ import { appConfig } from "@config/config";
           name="description"
           content="Holy Unblocker is a web proxy service with support for many sites. Unblock websites on Chromebooks at school and work for free!"
         />
+        <script
+          type="application/ld+json"
+          is:inline
+          set:html={JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              {
+                "@type": "Question",
+                name: "What proxies does Holy Unblocker have?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Holy Unblocker is powered by Ultraviolet.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "Where is Holy Unblocker's source code?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Holy Unblocker's source code can be found at https://github.com/holy-unblocker/website2",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "Where is Ultraviolet's source code?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Ultraviolet's source code can be found at https://github.com/titaniumnetwork-dev/Ultraviolet",
+                },
+              },
+            ],
+          })}
+        />
+        <script
+          type="application/ld+json"
+          is:inline
+          set:html={JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SearchAction",
+            target: {
+              "@type": "EntryPoint",
+              urlTemplate: `https://${Astro.url.hostname}/uv?q={search_term_string}`, // replace with the correct URL
+            },
+            "query-input": "required name=search_term_string",
+          })}
+        />
       </Fragment>
     )
   }
