@@ -12,6 +12,7 @@
   "dependencies": {
     "@astrojs/check": "^0.8.2",
     "@astrojs/node": "^8.3.0",
+    "@astrojs/sitemap": "^3.1.6",
     "@fastify/send": "^3.1.0",
     "@fontsource/catamaran": "^5.0.20",
     "@fontsource/lato": "^5.0.21",

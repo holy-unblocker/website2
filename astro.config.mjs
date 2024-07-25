@@ -12,6 +12,7 @@ import { viteStaticCopy } from "vite-plugin-static-copy";
 // RUNTIME WILL COPY THE EXAMPLE CONFIG IF IT DOESNT EXIST
 
 // we add these hooks to the astro dev server
+import sitemap from "@astrojs/sitemap";
 const { handleReq, handleUpgrade } = await import("./runtime.js");
 
 // only needed for dev server host & port
@@ -30,6 +31,7 @@ export default defineConfig({
     port: appConfig.port,
     host: appConfig.host,
   },
+  site: "https://" + appConfig.mainWebsite,
   vite: {
     build: {
       dynamicImportVarsOptions: {
@@ -96,5 +98,8 @@ export default defineConfig({
         },
       },
     },
+    sitemap({
+      changefreq: "daily",
+    }),
   ],
 });
