@@ -35,7 +35,7 @@ if (v === null)
   } catch (err) {
     // refresh after 5 seconds
     error =
-      "We were unable to process your request. Please try again later, or [contact us](/contact) if this continues to happen";
+      "We were unable to process your request. Please try again later, or [Contact Us](/contact) if this continues to happen";
     Astro.response.headers.set("reload", "5");
     Astro.response.status = 502;
     console.error(err);

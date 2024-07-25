@@ -96,11 +96,13 @@ import HolyLink from "@components/HolyLink.astro";
         />
       </p>
     </section>
-    <p style="margin-top:30px;opacity:0.5">
-      Not what you're looking for? <a
+    <p class="ghost">
+      <HolyText text="Not what you're looking for? Please feel free to " />
+      <HolyLink
         class={themeStyles.themeLink}
-        href="/contact">Contact Us</a
-      >.
+        href="/contact"
+        text="Contact Us."
+      />
     </p>
   </main>
 </MainLayout>

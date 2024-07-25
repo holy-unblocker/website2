@@ -181,3 +181,10 @@ main > .prettyBanner {
     margin-left: auto;
   }
 }
+
+// "ghost" text
+.ghost {
+  // font-style: italic;
+  opacity: 0.7;
+  margin-top: 30px;
+}

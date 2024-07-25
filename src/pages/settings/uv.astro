@@ -68,13 +68,6 @@ if (Astro.request.method === "POST")
         value={Astro.locals.searchEngine.toString()}
       />
     </form>
-    {
-      !Astro.locals.isMainWebsite && (
-        <p style="font-style:italic;opacity:0.5">
-          <HolyText text="Are you the maintainer of this instance? If you want to use a separate Wisp server by default, and even configure it on a subdomain, you can change 'separateWispServer' in ./config/config.js of your instance." />
-        </p>
-      )
-    }
     <form method="post">
       <!-- noscript support -->
       <p><HolyText text="Wisp Server:" /></p>
@@ -102,6 +95,13 @@ if (Astro.request.method === "POST")
         value="Save"
       />
     </noscript>
+    {
+      !Astro.locals.isMainWebsite && (
+        <p class="ghost">
+          <HolyText text="Are you the maintainer of this instance? If you want to use a separate Wisp server by default, and even configure it on a subdomain, you can change 'separateWispServer' in ./config/config.js of your instance." />
+        </p>
+      )
+    }
   </section>
 </SettingsLayout>
 <script>
