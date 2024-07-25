@@ -70,7 +70,7 @@ if (Astro.request.method === "POST")
     </form>
     {
       !Astro.locals.isMainWebsite && (
-        <p>
+        <p style="font-style:italic;opacity:0.5">
           <HolyText text="Are you the maintainer of this instance? If you want to use a separate Wisp server by default, and even configure it on a subdomain, you can change 'separateWispServer' in ./config/config.js of your instance." />
         </p>
       )
