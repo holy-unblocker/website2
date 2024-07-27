@@ -118,71 +118,70 @@ html[data-tab] {
 }
 
 .content {
-  padding: 0 16px;
   padding-top: $nav-height-border;
   flex-direction: column;
   min-height: calc(100vh - $nav-height-border);
   overflow: hidden;
   display: flex;
+}
 
-  > .cover {
-    background-color: rgba(0, 0, 0, 0.5);
-    position: fixed;
-    top: 0;
-    left: 0;
+.cover {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s, visibility 0.3s;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.menu {
+  position: fixed;
+  flex-direction: column;
+  display: flex;
+  visibility: visible;
+  background-color: var(--background);
+  border-right: 1px solid var(--border);
+  left: 0;
+  top: 0;
+  width: 300px;
+  height: 100vh;
+  box-sizing: border-box;
+  transform: translateX(-100%);
+  transition: transform 0.3s, visibility 0.3s 0.3s;
+  overflow: hidden;
+
+  @include screenMobile {
     width: 100%;
-    height: 100%;
-    transition: opacity 0.3s, visibility 0.3s;
-    opacity: 0;
-    visibility: hidden;
-  }
-
-  > .menu {
-    position: fixed;
-    flex-direction: column;
-    display: flex;
-    visibility: visible;
-    background-color: var(--background);
-    border-right: 1px solid var(--border);
-    left: 0;
-    top: 0;
-    width: 300px;
     height: 100vh;
-    box-sizing: border-box;
-    transform: translateX(-100%);
-    transition: transform 0.3s, visibility 0.3s 0.3s;
-    overflow: hidden;
+    transition: none;
 
-    @include screenMobile {
-      width: 100%;
-      height: 100vh;
-      transition: none;
-
-      > .menuList {
-        width: 100vw;
-        // width: $fixed-width;
-        padding: 6px 5px;
-
-        > .entry {
-          border-radius: 5px;
-        }
-      }
-    }
-
-    > .top {
-      padding: 0px 18px;
-      padding-left: 18px;
-      height: $nav-height;
-      box-sizing: border-box;
-      border-bottom: var(--border) 1px solid;
+    > .menuList {
       width: 100vw;
       // width: $fixed-width;
-      display: flex;
-      flex-direction: row;
-      flex-shrink: 0;
-      position: relative;
+      padding: 6px 5px;
+
+      > .entry {
+        border-radius: 5px;
+      }
     }
   }
+}
+
+.top {
+  padding: 0px 18px;
+  padding-left: 18px;
+  height: $nav-height;
+  box-sizing: border-box;
+  border-bottom: var(--border) 1px solid;
+  width: 100vw;
+  // width: $fixed-width;
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  position: relative;
 }
 
 html[data-tab] {
@@ -277,52 +276,47 @@ html[data-tab] {
     padding: 10px 25px;
     color: var(--contrast-background);
   }
+}
 
-  > .bar {
-    margin: 10px 0px;
-    width: 100%;
-    border-bottom: 1px solid var(--text-accent);
-  }
+.bar {
+  margin: 10px 0px;
+  width: 100%;
+  border-bottom: 1px solid var(--text-accent);
+}
 
-  > .genres {
+.genres {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  padding: 10px 25px;
+
+  > .entry {
     display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    padding: 10px 25px;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    margin: 2px;
+    height: 20px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 13px;
+    font-family: $MontserratAlternates;
+    color: var(--text-placeholder);
+    white-space: nowrap;
+    user-select: none;
+    cursor: pointer;
 
-    > .entry {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2px 8px;
-      margin: 2px;
-      height: 20px;
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      font-size: 13px;
-      font-family: $MontserratAlternates;
-      color: var(--text-placeholder);
-      white-space: nowrap;
-      user-select: none;
-      cursor: pointer;
+    &:hover {
+      background-color: var(--background-accent);
 
-      &:hover {
-        background-color: var(--background-accent);
-
-        @include screenMobile {
-          background-color: transparent;
-        }
+      @include screenMobile {
+        background-color: transparent;
       }
     }
   }
 }
 
 html[data-expanded] {
-  body {
-    margin-right: 16px;
-    overflow: hidden;
-  }
-
   .content {
     > .menu {
       transform: translateX(0%);
