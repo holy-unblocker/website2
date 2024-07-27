@@ -37,10 +37,12 @@ const sortOptions = [
 
 const sortParam = Astro.url.searchParams.get("sort");
 const sort =
-  typeof sortParam === "string" &&
-  sortOptions.some((e) => e.value === sortParam)
-    ? sortParam
-    : "mostPopular";
+  typeof Astro.props.search === "string"
+    ? undefined
+    : typeof sortParam === "string" &&
+        sortOptions.some((e) => e.value === sortParam)
+      ? sortParam
+      : "mostPopular";
 const { category } = Astro.props;
 
 let error: string | undefined;
