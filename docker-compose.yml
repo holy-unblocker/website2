@@ -1,6 +1,6 @@
 services:
   holy-unblocker:
-    image: diffusehyperion/holy-unblocker
+    image: holywebwork/holy-unblocker
     container_name: holy-unblocker
     restart: unless-stopped
     ports:
@@ -11,7 +11,7 @@ services:
 volumes:
   holy-unblocker-config:
     name: holy-unblocker-config
-    
+
 networks:
   default:
     name: holy-unblocker
