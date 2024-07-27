@@ -3,7 +3,7 @@ import SettingsLayout from "@layouts/SettingsLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import styles from "@styles/Settings.module.scss";
 import Check from "@icons/check_24dp.svg?react";
-import { extractCloakData } from "@lib/cloak";
+import { extractCloakData, getRandomCloak } from "@lib/cloak";
 import Banner from "@components/Banner.astro";
 import HolyText from "@components/HolyText.astro";
 
@@ -36,8 +36,25 @@ if (Astro.request.method === "POST")
           error = err.message;
         }
     } else {
-      Astro.locals.setCloak();
-      success = "Cloak reset.";
+      const type = data.get("type")?.toString();
+
+      switch (type) {
+        case "random":
+          {
+            const random = await getRandomCloak();
+            if (random === undefined) error = "Failure finding random cloak.";
+            else {
+              Astro.locals.setCloak(random);
+              success = "Cloak set.";
+            }
+          }
+          break;
+        default:
+        case "reset":
+          Astro.locals.setCloak();
+          success = "Cloak reset.";
+          break;
+      }
     }
   } catch (err) {
     console.error(err);
@@ -77,8 +94,17 @@ if (Astro.request.method === "POST")
     </div>
     <div>
       <form method="post">
+        <input type="text" name="type" value="reset" hidden />
         <button class={themeStyles.ThemeButton}
           ><HolyText text="Reset Cloak" /></button
+        >
+      </form>
+    </div>
+    <div>
+      <form method="post">
+        <input type="text" name="type" value="random" hidden />
+        <button class={themeStyles.ThemeButton}
+          ><HolyText text="Random Cloak" /></button
         >
       </form>
     </div>
