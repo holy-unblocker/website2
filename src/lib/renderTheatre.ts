@@ -40,8 +40,8 @@ export async function fetchListData(
   api: TheatreAPI | TheatreWrapper,
   search: string | undefined | null,
   category: string[] | undefined | null,
-  sort: string,
-  page: number,
+  sort: string | undefined | null,
+  page: number
 ) {
   let apiSort: string | undefined;
   let apiOrder: string | undefined;
