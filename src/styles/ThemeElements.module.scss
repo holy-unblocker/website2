@@ -90,10 +90,14 @@ html[data-tab] {
 
     &.thinPadLeft {
       padding-left: 0;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
     }
 
     &.thinPadRight {
       padding-right: 0;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
     }
   }
 }
