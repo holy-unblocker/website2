@@ -8,12 +8,12 @@ import Public from "@icons/public_24dp.svg?react";
 
 <div class={styles.service} transition:persist>
   <div class={styles.buttons}>
-    <div set:html={ChevronLeft} class={styles.button} id="closeService" />
+    <div id="closeService" class={styles.button} set:html={ChevronLeft} />
     <img class={styles.tabicon} alt="" id="serviceIcon" />
-    <div set:html={Public} class={styles.defaulttabicon} id="defaultIcon" />
+    <div class={styles.defaulttabicon} id="defaultIcon" set:html={Public} />
     <p class={styles.title} id="serviceTitle"></p>
     <div class={styles.shiftRight}></div>
-    <div id="openInNew" class={styles.button} set:html={OpenInNew} />
+    <div class={styles.button} id="openInNew" set:html={OpenInNew} />
     <div class={styles.button} id="openInFullscreen" set:html={Fullscreen} />
   </div>
   <iframe class={styles.embed} id="serviceEmbed" title="embed"></iframe>
