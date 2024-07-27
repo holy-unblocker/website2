@@ -43,7 +43,7 @@ $nav-height-border: 71px;
 }
 
 @mixin newShimmerSmall() {
-  @include shimmer(170px, shimmerSmall);
+  @include shimmer(145px, shimmerSmall);
 }
 
 @mixin newShimmerCard() {
