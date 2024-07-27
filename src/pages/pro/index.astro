@@ -7,7 +7,7 @@ import InputPassword from "@components/InputPassword.astro";
 import Banner from "@components/Banner.astro";
 import { db } from "@config/apis";
 import { m, createSession } from "@lib/util";
-import { compare } from "@lib/bcrypt";
+import { verify } from "@lib/hash";
 
 const { user, ip } = Astro.locals;
 // redirect to dashboard if they're already signed in
@@ -43,7 +43,7 @@ if (Astro.request.method === "POST")
       ).rows[0];
 
       if (user) {
-        const passwordCorrect = await compare(password, user.password_hash);
+        const passwordCorrect = await verify(password, user.password_hash);
 
         if (passwordCorrect) {
           const session = await createSession(ip, user.id);

@@ -1,6 +1,6 @@
 import { db, mailer, stripe } from "@config/apis";
 import { randomBytes } from "node:crypto";
-import { hash } from "@lib/bcrypt";
+import { hash } from "@lib/hash";
 import { appConfig } from "@config/config";
 import * as m from "@lib/models";
 
@@ -10,7 +10,7 @@ export async function createSession(ip: string, userId: number) {
   return (
     await db.query<m.SessionModel>(
       `INSERT INTO session(secret,ip,user_id) VALUES ($1,$2,$3) RETURNING *;`,
-      [randomBytes(16).toString("hex"), ip, userId],
+      [randomBytes(16).toString("hex"), ip, userId]
     )
   ).rows[0];
 }
@@ -19,7 +19,7 @@ export async function IpBan(ip: string, reason: string, expires: Date | null) {
   return (
     await db.query<m.IpBanModel>(
       "INSERT INTO ipban(expires,reason,ip) VALUES($1,$2,$3);",
-      [expires, reason, ip],
+      [expires, reason, ip]
     )
   ).rows[0];
 }
@@ -27,14 +27,14 @@ export async function IpBan(ip: string, reason: string, expires: Date | null) {
 export async function BanUser(
   userId: number,
   reason: string,
-  expires: Date | null,
+  expires: Date | null
 ) {
   if (reason === "") reason = "No reason specified.";
 
   return (
     await db.query<m.BanModel>(
       "INSERT INTO ban(expires,reason,user_id) VALUES($1,$2,$3) RETURNING *;",
-      [expires, reason, userId],
+      [expires, reason, userId]
     )
   ).rows[0];
 }
@@ -43,7 +43,7 @@ export async function IpBanUser(
   ip: string,
   userId: number,
   expires: Date | null,
-  reason: string,
+  reason: string
 ) {
   if (reason === "") reason = "No reason specified.";
 
@@ -51,7 +51,7 @@ export async function IpBanUser(
     ipban: (
       await db.query<m.IpBanModel>(
         "INSERT INTO ipban(expires,reason,ip,user_id) VALUES($1,$2,$3,$4);",
-        [expires, reason, ip, userId],
+        [expires, reason, ip, userId]
       )
     ).rows[0],
     ban: await BanUser(userId, reason, expires),
@@ -59,12 +59,12 @@ export async function IpBanUser(
 }
 
 export async function isIPBanned(
-  ip: string,
+  ip: string
 ): Promise<m.IpBanModel | undefined> {
   const ban = (
     await db.query<m.IpBanModel>(
       "SELECT * FROM ipban WHERE ip = $1 AND (expires IS NULL OR expires > NOW())",
-      [ip],
+      [ip]
     )
   ).rows[0];
 
@@ -72,12 +72,12 @@ export async function isIPBanned(
 }
 
 export async function isUserBanned(
-  userId: number,
+  userId: number
 ): Promise<m.BanModel | undefined> {
   const ban = (
     await db.query<m.IpBanModel>(
       "SELECT * FROM ban WHERE user_id = $1 AND (expires IS NULL OR expires > NOW())",
-      [userId],
+      [userId]
     )
   ).rows[0];
 
@@ -88,7 +88,7 @@ export async function isUserBanned(
  * hash a password with bcrypt
  */
 export async function hashPassword(password: string) {
-  return await hash(password, 10);
+  return await hash(password);
 }
 
 export function generateVerificationCode() {
@@ -113,12 +113,12 @@ const spamThreshold = 30e3;
 export async function canSendEmail(
   user: m.UserModel,
   email: string,
-  ip: string,
+  ip: string
 ): Promise<string | undefined> {
   const sent = (
     await db.query<m.EmailModel>(
       `SELECT * FROM email WHERE email = $1 OR ip = $2;`,
-      [email, ip],
+      [email, ip]
     )
   ).rows;
 
@@ -147,10 +147,10 @@ export async function sendChangeEmailVerification(
   host: string,
   user: m.UserModel,
   newEmail: string,
-  verificationSecret: string,
+  verificationSecret: string
 ) {
   const url = `https://${host}/pro/verify-new-email?secret=${encodeURIComponent(
-    verificationSecret,
+    verificationSecret
   )}`;
 
   console.log("DEBUG CHANGE EMAIL VERIFICATION", [
@@ -176,7 +176,7 @@ export async function sendChangeEmailVerification(
 
 export async function sendChangePasswordNotification(
   user: m.UserModel,
-  ip: string,
+  ip: string
 ) {
   // todo: add a recovery secret thats valid for only 30 days
   console.log("DEBUG CHANGE PASSWORD NOTIFICATION", [user.id]);
@@ -196,7 +196,7 @@ export async function sendChangePasswordNotification(
 
 export async function sendChangeEmailNotification(
   user: m.UserModel,
-  ip: string,
+  ip: string
 ) {
   // todo: add a recovery secret thats valid for only 30 days
   console.log("DEBUG CHANGE EMAIL NOTIFICATION", [user.id]);
@@ -218,7 +218,7 @@ export async function sendEmailVerification(user: m.UserModel) {
   console.log(
     "DEBUG EMAIL VERIFICATION",
     user.email,
-    user.email_verification_code,
+    user.email_verification_code
   );
 
   await mailer.sendMail({
@@ -236,10 +236,10 @@ export async function sendEmailVerification(user: m.UserModel) {
 export async function sendPasswordVerification(
   host: string,
   email: string,
-  verificationSecret: string,
+  verificationSecret: string
 ) {
   const url = `https://${host}/pro/forgot-password?secret=${encodeURIComponent(
-    verificationSecret,
+    verificationSecret
   )}`;
 
   console.log("DEBUG PASSWORD VERIFICATION", {
