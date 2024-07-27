@@ -2,7 +2,6 @@
 // particularly proxy,compat
 import { fromBase64, toBase64 } from "@smithy/util-base64";
 import { cbc } from "@noble/ciphers/aes";
-import { randomBytes } from "@noble/ciphers/webcrypto";
 
 let key: Uint8Array | undefined;
 
@@ -12,7 +11,7 @@ function getKey(): Uint8Array {
   let savedKey = localStorage.getItem("aes_key2");
   if (savedKey !== null) return fromBase64(savedKey);
 
-  key = randomBytes(32 + 16);
+  key = crypto.getRandomValues(new Uint8Array(32 + 16));
   localStorage.setItem("aes_key2", toBase64(key));
   return key;
 }
