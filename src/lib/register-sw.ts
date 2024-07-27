@@ -3,13 +3,6 @@ import { BareMuxConnection } from "@mercuryworkshop/bare-mux";
 // will register /sw.js and setup bare mux
 // reloads the page to activate the sw.js if it wasn't registered
 export async function setupServiceWorker() {
-  if (!("SharedWorker" in window))
-    throw new Error(
-      "Your browser doesn't support the 'SharedWorker' API. Ultraviolet currently doesn't work on mobile. Sorry!"
-    );
-
-  const connection = new BareMuxConnection("/baremux/worker.js");
-
   // add your network hostname here or whatever
   // this is any page that does NOT have http: but can register a serviceworker
   const isDev = ["localhost", "127.0.0.1"].includes(location.hostname);
@@ -41,6 +34,15 @@ export async function setupServiceWorker() {
     // setTimeout(() => location.reload(), 100);
     // return;
   }
+}
+
+export async function setupBareMux() {
+  if (!("SharedWorker" in window))
+    throw new Error(
+      "Your browser doesn't support the 'SharedWorker' API. Ultraviolet currently doesn't work on mobile. Sorry!"
+    );
+
+  const connection = new BareMuxConnection("/baremux/worker.js");
 
   const wispUrl = getWispUrl();
   console.log("Using wisp at", wispUrl);
@@ -48,7 +50,6 @@ export async function setupServiceWorker() {
     await connection.setTransport("/epoxy/index.mjs", [{ wisp: wispUrl }]);
     console.log("Transport set!");
   }
-  // return new Promise((resolve) => setTimeout(resolve, 1e3));
 }
 
 // get the Holy Unblocker wisp endpoint

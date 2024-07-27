@@ -18,7 +18,7 @@ Astro.response.headers.set("x-robots-tag", "noindex");
 </CompatLayout>
 <script>
   import { reportCompatError } from "@lib/compat";
-  import { setupServiceWorker } from "@lib/register-sw";
+  import { setupServiceWorker, setupBareMux } from "@lib/register-sw";
 
   console.log(location.href);
 
@@ -39,6 +39,7 @@ Astro.response.headers.set("x-robots-tag", "noindex");
       );
 
       await setupServiceWorker();
+      setupBareMux();
 
       console.log("SW registered");
       setTimeout(() => location.reload(), 500);

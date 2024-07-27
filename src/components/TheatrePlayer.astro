@@ -203,7 +203,7 @@ if (mirrorError) {
   import TheatreAPI from "@lib/TheatreAPI";
   import { encryptURL } from "@lib/cryptURL";
   import { getGlobalSettings } from "@lib/storage";
-  import { setupServiceWorker } from "@lib/register-sw";
+  import { setupServiceWorker, setupBareMux } from "@lib/register-sw";
 
   // called on page load and when fullscreen changes
   // to fix clicks/keyboard input not going to the game
@@ -279,6 +279,7 @@ if (mirrorError) {
     switch (data.type) {
       case "proxy":
         setupServiceWorker().then(() => {
+          setupBareMux();
           playerFrame.src = __uv$config!.prefix + __uv$config.encodeUrl!(url);
         });
         break;

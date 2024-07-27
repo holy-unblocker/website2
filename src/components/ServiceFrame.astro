@@ -22,7 +22,7 @@ import Public from "@icons/public_24dp.svg?react";
 <div data-proxy-mode={Astro.locals.proxyMode} id="proxyModeSetting"></div>
 <script>
   import { decryptURL, encryptURL } from "@lib/cryptURL";
-  import { setupServiceWorker } from "@lib/register-sw";
+  import { setupServiceWorker, setupBareMux } from "@lib/register-sw";
   import { presentAboutBlank } from "@lib/aboutBlank";
 
   // stores the URL of the last proxied page
@@ -114,6 +114,7 @@ import Public from "@icons/public_24dp.svg?react";
     }
   }
 
+  setupBareMux();
   setupServiceWorker();
 
   function setServiceSrc(src?: string | null) {
