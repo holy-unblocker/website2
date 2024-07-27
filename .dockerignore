@@ -3,3 +3,5 @@ README.md
 LICENSE
 docs/
 .vscode/
+Dockerfile
+.dockerignore
