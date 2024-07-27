@@ -30,7 +30,6 @@
     "@types/pg": "^8.11.6",
     "astro": "^4.12.2",
     "compression": "^1.7.4",
-    "crypto-js": "^4.2.0",
     "discord.js": "^14.15.3",
     "node-html-parser": "^6.1.13",
     "nodemailer": "^6.9.14",
