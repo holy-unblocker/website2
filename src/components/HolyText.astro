@@ -12,7 +12,7 @@ const { text, ...props } = Astro.props;
   ) : (
     <span
       {...props}
-      data-ectext={Astro.locals.encryptText(text)}
+      data-ectext={await Astro.locals.encryptText(text)}
       set:text={text.split("").map((e) => (e === " " ? e : "-"))}
     />
   )

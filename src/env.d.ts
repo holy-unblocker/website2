@@ -39,7 +39,7 @@ namespace App {
 
     // unique encryption key
     clientKey: string;
-    encryptText: (data: string) => string;
+    encryptText: (data: string) => Promise<string>;
 
     // obfus: import("@lib/Obfuscator").default;
 

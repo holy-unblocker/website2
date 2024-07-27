@@ -4,7 +4,7 @@ import { defineMiddleware } from "astro:middleware";
 import engines from "@lib/searchEngines";
 import { extractCloakData, type AppCloak } from "@lib/cloak";
 import { appConfig } from "@config/config";
-import CryptoJS from "crypto-js";
+import crypto from "node:crypto";
 
 // 400 days in seconds
 const maxAgeLimit = 60 * 60 * 24 * 400;
@@ -102,12 +102,22 @@ export const onRequest = defineMiddleware(async (context, next) => {
       301
     );
 
-  const clientKey = CryptoJS.lib.WordArray.random(128 / 8).toString();
+  const clientKey = crypto.randomBytes(32);
 
-  context.locals.clientKey = clientKey;
+  context.locals.clientKey = clientKey.toString("base64");
 
-  context.locals.encryptText = (text) =>
-    CryptoJS.AES.encrypt(text, clientKey).toString();
+  const encryptText = async (text: string) => {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv("aes-256-cbc", clientKey, iv);
+    const encrypted = Buffer.concat([
+      cipher.update(text, "utf8"),
+      cipher.final(),
+    ]);
+    const ivAndCiphertext = Buffer.concat([iv, encrypted]).toString("base64");
+    return ivAndCiphertext;
+  };
+
+  context.locals.encryptText = encryptText;
 
   // context.locals.obfus = new HolyObfuscator(context.url.hostname, context.locals.isMainWebsite);
 

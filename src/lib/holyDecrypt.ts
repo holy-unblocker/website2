@@ -1,13 +1,13 @@
 // loaded on client
-import aes from "crypto-js/aes";
-import Utf8 from "crypto-js/enc-utf8";
+import { fromBase64 } from "@smithy/util-base64";
+import { cbc } from "@noble/ciphers/aes";
 
-let key: string;
+let key: Uint8Array;
 
 const loadKey = () => {
   const e = document.getElementById("eckey")!;
   if (e === null) return false;
-  key = e.innerHTML;
+  key = fromBase64(e.innerHTML);
   e.remove();
   return true;
 };
@@ -15,9 +15,14 @@ const loadKey = () => {
 loadKey();
 document.addEventListener("astro:page-load", loadKey);
 
+const txtdec = new TextDecoder();
+
 export const holyDecrypt = (text: string) => {
-  if (key === undefined) {
+  if (key === undefined)
     if (!loadKey()) throw new Error("key isn't ready yet,. PLEASE WAIT");
-  }
-  return aes.decrypt(text, key).toString(Utf8);
+  const data = fromBase64(text);
+  const cipherText = data.slice(16);
+  const iv = data.slice(0, 16);
+  const stream = cbc(key, iv);
+  return txtdec.decode(stream.decrypt(cipherText));
 };

@@ -20,7 +20,9 @@ const { href, target, text, ...props } = Astro.props;
       {...props}
       data-target={target}
       data-eclink={
-        typeof href == "string" ? Astro.locals.encryptText(href) : undefined
+        typeof href == "string"
+          ? await Astro.locals.encryptText(href)
+          : undefined
       }
     >
       {typeof text === "string" ? <HolyText text={text} /> : <slot />}
