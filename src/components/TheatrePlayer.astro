@@ -40,7 +40,7 @@ let controlsHTML = "";
 // https://www.toptal.com/developers/keycode
 
 const renderControlKey = (keyCode: string) => {
-  if (!/^[a-z ]/i.test(keyCode)) {
+  if (!/^[a-z ]*$/i.test(keyCode)) {
     console.error("Invalid keyCode:", keyCode);
     return "";
   }
@@ -79,7 +79,7 @@ if (data)
           // key might have an HTML injection
           // because after all we are just using raw HTML
           // so can we just check if it doesn't contain expected characters
-          if (/^[a-z ]/i.test(key)) {
+          if (/^[a-z ]*$/i.test(key)) {
             console.error("Invalid key code:", key);
           } else {
             visualsHTML += `<div class="${styles.controlKey} ${styles["key" + key]}">${key}</div>`;
