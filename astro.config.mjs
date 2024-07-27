@@ -1,7 +1,8 @@
 import path from "node:path";
+import sitemap from "@astrojs/sitemap";
 import node from "@astrojs/node";
 import { defineConfig } from "astro/config";
-import { svga, svgr } from "./svgmin.mjs";
+import { svgr } from "./svgmin.mjs";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
@@ -12,7 +13,6 @@ import { viteStaticCopy } from "vite-plugin-static-copy";
 // RUNTIME WILL COPY THE EXAMPLE CONFIG IF IT DOESNT EXIST
 
 // we add these hooks to the astro dev server
-import sitemap from "@astrojs/sitemap";
 const { handleReq, handleUpgrade } = await import("./runtime.js");
 
 // only needed for dev server host & port
@@ -43,7 +43,6 @@ export default defineConfig({
       assetsInlineLimit: 0,
     },
     plugins: [
-      svga(),
       svgr(),
       viteStaticCopy({
         targets: [

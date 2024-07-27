@@ -3,6 +3,8 @@ import { optimize } from "svgo";
 
 // based on https://github.com/withastro/roadmap/discussions/667#discussioncomment-6926854
 
+const EXPORTS_DEFAULT = "export default ";
+
 /**
  * @returns {import('vite').Plugin}
  */
