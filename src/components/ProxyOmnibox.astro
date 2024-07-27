@@ -42,23 +42,6 @@ const engine = searchEngines[Astro.locals.searchEngine];
   import SearchBuilder from "@lib/SearchBuilder";
   import { renderSearchResult } from "@lib/searchResult";
 
-  type SearchProvider = "bing" | "duckduckgo";
-
-  const searchProvider: SearchProvider = "duckduckgo";
-
-  // simple API used for fetching duckduckgo search results
-  async function sillyfetch(url: string, opts?: { signal: AbortSignal }) {
-    const s = (await fetch("/api/sillyfetch", {
-      method: "POST",
-      body: url,
-      signal: opts?.signal,
-    })) as Response & { sillyurl: string };
-
-    s.sillyurl = s.headers.get("x-url")!;
-
-    return s;
-  }
-
   document.addEventListener("astro:page-load", () => {
     const form = document.querySelector<HTMLFormElement>("#omnibox");
     if (!form) return;
@@ -231,70 +214,18 @@ const engine = searchEngines[Astro.locals.searchEngine];
         abort.abort("aborted autocomplete request because of a user input");
         abort = new AbortController();
 
-        switch (searchProvider as SearchProvider) {
-          case "bing":
-            {
-              const res = await sillyfetch(
-                "https://www.bing.com/AS/Suggestions?" +
-                  new URLSearchParams({
-                    qry: query,
-                    cvid: "\u0001",
-                    bareServer: "", // tell bing that this is HU
-                  }),
-                {
-                  signal: abort.signal,
-                }
-              );
-
-              if (!res.ok) {
-                console.error("error fetching Bing suggestions:", res.status);
-                console.error(res.text());
-                return;
-              }
-
-              const text = await res.text();
-
-              for (const [, phrase] of text.matchAll(
-                /<span class="sa_tm_text">(.*?)<\/span>/g
-              )) {
-                // render the raw HTML to obtain its textContenet
-                const lol = document.createElement("div");
-                lol.innerHTML = phrase;
-                results.push(lol.textContent!.trim());
-              }
-            }
-            break;
-          case "duckduckgo":
-            {
-              const res = await sillyfetch(
-                "https://duckduckgo.com/ac/?" +
-                  new URLSearchParams({
-                    q: query,
-                    kl: "wt-wt",
-                    bareServer: "", // tell ddg that this is HU
-                  }),
-                {
-                  signal: abort.signal,
-                }
-              );
-
-              if (!res.ok) {
-                console.error(
-                  "error fetching DuckDuckGo autocomplete:",
-                  res.status
-                );
-                console.error(res.text());
-                return;
-              }
-
-              const data = (await res.json()) as { phrase: string }[];
-
-              for (const entry of data) results.push(entry.phrase);
-            }
-            break;
-          default:
-            throw new TypeError(`unknown search provider: ${searchProvider}`);
-        }
+        const body = new FormData();
+        body.set("q", query);
+        body.set("provider", "bing");
+        const res = await fetch("/api/search", {
+          method: "POST",
+          body,
+        });
+        if (!res.ok)
+          throw new Error(
+            `Response was not OK: ${res.status}\n${await res.text()}`
+          );
+        results.push(...(await res.json()));
       } catch (err) {
         console.error(err);
       }
