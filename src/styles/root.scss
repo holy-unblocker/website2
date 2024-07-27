@@ -158,6 +158,12 @@ main > .prettyBanner {
   font-size: 29px;
   font-family: $MontserratAlternates;
 
+  > span {
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+    overflow: hidden;
+  }
+
   &.sub {
     line-height: 29px;
     font-size: 22px;

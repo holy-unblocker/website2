@@ -178,6 +178,9 @@ html[data-tab] {
     background-color: var(--background-accent);
     cursor: pointer;
     align-items: center;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+    overflow: hidden;
 
     > div {
       display: contents;
