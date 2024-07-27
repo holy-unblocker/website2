@@ -1,16 +1,6 @@
 /// <reference types="astro/client" />
 /// <reference types="@titaniumnetwork-dev/ultraviolet/client" />
 
-declare module "*.svg?svgmin" {
-  import type { HTMLAttributes } from "astro/types";
-
-  const component: (
-    props: HTMLAttributes<"svg">
-  ) => astroHTML.JSX.DefinedIntrinsicElements["svg"];
-
-  export default component;
-}
-
 declare module "*.svg?react" {
   const SVG: string;
   export default SVG;

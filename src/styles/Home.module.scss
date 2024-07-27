@@ -136,10 +136,14 @@ html {
     position: relative;
 
     .prettyUnderline {
-      position: absolute;
-      top: calc(100% - 23px);
-      left: 0px;
-      width: 100%;
+      display: contents;
+
+      > svg {
+        position: absolute;
+        top: calc(100% - 23px);
+        left: 0px;
+        width: 100%;
+      }
     }
   }
 }

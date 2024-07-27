@@ -5,7 +5,7 @@ import TheatreSearchBar from "@components/TheatreSearchBar.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import { gameCategories, type Category } from "@lib/gameCategories";
 import styles from "@styles/TheatreCategory.module.scss";
-import ArrowForward from "@icons/arrow_forward_24dp.svg?svgmin";
+import ArrowForward from "@icons/arrow_forward_24dp.svg?react";
 import MainLayout from "@layouts/MainLayout.astro";
 import { dbEnabled, theatreAPI, theatreAPIMirror } from "@lib/theatre";
 import type { ListData, TheatreEntryMin } from "@lib/TheatreAPI";
@@ -97,7 +97,7 @@ if (data !== undefined) {
                     class={styles.seeAll}
                   >
                     See All
-                    <ArrowForward />
+                    <Fragment set:html={ArrowForward} />
                   </a>
                 </div>
                 <div class:list={[styles.items, styles.flex]}>
