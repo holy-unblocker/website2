@@ -20,9 +20,7 @@ const txtdec = new TextDecoder();
 export const holyDecrypt = (text: string) => {
   if (key === undefined)
     if (!loadKey()) throw new Error("key isn't ready yet,. PLEASE WAIT");
-  const data = fromBase64(text);
-  const iv = data.slice(0, 16);
-  const cipherText = data.slice(16);
-  const stream = cbc(key, iv);
+  const cipherText = fromBase64(text);
+  const stream = cbc(key.slice(16), key.slice(0, 16));
   return txtdec.decode(stream.decrypt(cipherText));
 };

@@ -32,17 +32,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
     );
 
   const clientKey = crypto.randomBytes(32);
+  const iv = crypto.randomBytes(16);
 
-  context.locals.clientKey = clientKey.toString("base64");
+  context.locals.clientKey = Buffer.concat([iv, clientKey]).toString("base64");
 
   const encryptText = async (text: string) => {
-    const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv("aes-256-cbc", clientKey, iv);
     const encrypted = Buffer.concat([
       cipher.update(text, "utf8"),
       cipher.final(),
     ]);
-    const ivAndCiphertext = Buffer.concat([iv, encrypted]).toString("base64");
+    const ivAndCiphertext = encrypted.toString("base64");
     return ivAndCiphertext;
   };
 
