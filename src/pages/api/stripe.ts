@@ -11,7 +11,7 @@ export const POST: APIRoute = async ({ request }) => {
     event = stripe.webhooks.constructEvent(
       await request.text(),
       signature,
-      appConfig.stripe.webhookEndpointSecret,
+      appConfig.stripe.webhookEndpointSecret
     );
   } catch (err) {
     // @ts-ignore`
@@ -52,14 +52,8 @@ export const POST: APIRoute = async ({ request }) => {
           let tier: number | undefined;
 
           switch (line.plan.id) {
-            case appConfig.stripe.priceIds.official:
+            case appConfig.stripe.priceIds.premium:
               tier = 1;
-              break;
-            case appConfig.stripe.priceIds.ultimate:
-              tier = 2;
-              break;
-            case appConfig.stripe.priceIds.meal:
-              tier = 3;
               break;
           }
 
@@ -77,7 +71,7 @@ export const POST: APIRoute = async ({ request }) => {
 
           await db.query(
             "INSERT INTO payment(invoice_id,subscription_id,user_id,tier,period_start,period_end) VALUES($1,$2,$3,$4,$5,$6);",
-            [line.id, line.subscription, user.id, tier, start, end],
+            [line.id, line.subscription, user.id, tier, start, end]
           );
         }
       }

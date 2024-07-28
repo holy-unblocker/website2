@@ -79,17 +79,13 @@ export const appConfig = {
   //  secret: "API secret",
   //  webhookEndpointSecret: "webhook secret",
   //  priceIds: {
-  //    official: "price id for 'official' supporter",
-  //    ultimate: "price id for 'ultimate' supporter",
-  //    meal: "price id for 'meal' supporter",
+  //    premium: "price id for 'premium' supporter",
   //  },
   //},
 
   // DISCORD CONFIG
   // - USES OAUTH2 TO LINK DISCORD ACC TO DASHBOARD
   // - GIVE SUPPORTERS THEIR ROLES IN THE HOLY UB DISCORD
-  // - Official Subscriber -> Awesome role
-  // - Ultimate Subscriber -> ULTIMATE SUBSCRIBER role
   // https://discord.com/developers/applications
 
   //discord: {
@@ -100,7 +96,6 @@ export const appConfig = {
   //  clientRedirectURI: "https://holyubofficial.net/pro/linkdiscord",
   //  guildId: "1263780452356063273", // holy unblocker's discord server
   //  roleIds: {
-  //    official: "1264613525716996216", // official supporters
   //    premium: "1264613836040835093", // premium subscribers
   //  },
   //},

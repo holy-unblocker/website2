@@ -29,7 +29,7 @@ export interface AppConfig {
     secret: string;
     webhookEndpointSecret: string;
     priceIds: {
-      official: string;
+      premium: string;
     };
   };
   mailer: {
@@ -45,7 +45,6 @@ export interface AppConfig {
     clientRedirectURI: string;
     guildId: string;
     roleIds: {
-      official: string;
       premium: string;
     };
   };

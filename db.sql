@@ -15,11 +15,6 @@ CREATE TABLE IF NOT EXISTS theatre (
 
 CREATE INDEX IF NOT EXISTS trgm_idx ON theatre USING GIST (name gist_trgm_ops);
 
--- TIERS
--- 0 - poor
--- 1 - $3/month official supporter
--- 2 - $10/month ultimate supporter
-
 CREATE TABLE IF NOT EXISTS users (
 	id SERIAL PRIMARY KEY,
 	email TEXT NOT NULL UNIQUE,

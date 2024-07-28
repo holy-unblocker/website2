@@ -59,6 +59,8 @@ if (Astro.request.method === "POST")
     }
   } catch (err) {
     console.error(err);
+    error = "An internal error occurred. Please try again later.";
+    Astro.response.status = 500;
   }
 
 const bai = Astro.url.searchParams.has("bai");
@@ -112,16 +114,16 @@ const bai = Astro.url.searchParams.has("bai");
           <div>Password</div>
           <InputPassword id="password" name="password" value={badpassword} />
         </label>
-        <input
-          class:list={[styles.prettySubmit, styles.wide]}
-          type="submit"
-          value="Login"
-        />
         <p>
           <label
             ><input type="checkbox" name="staySignedIn" /> Stay signed in.</label
           >
         </p>
+        <input
+          class:list={[styles.prettySubmit, styles.wide]}
+          type="submit"
+          value="Login"
+        />
         <p>
           New to Holy Unblocker? <a
             class={themeStyles.themeLink}
