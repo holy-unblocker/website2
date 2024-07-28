@@ -87,10 +87,6 @@ html[data-tab] {
     z-index: 1;
     color: var(--text);
 
-    &::placeholder {
-      color: var(--text-accent);
-    }
-
     &.thinPadLeft {
       padding-left: 0;
       border-top-left-radius: 0;
