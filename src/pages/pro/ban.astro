@@ -1,0 +1,44 @@
+---
+import prettyMilliseconds from "pretty-ms";
+import MainLayout from "@layouts/MainLayout.astro";
+
+const { user, acc } = Astro.locals;
+if (!user) return acc.toLogin();
+const ban = await acc.isBanned();
+if (!ban) return acc.toDash();
+---
+
+<MainLayout>
+  <main class="padded">
+    <h1 class="title">You are banned.</h1>
+    <p class="description">
+      You have been {
+        ban.expires
+          ? `banned until ${ban.expires.toUTCString()}`
+          : "permanently banned"
+      }.
+    </p>
+    {
+      ban.expires && (
+        <p>
+          Ban duration:{" "}
+          {prettyMilliseconds(ban.expires.getTime() - Date.now(), {
+            unitCount: 4,
+            secondsDecimalDigits: 0,
+          })}
+        </p>
+      )
+    }
+    {
+      ban.reason !== null && (
+        <>
+          <p>Moderator note:</p>
+          <p set:html={ban.reason} />
+        </>
+      )
+    }
+    <p>
+      <a href="/profile/logout">Logout</a>
+    </p>
+  </main>
+</MainLayout>

@@ -365,12 +365,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.acc = {
     isBanned: async () => {
       if (context.locals.user) {
-        const ban = await isUserBanned(context.locals.user.id);
-        if (ban) {
-          const e = ban as m.BanModel & { type: "ban" };
-          e.type = "ban";
-          return e;
-        }
+        return await isUserBanned(context.locals.user.id);
       }
     },
     toDash: () => context.redirect("/pro/dashboard", 302),
