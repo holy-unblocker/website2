@@ -15,6 +15,7 @@ import Settings from "@icons/settings_24dp.svg?react";
 import HomeOutlined from "@icons/home_24dp_outlined.svg?react";
 import Home from "@icons/home_24dp.svg?react";
 import UltravioletIcon from "@icons/ultraviolet_icon.svg?react";
+import Patreon from "@icons/patreon.svg?react";
 import ChatBot from "@icons/chatbot.svg?react";
 import QuestionMark from "@icons/question_mark_24dp.svg?react";
 import Apps from "@icons/apps_24dp.svg?react";
@@ -167,7 +168,11 @@ const { cloak } = Astro.locals;
             iconFilled={UltravioletIcon}
           />
           <NavMenuTab href="/faq" name="FAQ" iconFilled={QuestionMark} />
-
+          <NavMenuTab
+            href={appConfig.links.patreon.holyunblocker}
+            name="Patreon"
+            iconFilled={Patreon}
+          />
           {
             stripeEnabled && (
               <>
