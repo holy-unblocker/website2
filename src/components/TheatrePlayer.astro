@@ -278,8 +278,12 @@ if (mirrorError) {
 
     switch (data.type) {
       case "proxy":
-        setupServiceWorker().then(() => {
-          setupBareMux();
+        setupServiceWorker().then(async () => {
+          try {
+            await setupBareMux();
+          } catch (err) {
+            console.error(err);
+          }
           playerFrame.src = __uv$config!.prefix + __uv$config.encodeUrl!(url);
         });
         break;

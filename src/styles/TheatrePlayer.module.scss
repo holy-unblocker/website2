@@ -6,13 +6,12 @@
 
 .content {
   background-color: var(--background-accent);
-  height: calc(100vh - $nav-height-border - 100px);
-  margin: 0px auto 0px auto;
-  border-radius: 10px;
-  margin: calc($nav-height-border / 4) auto;
+  height: calc(100vh - $nav-height-border - 90px);
+  width: calc(100% - 20px);
+  margin: 0 auto;
+  margin-top: 15px;
   display: flex;
   flex-direction: column;
-  width: 100%;
   box-sizing: border-box;
   padding: 0px 15px;
   border-radius: 10px;
