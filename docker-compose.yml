@@ -1,6 +1,6 @@
 services:
   holy-unblocker:
-    image: holywebwork/holy-unblocker
+    image: holywebwork/website2
     container_name: holy-unblocker
     restart: unless-stopped
     ports:
