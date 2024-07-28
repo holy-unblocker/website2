@@ -87,7 +87,9 @@ export async function extractCloakData(address: string): Promise<AppCloak> {
 
   // try to find the title
   const t = root.querySelector("title");
-  const title = t ? t.textContent : `${url.host}${url.pathname}${url.search}`;
+  const title = t
+    ? t.textContent.slice(0, 32)
+    : `${url.host}${url.pathname}${url.search}`;
 
   // try to find a shortcut icon
   const iconSelector = root.querySelector("link[rel*='icon']");
