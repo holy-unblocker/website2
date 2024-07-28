@@ -220,6 +220,7 @@ const engine = searchEngines[Astro.locals.searchEngine];
         const res = await fetch("/api/search", {
           method: "POST",
           body,
+          signal: abort.signal,
         });
         if (!res.ok)
           throw new Error(
