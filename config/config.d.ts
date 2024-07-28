@@ -30,12 +30,10 @@ export interface AppConfig {
     webhookEndpointSecret: string;
     priceIds: {
       official: string;
-      ultimate: string;
-      meal: string;
     };
   };
   mailer: {
-    transport: Parameters<(typeof import("nodemailer"))["createTransport"]>[0];
+    transport: Parameters<typeof import("nodemailer")["createTransport"]>[0];
     sender: import("nodemailer").SendMailOptions["sender"];
     noreply: string;
   };
@@ -48,8 +46,7 @@ export interface AppConfig {
     guildId: string;
     roleIds: {
       official: string;
-      ultimate: string;
-      meal: string;
+      premium: string;
     };
   };
   links: {

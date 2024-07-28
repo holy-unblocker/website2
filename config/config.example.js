@@ -98,11 +98,10 @@ export const appConfig = {
   //  clientId: "OAUTH CLIENT ID",
   //  clientSecret: "OAUTH CLIENT SECRET",
   //  clientRedirectURI: "https://holyubofficial.net/pro/linkdiscord",
-  //  guildId: "1259258608340828222", // holy unblocker's discord server
+  //  guildId: "1263780452356063273", // holy unblocker's discord server
   //  roleIds: {
-  //    official: "1259442296223432814", // official & ultimate subscribers
-  //    ultimate: "1259442370080935948", // ultimate subscribers
-  //    meal: "1259442013628272682", // meal-tier subscriber
+  //    official: "1264613525716996216", // official supporters
+  //    premium: "1264613836040835093", // premium subscribers
   //  },
   //},
 
