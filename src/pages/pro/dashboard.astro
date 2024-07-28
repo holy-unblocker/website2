@@ -36,9 +36,9 @@ if (Astro.request.method === "POST")
     switch (type) {
       case "renew":
         if (typeof payment?.subscription_id === "string") {
-          // error = "Not implemented yet! (please try again tomorrow - David)";
-          // Astro.response.status = 500;
-          payment.stripe_renew = !payment.stripe_renew;
+          const renewal = data.get("renewal") === "on";
+
+          payment.stripe_renew = renewal;
 
           await stripe.subscriptions.update(payment.subscription_id, {
             pause_collection: payment.stripe_renew
@@ -142,25 +142,6 @@ if (Astro.request.method === "POST")
     </div>
     <div class={styles.userCard} style="padding-bottom:10px;">
       <h3>Auto Renewal</h3>
-      {
-        payment?.tier === 2 ? (
-          <input
-            type="button"
-            class={styles.prettySubmit}
-            disabled
-            data-owned
-            value="TYSM FOR SUBSCRIBING TO ULTIMATE!!!"
-          />
-        ) : (
-          <a href="/pro/tiers">
-            <input
-              type="button"
-              class={styles.prettySubmit}
-              value={payment ? "UPGRADE TO ULTIMATE!!" : "Subscribe"}
-            />
-          </a>
-        )
-      }
       <p>
         We will try to automatically renew your subscription before it ends so
         you don't lose access to your subscriber benefits.
@@ -182,7 +163,7 @@ if (Astro.request.method === "POST")
             <input
               type="checkbox"
               name="renewal"
-              checked={payment.stripe_renew}
+              checked={!payment.stripe_renew}
               hidden
             />
             <input
