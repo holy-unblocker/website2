@@ -16,10 +16,10 @@ try {
 } catch (err) {
   if (err?.code === "ERR_MODULE_NOT_FOUND") {
     console.log(
-      "ERROR: You haven't installed dependencies for Holy Unblocker yet, so you can't start the frontend yet.",
+      "ERROR: You haven't installed dependencies for Holy Unblocker yet, so you can't start the frontend yet."
     );
     console.log(
-      "To fix this error, run `npm install` first, and then run `npm start`",
+      "To fix this error, run `npm install` first, and then run `npm start`"
     );
     process.exit(1);
   } else throw err; // WUT
@@ -37,7 +37,7 @@ const block = logoBg.blueBright.bold;
 
 console.log(block("███████████████████████████"));
 console.log(
-  block("██") + logoBg.black("Holy Unblocker Frontend") + block("██"),
+  block("██") + logoBg.black("Holy Unblocker Frontend") + block("██")
 );
 console.log(block("███████████████████████████"));
 console.log(chalk.italic(`Logs start ${new Date().toTimeString()}`));
@@ -49,7 +49,7 @@ const { appConfig } = await import("./config/config.js");
 
 // display package versions
 const pkg = JSON.parse(
-  await readFile(new URL("./package-lock.json", import.meta.url), "utf-8"),
+  await readFile(new URL("./package-lock.json", import.meta.url), "utf-8")
 );
 
 console.log(chalk.bold("Version:"), pkg.version);
@@ -67,7 +67,7 @@ for (const dep of [
     " - " +
       chalk.bold(dep) +
       ": v" +
-      pkg.packages["node_modules/" + dep].version,
+      pkg.packages["node_modules/" + dep].version
   );
 
 /**
@@ -87,10 +87,10 @@ try {
     console.log(
       no,
       chalk.bold("ERROR:"),
-      "You haven't built Holy Unblocker yet, so you can't start the frontend yet.",
+      "You haven't built Holy Unblocker yet, so you can't start the frontend yet."
     );
     console.log(
-      "To fix this error, run `npm run build` first, and then run `npm start`",
+      "To fix this error, run `npm run build` first, and then run `npm start`"
     );
     process.exit(1);
   } else throw err; // wut
@@ -106,7 +106,7 @@ if (!("configName" in appConfig)) {
 console.log(
   yes,
   chalk.bold("Loaded config"),
-  chalk.italic(chalk.underline(appConfig.configName)),
+  chalk.italic(chalk.underline(appConfig.configName))
 );
 
 console.log(chalk.italic("Checking config..."));
@@ -126,8 +126,8 @@ if (!apis.dbEnabled) {
 
   console.log(
     chalk.grey(
-      " - this api basically provides information about the entire game library",
-    ),
+      " - this api basically provides information about the entire game library"
+    )
   );
   console.log(chalk.grey("    and it uses postgres"));
 }
@@ -137,7 +137,7 @@ console.log(st[+hasTheatreFiles], chalk.bold("Theatre files"));
 if (!hasTheatreFiles) {
   console.log(
     ` - ${yes} proxying theatre files to`,
-    appConfig.theatreFilesMirror,
+    appConfig.theatreFilesMirror
   );
 
   try {
@@ -149,12 +149,12 @@ if (!hasTheatreFiles) {
 
   console.log(
     " - " +
-      chalk.grey("btw theatre files include the entire Holy Unblocker Arcade"),
+      chalk.grey("btw theatre files include the entire Holy Unblocker Arcade")
   );
   console.log(
     chalk.grey(
-      "   which is pretty massive and u might not want to host it, idk",
-    ),
+      "   which is pretty massive and u might not want to host it, idk"
+    )
   );
 }
 
@@ -163,13 +163,13 @@ console.log(st[+!separateWisp], chalk.bold("Wisp server"));
 
 if (separateWisp)
   console.log(
-    ` - ${yes} Using separate wisp server: ${appConfig.separateWispServer}`,
+    ` - ${yes} Using separate wisp server: ${appConfig.separateWispServer}`
   );
 
 console.log(st[+apis.stripeEnabled], chalk.bold("Stripe payment processing"));
 console.log(
   ` - ${st[+apis.stripeEnabled]} Account system`,
-  ["disabled", "enabled"][+apis.stripeEnabled],
+  ["disabled", "enabled"][+apis.stripeEnabled]
 );
 
 if (apis.discordEnabled) {
@@ -186,15 +186,15 @@ if (apis.discordEnabled) {
     process.exit(1);
   }
 
-  console.log(st[+apis], chalk.bold("Discord bot running"));
+  console.log(st[+apis.discordListening], chalk.bold("Discord bot running"));
   console.log(
     "   " +
-      chalk.grey("you can turn this off by setting listenForJoins to false"),
+      chalk.grey("you can turn this off by setting listenForJoins to false")
   );
   console.log(
     chalk.grey(
-      "   you should probably do it if you're actively updating HU's server",
-    ),
+      "   you should probably do it if you're actively updating HU's server"
+    )
   );
 }
 
@@ -225,7 +225,7 @@ server.on("request", (req, res) => {
             res.writeHead(statusCode, headers);
             stream.pipe(res);
           }
-        },
+        }
       );
     });
   });
@@ -236,8 +236,8 @@ server.on("upgrade", handleUpgrade);
 server.on("listening", () => {
   console.log(
     chalk.italic(
-      `Frontend listening on http://${appConfig.host}:${appConfig.port}/`,
-    ),
+      `Frontend listening on http://${appConfig.host}:${appConfig.port}/`
+    )
   );
   console.log(yes, chalk.bold("Holy Unblocker is running"));
 });

@@ -216,36 +216,6 @@ if (stripeEnabled && appConfig.discord.listenForJoins)
   client.login(appConfig.discord.botToken);
 
 /**
- * @typedef {Object} AppMirror
- * @property {string} prefix
- * @property {string} url
- */
-
-// simple mirror middleware that supports GET/POST
-
-/**
- * @type {AppMirror[]}
- */
-const appMirrors = [];
-
-// setup theatre mirror
-if (!("theatreFiles" in appConfig))
-  appMirrors.push({ prefix: "/cdn/", url: appConfig.theatreFilesMirror });
-
-// setup theatre api mirror
-if (!("db" in appConfig))
-  appMirrors.push({ prefix: "/api/theatre/", url: appConfig.theatreApiMirror });
-
-const hasTheatreFiles = "theatreFilesPath" in appConfig;
-
-// now we can use self.__uv$config in the backend
-// this is kinda cursed
-const uvConfigSrc = await readFile(
-  new URL("./public/uv/uv.config.js", import.meta.url),
-  "utf-8"
-);
-
-/**
  *
  * cursed ultraviolet config loader
  * configs can be location-aware
@@ -266,8 +236,38 @@ function getUVConfig(host, url) {
   return mockEnv.__uv$config;
 }
 
+/**
+ * @typedef {Object} AppMirror
+ * @property {string} prefix
+ * @property {string} url
+ */
+
+// simple mirror middleware that supports GET/POST
+
+const hasTheatreFiles = "theatreFilesPath" in appConfig;
+
 const cdnAbs =
   hasTheatreFiles && resolve(__dirname, appConfig.theatreFilesPath);
+
+/**
+ * @type {AppMirror[]}
+ */
+const appMirrors = [];
+
+// setup theatre mirror
+if (!hasTheatreFiles)
+  appMirrors.push({ prefix: "/cdn/", url: appConfig.theatreFilesMirror });
+
+// setup theatre api mirror
+if (!("db" in appConfig))
+  appMirrors.push({ prefix: "/api/theatre/", url: appConfig.theatreApiMirror });
+
+// now we can use self.__uv$config in the backend
+// this is kinda cursed
+const uvConfigSrc = await readFile(
+  new URL("./public/uv/uv.config.js", import.meta.url),
+  "utf-8"
+);
 
 const compress = compression();
 
@@ -340,7 +340,7 @@ export function handleReq(req, res, middleware) {
     return middleware();
   }
 
-  // HIGH PERFORMANCE http proxy
+  // MIRRORS HTTP PROXDY
   for (const mirror of appMirrors) {
     if (!req.url.startsWith(mirror.prefix)) continue;
 
@@ -349,11 +349,20 @@ export function handleReq(req, res, middleware) {
 
     // console.log("Proxy:", req.url, "->", mirrorURL);
 
+    /**
+     * @type {Record<string, string>}
+     */
+    const mirrorHeaders = {};
+
+    const ct = req.headers["content-type"];
+    if (typeof ct === "string") mirrorHeaders["content-type"] = ct;
+
     // make the request
     const mirrorReq = (mirrorURL.startsWith("https:") ? https : http).request(
       mirrorURL,
       {
         method: req.method,
+        headers: mirrorHeaders,
       }
     );
 
@@ -374,6 +383,9 @@ export function handleReq(req, res, middleware) {
       // support redirects
       const loc = mirrorRes.headers["location"];
       if (typeof loc === "string") res.setHeader("location", loc);
+
+      const ct = mirrorRes.headers["content-type"];
+      if (typeof ct === "string") res.setHeader("content-type", ct);
 
       const ce = mirrorRes.headers["content-encoding"];
       if (
