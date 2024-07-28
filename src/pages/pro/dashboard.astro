@@ -11,6 +11,7 @@ import prettyMilliseconds from "pretty-ms";
 import { db, getTierName, getUserPayment, stripe } from "@config/apis";
 import { appConfig } from "@config/config";
 import { giveTierDiscordRoles } from "@config/apis";
+import { unlinkDiscord } from "@lib/util";
 
 const { user, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
@@ -25,11 +26,7 @@ const payment = await getUserPayment(user.id);
 const newEmailConfirmed = Astro.url.searchParams.has("newEmailConfirmed");
 const welcome = Astro.url.searchParams.has("welcome");
 const discordConnected = Astro.url.searchParams.has("disc_connected");
-let userNotInDiscordServer = false;
-
-// for displaying the error
-if (discordConnected)
-  userNotInDiscordServer = !(await giveTierDiscordRoles(user, payment?.tier));
+const discordNotInGuild = Astro.url.searchParams.has("disc_guild");
 
 if (Astro.request.method === "POST")
   try {
@@ -67,12 +64,8 @@ if (Astro.request.method === "POST")
         } else {
           // take away their roles
           await giveTierDiscordRoles(user, payment?.tier, true);
-          await db.query(
-            "UPDATE users SET discord_id = null, discord_username = null, discord_avatar = null, discord_name = null, discord_updated = null WHERE id = $1;",
-            [user.id]
-          );
+          await unlinkDiscord(user);
           success = "Discord account unlinked.";
-          user.discord_id = null;
         }
         break;
     }
@@ -85,6 +78,7 @@ if (Astro.request.method === "POST")
   (newEmailConfirmed ||
     welcome ||
     discordConnected ||
+    discordNotInGuild ||
     Astro.request.method === "POST") && (
     <script>history.pushState({}, "", "/pro/dashboard")</script>
   )
@@ -95,10 +89,9 @@ if (Astro.request.method === "POST")
     {newEmailConfirmed && <Banner success="Email changed." />}
     {welcome && <Banner success="Email verified." />}
     {
-      userNotInDiscordServer && (
+      discordNotInGuild && (
         <Banner
-          error="We couldn't find your Discord account in our server"
-          success="Account connected."
+          error={`We couldn't find your Discord account in our server. <a href='${appConfig.links.discord.holyunblocker}'>Click here to join.</a>`}
         />
       )
     }

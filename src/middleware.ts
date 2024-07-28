@@ -1,5 +1,12 @@
 import { db, stripeEnabled } from "@config/apis";
-import { m, isIPBanned, isUserBanned } from "@lib/util";
+import {
+  m,
+  isIPBanned,
+  isUserBanned,
+  unlinkDiscord,
+  linkDiscord,
+  type DiscordUserData,
+} from "@lib/util";
 import { defineMiddleware } from "astro:middleware";
 import engines from "@lib/searchEngines";
 import { getRandomCloak, type AppCloak } from "@lib/cloak";
@@ -292,17 +299,57 @@ export const onRequest = defineMiddleware(async (context, next) => {
         await db.query<m.UserModel>(`SELECT * FROM users WHERE id = $1;`, [
           session.user_id,
         ])
-      ).rows[0];
-      const e = user as CtxUser;
+      ).rows[0] as CtxUser;
 
-      if (!e) {
+      if (!user) {
         console.error(
           "session had a reference to a non existant user...,erm what"
         );
         context.locals.setSession();
       } else {
-        e.session = session;
-        context.locals.user = e;
+        user.session = session;
+        context.locals.user = user;
+
+        // check if discord account data is older than one day
+        if (
+          user.discord_updated !== null &&
+          Date.now() - user.discord_updated.getTime() > 60e3 * 60 * 24
+        ) {
+          console.log("discord data out of date");
+          const memberRes = await fetch(
+            `https://discord.com/api/v10/guilds/${appConfig.discord.guildId}/members/${user.discord_id}`,
+            {
+              headers: {
+                authorization: `Bot ${appConfig.discord.botToken}`,
+              },
+            }
+          );
+
+          switch (memberRes.status) {
+            case 200:
+              {
+                const data = (await memberRes.json()) as {
+                  user: DiscordUserData;
+                };
+                await linkDiscord(user, data.user);
+                console.log("fetched new discord data");
+              }
+              break;
+            case 404:
+              console.error("Member no longer in guild");
+              await unlinkDiscord(user);
+              break;
+            default:
+              console.error("Bad discord response:", memberRes.status);
+              console.error(await memberRes.text());
+              break;
+          }
+
+          if (!memberRes.ok) {
+            console.error("error updating guild member:", memberRes.status);
+          }
+        }
+
         // don't set it again
         // respect whether the user picked to stay signed in or not
         // context.locals.setSession(cookie);

@@ -278,4 +278,47 @@ export async function createStripeCustomer(user: m.UserModel) {
   return customer;
 }
 
+export async function unlinkDiscord(user: m.UserModel) {
+  user.discord_id = null;
+  user.discord_username = null;
+  user.discord_avatar = null;
+  user.discord_name = null;
+  user.discord_updated = null;
+
+  await db.query(
+    "UPDATE users SET discord_id = null, discord_username = null, discord_avatar = null, discord_name = null, discord_updated = null WHERE id = $1;",
+    [user.id]
+  );
+}
+
+export interface DiscordUserData {
+  id: string;
+  username: string;
+  avatar: string;
+  global_name: string;
+}
+
+export async function linkDiscord(
+  user: m.UserModel,
+  userData: DiscordUserData
+) {
+  user.discord_id = userData.id;
+  user.discord_username = userData.username;
+  user.discord_avatar = userData.avatar;
+  user.discord_name = userData.global_name;
+  user.discord_updated = new Date();
+
+  await db.query(
+    "UPDATE users SET discord_id = $1, discord_username = $2, discord_avatar = $3, discord_name = $4, discord_updated = $5 WHERE id = $6;",
+    [
+      user.discord_id,
+      user.discord_username,
+      user.discord_avatar,
+      user.discord_name,
+      user.discord_updated,
+      user.id,
+    ]
+  );
+}
+
 export * from "./validation";

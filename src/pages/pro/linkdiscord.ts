@@ -1,6 +1,7 @@
 import { appConfig } from "@config/config";
-import { db } from "@config/apis";
+import { getUserPayment, giveTierDiscordRoles } from "@config/apis";
 import type { APIRoute } from "astro";
+import { linkDiscord } from "@lib/util";
 
 // we are redirected here after discord acc is complete
 export const GET: APIRoute = async (context) => {
@@ -26,7 +27,7 @@ export const GET: APIRoute = async (context) => {
       authorization:
         "Basic " +
         Buffer.from(
-          appConfig.discord!.clientId + ":" + appConfig.discord.clientSecret,
+          appConfig.discord!.clientId + ":" + appConfig.discord.clientSecret
         ).toString("base64"),
     },
     method: "POST",
@@ -36,7 +37,7 @@ export const GET: APIRoute = async (context) => {
     console.error(
       "error getting oauth2 token",
       tokenRes.status,
-      await tokenRes.text(),
+      await tokenRes.text()
     );
     return new Response("oops 1", { status: 500 });
   }
@@ -62,7 +63,7 @@ export const GET: APIRoute = async (context) => {
     console.error(
       "error getting user info",
       userRes.status,
-      await userRes.text(),
+      await userRes.text()
     );
     return new Response("oops 2", { status: 500 });
   }
@@ -73,19 +74,25 @@ export const GET: APIRoute = async (context) => {
     avatar: string;
     global_name: string;
   };
+
+  const memberRes = await fetch(
+    `https://discord.com/api/v10/guilds/${appConfig.discord.guildId}/members/${userData.id}`,
+    {
+      headers: {
+        authorization: `Bot ${appConfig.discord.botToken}`,
+      },
+    }
+  );
+
+  if (memberRes.status === 404)
+    return context.redirect("/pro/dashboard?disc_guild", 302);
+
   console.log("got data:", userData);
 
   // now we just add it
-  await db.query(
-    "UPDATE users SET discord_id = $1, discord_username = $2, discord_avatar = $3, discord_name = $4, discord_updated = NOW() WHERE id = $5;",
-    [
-      userData.id,
-      userData.username,
-      userData.avatar,
-      userData.global_name,
-      user.id,
-    ],
-  );
+  await linkDiscord(user, userData);
+  const payment = await getUserPayment(user.id);
+  await giveTierDiscordRoles(user, payment?.tier);
 
   return context.redirect("/pro/dashboard?disc_connected", 302);
 };
