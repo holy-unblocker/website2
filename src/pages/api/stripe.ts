@@ -76,12 +76,6 @@ export const POST: APIRoute = async ({ request }) => {
         }
       }
       break;
-    case "invoice.payment_failed":
-      // The payment failed or the customer does not have a valid payment method.
-      // The subscription becomes past_due. Notify your customer and send them to the
-      // customer portal to update their payment information.
-      break;
-
     default:
       // Unexpected event type
       console.log(`Unhandled event type ${event.type}.`);
