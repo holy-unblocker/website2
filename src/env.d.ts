@@ -63,11 +63,7 @@ namespace App {
       /**
        * If the user/request IP is banned
        */
-      isBanned: () => Promise<
-        | (import("@lib/models").IpBanModel & { type: "ip" })
-        | (import("@lib/models").BanModel & { type: "ban" })
-        | void
-      >;
+      isBanned: () => Promise<import("@lib/models").BanModel | void>;
       /**
        * Redirect the user to the login page
        * Detects the current page and will redirect to it once logged in

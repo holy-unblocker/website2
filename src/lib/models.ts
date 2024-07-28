@@ -61,12 +61,3 @@ export interface BanModel {
   expires: Date | null;
   reason: string | null;
 }
-
-export interface IpBanModel {
-  id: number;
-  created: Date;
-  ip: string;
-  expires: Date | null;
-  reason: string | null;
-  user_id: number | null;
-}

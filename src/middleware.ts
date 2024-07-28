@@ -1,7 +1,6 @@
 import { db, stripeEnabled } from "@config/apis";
 import {
   m,
-  isIPBanned,
   isUserBanned,
   unlinkDiscord,
   linkDiscord,
@@ -365,14 +364,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   context.locals.acc = {
     isBanned: async () => {
-      const ipBan = await isIPBanned(context.locals.ip);
-
-      if (ipBan) {
-        const e = ipBan as m.IpBanModel & { type: "ip" };
-        e.type = "ip";
-        return e;
-      }
-
       if (context.locals.user) {
         const ban = await isUserBanned(context.locals.user.id);
         if (ban) {

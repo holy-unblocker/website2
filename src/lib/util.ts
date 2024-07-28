@@ -15,15 +15,6 @@ export async function createSession(ip: string, userId: number) {
   ).rows[0];
 }
 
-export async function IpBan(ip: string, reason: string, expires: Date | null) {
-  return (
-    await db.query<m.IpBanModel>(
-      "INSERT INTO ipban(expires,reason,ip) VALUES($1,$2,$3);",
-      [expires, reason, ip]
-    )
-  ).rows[0];
-}
-
 export async function BanUser(
   userId: number,
   reason: string,
@@ -39,43 +30,11 @@ export async function BanUser(
   ).rows[0];
 }
 
-export async function IpBanUser(
-  ip: string,
-  userId: number,
-  expires: Date | null,
-  reason: string
-) {
-  if (reason === "") reason = "No reason specified.";
-
-  return {
-    ipban: (
-      await db.query<m.IpBanModel>(
-        "INSERT INTO ipban(expires,reason,ip,user_id) VALUES($1,$2,$3,$4);",
-        [expires, reason, ip, userId]
-      )
-    ).rows[0],
-    ban: await BanUser(userId, reason, expires),
-  };
-}
-
-export async function isIPBanned(
-  ip: string
-): Promise<m.IpBanModel | undefined> {
-  const ban = (
-    await db.query<m.IpBanModel>(
-      "SELECT * FROM ipban WHERE ip = $1 AND (expires IS NULL OR expires > NOW())",
-      [ip]
-    )
-  ).rows[0];
-
-  return ban;
-}
-
 export async function isUserBanned(
   userId: number
 ): Promise<m.BanModel | undefined> {
   const ban = (
-    await db.query<m.IpBanModel>(
+    await db.query<m.BanModel>(
       "SELECT * FROM ban WHERE user_id = $1 AND (expires IS NULL OR expires > NOW())",
       [userId]
     )

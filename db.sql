@@ -35,15 +35,8 @@ CREATE TABLE IF NOT EXISTS users (
     discord_avatar TEXT,
     discord_name TEXT, -- aka 'global name'
     discord_updated TIMESTAMP, -- re-fetch this data using the bot after its older than like 1 day
-    otp_secret TEXT UNIQUE
-);
-
-CREATE TABLE IF NOT EXISTS backup_codes (
-	secret TEXT PRIMARY KEY NOT NULL UNIQUE,
-    created TIMESTAMP DEFAULT NOW(),
-    used BOOLEAN DEFAULT false,
-    user_id SERIAL NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES users(id)
+    otp_secret TEXT,
+    backup_code TEXT
 );
 
 -- log of a user's emails
@@ -93,15 +86,5 @@ CREATE TABLE IF NOT EXISTS ban (
     expires TIMESTAMP,
     reason TEXT,
     user_id INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE TABLE IF NOT EXISTS ipban (
-    id SERIAL PRIMARY KEY,
-    created TIMESTAMP DEFAULT NOW(), 
-    expires TIMESTAMP,
-    reason TEXT,
-    ip TEXT NOT NULL UNIQUE,
-    user_id INT, -- can optionally also ban a user
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
