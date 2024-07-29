@@ -200,10 +200,11 @@ const engine = searchEngines[Astro.locals.searchEngine];
 
       if (query === "") {
         form.removeAttribute("data-suggested");
-      } else {
-        form.setAttribute("data-suggested", "");
-        suggest.append(renderOmniboxSearchResult(query, query));
+        return;
       }
+
+      form.setAttribute("data-suggested", "");
+      suggest.append(renderOmniboxSearchResult(query, query));
 
       // if (query === "") return;
       // if (query === lastQuery) return;

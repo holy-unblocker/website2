@@ -94,6 +94,10 @@ $height: 44px;
     padding: 0 16px;
     box-sizing: border-box;
     margin-top: 20px;
+
+    .suggested {
+      width: calc(100% - 16px * 2);
+    }
   }
 
   &[data-suggested] {

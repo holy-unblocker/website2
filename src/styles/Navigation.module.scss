@@ -92,6 +92,7 @@ html[data-tab] {
   background: var(--background);
   align-items: center;
   justify-content: space-between;
+  z-index: 10000;
 
   > .collapsable {
     display: flex;
