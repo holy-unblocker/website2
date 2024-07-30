@@ -11,8 +11,14 @@ export const discordListening =
 
 export const db = await initDB();
 
+/**
+ *
+ * @returns {Promise<pg.Client>}
+ */
 async function initDB() {
   if (!dbEnabled) return undefined;
+
+  if (globalThis.hu_db) return globalThis.hu_db;
 
   const cli = new pg.Client(appConfig.db);
 
@@ -21,6 +27,8 @@ async function initDB() {
     console.error(err);
     process.exit(1);
   });
+
+  globalThis.hu_db = cli;
 
   return cli;
 }
@@ -34,30 +42,20 @@ export const mailer = stripeEnabled
   : undefined;
 
 // add some safeguards
-if (!stripeEnabled)
-  Object.defineProperties(appConfig, {
-    stripe: {
+if (!stripeEnabled) {
+  const traps = {};
+
+  for (const prop of ["stripe", "mailer", "discord"])
+    traps[prop] = {
       get: () => {
         throw new TypeError(
-          "Tried to get appConfig.stripe, but stripe support isn't enabled."
+          `Tried to get appConfig.${prop}, but stripe support isn't enabled.`
         );
       },
-    },
-    mailer: {
-      get: () => {
-        throw new TypeError(
-          "Tried to get appConfig.mailer, but stripe support isn't enabled."
-        );
-      },
-    },
-    discord: {
-      get: () => {
-        throw new TypeError(
-          "Tried to get appConfig.discord, but stripe support isn't enabled."
-        );
-      },
-    },
-  });
+    };
+
+  Object.defineProperties(appConfig, traps);
+}
 
 export async function getUserPayment(userId) {
   const payment = (
