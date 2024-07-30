@@ -1,11 +1,5 @@
 @import "./common.scss";
 
-.nav,
-.content > .menu,
-.content > .cover {
-  z-index: 2;
-}
-
 .nav > .logo,
 .content > .menu > .top > .logo {
   display: flex;
@@ -136,6 +130,7 @@ html[data-tab] {
   transition: opacity 0.3s, visibility 0.3s;
   opacity: 0;
   visibility: hidden;
+  z-index: 10001;
 }
 
 .menu {
@@ -153,6 +148,7 @@ html[data-tab] {
   transform: translateX(-100%);
   transition: transform 0.3s, visibility 0.3s 0.3s;
   overflow: hidden;
+  z-index: 10002;
 
   @include screenMobile {
     width: 100%;
