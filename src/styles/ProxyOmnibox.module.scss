@@ -18,12 +18,14 @@ $height: 44px;
 
 .omnibox {
   $border: 1px;
-  width: 584px;
+  width: 100%;
+  max-width: 584px;
   height: $height;
   display: flex;
   flex-direction: column;
   position: relative;
   margin: 0 auto;
+  z-index: 10;
 
   // a search glass icon
   // search icon is just the button except it isn't clickable
@@ -96,7 +98,11 @@ $height: 44px;
     margin-top: 20px;
 
     .suggested {
-      width: calc(100% - 16px * 2);
+      width: calc(100% - 32px);
+
+      @include screenMobile {
+        width: calc(100% - 20px);
+      }
     }
   }
 
@@ -118,12 +124,10 @@ $height: 44px;
   }
 
   @include screenMobile {
-    width: 100%;
-
     &[data-focused] {
       margin: 0;
       position: fixed;
-      z-index: 100;
+      z-index: 100000;
       top: 0px;
       left: 0px;
       padding: 10px;
@@ -171,7 +175,6 @@ $height: 44px;
   display: flex;
   margin-top: $height;
   width: 100%;
-  z-index: 1000;
   user-select: none;
 
   @include screenMobile {
@@ -213,6 +216,9 @@ $height: 44px;
       width: 100%;
       line-height: $height;
       user-select: none;
+      text-overflow: ellipsis;
+      text-wrap: nowrap;
+      overflow: hidden;
     }
 
     > .search {
