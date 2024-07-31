@@ -28,15 +28,16 @@ CREATE TABLE IF NOT EXISTS users (
     new_email_verification_secret TEXT,
     password_verification_secret TEXT, -- for changing ur password
     stripe_customer TEXT, -- set when their email is verified
+    totp_secret TEXT,
+    totp_enabled TIMESTAMP,
+    totp_backup_code TEXT,
     discord_id TEXT, -- link acc
     -- cached metadata about the disc acc
     -- we can probably just fetch this from the guild
     discord_username TEXT,
     discord_avatar TEXT,
     discord_name TEXT, -- aka 'global name'
-    discord_updated TIMESTAMP, -- re-fetch this data using the bot after its older than like 1 day
-    otp_secret TEXT,
-    backup_code TEXT
+    discord_updated TIMESTAMP -- re-fetch this data using the bot after its older than like 1 day
 );
 
 -- log of a user's emails
@@ -75,6 +76,7 @@ CREATE TABLE IF NOT EXISTS session (
 	created TIMESTAMP DEFAULT NOW(),
 	ip TEXT NOT NULL,
 	user_id INT NOT NULL,
+    totp_verified BOOLEAN NOT NULL DEFAULT false,
 	FOREIGN KEY (user_id) REFERENCES users(id)
 );
 

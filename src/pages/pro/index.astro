@@ -18,6 +18,7 @@ if (user) return Astro.redirect(to, 302);
 
 let error: string | undefined;
 
+let incorrectCreds = false;
 // is the initial value of the input
 let bademail: string | undefined;
 let badpassword: string | undefined;
@@ -46,13 +47,13 @@ if (Astro.request.method === "POST")
         const passwordCorrect = await verify(password, user.password_hash);
 
         if (passwordCorrect) {
-          const session = await createSession(ip, user.id);
+          const session = await createSession(ip, user);
           Astro.locals.setSession(session.secret, staySignedIn);
           return Astro.redirect(to, 302);
         }
       }
 
-      error = "Incorrect email or password.";
+      incorrectCreds = true;
       bademail = email;
       badpassword = password;
       Astro.response.status = 401;
@@ -96,6 +97,16 @@ const bai = Astro.url.searchParams.has("bai");
       </div>
       <form class={styles.loginForm} method="post">
         <h1 class={styles.formTitle}>Subscriber Login</h1>
+        {
+          incorrectCreds && (
+            <p class="prettyBanner" data-error>
+              Incorrect email or password.{" "}
+              <u>
+                <a href="/pro/signup">Did you mean to signup?</a>
+              </u>
+            </p>
+          )
+        }
         <Banner
           error={error}
           success={bai ? "thanks for stopping by!" : undefined}
@@ -103,7 +114,7 @@ const bai = Astro.url.searchParams.has("bai");
         <label class={styles.manageField}>
           <div>Email</div>
           <input
-            type="text"
+            type="email"
             name="email"
             class={styles.prettyinput}
             value={bademail}

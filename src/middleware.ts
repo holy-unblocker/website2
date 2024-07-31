@@ -368,6 +368,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
         return await isUserBanned(context.locals.user.id);
       }
     },
+    needsToVerifyTotp: () => {
+      const { user } = context.locals;
+      if (!user) return false;
+      return user.totp_enabled !== null && !user.session.totp_verified;
+    },
     toDash: () => context.redirect("/pro/dashboard", 302),
     toBan: () => context.redirect("/pro/ban", 302),
     toPricing: () => context.redirect("/pro/tiers", 302),
@@ -391,6 +396,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       ),
     toVerifyEmail: () => context.redirect("/pro/verify-email", 302),
     toVerifyNewEmail: () => context.redirect("/pro/verify-new-email", 302),
+    toVerifyTotp: () => context.redirect("/pro/verify-totp", 302),
   };
 
   return next();

@@ -37,11 +37,10 @@ if (Astro.request.method === "POST") {
     const data = await Astro.request.formData();
     email = data.get("email")?.toString().trim() || "";
     password = data.get("password")?.toString() || "";
-
     const consent = data.get("consent");
 
-    if (consent !== "true") {
-      error = "You must consent to create an account.";
+    if (consent !== "on") {
+      error = "You must agree to the TOS.";
     } else error = validateEmail(email) || validatePassword(password);
 
     if (!error) {
@@ -57,7 +56,7 @@ if (Astro.request.method === "POST") {
 
         await sendEmailVerification(user);
 
-        const session = await createSession(ip, user.id);
+        const session = await createSession(ip, user);
         Astro.locals.setSession(session.secret);
         return acc.toVerifyEmail();
       } catch (err) {
@@ -102,7 +101,7 @@ if (Astro.request.method === "POST") {
       <label class={styles.manageField}>
         <div>Email</div>
         <input
-          type="text"
+          type="email"
           name="email"
           class={styles.prettyinput}
           required

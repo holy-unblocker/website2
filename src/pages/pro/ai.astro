@@ -5,6 +5,7 @@ import { getUserPayment } from "@config/apis";
 
 const { user, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
+if (acc.needsToVerifyTotp()) return acc.toVerifyTotp();
 if (!user) return acc.toLogin();
 if (!user.email_verified) return acc.toVerifyEmail();
 // check if they paid

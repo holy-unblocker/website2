@@ -193,6 +193,7 @@ hr {
   box-sizing: border-box;
   padding-bottom: 2px;
   padding: 0px 15px;
+  height: max-content;
 
   .formTitle {
     font-family: $MontserratAlternates;
@@ -214,12 +215,12 @@ hr {
   }
 }
 
-@media (max-width: 1000px) {
-  .subscriberMain {
-    padding: 15px 2vw;
-    flex-direction: column;
-  }
+.subscriberMain {
+  padding: 15px 3vw;
+  flex-direction: column;
+}
 
+@media (max-width: 1000px) {
   .first {
     flex-direction: column-reverse;
     align-items: center;
@@ -266,10 +267,6 @@ hr {
 .anchor {
   text-decoration: none;
   display: contents;
-}
-
-.prettyfile.inline {
-  display: inline-block;
 }
 
 .prettyfile.inline::file-selector-button .prettyinput.inline {
@@ -431,7 +428,7 @@ main.pricing {
   position: relative;
 }
 
-.passwordField.inline {
+.inline {
   display: inline-block;
 }
 

@@ -13,6 +13,7 @@ import {
 
 const { user, ip, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
+if (acc.needsToVerifyTotp()) return acc.toVerifyTotp();
 if (!user) return acc.toLogin();
 
 let email: string | undefined;

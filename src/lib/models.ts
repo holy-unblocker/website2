@@ -22,6 +22,9 @@ export interface UserModel {
   new_email_verification_secret: string | null;
   password_verification_secret: string | null;
   stripe_customer: string | null;
+  totp_secret: string | null;
+  totp_enabled: Date | null;
+  totp_backup_code: string | null;
   discord_id: string | null;
   discord_username: string | null;
   discord_avatar: string | null;
@@ -52,6 +55,7 @@ export interface SessionModel {
   created: Date;
   ip: string;
   user_id: number;
+  totp_verified: boolean;
 }
 
 export interface BanModel {

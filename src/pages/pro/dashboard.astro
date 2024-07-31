@@ -15,6 +15,7 @@ import { unlinkDiscord } from "@lib/util";
 
 const { user, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
+if (acc.needsToVerifyTotp()) return acc.toVerifyTotp();
 if (!user) return acc.toLogin();
 if (!user.email_verified) return acc.toVerifyEmail();
 
@@ -107,6 +108,13 @@ if (Astro.request.method === "POST")
       <p>
         <a class={themeStyles.themeLink} href="/pro/change-email"
           >Change Email</a
+        >
+      </p>
+      <p>
+        <a
+          class={themeStyles.themeLink}
+          href="/pro/totp"
+          data-astro-prefetch="false">Manage 2FA</a
         >
       </p>
       <p>

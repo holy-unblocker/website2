@@ -18,6 +18,7 @@ let success: string | undefined;
 
 const { ip, user, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
+if (acc.needsToVerifyTotp()) return acc.toVerifyTotp();
 
 const secret = Astro.url.searchParams.get("secret") || "";
 
@@ -57,7 +58,7 @@ if (secret !== "") {
       await sendChangeEmailNotification(user, ip);
     } else {
       // create a new session
-      const session = await createSession(ip, target.id);
+      const session = await createSession(ip, target);
       Astro.locals.setSession(session.secret);
     }
 

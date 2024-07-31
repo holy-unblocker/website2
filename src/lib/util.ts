@@ -6,11 +6,11 @@ import * as m from "@lib/models";
 
 export { m };
 
-export async function createSession(ip: string, userId: number) {
+export async function createSession(ip: string, user: m.UserModel) {
   return (
     await db.query<m.SessionModel>(
       `INSERT INTO session(secret,ip,user_id) VALUES ($1,$2,$3) RETURNING *;`,
-      [randomBytes(16).toString("hex"), ip, userId]
+      [randomBytes(16).toString("hex"), ip, user.id]
     )
   ).rows[0];
 }

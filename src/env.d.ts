@@ -64,6 +64,7 @@ namespace App {
        * If the user/request IP is banned
        */
       isBanned: () => Promise<import("@lib/models").BanModel | void>;
+      needsToVerifyTotp: () => boolean;
       /**
        * Redirect the user to the login page
        * Detects the current page and will redirect to it once logged in
@@ -77,6 +78,7 @@ namespace App {
       toPricing: () => Response;
       toVerifyEmail: () => Response;
       toVerifyNewEmail: () => Response;
+      toVerifyTotp: () => Response;
     };
   }
 }
