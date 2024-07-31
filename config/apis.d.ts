@@ -2,6 +2,7 @@ import pg from "pg";
 import nodemailer from "nodemailer";
 import { Stripe } from "stripe";
 import * as m from "@lib/models";
+import type Dockerode from "dockerode";
 
 /**
  * database
@@ -21,7 +22,11 @@ export const discordEnabled: boolean;
  */
 export const discordListening: boolean;
 /**
- * postgres instance
+ * docker connection
+ */
+export const docker: Dockerode;
+/**
+ * postgres connection
  */
 export const db: pg.Client;
 export const stripe: Stripe;
@@ -32,7 +37,7 @@ export const mailer: nodemailer.Transporter;
 
 // returns undefined = no current payment plan
 export async function getUserPayment(
-  userId: number,
+  userId: number
 ): Promise<m.PaymentModel | undefined>;
 
 /**
@@ -50,5 +55,5 @@ export function getTierName(tier: number = 0): string;
 export async function giveTierDiscordRoles(
   user: m.UserModel,
   tier: number = 0,
-  deleteRoles: boolean = false,
+  deleteRoles: boolean = false
 ): Promise<boolean>;

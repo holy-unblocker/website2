@@ -2,6 +2,7 @@ import pg from "pg";
 import nodemailer from "nodemailer";
 import { appConfig } from "./config.js";
 import { Stripe } from "stripe";
+import Dockerode from "dockerode";
 
 export const dbEnabled = "db" in appConfig;
 export const stripeEnabled = dbEnabled && "stripe" in appConfig;
@@ -32,6 +33,10 @@ async function initDB() {
 
   return cli;
 }
+
+export const docker = stripeEnabled
+  ? new Dockerode(appConfig.docker)
+  : undefined;
 
 export const stripe = stripeEnabled
   ? new Stripe(appConfig.stripe.secret)

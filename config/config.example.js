@@ -71,6 +71,11 @@ export const appConfig = {
   //  database: "dbname",
   //},
 
+  // See config options here: https://github.com/apocas/dockerode
+  //docker: {
+  //  socketPath: "/var/run/docker.sock",
+  //},
+
   /// STRIPE CONFIG
   // - ASSIGN A STRIPE CUSTOMER ID TO EACH USER
   // - CREATE INVOICES FOR SUBSCRIPTIONS
