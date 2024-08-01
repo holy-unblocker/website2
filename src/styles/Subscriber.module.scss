@@ -458,3 +458,18 @@ main.pricing {
     display: none;
   }
 }
+
+.totp_qr,
+.totp_secret {
+  text-align: center;
+
+  div {
+    display: inline;
+  }
+
+  img {
+    margin: 0 auto;
+    height: max-content;
+    width: max-content;
+  }
+}
