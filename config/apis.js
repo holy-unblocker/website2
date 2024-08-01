@@ -79,7 +79,7 @@ export async function getUserPayment(userId) {
  */
 const tierNames = {
   0: "Free",
-  1: "Premium Subscriber",
+  1: "Premium",
 };
 
 /**

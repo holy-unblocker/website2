@@ -1,5 +1,6 @@
 ---
 import styles from "@styles/Subscriber.module.scss";
+import themeStyles from "@styles/ThemeElements.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import Banner from "@components/Banner.astro";
 import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
@@ -108,18 +109,12 @@ if (!error && exclusiveError) {
   stripeSession && (
     <script
       is:inline
-      set:html={
-        "location.href=document.querySelector('main').getAttribute('stripe-checkout-url')"
-      }
+      set:html={`location.href=${JSON.stringify(stripeSession.url)}`}
     />
   )
 }
 <MainLayout>
-  <main
-    class={styles.pricing}
-    stripe-checkout-url={stripeSession ? stripeSession.url : undefined}
-  >
-    <Banner error={error} />
+  <main class={styles.pricing}>
     <div class={styles.tiers}>
       <div class:list={["page-title", styles.pageTitle]}>
         {
@@ -132,6 +127,7 @@ if (!error && exclusiveError) {
           )
         }<HolyText text="Pricing" />
       </div>
+      <Banner error={error} />
       <div class={styles.list}>
         <div>
           <div class={styles.title}>Free</div>
@@ -201,16 +197,21 @@ if (!error && exclusiveError) {
         user ? (
           <>
             <p>
-              <HolyText text={`Current plan: ${getTierName(payment?.tier)}`} />
+              <HolyText
+                text={`Your current plan: ${getTierName(payment?.tier)}`}
+              />
             </p>
             <p>
-              <HolyText text="You will be asked for your payment details when you make a purchase." />
+              <HolyText text="We use Stripe for payment processing." />
             </p>
             <p>
-              <HolyText text="Payments are handled by Stripe." />
-            </p>
-            <p>
-              <HolyText text="If you are below the age of 13 or you card us, we will completely refund your payment and ban your account." />
+              <HolyText text="If we suspect that you're violating our" />{" "}
+              <HolyLink
+                href="/terms"
+                class={themeStyles.themeLink}
+                text="Terms of Service"
+              />
+              , we will completely refund your payment and ban your account.
             </p>
           </>
         ) : (

@@ -35,7 +35,7 @@ if (Astro.request.method === "POST")
     const type = data.get("type")?.toString();
 
     switch (type) {
-      case "renew":
+      case "renewal":
         if (typeof payment?.subscription_id === "string") {
           const renewal = data.get("renewal") === "on";
 
@@ -50,7 +50,7 @@ if (Astro.request.method === "POST")
           });
 
           await db.query(
-            "UPDATE payments SET stripe_renew = $1 WHERE invoice_id = $2;",
+            "UPDATE payment SET stripe_renew = $1 WHERE invoice_id = $2;",
             [payment.stripe_renew, payment.invoice_id]
           );
 
@@ -144,6 +144,9 @@ if (Astro.request.method === "POST")
         ) : (
           <>
             <p>You don't currently have a subscription.</p>
+            <a href="/pro/tiers">
+              <button class={styles.prettySubmit}>Buy Premium</button>
+            </a>
           </>
         )
       }
