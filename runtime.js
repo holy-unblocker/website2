@@ -116,6 +116,7 @@ client.on("ready", async () => {
       console.log(
         `https://discord.com/oauth2/authorize?client_id=${appConfig.discord.clientId}&scope=bot&permissions=268435456`
       );
+      process.exit(1);
     }
   }
 
