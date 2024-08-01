@@ -19,7 +19,6 @@ if (acc.needsToVerifyTotp()) return acc.toVerifyTotp();
 if (!user) return acc.toLogin();
 if (!user.email_verified) return acc.toVerifyEmail();
 
-let secret: string | undefined;
 let backupCode: string | undefined;
 
 let genNewCode = true;
