@@ -1,5 +1,5 @@
-export function validatePassword(password: string) {
-  if (typeof password === "undefined" || password.length === 0)
+export function validatePassword(password: unknown) {
+  if (typeof password !== "string" || password.length === 0)
     return "Please enter a password.";
   else if (password.length > 120)
     return "Password must be between 8 and 120 characters.";
@@ -12,10 +12,10 @@ export function validatePassword(password: string) {
 }
 
 export function validateEmail(
-  email: string | undefined,
-  currentEmail?: string,
+  email: unknown,
+  currentEmail?: string
 ): string | undefined {
-  if (typeof email === "undefined" || email.trim() === "")
+  if (typeof email !== "string" || email.trim() === "")
     return "Please enter an email.";
 
   if (currentEmail !== undefined && email === currentEmail)

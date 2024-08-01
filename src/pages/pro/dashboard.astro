@@ -228,11 +228,13 @@ if (Astro.request.method === "POST")
   import prettyMilliseconds from "pretty-ms";
 
   document.addEventListener("astro:page-load", () => {
-    const stripe_renew = document.querySelector("[data-stripe_renew]")
-      ? true
-      : false;
+    const renewal = document.querySelector<HTMLInputElement>("#renewal");
+    if (!renewal) return;
 
-    const renewal = document.querySelector<HTMLInputElement>("#renewal")!;
+    const stripe_renew = document
+      .querySelector("[data-stripe_renew]")!
+      .hasAttribute("data-stripe_renew");
+
     renewal.addEventListener("submit", (event) => {
       if (
         !confirm(

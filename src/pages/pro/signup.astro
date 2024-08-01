@@ -14,7 +14,9 @@ import {
   generateVerificationCode,
   hashPassword,
   sendEmailVerification,
+  validateCaptcha,
 } from "@lib/util";
+import InputCaptcha from "@components/InputCaptcha.astro";
 
 const { ip, user, acc } = Astro.locals;
 let to = Astro.url.searchParams.get("to") || null;
@@ -37,11 +39,16 @@ if (Astro.request.method === "POST") {
     const data = await Astro.request.formData();
     email = data.get("email")?.toString().trim() || "";
     password = data.get("password")?.toString() || "";
+    const captchaToken = data.get("g-recaptcha-response")?.toString();
     const consent = data.get("consent");
 
     if (consent !== "on") {
       error = "You must agree to the TOS.";
-    } else error = validateEmail(email) || validatePassword(password);
+    } else
+      error =
+        validateEmail(email) ||
+        validatePassword(password) ||
+        (await validateCaptcha(captchaToken, ip));
 
     if (!error) {
       const verificationCode = generateVerificationCode();
@@ -117,6 +124,7 @@ if (Astro.request.method === "POST") {
           validate
         />
       </label>
+      <InputCaptcha />
       <input
         class:list={[styles.prettySubmit, styles.wide]}
         type="submit"

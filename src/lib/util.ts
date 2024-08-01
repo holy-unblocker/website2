@@ -3,6 +3,8 @@ import { randomBytes } from "node:crypto";
 import { hash } from "@lib/hash";
 import { appConfig } from "@config/config";
 import * as m from "@lib/models";
+import hcaptcha from "hcaptcha";
+import { hcaptchaEnabled } from "@config/apis";
 
 export { m };
 
@@ -278,6 +280,21 @@ export async function linkDiscord(
       user.id,
     ]
   );
+}
+
+export async function validateCaptcha(
+  token: any,
+  realIp: string
+): Promise<string | undefined> {
+  if (!hcaptchaEnabled) return;
+  if (typeof token !== "string") return "Invalid captcha token";
+  // const t = useTranslations(language);
+  const res = await hcaptcha.verify(appConfig.hcaptcha.secret, token, realIp);
+  if (!res.success) {
+    console.error("captcha fail", { res, realIp, token });
+    return "Please try the captcha again.";
+  }
+  // if (!res.success) return t("feedback.captchaFailed");
 }
 
 export * from "./validation";

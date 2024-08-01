@@ -9,6 +9,7 @@ export const stripeEnabled = dbEnabled && "stripe" in appConfig;
 export const discordEnabled = stripeEnabled && "discord" in appConfig;
 export const discordListening =
   discordEnabled && "listenForJoins" in appConfig.discord;
+export const hcaptchaEnabled = stripeEnabled && "hcaptcha" in appConfig;
 
 export const db = await initDB();
 
@@ -34,12 +35,12 @@ async function initDB() {
   return cli;
 }
 
-export const docker = stripeEnabled
-  ? new Dockerode(appConfig.docker)
-  : undefined;
-
 export const stripe = stripeEnabled
   ? new Stripe(appConfig.stripe.secret)
+  : undefined;
+
+export const docker = stripeEnabled
+  ? new Dockerode(appConfig.docker)
   : undefined;
 
 export const mailer = stripeEnabled

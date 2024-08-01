@@ -6,8 +6,9 @@ import themeStyles from "@styles/ThemeElements.module.scss";
 import InputPassword from "@components/InputPassword.astro";
 import Banner from "@components/Banner.astro";
 import { db } from "@config/apis";
-import { m, createSession } from "@lib/util";
+import { m, createSession, validateCaptcha } from "@lib/util";
 import { verify } from "@lib/hash";
+import InputCaptcha from "@components/InputCaptcha.astro";
 
 const { user, ip } = Astro.locals;
 // redirect to dashboard if they're already signed in
@@ -29,6 +30,9 @@ if (Astro.request.method === "POST")
     const email = data.get("email")?.toString() || "";
     const password = data.get("password")?.toString() || "";
     const staySignedIn = data.get("staySignedIn")?.toString() === "on";
+    const captchaToken = data.get("g-recaptcha-response")?.toString();
+
+    error = await validateCaptcha(captchaToken, ip);
 
     if (email === "") {
       error = "Please enter your email.";
@@ -36,7 +40,7 @@ if (Astro.request.method === "POST")
     } else if (password === "") {
       error = "Please enter your password.";
       Astro.response.status = 400;
-    } else {
+    } else if (!error) {
       const user = (
         await db.query<m.UserModel>("SELECT * FROM users WHERE email = $1;", [
           email,
@@ -125,6 +129,7 @@ const bai = Astro.url.searchParams.has("bai");
           <div>Password</div>
           <InputPassword id="password" name="password" value={badpassword} />
         </label>
+        <InputCaptcha />
         <p>
           <label
             ><input type="checkbox" name="staySignedIn" /> Stay signed in.</label

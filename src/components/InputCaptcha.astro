@@ -1,0 +1,25 @@
+---
+import { hcaptchaEnabled } from "@config/apis";
+import { appConfig } from "@config/config";
+---
+
+{
+  hcaptchaEnabled && (
+    <>
+      <script src="https://js.hcaptcha.com/1/api.js" async defer is:inline />
+      <div
+        id="loginCaptcha"
+        class="h-captcha"
+        data-sitekey={appConfig.hcaptcha.siteKey}
+      />
+    </>
+  )
+}
+<script>
+  declare var hcaptcha: any;
+  let firstLoad = true;
+  document.addEventListener("astro:page-load", () => {
+    if (!firstLoad) hcaptcha.render("loginCaptcha");
+    firstLoad = false;
+  });
+</script>

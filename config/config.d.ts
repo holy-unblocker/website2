@@ -50,13 +50,17 @@ export interface AppConfig {
       };
   supportEmail: string;
   mainWebsite: string;
-  docker: import("dockerode").DockerOptions;
   stripe: {
     secret: string;
     webhookEndpointSecret: string;
     priceIds: {
       premium: string;
     };
+  };
+  docker: import("dockerode").DockerOptions;
+  hcaptcha: {
+    siteKey: string;
+    secret: string;
   };
   mailer: {
     transport: Parameters<typeof import("nodemailer")["createTransport"]>[0];

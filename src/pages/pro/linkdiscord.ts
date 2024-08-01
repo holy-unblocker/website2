@@ -6,6 +6,8 @@ import { linkDiscord } from "@lib/util";
 // we are redirected here after discord acc is complete
 export const GET: APIRoute = async (context) => {
   const { user, acc } = context.locals;
+  if (await acc.isBanned()) return acc.toBan();
+  if (acc.needsToVerifyTotp()) return acc.toVerifyTotp();
 
   const code = context.url.searchParams.get("code");
   if (code === null) return new Response("wut", { status: 400 });

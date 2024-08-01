@@ -36,6 +36,7 @@ if (Astro.request.method === "POST")
               "UPDATE session SET totp_verified = true WHERE user_id = $1;",
               [user.id]
             );
+            return acc.toDash();
           }
         }
         break;
@@ -44,7 +45,6 @@ if (Astro.request.method === "POST")
     console.error(err);
   }
 
-/*
 if (user.totp_secret !== null)
   console.log(
     "DEBUG 2FA CODE:",
@@ -52,7 +52,6 @@ if (user.totp_secret !== null)
     user.totp_backup_code,
     authenticator.generate(user.totp_secret)
   );
-*/
 ---
 
 <MainLayout>

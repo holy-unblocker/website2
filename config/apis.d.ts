@@ -22,6 +22,10 @@ export const discordEnabled: boolean;
  */
 export const discordListening: boolean;
 /**
+ * whether hcaptcha challenges should be displayed
+ */
+export const hcaptchaEnabled: boolean;
+/**
  * docker connection
  */
 export const docker: Dockerode;

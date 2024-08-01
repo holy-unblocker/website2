@@ -71,11 +71,6 @@ export const appConfig = {
   //  database: "dbname",
   //},
 
-  // See config options here: https://github.com/apocas/dockerode
-  //docker: {
-  //  socketPath: "/var/run/docker.sock",
-  //},
-
   /// STRIPE CONFIG
   // - ASSIGN A STRIPE CUSTOMER ID TO EACH USER
   // - CREATE INVOICES FOR SUBSCRIPTIONS
@@ -86,6 +81,19 @@ export const appConfig = {
   //  priceIds: {
   //    premium: "price id for 'premium' supporter",
   //  },
+  //},
+
+  // See config options here: https://github.com/apocas/dockerode
+  //docker: {
+  //  socketPath: "/var/run/docker.sock",
+  //},
+
+  // HCAPTCHA CONFIG
+  // HIGHLY RECOMMENDED
+  // https://www.hcaptcha.com/ integration
+  //hcaptcha: {
+  //  siteKey: "10000000-ffff-ffff-ffff-000000000001",
+  //  secret: "0x0000000000000000000000000000000000000000",
   //},
 
   // DISCORD CONFIG
