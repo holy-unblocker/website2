@@ -8,8 +8,10 @@ import {
   canSendEmail,
   generateVerificationSecret,
   sendChangeEmailVerification,
+  validateCaptcha,
   validateEmail,
 } from "@lib/util";
+import InputCaptcha from "@components/InputCaptcha.astro";
 
 const { user, ip, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
@@ -23,8 +25,11 @@ if (Astro.request.method === "POST")
   try {
     const data = await Astro.request.formData();
     email = data.get("email")?.toString().trim() || "";
+    const captchaToken = data.get("g-recaptcha-response")?.toString();
     error =
-      validateEmail(email, user.email) || (await canSendEmail(user, email, ip));
+      validateEmail(email, user.email) ||
+      (await validateCaptcha(captchaToken, ip)) ||
+      (await canSendEmail(user, email, ip));
 
     if (!error) {
       const verificationSecret = generateVerificationSecret();
@@ -84,6 +89,7 @@ if (Astro.request.method === "POST")
           value={email}
         />
       </label>
+      <InputCaptcha />
       <input
         class:list={[styles.prettySubmit, styles.inline]}
         type="submit"
