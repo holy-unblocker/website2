@@ -55,10 +55,10 @@ export async function setupBareMux() {
 // get the Holy Unblocker wisp endpoint
 export function getWispUrl() {
   // HTML element inserted by astro
-  // - it contains the [data-wispServer] attribute which tells the client what wisp server to use
+  // - it contains the [data-wisp-server] attribute which tells the client what wisp server to use
   // - this value is directly from appConfig.
   const ele = document.getElementById("wispServerThing")!;
-  const separateWispServer = ele.getAttribute("data-wispServer")!;
+  const separateWispServer = ele.getAttribute("data-wisp-server")!;
 
   // defaults to wisp on /api/wisp which is hosted by the Holy Unblocker runtime
   // see: ./config/runtime.js
