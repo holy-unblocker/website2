@@ -235,7 +235,7 @@ if (Astro.request.method === "POST")
     if (!renewal) return;
 
     const stripe_renew = document
-      .querySelector("[data-stripe_renew]")!
+      .querySelector("#renewal")!
       .hasAttribute("data-stripe_renew");
 
     renewal.addEventListener("submit", (event) => {
