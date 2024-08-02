@@ -9,10 +9,13 @@ import type Dockerode from "dockerode";
  */
 export const dbEnabled: boolean;
 /**
- * payment processing/accounts
- * basically whether the account system is enabled or not
+ * payment processing
  */
 export const stripeEnabled: boolean;
+/**
+ * whether the account system is enabled or not
+ */
+export const accountsEnabled: boolean;
 /**
  * discord bot integration
  */

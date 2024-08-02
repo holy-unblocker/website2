@@ -3,7 +3,7 @@ import themeStyles from "@styles/ThemeElements.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import HolyText from "@components/HolyText.astro";
 import HolyLink from "@components/HolyLink.astro";
-import { stripeEnabled } from "@config/apis";
+import { accountsEnabled } from "@config/apis";
 ---
 
 <MainLayout title="Cookie Policy">
@@ -22,7 +22,7 @@ import { stripeEnabled } from "@config/apis";
       />
     </p>
     {
-      stripeEnabled && (
+      accountsEnabled && (
         <>
           <h2>
             <HolyText text="Holy Unblocker Premium" />

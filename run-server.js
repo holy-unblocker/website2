@@ -168,8 +168,8 @@ if (separateWisp)
 
 console.log(st[+apis.stripeEnabled], chalk.bold("Stripe payment processing"));
 console.log(
-  ` - ${st[+apis.stripeEnabled]} Account system`,
-  ["disabled", "enabled"][+apis.stripeEnabled]
+  ` - ${st[+apis.accountsEnabled]} Account system`,
+  ["disabled", "enabled"][+apis.accountsEnabled]
 );
 
 if (apis.discordEnabled) {

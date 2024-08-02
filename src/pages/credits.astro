@@ -4,7 +4,7 @@ import themeStyles from "@styles/ThemeElements.module.scss";
 import { appConfig } from "@config/config";
 import HolyLink from "@components/HolyLink.astro";
 import HolyText from "@components/HolyText.astro";
-import { stripeEnabled } from "@config/apis";
+import { accountsEnabled } from "@config/apis";
 ---
 
 <MainLayout title="Credits">
@@ -31,7 +31,7 @@ import { stripeEnabled } from "@config/apis";
 
     <ul>
       {
-        stripeEnabled && (
+        accountsEnabled && (
           <li>
             <HolyLink
               href="/pro/tiers"

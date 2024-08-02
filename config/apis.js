@@ -6,10 +6,11 @@ import Dockerode from "dockerode";
 
 export const dbEnabled = "db" in appConfig;
 export const stripeEnabled = dbEnabled && "stripe" in appConfig;
-export const discordEnabled = stripeEnabled && "discord" in appConfig;
+export const accountsEnabled = stripeEnabled;
+export const discordEnabled = accountsEnabled && "discord" in appConfig;
 export const discordListening =
   discordEnabled && "listenForJoins" in appConfig.discord;
-export const hcaptchaEnabled = stripeEnabled && "hcaptcha" in appConfig;
+export const hcaptchaEnabled = accountsEnabled && "hcaptcha" in appConfig;
 
 export const db = await initDB();
 
@@ -39,19 +40,19 @@ export const stripe = stripeEnabled
   ? new Stripe(appConfig.stripe.secret)
   : undefined;
 
-export const docker = stripeEnabled
+export const docker = accountsEnabled
   ? new Dockerode(appConfig.docker)
   : undefined;
 
-export const mailer = stripeEnabled
+export const mailer = accountsEnabled
   ? nodemailer.createTransport(appConfig.mailer.transport)
   : undefined;
 
 // add some safeguards
-if (!stripeEnabled) {
+if (!accountsEnabled) {
   const traps = {};
 
-  for (const prop of ["stripe", "mailer", "discord"])
+  for (const prop of ["stripe", "docker", "mailer", "discord"])
     traps[prop] = {
       get: () => {
         throw new TypeError(

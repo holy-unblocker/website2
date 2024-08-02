@@ -68,7 +68,7 @@ try {
   process.exit(1);
 }
 
-const { db, getUserPayment, giveTierDiscordRoles, stripeEnabled } =
+const { db, getUserPayment, giveTierDiscordRoles, accountsEnabled } =
   await import("./config/apis.js");
 
 // check runtime requirements
@@ -213,7 +213,7 @@ client.on("guildMemberAdd", async (member) => {
 });
 
 // start the discord bot here
-if (stripeEnabled && appConfig.discord.listenForJoins)
+if (accountsEnabled && appConfig.discord.listenForJoins)
   client.login(appConfig.discord.botToken);
 
 /**

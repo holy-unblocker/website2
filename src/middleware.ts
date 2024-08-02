@@ -1,4 +1,4 @@
-import { db, stripeEnabled } from "@config/apis";
+import { db, accountsEnabled } from "@config/apis";
 import {
   m,
   isUserBanned,
@@ -244,10 +244,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   )
     context.locals.proxyMode = proxyMode;
 
-  if (!stripeEnabled) {
+  if (!accountsEnabled) {
     if (
       context.url.pathname.startsWith("/pro/") ||
-      context.url.pathname === "/api/supersecretstripe"
+      context.url.pathname === "/api/stripe"
     )
       return new Response("accounts are disabled", { status: 400 });
     // don't bother loading logic for account stuff

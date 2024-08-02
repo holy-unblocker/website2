@@ -28,7 +28,7 @@ import Leaderboard from "@icons/leaderboard_24dp_FILL1_wght400_GRAD0_opsz24.svg?
 import SortRounded from "@icons/sort_24dp.svg?react";
 import NavMenuTab from "@components/NavMenuTab.astro";
 import Footer from "@components/Footer.astro";
-import { stripeEnabled } from "@config/apis";
+import { accountsEnabled } from "@config/apis";
 import { ViewTransitions } from "astro:transitions";
 import { appConfig } from "@config/config";
 import UltravioletScripts from "@components/UltravioletScripts.astro";
@@ -173,7 +173,7 @@ const { cloak } = Astro.locals;
             iconFilled={Patreon}
           />
           {
-            stripeEnabled && (
+            accountsEnabled && (
               <>
                 <div class={styles.bar} />
                 <NavMenuTab href="/pro/" name="Subscribe" iconFilled={luv} />
