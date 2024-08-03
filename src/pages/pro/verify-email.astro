@@ -4,9 +4,9 @@ import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
 import { db } from "@config/apis";
-import { canSendEmail, sendEmailVerification } from "@lib/util";
+import { canSendEmail, sendEmailVerification } from "@lib/email";
 
-const { user, ip, acc } = Astro.locals;
+const { origin, user, ip, acc } = Astro.locals;
 if (!user) return acc.toLogin();
 if (await acc.isBanned()) return acc.toBan();
 if (user.email_verified) return Astro.redirect("/pro/dashboard?welcome", 302);
@@ -39,7 +39,7 @@ if (Astro.request.method === "POST")
         {
           error = await canSendEmail(user, user.email, ip);
           if (!error) {
-            await sendEmailVerification(user);
+            await sendEmailVerification(origin, user);
             success = "Email sent! Check your inbox and spam filters.";
           }
         }

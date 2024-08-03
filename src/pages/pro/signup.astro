@@ -11,12 +11,11 @@ import {
   createSession,
   validateEmail,
   validatePassword,
-  generateVerificationCode,
   hashPassword,
-  sendEmailVerification,
   validateCaptcha,
 } from "@lib/util";
 import InputCaptcha from "@components/InputCaptcha.astro";
+import { generateVerificationCode, sendEmailVerification } from "@lib/email";
 
 const { ip, user, acc } = Astro.locals;
 let to = Astro.url.searchParams.get("to") || null;
@@ -61,7 +60,7 @@ if (Astro.request.method === "POST") {
           )
         ).rows[0];
 
-        await sendEmailVerification(user);
+        await sendEmailVerification(origin, user);
 
         const session = await createSession(ip, user);
         Astro.locals.setSession(session.secret);

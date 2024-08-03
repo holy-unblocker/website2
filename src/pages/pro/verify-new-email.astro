@@ -5,18 +5,17 @@ import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
 import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
 import { db, stripe } from "@config/apis";
+import { m, createSession } from "@lib/util";
 import {
-  m,
   canSendEmail,
-  createSession,
-  sendChangeEmailVerification,
   sendChangeEmailNotification,
-} from "@lib/util";
+  sendChangeEmailVerification,
+} from "@lib/email";
 
 let error: string | undefined;
 let success: string | undefined;
 
-const { ip, user, acc } = Astro.locals;
+const { origin, ip, user, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
 if (acc.needsToVerifyTotp()) return acc.toVerifyTotp();
 
@@ -55,7 +54,7 @@ if (secret !== "") {
         target.id,
         user.session.secret,
       ]);
-      await sendChangeEmailNotification(user, ip);
+      await sendChangeEmailNotification(origin, user, ip);
     } else {
       // create a new session
       const session = await createSession(ip, target);

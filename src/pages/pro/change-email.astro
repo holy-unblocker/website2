@@ -4,16 +4,15 @@ import MainLayout from "@layouts/MainLayout.astro";
 import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
 import Banner from "@components/Banner.astro";
 import { db } from "@config/apis";
+import { validateCaptcha, validateEmail } from "@lib/util";
 import {
   canSendEmail,
   generateVerificationSecret,
   sendChangeEmailVerification,
-  validateCaptcha,
-  validateEmail,
-} from "@lib/util";
+} from "@lib/email";
 import InputCaptcha from "@components/InputCaptcha.astro";
 
-const { user, ip, acc } = Astro.locals;
+const { origin, user, ip, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
 if (acc.needsToVerifyTotp()) return acc.toVerifyTotp();
 if (!user) return acc.toLogin();
@@ -39,7 +38,7 @@ if (Astro.request.method === "POST")
         [email, verificationSecret, user.id]
       );
       await sendChangeEmailVerification(
-        Astro.url.host,
+        origin,
         user,
         email,
         verificationSecret

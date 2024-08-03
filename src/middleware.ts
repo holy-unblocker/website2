@@ -54,6 +54,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   context.locals.encryptText = encryptText;
 
+  const proto = ["localhost", "127.0.0.1"].includes(context.url.hostname)
+    ? "http:"
+    : "https:";
+  context.locals.origin = proto + context.url.host;
+
   // context.locals.obfus = new HolyObfuscator(context.url.hostname, context.locals.isMainWebsite);
 
   context.locals.isMainWebsite =

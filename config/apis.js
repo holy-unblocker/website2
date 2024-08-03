@@ -66,17 +66,6 @@ if (!accountsEnabled) {
 
 /**
  *
- * @param {number} tier
- * @returns {string[]}} role ids
- */
-function getTierDiscordRoles(tier) {
-  const roles = [];
-  if (tier >= 1) roles.push();
-  return roles;
-}
-
-/**
- *
  * @param {import("@lib/models").UserModel} user
  * @param {number} tier
  * @param {boolean} deleteRoles

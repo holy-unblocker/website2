@@ -30,10 +30,6 @@ if (Astro.request.method === "POST")
       try {
         // create the invoice and redirect
 
-        const proto = ["localhost", "127.0.0.1"].includes(Astro.url.hostname)
-          ? "http:"
-          : "https:";
-
         const invoice = await createInvoice(user, MONTH, 500, "fiat");
 
         console.log("yay!@!", { invoice });
