@@ -45,11 +45,10 @@ export async function canSendEmail(
   }
 
   // record it
-  await db.query("INSERT INTO email(email,ip,user_id) VALUES($1,$2,$3);", [
-    user.email,
-    ip,
-    user.id,
-  ]);
+  await db.query(
+    "INSERT INTO email(send_time,email,ip,user_id) VALUES($1,$2,$3,$4);",
+    [new Date(now), user.email, ip, user.id]
+  );
 }
 
 const emailCSS = `div{background:#fff;padding:20px;font-family:"Helvetica Neue","Helvetica","Arial","sans-serif"}`;
