@@ -312,8 +312,6 @@ export async function addTimeToAccount(
       [time, user.id]
     )
   ).rows[0];
-
-  console.log({ res });
   user.paid_until = res.paid_until;
   return user;
 }
