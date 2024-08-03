@@ -68,8 +68,9 @@ try {
   process.exit(1);
 }
 
-const { db, getUserPayment, giveTierDiscordRoles, accountsEnabled } =
-  await import("./config/apis.js");
+const { db, giveTierDiscordRoles, accountsEnabled } = await import(
+  "./config/apis.js"
+);
 
 // check runtime requirements
 // in both astro dev server & runtime
@@ -202,13 +203,18 @@ client.on("guildMemberAdd", async (member) => {
     return;
   }
 
-  const user = await db.query("SELECT * FROM users WHERE discord_id = $1;", [
-    member.user.id,
-  ]);
+  /**
+   * @type {import("@lib/util").m.UserModel}
+   */
+  const user = (
+    await db.query("SELECT * FROM users WHERE discord_id = $1;", [
+      member.user.id,
+    ])
+  ).rows[0];
+
   if (user) {
     console.log("Found user:", user);
-    const payment = await getUserPayment(user.id);
-    await giveTierDiscordRoles(user, payment?.tier);
+    await giveTierDiscordRoles(user);
   }
 });
 

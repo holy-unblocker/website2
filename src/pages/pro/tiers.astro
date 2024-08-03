@@ -4,44 +4,26 @@ import themeStyles from "@styles/ThemeElements.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import Banner from "@components/Banner.astro";
 import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
-import { stripe, getUserPayment, getTierName } from "@config/apis";
-import { appConfig } from "@config/config";
 import Discord from "@icons/discord.svg?react";
 import Arcade from "@icons/sports_esports_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
 import Public from "@icons/public_24dp.svg?react";
 import UltravioletIcon from "@icons/ultraviolet_icon.svg?react";
 import DeviceHub from "@icons/device_hub_24dp_FILL0_wght400_GRAD0_opsz24.svg?react";
 import ChatBot from "@icons/chatbot.svg?react";
-import type Stripe from "stripe";
-import { createStripeCustomer } from "@lib/util";
+import { createInvoice, MONTH } from "@lib/util";
 import HolyText from "@components/HolyText.astro";
 import HolyLink from "@components/HolyLink.astro";
 
 const { user } = Astro.locals;
 
 let error: string | undefined;
-let stripeSession: Stripe.Response<Stripe.Checkout.Session> | undefined;
+let invoiceURL: string | undefined;
 
 if (Astro.request.method === "POST")
   try {
-    const data = await Astro.request.formData();
-    const tier = data.get("tier")?.toString();
-    // create an invoice
-    let priceId: string | undefined;
+    // const data = await Astro.request.formData();
 
-    switch (tier) {
-      case "1":
-        // premium
-        priceId = appConfig.stripe.priceIds.premium;
-        break;
-    }
-
-    console.log({ tier });
-
-    if (priceId === undefined) {
-      Astro.response.status = 400;
-      error = "Invalid plan ID";
-    } else if (!user) {
+    if (!user) {
       Astro.response.status = 400;
       error = "You need an account";
     } else if (!error)
@@ -52,38 +34,11 @@ if (Astro.request.method === "POST")
           ? "http:"
           : "https:";
 
-        if (user.stripe_customer === null)
-          try {
-            // set the customer here!
-            user.stripe_customer = (await createStripeCustomer(user)).id;
-            // Astro.response.status = 500;
-            // error = "ermm";
-            // console.log(user);
-          } catch (err) {
-            Astro.response.status = 500;
-            error =
-              "Sorry! We were unable to create a stripe customer for you! THIS IS A BUG PLEASE REPORT IT";
-            console.error(err);
-          }
+        const invoice = await createInvoice(user, MONTH, 500, "fiat");
 
-        // https://docs.stripe.com/billing/subscriptions/build-subscriptions
-        stripeSession = await stripe.checkout.sessions.create({
-          mode: "subscription",
-          customer: user.stripe_customer as string,
-          line_items: [
-            {
-              price: priceId,
-              // For metered billing, do not pass quantity
-              quantity: 1,
-            },
-          ],
-          success_url:
-            proto +
-            `//${Astro.url.host}/pro/paid?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: proto + `//${Astro.url.host}/pro/tiers`,
-        });
+        console.log("yay!@!", { invoice });
 
-        console.log("checkout session created", stripeSession.id);
+        invoiceURL = invoice.url;
 
         // return Astro.redirect(session.url, 303);
       } catch (err) {
@@ -95,126 +50,97 @@ if (Astro.request.method === "POST")
     console.error(err);
   }
 
-const payment = user ? await getUserPayment(user.id) : undefined;
+const isPoor = Astro.url.searchParams.has("poor");
 
-const exclusiveError = Astro.url.searchParams.has("vm");
-
-if (!error && exclusiveError) {
-  error = "This feature is exclusive to official & ultimate supporters!";
+if (!error && isPoor) {
+  error = "You need premium to access this feature.";
 }
 ---
 
-{exclusiveError && <script>history.pushState({}, "", "/pro/tiers")</script>}
+{isPoor && <script>history.pushState({}, "", "/pro/tiers")</script>}
 {
-  stripeSession && (
-    <script
-      is:inline
-      set:html={`location.href=${JSON.stringify(stripeSession.url)}`}
-    />
+  invoiceURL && (
+    <script is:inline set:html={`window.open(${JSON.stringify(invoiceURL)})`} />
   )
 }
 <MainLayout>
   <main class={styles.pricing}>
-    <div class={styles.tiers}>
-      <div class:list={["page-title", styles.pageTitle]}>
-        {
-          user && (
-            <a
-              class="back-button"
-              href="/pro/dashboard"
-              set:html={ArrowBackIcon}
-            />
-          )
-        }<HolyText text="Pricing" />
+    <div class:list={["page-title", styles.pageTitle]}>
+      {
+        user && (
+          <a
+            class="back-button"
+            href="/pro/dashboard"
+            set:html={ArrowBackIcon}
+          />
+        )
+      }<HolyText text="Tiers" />
+    </div>
+    <Banner error={error} />
+    <div class={styles.tierList}>
+      <div>
+        <HolyText class={styles.title} text="Free" />
+        <HolyText class={styles.price} text="$0" />
+        <HolyText class={styles.description} text="The essentials" />
+        <div class={styles.features}>
+          <div>
+            <span class={styles.icon} set:html={Public} />
+            <HolyText text="All Site Features" />
+          </div>
+          <div>
+            <span class={styles.icon} set:html={UltravioletIcon} />
+            <HolyText text="Ultraviolet" />
+          </div>
+          <div>
+            <span class={styles.icon} set:html={Arcade} />
+            <HolyText text="Arcade" />
+          </div>
+        </div>
+        <form class={styles.buy}>
+          <input
+            type="submit"
+            class={styles.prettySubmit}
+            data-owned
+            value="YOU HAVE THIS!"
+            disabled
+          />
+        </form>
       </div>
-      <Banner error={error} />
-      <div class={styles.list}>
-        <div>
-          <div class={styles.title}>Free</div>
-          <div class={styles.price}>$0</div>
-          <div class={styles.features}>
-            <div>
-              <span class={styles.icon} set:html={Public} />
-              <span><HolyText text="All Site Features" /></span>
-            </div>
-            <div>
-              <span class={styles.icon} set:html={UltravioletIcon} />
-              <span><HolyText text="Ultraviolet" /></span>
-            </div>
-            <div>
-              <span class={styles.icon} set:html={Arcade} />
-              <span><HolyText text="Arcade" /></span>
-            </div>
+      <div>
+        <HolyText class={styles.title} text="Premium" />
+        <HolyText class={styles.price} text="$5" />
+        <HolyText class={styles.description} text="30 days of access" />
+        <div class={styles.features}>
+          <div>
+            <HolyText text="All Free Perks!" />
           </div>
-          <form class={styles.buy}>
-            <input
-              type="submit"
-              class={styles.prettySubmit}
-              data-owned
-              value="YOU HAVE THIS!"
-              disabled
-            />
-          </form>
-        </div>
-        <div>
-          <div class={styles.title}><HolyText text="Premium" /></div>
-          <div class={styles.price}><HolyText text="$5/month" /></div>
-          <div class={styles.features}>
-            <div>
-              <HolyText text="All Free Plan Perks!" />
-            </div>
-            <div>
-              <span class:list={[styles.icon, styles.ai]} set:html={ChatBot} />
-              <HolyText text="AI Chatbot" />
-            </div>
-            <div>
-              <span
-                class:list={[styles.icon, styles.disc]}
-                set:html={Discord}
-              />
-              <HolyText text="Discord Role" />
-            </div>
-            <div>
-              <span class={styles.icon} set:html={DeviceHub} />
-              <HolyText text="Virtual Browser" />
-            </div>
+          <div>
+            <span class:list={[styles.icon, styles.ai]} set:html={ChatBot} />
+            <HolyText text="AI Chatbot" />
           </div>
-          <form class={styles.buy} method="post">
-            <input type="text" name="tier" value="1" hidden />
-            <input
-              type="submit"
-              class={styles.prettySubmit}
-              data-owned={(payment && payment.tier >= 1) || null}
-              value={!payment || payment.tier < 1 ? "Buy" : "YOU HAVE THIS!"}
-              disabled={!user || (payment && payment.tier >= 1)}
-            />
-          </form>
+          <div>
+            <span class:list={[styles.icon, styles.disc]} set:html={Discord} />
+            <HolyText text="Discord Role" />
+          </div>
+          <div>
+            <span class={styles.icon} set:html={DeviceHub} />
+            <HolyText text="Virtual Browser" />
+          </div>
         </div>
+        <form class={styles.buy} method="post">
+          <input type="text" name="tier" value="1" hidden />
+          <input
+            type="submit"
+            class={styles.prettySubmit}
+            value="Buy"
+            disabled={!user}
+          />
+        </form>
       </div>
     </div>
     <div class={styles.description}>
       {
-        user ? (
-          <>
-            <p>
-              <HolyText
-                text={`Your current plan: ${getTierName(payment?.tier)}`}
-              />
-            </p>
-            <p>
-              <HolyText text="We use Stripe for payment processing." />
-            </p>
-            <p>
-              <HolyText text="If we suspect that you're violating our" />{" "}
-              <HolyLink
-                href="/terms"
-                class={themeStyles.themeLink}
-                text="Terms of Service"
-              />
-              , we will completely refund your payment and ban your account.
-            </p>
-          </>
-        ) : (
+        !user && (
           <>
             <p>
               <HolyText text="In order to subscribe, you need to create an account." />
@@ -227,6 +153,18 @@ if (!error && exclusiveError) {
           </>
         )
       }
+      <p>
+        <HolyText text="We use Stripe for payment processing." />
+      </p>
+      <p>
+        <HolyText text="If we suspect that you're violating our" />{" "}
+        <HolyLink
+          href="/terms"
+          class={themeStyles.themeLink}
+          text="Terms of Service"
+        />
+        , we will completely refund your payment and ban your account.
+      </p>
     </div>
   </main>
 </MainLayout>

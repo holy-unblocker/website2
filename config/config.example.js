@@ -78,9 +78,6 @@ export const appConfig = {
   //stripe: {
   //  secret: "API secret",
   //  webhookEndpointSecret: "webhook secret",
-  //  priceIds: {
-  //    premium: "price id for 'premium' supporter",
-  //  },
   //},
 
   // See config options here: https://github.com/apocas/dockerode

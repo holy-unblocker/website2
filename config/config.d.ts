@@ -53,9 +53,6 @@ export interface AppConfig {
   stripe: {
     secret: string;
     webhookEndpointSecret: string;
-    priceIds: {
-      premium: string;
-    };
   };
   docker: import("dockerode").DockerOptions;
   hcaptcha: {

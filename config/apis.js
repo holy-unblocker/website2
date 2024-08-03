@@ -64,36 +64,6 @@ if (!accountsEnabled) {
   Object.defineProperties(appConfig, traps);
 }
 
-export async function getUserPayment(userId) {
-  const payment = (
-    await db.query(
-      "SELECT * FROM payment WHERE user_id = $1 AND NOW() > period_start AND NOW() < period_end ORDER BY tier DESC;",
-      [userId]
-    )
-  ).rows[0];
-
-  return payment;
-}
-
-/**
- * @type {Record<number, string>}
- */
-const tierNames = {
-  0: "Free",
-  1: "Premium",
-};
-
-/**
- *
- * @param {number} tier
- * @returns {string}
- */
-export function getTierName(tier = 0) {
-  tier = tier.toString();
-  if (!(tier in tierNames)) throw new RangeError(`unknown tier: ${tier}`);
-  return tierNames[tier];
-}
-
 /**
  *
  * @param {number} tier
@@ -101,7 +71,7 @@ export function getTierName(tier = 0) {
  */
 function getTierDiscordRoles(tier) {
   const roles = [];
-  if (tier >= 1) roles.push(appConfig.discord.roleIds.premium);
+  if (tier >= 1) roles.push();
   return roles;
 }
 
@@ -112,16 +82,14 @@ function getTierDiscordRoles(tier) {
  * @param {boolean} deleteRoles
  * @returns {boolean}
  */
-export async function giveTierDiscordRoles(
-  user,
-  tier = 0,
-  deleteRoles = false
-) {
-  const roleIds = getTierDiscordRoles(tier);
+export async function giveTierDiscordRoles(user) {
+  const roleIds = [appConfig.discord.roleIds.premium];
+
+  const isPremium = Date.now() < user.paid_until.getTime();
 
   for (const roleId of roleIds) {
     console.log(
-      deleteRoles ? "Taking" : "Giving",
+      isPremium ? "Giving" : "Taking",
       "role",
       roleId,
       "to",
@@ -134,7 +102,7 @@ export async function giveTierDiscordRoles(
     const res = await fetch(
       `https://discord.com/api/v10/guilds/${appConfig.discord.guildId}/members/${user.discord_id}/roles/${roleId}`,
       {
-        method: deleteRoles ? "DELETE" : "PUT",
+        method: isPremium ? "PUT" : "DELETE",
         headers: {
           authorization: `Bot ${appConfig.discord.botToken}`,
           "x-audit-log-reason": `Gave subscriber (id ${

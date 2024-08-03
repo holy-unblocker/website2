@@ -16,12 +16,13 @@ export interface UserModel {
   email_verification_code: string | null;
   password_hash: string;
   admin: boolean;
+  paid_until: Date;
+  stripe_customer: string; // should never be null
   signup_timestamp: Date;
   signup_ip: string;
   new_email: string | null;
   new_email_verification_secret: string | null;
   password_verification_secret: string | null;
-  stripe_customer: string | null;
   totp_secret: string | null;
   totp_enabled: Date | null;
   totp_backup_code: string | null;
@@ -30,6 +31,17 @@ export interface UserModel {
   discord_avatar: string | null;
   discord_name: string | null;
   discord_updated: Date | null;
+}
+
+export interface InvoiceModel {
+  id: number;
+  token: string;
+  user_id: number;
+  type: string;
+  url: string; // should never be null
+  paid: boolean;
+  created: Date;
+  time: string;
 }
 
 export interface PaymentModel {

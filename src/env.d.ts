@@ -60,6 +60,7 @@ namespace App {
     // helpers for page permissions and redirects
     // for reused code
     acc: {
+      isPremium: () => boolean;
       /**
        * If the user/request IP is banned
        */

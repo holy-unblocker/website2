@@ -134,7 +134,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // pick a random cloak on the first load
   // don't run this on holyubofficial.net so we get SEO
-  if (!context.cookies.has("autoCloak") && !context.locals.isMainWebsite) {
+  if (
+    !context.cookies.has("autoCloak") &&
+    !context.locals.isMainWebsite &&
+    ["document", "iframe"].includes(
+      context.request.headers.get("sec-fetch-dest")!
+    )
+  ) {
     const cloak = await getRandomCloak();
     if (cloak) context.locals.setCloak(cloak);
     context.locals.cloak = cloak;
@@ -363,6 +369,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // context.request.headers.get("cf-connecting-ip") || context.clientAddress;
 
   context.locals.acc = {
+    isPremium: () => {
+      const { user } = context.locals;
+      if (!user) return false;
+      return Date.now() < user.paid_until.getTime();
+    },
     isBanned: async () => {
       if (context.locals.user) {
         return await isUserBanned(context.locals.user.id);

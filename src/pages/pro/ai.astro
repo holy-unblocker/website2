@@ -1,7 +1,6 @@
 ---
 import styles from "@styles/Subscriber.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
-import { getUserPayment } from "@config/apis";
 
 const { user, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
@@ -9,8 +8,7 @@ if (acc.needsToVerifyTotp()) return acc.toVerifyTotp();
 if (!user) return acc.toLogin();
 if (!user.email_verified) return acc.toVerifyEmail();
 // check if they paid
-const payment = await getUserPayment(user.id);
-if (!payment || payment.tier < 1) return Astro.redirect("/pro/tiers?vm", 302);
+if (!acc.isPremium()) return Astro.redirect("/pro/tiers?poor", 302);
 ---
 
 <MainLayout>

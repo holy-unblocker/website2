@@ -2,6 +2,7 @@ import { appConfig } from "@config/config";
 import { stripe, db } from "@config/apis";
 import type { APIRoute } from "astro";
 import type Stripe from "stripe";
+import { addTimeToAccount, m } from "@lib/util";
 
 export const POST: APIRoute = async ({ request }) => {
   const signature = request.headers.get("stripe-signature");
@@ -19,61 +20,38 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(null, { status: 400 });
   }
 
-  console.log("got event:", event);
+  console.log("got event:", event.type);
 
   // Handle the event
   switch (event.type) {
     case "invoice.paid":
-      // Continue to provision the subscription as payments continue to be made.
-      // Store the status in your database and check when a user accesses your service.
-      // This approach helps you avoid hitting rate limits.
       {
-        const object = event.data.object;
+        const { object } = event.data;
+        const invoice = (
+          await db.query<m.InvoiceModel>(
+            "UPDATE invoice SET paid = true WHERE id = $1 RETURNING *;",
+            [object.number]
+          )
+        ).rows[0];
+
+        console.log("found the invoice:", invoice);
+
         const user = (
-          await db.query("SELECT * FROM users WHERE stripe_customer = $1;", [
-            object.customer,
+          await db.query<m.UserModel>("SELECT * FROM users WHERE id = $1;", [
+            invoice.user_id,
           ])
         ).rows[0];
+
+        console.log("found the user", user);
+
+        await addTimeToAccount(user, invoice.time);
 
         if (!user) {
           console.error("could not find stripe customer", object.customer);
           return new Response(null, { status: 500 });
         }
 
-        console.log(object, object.lines.data[0]);
-
-        // there should probably be only one payment line
-        for (const line of object.lines.data) {
-          if (!line.plan) {
-            console.error("expected a PLAN on the INVOICE line");
-            return new Response(null, { status: 500 });
-          }
-
-          let tier: number | undefined;
-
-          switch (line.plan.id) {
-            case appConfig.stripe.priceIds.premium:
-              tier = 1;
-              break;
-          }
-
-          if (tier === undefined) {
-            console.error("expected the PLAN to be an actual PRODUCT");
-            return new Response(null, { status: 500 });
-          }
-
-          // period is in seconds
-          // so convert to js timestamp
-          const start = new Date(line.period.start * 1000);
-          const end = new Date(line.period.end * 1000);
-
-          console.log("invoice line:", line);
-
-          await db.query(
-            "INSERT INTO payment(invoice_id,subscription_id,user_id,tier,period_start,period_end) VALUES($1,$2,$3,$4,$5,$6);",
-            [line.id, line.subscription, user.id, tier, start, end]
-          );
-        }
+        console.log(object);
       }
       break;
     default:

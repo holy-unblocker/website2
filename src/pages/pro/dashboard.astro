@@ -7,11 +7,12 @@ import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
 import Delete from "@icons/delete_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
-import prettyMilliseconds from "pretty-ms";
-import { db, getTierName, getUserPayment, stripe } from "@config/apis";
+import { db, stripe } from "@config/apis";
 import { appConfig } from "@config/config";
 import { giveTierDiscordRoles } from "@config/apis";
 import { unlinkDiscord } from "@lib/util";
+import prettyMilliseconds from "pretty-ms";
+import HolyLink from "@components/HolyLink.astro";
 
 const { user, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
@@ -21,8 +22,6 @@ if (!user.email_verified) return acc.toVerifyEmail();
 
 let error: string | undefined;
 let success: string | undefined;
-
-const payment = await getUserPayment(user.id);
 
 const newEmailConfirmed = Astro.url.searchParams.has("newEmailConfirmed");
 const welcome = Astro.url.searchParams.has("welcome");
@@ -35,36 +34,13 @@ if (Astro.request.method === "POST")
     const type = data.get("type")?.toString();
 
     switch (type) {
-      case "renewal":
-        if (typeof payment?.subscription_id === "string") {
-          const renewal = data.get("renewal") === "on";
-
-          payment.stripe_renew = renewal;
-
-          await stripe.subscriptions.update(payment.subscription_id, {
-            pause_collection: payment.stripe_renew
-              ? null
-              : {
-                  behavior: "void",
-                },
-          });
-
-          await db.query(
-            "UPDATE payment SET stripe_renew = $1 WHERE invoice_id = $2;",
-            [payment.stripe_renew, payment.invoice_id]
-          );
-
-          success = `Renewal ${payment.stripe_renew ? "on" : "off"}.`;
-        } else console.log("bad payment", payment);
-        break;
-
       case "unlink-discord":
         if (user.discord_id === null) {
           error = "You don't have a Discord linked.";
           Astro.response.status = 400;
         } else {
           // take away their roles
-          await giveTierDiscordRoles(user, payment?.tier, true);
+          await giveTierDiscordRoles(user);
           await unlinkDiscord(user);
           success = "Discord account unlinked.";
         }
@@ -127,68 +103,23 @@ if (Astro.request.method === "POST")
     </div>
     <div class={styles.userCard} style="padding-bottom:10px;">
       <h3>Subscription</h3>
-      {
-        payment ? (
-          <>
-            <p>
-              Your subscription ends in{" "}
-              <span
-                set:text={prettyMilliseconds(
-                  payment.period_end.getTime() - Date.now()
-                )}
-                data-period_end={payment.period_end.getTime()}
-              />
-            </p>
-            <p>Current plan: {getTierName(payment?.tier)}</p>
-          </>
-        ) : (
-          <>
-            <p>You don't currently have a subscription.</p>
-            <a href="/pro/tiers">
-              <button class={styles.prettySubmit}>Buy Premium</button>
-            </a>
-          </>
-        )
-      }
-    </div>
-    <div class={styles.userCard} style="padding-bottom:10px;">
-      <h3>Auto Renewal</h3>
       <p>
-        We will try to automatically renew your subscription before it ends so
-        you don't lose access to your subscriber benefits.
-      </p>
-      <p>To prevent renewal, you can cancel your subscription.</p>
-      <p>
-        You can cancel at anytime, and you can re-subscribe for free until your
-        subscription has ended.
-      </p>
-      {
-        payment && (
-          <form
-            method="post"
-            class={styles.cancelSubscription}
-            id="renewal"
-            data-stripe_renew={payment.stripe_renew || null}
-          >
-            <input type="text" name="type" value="renewal" hidden />
-            <input
-              type="checkbox"
-              name="renewal"
-              checked={!payment.stripe_renew}
-              hidden
+        Time left: {
+          acc.isPremium() ? (
+            <span
+              set:text={prettyMilliseconds(
+                user.paid_until.getTime() - Date.now()
+              )}
+              data-paid-until={user.paid_until.getTime()}
             />
-            <input
-              type="submit"
-              class={styles.prettySubmit}
-              value={
-                payment.stripe_renew
-                  ? "Disable auto-renewal"
-                  : "Enable auto-renewal"
-              }
-            />
-          </form>
-        )
-      }
+          ) : (
+            "Expired"
+          )
+        }
+      </p>
+      <HolyLink href="/pro/tiers">
+        <button class={styles.prettySubmit}> Add more time</button>
+      </HolyLink>
     </div>
     <div class={styles.userCard} style="padding-bottom:10px;">
       <h3>Connected Accounts</h3>
@@ -197,15 +128,11 @@ if (Astro.request.method === "POST")
         <span class={styles.serviceName}>Discord:</span>
         {
           user.discord_id === null ? (
-            <a
+            <HolyLink
               href={`https://discord.com/oauth2/authorize?client_id=${appConfig.discord!.clientId}&response_type=code&redirect_uri=${encodeURIComponent(appConfig.discord!.clientRedirectURI)}&scope=identify`}
             >
-              <input
-                type="button"
-                class={styles.prettySubmit}
-                value="Connect Discord"
-              />
-            </a>
+              <button class={styles.prettySubmit}>Connect Discord</button>
+            </HolyLink>
           ) : (
             <>
               <span class={styles.details}>
@@ -225,43 +152,27 @@ if (Astro.request.method === "POST")
       </div>
     </div>
   </main>
-</MainLayout>
 
-<script>
-  import prettyMilliseconds from "pretty-ms";
+  <script>
+    import prettyMilliseconds from "pretty-ms";
 
-  document.addEventListener("astro:page-load", () => {
-    const renewal = document.querySelector<HTMLInputElement>("#renewal");
-    if (!renewal) return;
+    document.addEventListener("astro:page-load", () => {
+      // REAL TIME COUNTDOWN
+      const countdown =
+        document.querySelector<HTMLSpanElement>("[data-paid-until]");
+      if (!countdown) return;
 
-    const stripe_renew = document
-      .querySelector("#renewal")!
-      .hasAttribute("data-stripe_renew");
-
-    renewal.addEventListener("submit", (event) => {
-      if (
-        !confirm(
-          `Are you ABSOLUTELY sure you ${stripe_renew ? "disable" : "enable"} auto-renewal for your subscription? btw you can change this at any time`
-        )
-      )
-        event.preventDefault();
-    });
-
-    // REAL TIME period_end COUNTDOWN
-    const countdown =
-      document.querySelector<HTMLSpanElement>("[data-period_end]");
-    if (countdown !== null) {
-      const period_end = Number(countdown.getAttribute("data-period_end")!);
+      const paid_until = Number(countdown.getAttribute("data-paid-until")!);
       const callback = () => {
-        const expires = period_end - Date.now();
+        const expires = paid_until - Date.now();
         if (expires <= 0) {
-          alert("TIME'S UP. YOUR SUSBCRIPTION EXIPRED.");
+          alert("TIME'S UP.");
           location.reload();
           clearInterval(i);
         }
         countdown.textContent = prettyMilliseconds(expires);
       };
       const i = setInterval(callback, 1);
-    }
-  });
-</script>
+    });
+  </script>
+</MainLayout>

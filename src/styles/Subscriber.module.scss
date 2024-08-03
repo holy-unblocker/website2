@@ -236,7 +236,7 @@ hr {
   background-color: var(--action);
   height: 45px;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 15px;
   padding: 0 20px;
   cursor: pointer;
   /* if this is a <button> (prefer <input type="button" */
@@ -326,98 +326,100 @@ main.pricing {
   .description {
     width: 100%;
   }
+}
 
-  .tiers {
-    .pageTitle {
-      margin-bottom: 10px;
+.tierList {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  > div {
+    display: flex;
+    flex-direction: column;
+    width: 220px;
+    height: 300px;
+    padding: 0 10px;
+    padding-top: 30px;
+    padding-bottom: 10px;
+    border-radius: 10px;
+    background-color: var(--background-accent);
+
+    .title,
+    .price,
+    .description {
+      text-align: center;
       font-family: $MontserratAlternates;
     }
 
-    .list {
+    .title {
+      white-space: pre;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .price {
+      font-size: 17px;
+    }
+
+    .description {
+      text-align: center;
+      white-space: pre;
+      font-size: 15px;
+    }
+
+    .features {
+      margin-top: 10px;
       display: flex;
-      flex-direction: row;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 5px;
+
       > div {
         display: flex;
-        flex-direction: column;
-        width: 220px;
-        height: 275px;
-        padding: 0 10px;
-        padding-top: 30px;
-        padding-bottom: 10px;
-        border-radius: 10px;
-        background-color: var(--background-accent);
+        align-items: center;
+        font-size: 15px;
+        line-height: 35px;
+        padding: 2px 10px;
+        background-color: var(--background-accent-deep-2);
+        border-radius: 5px;
+        white-space: pre;
 
-        .title,
-        .price {
-          text-align: center;
-          font-family: $MontserratAlternates;
-        }
+        .icon {
+          display: contents;
 
-        .title {
-          white-space: pre;
-          font-size: 20px;
-          font-weight: 700;
-        }
+          &.disc svg {
+            height: 16px;
+          }
 
-        .price {
-          font-size: 17px;
-        }
+          &.ai svg {
+            height: 21px;
+          }
 
-        .features {
-          margin-top: 10px;
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-
-          > div {
-            display: flex;
-            align-items: center;
-            font-size: 15px;
-            line-height: 35px;
-            padding: 2px 10px;
-            background-color: var(--background-accent-deep-2);
-            border-radius: 5px;
-            white-space: pre;
-
-            .icon {
-              display: contents;
-
-              &.disc svg {
-                height: 16px;
-              }
-
-              &.ai svg {
-                height: 21px;
-              }
-
-              svg {
-                display: inline-block;
-                width: 26px;
-                height: 24px;
-                vertical-align: middle;
-                margin-right: 3px;
-              }
-            }
+          svg {
+            display: inline-block;
+            width: 26px;
+            height: 24px;
+            vertical-align: middle;
+            margin-right: 3px;
           }
         }
+      }
+    }
 
-        .buy {
-          margin-top: auto;
+    .buy {
+      margin-top: auto;
 
-          .prettySubmit {
-            font-size: 15px;
-            width: 100%;
+      .prettySubmit {
+        font-size: 15px;
+        width: 100%;
 
-            // for tiers
-            // already purchased
-            &[data-owned] {
-              background-color: var(--contrast-background) !important;
-              cursor: not-allowed;
-            }
-          }
+        // for tiers
+        // already purchased
+        &[data-owned] {
+          background-color: var(--background) !important;
+          color: var(--text);
+          cursor: not-allowed;
         }
       }
     }

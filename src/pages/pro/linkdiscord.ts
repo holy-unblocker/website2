@@ -1,5 +1,5 @@
 import { appConfig } from "@config/config";
-import { getUserPayment, giveTierDiscordRoles } from "@config/apis";
+import { giveTierDiscordRoles } from "@config/apis";
 import type { APIRoute } from "astro";
 import { linkDiscord } from "@lib/util";
 
@@ -16,8 +16,6 @@ export const GET: APIRoute = async (context) => {
   // once they sign in, cus toLogin() is aware of the current URL, it'll redirect back to linkdiscord
   // then their acc will be linked
   if (!user) return acc.toLogin();
-
-  console.log("got code from redirect", code);
 
   const tokenRes = await fetch("https://discord.com/api/v10/oauth2/token", {
     body: new URLSearchParams({
@@ -93,8 +91,7 @@ export const GET: APIRoute = async (context) => {
 
   // now we just add it
   await linkDiscord(user, userData);
-  const payment = await getUserPayment(user.id);
-  await giveTierDiscordRoles(user, payment?.tier);
+  await giveTierDiscordRoles(user);
 
   return context.redirect("/pro/dashboard?disc_connected", 302);
 };
