@@ -79,10 +79,10 @@ const { cloak } = Astro.locals;
       name="theme-color"
       content={Astro.locals.theme === "day" ? "#d8dee9" : "#2e3440"}
     />
-    <link rel="manifest" href="/manifest.json" />
     {
       Astro.locals.isMainWebsite ? (
         <>
+          <link rel="manifest" href="/manifest.json" />
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="og:image" content="/tnbanner.jpg" />
           <link rel="sitemap" href="/sitemap-index.xml" />
