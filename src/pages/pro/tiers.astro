@@ -17,7 +17,6 @@ import HolyLink from "@components/HolyLink.astro";
 const { user } = Astro.locals;
 
 let error: string | undefined;
-let invoiceURL: string | undefined;
 
 if (Astro.request.method === "POST")
   try {
@@ -30,11 +29,9 @@ if (Astro.request.method === "POST")
       try {
         // create the invoice and redirect
 
-        const invoice = await createInvoice(user, MONTH, 500, "fiat");
+        const invoice = await createInvoice(user, MONTH, 500);
 
-        invoiceURL = invoice.url;
-
-        // return Astro.redirect(session.url, 303);
+        return Astro.redirect(`/pro/invoices/${invoice.id}`, 307);
       } catch (err) {
         console.error("STRIPE ERROR", err);
         Astro.response.status = 500;
@@ -52,11 +49,6 @@ if (!error && isPoor) {
 ---
 
 {isPoor && <script>history.pushState({}, "", "/pro/tiers")</script>}
-{
-  invoiceURL && (
-    <script is:inline set:html={`window.open(${JSON.stringify(invoiceURL)})`} />
-  )
-}
 <MainLayout>
   <main class={styles.pricing}>
     <div class:list={["page-title", styles.pageTitle]}>

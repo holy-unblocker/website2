@@ -1,4 +1,4 @@
-import { db, stripe } from "@config/apis";
+import { db, nowpaymentsEnabled, stripe, stripeEnabled } from "@config/apis";
 import { randomBytes } from "node:crypto";
 import { hash } from "@lib/hash";
 import { appConfig } from "@config/config";
@@ -145,6 +145,12 @@ export async function addTimeToAccount(
   return user;
 }
 
+function getNowpaymentsAPI() {
+  return appConfig.nowpayments.sandbox
+    ? "https://api-sandbox.nowpayments.io"
+    : "https://api.nowpayments.io";
+}
+
 /**
  *
  * @param user
@@ -155,57 +161,76 @@ export async function addTimeToAccount(
 export async function createInvoice(
   user: m.UserModel,
   time: number,
-  price: number,
-  type: "fiat" | "crypto"
+  price: number
 ) {
   const token = randomBytes(8).toString("hex").toUpperCase();
 
   const invoice = (
     await db.query<m.InvoiceModel>(
-      "INSERT INTO invoice(token,user_id,time,price,type) VALUES($1,$2,$3,$4,$5) RETURNING *;",
-      [token, user.id, time, price, type]
+      "INSERT INTO invoice(token,user_id,time,price) VALUES($1,$2,$3,$4) RETURNING *;",
+      [token, user.id, time, price]
     )
   ).rows[0];
 
-  switch (type) {
-    case "fiat":
-      {
-        if (user.stripe_customer === null) await createStripeCustomer(user);
+  if (stripeEnabled) {
+    if (user.stripe_customer === null) await createStripeCustomer(user);
 
-        const stripeInvoice = await stripe.invoices.create({
-          number: invoice.id.toString(),
-          description: invoice.token,
-          customer: user.stripe_customer,
-        });
+    const stripeInvoice = await stripe.invoices.create({
+      number: invoice.id.toString(),
+      description: invoice.token,
+      customer: user.stripe_customer,
+    });
 
-        await stripe.invoiceItems.create({
-          invoice: stripeInvoice.id,
-          customer: user.stripe_customer,
-          amount: price,
-          currency: "USD",
-          description: `Add ${prettyMilliseconds(time, {
-            verbose: true,
-          })} of time to your account`,
-        });
+    await stripe.invoiceItems.create({
+      invoice: stripeInvoice.id,
+      customer: user.stripe_customer,
+      amount: price,
+      currency: "USD",
+      description: `Add ${prettyMilliseconds(time, {
+        verbose: true,
+      })} of time to your account`,
+    });
 
-        const finalizedInvoice = await stripe.invoices.finalizeInvoice(
-          stripeInvoice.id
-        );
+    const finalizedInvoice = await stripe.invoices.finalizeInvoice(
+      stripeInvoice.id
+    );
 
-        invoice.url = finalizedInvoice.hosted_invoice_url!;
-      }
-      break;
-    case "crypto":
-      throw new Error("not supported yet!");
-    default:
-      throw new TypeError(`invalid invoice type: ${type}`);
+    invoice.fiat_url = finalizedInvoice.hosted_invoice_url!;
+  }
+
+  if (nowpaymentsEnabled) {
+    const res = await fetch(getNowpaymentsAPI() + "/v1/invoice", {
+      method: "POST",
+      headers: {
+        "x-api-key": appConfig.nowpayments.key,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        price_amount: price / 100,
+        price_currency: "usd",
+        order_id: invoice.id.toString(),
+        order_description: invoice.token,
+        // ipn_callback_url: origin + "/pro/dashboard",
+        // success_url: "https://nowpayments.io",
+        // cancel_url: "https://nowpayments.io",
+      }),
+    });
+
+    if (!res.ok)
+      throw new Error(
+        `error creating crypto invoice: ${res.status} ${await res.text()}`
+      );
+
+    const data = (await res.json()) as { invoice_url: string };
+
+    invoice.crypto_url = data.invoice_url;
   }
 
   // we can only get a URL when the invoice is finalized
-  await db.query("UPDATE invoice SET url = $1 WHERE id = $2;", [
-    invoice.url,
-    invoice.id,
-  ]);
+  await db.query(
+    "UPDATE invoice SET fiat_url = $1, crypto_url = $2 WHERE id = $3;",
+    [invoice.fiat_url, invoice.crypto_url, invoice.id]
+  );
 
   return invoice;
 }

@@ -6,7 +6,8 @@ import Dockerode from "dockerode";
 
 export const dbEnabled = "db" in appConfig;
 export const stripeEnabled = dbEnabled && "stripe" in appConfig;
-export const accountsEnabled = stripeEnabled;
+export const nowpaymentsEnabled = dbEnabled && "nowpayments" in appConfig;
+export const accountsEnabled = stripeEnabled || nowpaymentsEnabled;
 export const discordEnabled = accountsEnabled && "discord" in appConfig;
 export const discordListening =
   discordEnabled && "listenForJoins" in appConfig.discord;

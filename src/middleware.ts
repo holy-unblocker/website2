@@ -256,11 +256,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.proxyMode = proxyMode;
 
   if (!accountsEnabled) {
-    if (
-      context.url.pathname.startsWith("/pro/") ||
-      context.url.pathname === "/api/stripe"
-    )
-      return new Response("accounts are disabled", { status: 400 });
+    if (context.url.pathname.startsWith("/pro/"))
+      return new Response("Account system is disabled", { status: 400 });
     // don't bother loading logic for account stuff
     return next();
   }

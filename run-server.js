@@ -166,10 +166,14 @@ if (separateWisp)
     ` - ${yes} Using separate wisp server: ${appConfig.separateWispServer}`
   );
 
-console.log(st[+apis.stripeEnabled], chalk.bold("Stripe payment processing"));
+console.log(st[+apis.accountsEnabled], chalk.bold("Account system"));
 console.log(
-  ` - ${st[+apis.accountsEnabled]} Account system`,
-  ["disabled", "enabled"][+apis.accountsEnabled]
+  ` - ${st[+apis.stripeEnabled]} Stripe payment processing`,
+  ["disabled", "enabled"][+apis.stripeEnabled]
+);
+console.log(
+  ` - ${st[+apis.nowpaymentsEnabled]} NOWPayments payment processing`,
+  ["disabled", "enabled"][+apis.nowpaymentsEnabled]
 );
 
 if (apis.discordEnabled) {

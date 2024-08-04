@@ -1,10 +1,13 @@
 import { appConfig } from "@config/config";
-import { stripe, db } from "@config/apis";
+import { stripe, db, stripeEnabled } from "@config/apis";
 import type { APIRoute } from "astro";
 import type Stripe from "stripe";
 import { addTimeToAccount, m } from "@lib/util";
 
 export const POST: APIRoute = async ({ request }) => {
+  if (!stripeEnabled)
+    return new Response("Stripe integration disabled", { status: 400 });
+
   const signature = request.headers.get("stripe-signature");
   if (signature === null) return new Response(null, { status: 400 });
   let event: Stripe.Event;
@@ -29,8 +32,8 @@ export const POST: APIRoute = async ({ request }) => {
         const { object } = event.data;
         const invoice = (
           await db.query<m.InvoiceModel>(
-            "UPDATE invoice SET paid = true WHERE id = $1 RETURNING *;",
-            [object.number]
+            "UPDATE invoice SET paid = $1 WHERE id = $2 RETURNING *;",
+            [new Date(), object.number]
           )
         ).rows[0];
 

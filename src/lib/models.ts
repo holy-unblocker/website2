@@ -37,11 +37,12 @@ export interface InvoiceModel {
   id: number;
   token: string;
   user_id: number;
-  type: string;
-  url: string; // should never be null
+  time: string; // bigint
+  price: number;
+  fiat_url: string | null;
+  crypto_url: string | null;
   paid: boolean;
   created: Date;
-  time: string;
 }
 
 export interface PaymentModel {

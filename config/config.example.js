@@ -80,6 +80,14 @@ export const appConfig = {
   //  webhookEndpointSecret: "webhook secret",
   //},
 
+  // NOWPAYMENTS CONFIG
+  // - PAYING CRYPTO INVOICES
+  //nowpayments: {
+  //  key: "0000000-0000000-0000000-0000000",
+  //  notificationsKey: "super secret key here",
+  //  sandbox: true,
+  //},
+
   // See config options here: https://github.com/apocas/dockerode
   //docker: {
   //  socketPath: "/var/run/docker.sock",

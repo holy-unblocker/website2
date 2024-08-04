@@ -1,0 +1,85 @@
+---
+// this page will only be reached if the user is signed in
+// this is a dashboard
+// they can edit their profile, subscribe, check their subscription status and cancel it
+import styles from "@styles/Subscriber.module.scss";
+import MainLayout from "@layouts/MainLayout.astro";
+import Banner from "@components/Banner.astro";
+import { db } from "@config/apis";
+import { m } from "@lib/util";
+import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
+import HolyLink from "@components/HolyLink.astro";
+import prettyMilliseconds from "pretty-ms";
+
+const { user, acc } = Astro.locals;
+if (await acc.isBanned()) return acc.toBan();
+if (acc.needsToVerifyTotp()) return acc.toVerifyTotp();
+if (!user) return acc.toLogin();
+if (!user.email_verified) return acc.toVerifyEmail();
+
+const invoice = (
+  await db.query<m.InvoiceModel>("SELECT * FROM invoice WHERE id = $1;", [
+    Astro.params.id,
+  ])
+).rows[0];
+
+let error: string | undefined;
+let success: string | undefined;
+
+let hide = false;
+
+if (!invoice || (invoice.user_id !== user.id && !user.admin)) {
+  Astro.response.status = 404;
+  hide = true;
+}
+---
+
+<MainLayout
+  >{
+    hide ? (
+      <Banner error="We couldn't find the invoice that you're looking for." />
+    ) : (
+      <main class={styles.subscriberMain}>
+        <h1 class="page-title sub">
+          <a
+            class="back-button"
+            href="/pro/dashboard"
+            set:html={ArrowBackIcon}
+          />
+          Invoice #{invoice.id}
+        </h1>
+        <Banner success={success} error={error} />
+        <p>Token: {invoice.token}</p>
+        <p>Amount due: ${invoice.price / 100}</p>
+        <p>
+          Time: {prettyMilliseconds(BigInt(invoice.time), { verbose: true })}
+        </p>
+        {invoice.paid ? (
+          <p>
+            This invoice was paid on {invoice.paid} and your account was
+            credited.
+          </p>
+        ) : (
+          <>
+            <HolyLink href={invoice.fiat_url!} target="_blank">
+              <input
+                type="submit"
+                class={styles.prettySubmit}
+                value="Pay in USD"
+                required
+              />
+            </HolyLink>
+            <HolyLink href={invoice.crypto_url!} target="_blank">
+              <input
+                type="submit"
+                class={styles.prettySubmit}
+                value="Pay in Crypto"
+                required
+              />
+            </HolyLink>
+          </>
+        )}
+      </main>
+    )
+  }
+</MainLayout>

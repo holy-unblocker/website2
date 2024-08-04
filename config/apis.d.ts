@@ -9,9 +9,13 @@ import type Dockerode from "dockerode";
  */
 export const dbEnabled: boolean;
 /**
- * payment processing
+ * fiat payment processing
  */
 export const stripeEnabled: boolean;
+/**
+ * crypto payment processing
+ */
+export const nowpaymentsEnabled: boolean;
 /**
  * whether the account system is enabled or not
  */

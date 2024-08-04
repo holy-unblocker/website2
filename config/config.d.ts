@@ -54,6 +54,11 @@ export interface AppConfig {
     secret: string;
     webhookEndpointSecret: string;
   };
+  nowpayments: {
+    key: string;
+    notificationsKey: string;
+    sandbox: boolean;
+  };
   docker: import("dockerode").DockerOptions;
   hcaptcha: {
     siteKey: string;
