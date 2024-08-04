@@ -98,20 +98,21 @@ if (Astro.request.method === "POST")
   </main>
 </MainLayout>
 <script>
+  import { validateEmail } from "@lib/validation";
+
   const currentEmail =
     document.querySelector<HTMLInputElement>("#currentEmail")!;
   const email = document.querySelector<HTMLInputElement>("#email")!;
   email.focus();
 
   email.form!.addEventListener("submit", (event) => {
-    if (email.value.trim() === "") {
-      event.preventDefault();
-      alert("Please enter an email.");
-    }
+    const value = email.value.trim();
+    let error: string | undefined;
+    error = validateEmail(value, currentEmail.value);
 
-    if (currentEmail.value === email.value.trim()) {
+    if (error) {
       event.preventDefault();
-      alert("Your new email must be different from your old one.");
+      alert(error);
     }
   });
 </script>

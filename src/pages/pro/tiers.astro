@@ -32,8 +32,6 @@ if (Astro.request.method === "POST")
 
         const invoice = await createInvoice(user, MONTH, 500, "fiat");
 
-        console.log("yay!@!", { invoice });
-
         invoiceURL = invoice.url;
 
         // return Astro.redirect(session.url, 303);

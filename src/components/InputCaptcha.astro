@@ -19,6 +19,7 @@ import { appConfig } from "@config/config";
   declare var hcaptcha: any;
   let firstLoad = true;
   document.addEventListener("astro:page-load", () => {
+    if (!document.getElementById("loginCaptcha")) return;
     if (!firstLoad) hcaptcha.render("loginCaptcha");
     firstLoad = false;
   });
