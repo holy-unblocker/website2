@@ -94,9 +94,9 @@ export async function giveTierDiscordRoles(user) {
         method: isPremium ? "PUT" : "DELETE",
         headers: {
           authorization: `Bot ${appConfig.discord.botToken}`,
-          "x-audit-log-reason": `Gave subscriber (id ${
-            user.id
-          }) this role as part of their tier (${getTierName(tier)})`,
+          "x-audit-log-reason": `${
+            isPremium ? "Subscribed to" : "Unsubscribed from"
+          } premium (${user.id})`,
         },
       }
     );
