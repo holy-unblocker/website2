@@ -77,6 +77,15 @@ if (!invoice || (invoice.user_id !== user.id && !user.admin)) {
                 required
               />
             </HolyLink>
+            <div style="margin-top:20px">
+              <input
+                type="button"
+                class={styles.prettySubmit}
+                onclick="location.reload()"
+                value="Refresh"
+                required
+              />
+            </div>
           </>
         )}
       </main>
