@@ -12,6 +12,7 @@ import { giveTierDiscordRoles } from "@config/apis";
 import { unlinkDiscord } from "@lib/util";
 import prettyMilliseconds from "pretty-ms";
 import HolyLink from "@components/HolyLink.astro";
+import HolyText from "@components/HolyText.astro";
 
 const { user, acc } = Astro.locals;
 if (await acc.isBanned()) return acc.toBan();
@@ -66,9 +67,15 @@ if (Astro.request.method === "POST")
     {welcome && <Banner success="Email verified." />}
     {
       discordNotInGuild && (
-        <Banner
-          error={`We couldn't find your Discord account in our server. <a href='${appConfig.links.discord.holyunblocker}'>Click here to join.</a>`}
-        />
+        <p class="prettyBanner" data-error>
+          <HolyText text="We couldn't find your Discord account in our server. " />
+          <u>
+            <HolyLink
+              href={appConfig.links.discord.holyunblocker}
+              text="Click here to join."
+            />
+          </u>
+        </p>
       )
     }
     {discordConnected && <Banner success="Account connected." />}
