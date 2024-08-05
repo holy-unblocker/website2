@@ -172,59 +172,69 @@ export async function createInvoice(
     )
   ).rows[0];
 
-  if (stripeEnabled) {
-    if (user.stripe_customer === null) await createStripeCustomer(user);
+  const promises: Promise<void>[] = [];
 
-    const stripeInvoice = await stripe.invoices.create({
-      number: invoice.id.toString(),
-      description: invoice.token,
-      customer: user.stripe_customer,
-    });
+  if (stripeEnabled)
+    promises.push(
+      (async () => {
+        if (user.stripe_customer === null) await createStripeCustomer(user);
 
-    await stripe.invoiceItems.create({
-      invoice: stripeInvoice.id,
-      customer: user.stripe_customer,
-      amount: price,
-      currency: "USD",
-      description: `Add ${prettyMilliseconds(time, {
-        verbose: true,
-      })} of time to your account`,
-    });
+        const stripeInvoice = await stripe.invoices.create({
+          number: invoice.id.toString(),
+          description: invoice.token,
+          customer: user.stripe_customer,
+        });
 
-    const finalizedInvoice = await stripe.invoices.finalizeInvoice(
-      stripeInvoice.id
+        await stripe.invoiceItems.create({
+          invoice: stripeInvoice.id,
+          customer: user.stripe_customer,
+          amount: price,
+          currency: "USD",
+          description: `Add ${prettyMilliseconds(time, {
+            verbose: true,
+          })} of time to your account`,
+        });
+
+        const finalizedInvoice = await stripe.invoices.finalizeInvoice(
+          stripeInvoice.id
+        );
+
+        invoice.fiat_url = finalizedInvoice.hosted_invoice_url!;
+      })()
     );
 
-    invoice.fiat_url = finalizedInvoice.hosted_invoice_url!;
-  }
+  if (nowpaymentsEnabled)
+    promises.push(
+      (async () => {
+        const res = await fetch(getNowpaymentsAPI() + "/v1/invoice", {
+          method: "POST",
+          headers: {
+            "x-api-key": appConfig.nowpayments.key,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            price_amount: price / 100,
+            price_currency: "usd",
+            order_id: invoice.id.toString(),
+            order_description: invoice.token,
+            // ipn_callback_url: origin + "/pro/dashboard",
+            // success_url: "https://nowpayments.io",
+            // cancel_url: "https://nowpayments.io",
+          }),
+        });
 
-  if (nowpaymentsEnabled) {
-    const res = await fetch(getNowpaymentsAPI() + "/v1/invoice", {
-      method: "POST",
-      headers: {
-        "x-api-key": appConfig.nowpayments.key,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        price_amount: price / 100,
-        price_currency: "usd",
-        order_id: invoice.id.toString(),
-        order_description: invoice.token,
-        // ipn_callback_url: origin + "/pro/dashboard",
-        // success_url: "https://nowpayments.io",
-        // cancel_url: "https://nowpayments.io",
-      }),
-    });
+        if (!res.ok)
+          throw new Error(
+            `error creating crypto invoice: ${res.status} ${await res.text()}`
+          );
 
-    if (!res.ok)
-      throw new Error(
-        `error creating crypto invoice: ${res.status} ${await res.text()}`
-      );
+        const data = (await res.json()) as { invoice_url: string };
 
-    const data = (await res.json()) as { invoice_url: string };
+        invoice.crypto_url = data.invoice_url;
+      })()
+    );
 
-    invoice.crypto_url = data.invoice_url;
-  }
+  await Promise.all(promises);
 
   // we can only get a URL when the invoice is finalized
   await db.query(
