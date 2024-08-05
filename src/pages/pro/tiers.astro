@@ -140,10 +140,18 @@ if (!error && isPoor) {
         )
       }
       <p>
-        <HolyText text="We use Stripe for payment processing." />
+        <HolyText text="We use " /><HolyLink
+          href="https://stripe.com/privacy"
+          class={themeStyles.themeLink}
+          text="Stripe"
+        /><HolyText text=" and " /><HolyLink
+          href="https://nowpayments.io/doc/privacy-policy.pdf"
+          class={themeStyles.themeLink}
+          text="NOWPayments"
+        /><HolyText text=" for payment processing." />
       </p>
       <p>
-        <HolyText text="If we suspect that you're violating our" />{" "}
+        <HolyText text="If we suspect that you're violating our " />
         <HolyLink
           href="/terms"
           class={themeStyles.themeLink}

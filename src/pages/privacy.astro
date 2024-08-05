@@ -74,10 +74,28 @@ import { accountsEnabled } from "@config/apis";
               <HolyText text="a record of invoices" />
             </li>
           </ul>
+          <h2>
+            <HolyText text="Partners" />
+          </h2>
+          <p>
+            <HolyText text="We use " />
+            <HolyLink
+              href="https://stripe.com/privacy"
+              class={themeStyles.themeLink}
+              text="Stripe"
+            />
+            <HolyText text=" and " />
+            <HolyLink
+              href="https://nowpayments.io/doc/privacy-policy.pdf"
+              class={themeStyles.themeLink}
+              text="NOWPayments"
+            />
+            <HolyText text=" for payment processing." />
+          </p>
         </>
       )
     }
-    <h2><HolyText text="Services & Partners" /></h2>
+    <h2><HolyText text="Services" /></h2>
     <p>
       <HolyText
         text="By using the Ultraviolet feature of Holy Unblocker, your browser automatically creates a secure tunnel to the destination server using the Wisp protocol."
