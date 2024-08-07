@@ -156,7 +156,6 @@ function getNowpaymentsAPI() {
  * @param user
  * @param time amount of time to add- in milliseconds
  * @param price cost- in USD cents
- * @param type type of invoice to create
  */
 export async function createInvoice(
   user: m.UserModel,
