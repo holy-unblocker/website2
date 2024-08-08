@@ -7,6 +7,7 @@
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
+    "seed": "node ./dbSeed.js",
     "astro": "astro"
   },
   "dependencies": {
@@ -29,6 +30,7 @@
     "@types/pg": "^8.11.6",
     "@types/qrcode": "^1.5.5",
     "astro": "^4.13.1",
+    "chalk": "^5.3.0",
     "compression": "^1.7.4",
     "discord.js": "^14.15.3",
     "dockerode": "^4.0.2",
