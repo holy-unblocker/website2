@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS users (
     email_verification_code TEXT,
     password_hash TEXT NOT NULL,
     admin BOOLEAN DEFAULT false,
-    paid_until TIMESTAMP DEFAULT NOW(),
+    paid_until TIMESTAMP NOT NULL DEFAULT NOW(),
     stripe_customer TEXT, -- set before they make a stripe payment
     signup_timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
     signup_ip TEXT NOT NULL,
