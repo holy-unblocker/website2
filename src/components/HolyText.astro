@@ -8,7 +8,7 @@ const { text, ...props } = Astro.props;
 
 {
   Astro.locals.isMainWebsite ? (
-    <span set:text={text} />
+    <span {...props} set:text={text} />
   ) : (
     <span
       {...props}
