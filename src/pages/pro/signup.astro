@@ -17,7 +17,7 @@ import {
 import InputCaptcha from "@components/InputCaptcha.astro";
 import { generateVerificationCode, sendEmailVerification } from "@lib/email";
 
-const { ip, user, acc } = Astro.locals;
+const { origin, ip, user, acc } = Astro.locals;
 let to = Astro.url.searchParams.get("to") || null;
 if (!to || to === "/pro/" || !to.startsWith("/")) to = "/pro/dashboard";
 if (user) return Astro.redirect(to, 302);
@@ -53,10 +53,19 @@ if (Astro.request.method === "POST") {
       const verificationCode = generateVerificationCode();
 
       try {
+        const now = new Date();
+
         const user = (
           await db.query<m.UserModel>(
-            "INSERT INTO users(email,email_verification_code,password_hash,signup_ip) VALUES($1,$2,$3,$4) RETURNING *;",
-            [email, verificationCode, await hashPassword(password), ip]
+            "INSERT INTO users(email,email_verification_code,password_hash,signup_ip,created,paid_until) VALUES($1,$2,$3,$4,$5,$6) RETURNING *;",
+            [
+              email,
+              verificationCode,
+              await hashPassword(password),
+              ip,
+              now,
+              now,
+            ]
           )
         ).rows[0];
 
