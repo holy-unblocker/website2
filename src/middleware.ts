@@ -273,7 +273,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   };
 
-  context.locals.setProxyTransport(context.cookies.get("theme")?.value);
+  context.locals.setProxyTransport(context.cookies.get("trans")?.value);
 
   // saves the search engine or delete it
   context.locals.setSearchEngine = (newSearchEngine) => {
