@@ -442,7 +442,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  context.locals.ip = context.clientAddress;
+  Object.defineProperty(context.locals, "ip", {
+    get: () => {
+      return context.clientAddress;
+    },
+  });
   // context.request.headers.get("cf-connecting-ip") || context.clientAddress;
 
   context.locals.acc = {
