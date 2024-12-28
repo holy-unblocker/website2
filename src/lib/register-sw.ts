@@ -44,7 +44,7 @@ export async function setupBareMux() {
 
   const connection = new BareMuxConnection("/baremux/worker.js");
 
-  const ele = document.getElementById("proxyTransportThing")!;
+  const ele = document.getElementById("configThing")!;
   const transport = ele.getAttribute("data-transport")!;
   console.log("Transport:", transport);
 
@@ -66,7 +66,7 @@ export function getBareUrl() {
   // HTML element inserted by astro
   // - it contains the [data-bare-server] attribute which tells the client what wisp server to use
   // - this value is directly from appConfig.
-  const ele = document.getElementById("bareServerThing")!;
+  const ele = document.getElementById("configThing")!;
   const separateBareServer = ele.getAttribute("data-bare")!;
 
   // defaults to wisp on /api/wisp which is hosted by the Holy Unblocker runtime
@@ -81,7 +81,7 @@ export function getWispUrl() {
   // HTML element inserted by astro
   // - it contains the [data-wisp-server] attribute which tells the client what wisp server to use
   // - this value is directly from appConfig.
-  const ele = document.getElementById("wispServerThing")!;
+  const ele = document.getElementById("configThing")!;
   const separateWispServer = ele.getAttribute("data-wisp")!;
 
   // defaults to wisp on /api/wisp which is hosted by the Holy Unblocker runtime
