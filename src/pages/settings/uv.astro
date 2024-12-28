@@ -31,13 +31,6 @@ if (Astro.request.method === "POST")
             error = "Please enter a valid bare server URL!";
         }
         break;
-      case "bareServer":
-        {
-          const bareServer = data.get("newBareServer")?.toString();
-          if (!Astro.locals.setBareServer(bareServer))
-            error = "Please enter a valid bare server URL!";
-        }
-        break;
       case "wispServer":
         {
           const wispServer = data.get("newWispUrl")?.toString();
