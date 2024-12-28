@@ -31,6 +31,13 @@ if (Astro.request.method === "POST")
             error = "Please enter a valid bare server URL!";
         }
         break;
+      case "bareServer":
+        {
+          const bareServer = data.get("newBareServer")?.toString();
+          if (!Astro.locals.setBareServer(bareServer))
+            error = "Please enter a valid bare server URL!";
+        }
+        break;
       case "wispServer":
         {
           const wispServer = data.get("newWispUrl")?.toString();
@@ -143,12 +150,45 @@ if (Astro.request.method === "POST")
   </section>
 </SettingsLayout>
 <script>
-  import { setSearchEngine, setProxyMode, setWispServer } from "@lib/cookies";
-  import { getWispUrl } from "@lib/register-sw";
+  import {
+    setProxyTransport,
+    setSearchEngine,
+    setProxyMode,
+    setWispServer,
+  } from "@lib/cookies";
+  import { getBareUrl, getWispUrl } from "@lib/register-sw";
 
   document.addEventListener("astro:page-load", () => {
     const proxyMode = document.querySelector<HTMLInputElement>("#proxyMode")!;
     if (proxyMode === null) return;
+
+    const proxyTransport =
+      document.querySelector<HTMLInputElement>("#proxyTransport")!;
+
+    proxyTransport.addEventListener("change", () => {
+      setProxyTransport(proxyTransport.value);
+    });
+
+    const newBareUrl = document.getElementById(
+      "newBareUrl"
+    )! as HTMLInputElement;
+    newBareUrl.placeholder = getBareUrl();
+    newBareUrl.form!.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (newBareUrl.value === "") {
+        document.cookie = `bare=; expires=${new Date(0)}`;
+        location.reload();
+        return;
+      }
+      try {
+        new URL(newBareUrl.value);
+      } catch (err) {
+        alert("Invalid bare url!");
+        return;
+      }
+      setWispServer(newBareUrl.value);
+    });
+
     const newWispUrl = document.getElementById(
       "newWispUrl"
     )! as HTMLInputElement;

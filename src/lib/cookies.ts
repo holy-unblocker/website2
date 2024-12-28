@@ -1,4 +1,5 @@
 import type { AppCloak } from "./cloak";
+import { setupBareMux } from "./register-sw";
 
 function getCookie(name: string) {
   for (const cookie of document.cookie.split("; ")) {
@@ -20,6 +21,11 @@ export function setTheme(theme: string) {
 
 export function setSearchEngine(searchEngine: number) {
   setCookie("srch", searchEngine.toString());
+}
+
+export function setProxyTransport(proxyTransport: string) {
+  setCookie("trans", proxyTransport);
+  setupBareMux();
 }
 
 // used for dynamically applying the new tab cloak
