@@ -41,7 +41,8 @@ export const appConfig = {
   // - %{host} - the website host with the port appended, eg `127.0.0.1:4321`
   // - %{hostname} - the website host WITHOUT the port appended - *why would you ever use this?*
   // - %{ws} - `ws:` or `wss:` depending on whether the location is http: or https:
-  //separateWispServer: "%{ws}//api.%{host}/",
+  //separateBareServer: "%{protocol}//api.%{host}/bare/",
+  //separateWispServer: "%{ws}//api.%{host}/wisp/",
 
   // SUPPORT EMAIL
   // shown on /contact

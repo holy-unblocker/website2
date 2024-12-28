@@ -15,12 +15,19 @@ import crypto from "node:crypto";
 // 400 days in seconds
 const maxAgeLimit = 60 * 60 * 24 * 400;
 
+const defaultBareServer =
+  typeof appConfig.separateBareServer === "string"
+    ? appConfig.separateBareServer
+    : "%{protocol}//%{host}/api/bare/";
+
 // use our default wisp api, which is hosted at /bare/
 // see separateWispServer in ./config/config.js to change this by default
 const defaultWispServer =
   typeof appConfig.separateWispServer === "string"
     ? appConfig.separateWispServer
     : "%{ws}//%{host}/api/wisp/";
+
+// "%{ws}//%{host}/api/wisp/"
 
 // `context` and `next` are automatically typed
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -64,6 +71,41 @@ export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.isMainWebsite =
     !("mainWebsite" in appConfig) ||
     context.url.hostname === appConfig.mainWebsite;
+
+  // saves the wispServer or delete it
+  context.locals.setBareServer = (newBareServer) => {
+    let validBareServer = typeof newBareServer === "string";
+
+    if (validBareServer)
+      try {
+        new URL(newBareServer as string);
+      } catch (err) {}
+
+    if (validBareServer) {
+      context.cookies.set("bareServer", newBareServer as string, {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        maxAge: maxAgeLimit,
+        secure: true,
+      });
+      context.locals.bareServer = newBareServer as string;
+      return true;
+    } else {
+      // clear the cookie
+      if (context.cookies.has("bareServer"))
+        context.cookies.set("bareServer", "", {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          expires: new Date(0), // set it to as old as possible!!
+          secure: true,
+        });
+      context.locals.bareServer = defaultBareServer;
+      return false;
+    }
+  };
+  context.locals.setBareServer(context.cookies.get("bareServer")?.value);
 
   // saves the wispServer or delete it
   context.locals.setWispServer = (newWispServer) => {
@@ -199,6 +241,39 @@ export const onRequest = defineMiddleware(async (context, next) => {
   };
 
   context.locals.setTheme(context.cookies.get("theme")?.value);
+
+  // saves the theme or delete it
+  context.locals.setProxyTransport = (newProxyTransport) => {
+    const validTransport =
+      typeof newProxyTransport === "string" &&
+      ["epoxy", "bare"].includes(newProxyTransport);
+
+    if (validTransport) {
+      context.cookies.set("trans", newProxyTransport as string, {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        maxAge: maxAgeLimit,
+        secure: true,
+      });
+      context.locals.proxyTransport = newProxyTransport as string;
+      return true;
+    } else {
+      // clear the cookie
+      if (context.cookies.has("trans"))
+        context.cookies.set("trans", "", {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          expires: new Date(0), // set it to as old as possible!!
+          secure: true,
+        });
+      context.locals.proxyTransport = "epoxy"; // default is epoxy
+      return false;
+    }
+  };
+
+  context.locals.setProxyTransport(context.cookies.get("theme")?.value);
 
   // saves the search engine or delete it
   context.locals.setSearchEngine = (newSearchEngine) => {

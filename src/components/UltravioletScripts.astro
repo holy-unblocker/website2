@@ -1,4 +1,7 @@
 <script src="/baremux/index.js" is:inline defer></script>
 <script src="/uv/uv.bundle.js" is:inline></script>
 <script src="/uv/uv.config.js" is:inline></script>
-<div id="wispServerThing" data-wisp-server={Astro.locals.wispServer}></div>
+<div id="proxyTransportThing" data-transport={Astro.locals.proxyTransport}>
+</div>
+<div id="bareServerThing" data-bare={Astro.locals.bareServer}></div>
+<div id="wispServerThing" data-wisp={Astro.locals.wispServer}></div>

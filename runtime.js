@@ -21,6 +21,7 @@ import { fileURLToPath } from "node:url";
 import send from "@fastify/send";
 import parseUrl from "parseurl";
 import wisp from "wisp-server-node";
+import bare from "@tomphttp/bare-server-node";
 import { ActivityType, Client, PermissionsBitField } from "discord.js";
 import chalk from "chalk";
 import compression from "compression";
@@ -278,6 +279,10 @@ const uvConfigSrc = await readFile(
 
 const compress = compression();
 
+const bareServer = bare.createBareServer("/api/bare/");
+const hostBare = !("separateBareServer" in appConfig);
+const hostWisp = !("separateWispServer" in appConfig);
+
 /**
  *
  * @param {import("http").IncomingMessage} req
@@ -285,6 +290,11 @@ const compress = compression();
  * @param {() => void} middleware
  */
 export function handleReq(req, res, middleware) {
+  if (hostBare && bareServer.shouldRoute(req)) {
+    bareServer.routeRequest(req, res);
+    return;
+  }
+
   // hooks the res
   compress(req, res, () => {});
 
@@ -421,13 +431,19 @@ export function handleReq(req, res, middleware) {
 const wispServerLogging = false;
 
 export function handleUpgrade(req, socket, head) {
-  if (req.url === "/api/wisp/" && !("separateWispServer" in appConfig)) {
-    wisp.routeRequest(req, socket, head, { logging: wispServerLogging });
-  } else {
-    console.log("bad websocket req @", req.url);
-    // kill the request so it isn't stuck loading
-    socket.end();
+  if (hostBare && bareServer.shouldRoute(req)) {
+    bareServer.routeUpgrade(req, socket, head);
+    return;
   }
+
+  if (hostWisp && req.url === "/api/wisp/") {
+    wisp.routeRequest(req, socket, head, { logging: wispServerLogging });
+    return;
+  }
+
+  console.log("bad websocket req @", req.url);
+  // kill the request so it isn't stuck loading
+  socket.end();
 }
 
 console.log(startupTag, "Runtime loaded");

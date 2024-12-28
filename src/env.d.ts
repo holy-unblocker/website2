@@ -36,6 +36,14 @@ namespace App {
     theme: string;
     // returns true if theme is "day" or "night", false if invalid
     setTheme: (newTheme?: string | null) => boolean;
+
+    proxyTransport: string;
+    // returns true if transport is valid, false if invalid
+    setProxyTransport: (newProxyTransport?: string | null) => boolean;
+
+    bareServer: string;
+    // returns true if valid vare server url, false if invalid
+    setBareServer: (newBareServer?: string | null) => boolean;
     wispServer: string;
     // returns true if valid wisp server url, false if invalid
     setWispServer: (newWispServer?: string | null) => boolean;

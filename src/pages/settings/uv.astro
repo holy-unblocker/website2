@@ -24,6 +24,13 @@ if (Astro.request.method === "POST")
             error = "Please enter a valid proxyMode!";
         }
         break;
+      case "bareServer":
+        {
+          const bareServer = data.get("newBareUrl")?.toString();
+          if (!Astro.locals.setBareServer(bareServer))
+            error = "Please enter a valid bare server URL!";
+        }
+        break;
       case "wispServer":
         {
           const wispServer = data.get("newWispUrl")?.toString();
@@ -67,6 +74,37 @@ if (Astro.request.method === "POST")
         }))}
         value={Astro.locals.searchEngine.toString()}
       />
+    </form><form method="post">
+      <p><HolyText text="Transport:" /></p>
+      <ThemeSelect
+        name="proxyTransport"
+        id="proxyTransport"
+        class={styles.themeSelect}
+        options={[
+          { name: "Epoxy", value: "epoxy" },
+          { name: "Bare", value: "bare" },
+        ]}
+        value={Astro.locals.proxyTransport}
+      />
+    </form>
+    <form method="post">
+      <!-- noscript support -->
+      <p><HolyText text="Bare Server:" /></p>
+      <input type="text" name="type" value="bareServer" hidden />
+      <div class:list={[themeStyles.ThemeInputBar, styles.inputBar]}>
+        <input
+          class={themeStyles.thinPadRight}
+          type="text"
+          name="newBareUrl"
+          placeholder="https://holyubofficial.net/api/bare/"
+          id="newBareUrl"
+        />
+        <button
+          type="submit"
+          class:list={[themeStyles.ThemeButton, themeStyles.block]}
+          set:html={Check}
+        />
+      </div>
     </form>
     <form method="post">
       <!-- noscript support -->
@@ -77,7 +115,7 @@ if (Astro.request.method === "POST")
           class={themeStyles.thinPadRight}
           type="text"
           name="newWispUrl"
-          placeholder="wss://api.holyubofficial.net/"
+          placeholder="wss://holyubofficial.net/api/wisp/"
           id="newWispUrl"
         />
         <button

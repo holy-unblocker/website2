@@ -13,6 +13,7 @@ export interface AppConfig {
   theatreApiMirror: string;
   theatreFilesMirror: string;
   theatreFilesPath: string;
+  separateBareServer?: string;
   separateWispServer?: string;
   db:
     | string

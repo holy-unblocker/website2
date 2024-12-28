@@ -5,6 +5,7 @@ import { defineConfig } from "astro/config";
 import { svgr } from "./svgmin.mjs";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
+import { bareModulePath } from "@mercuryworkshop/bare-as-module3";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { createRequire } from "node:module";
 import { viteStaticCopy } from "vite-plugin-static-copy";
@@ -56,6 +57,12 @@ export default defineConfig({
             src: epoxyPath,
             dest: "",
             rename: "epoxy",
+            overwrite: false,
+          },
+          {
+            src: bareModulePath,
+            dest: "",
+            rename: "baremod",
             overwrite: false,
           },
           {

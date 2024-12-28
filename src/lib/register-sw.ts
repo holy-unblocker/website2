@@ -44,12 +44,36 @@ export async function setupBareMux() {
 
   const connection = new BareMuxConnection("/baremux/worker.js");
 
-  const wispUrl = getWispUrl();
-  console.log("Using wisp at", wispUrl);
-  if ((await connection.getTransport()) !== "/epoxy/index.mjs") {
+  const ele = document.getElementById("proxyTransportThing")!;
+  const transport = ele.getAttribute("data-transport")!;
+  console.log("Transport:", transport);
+
+  if (transport === "epoxy") {
+    const wispUrl = getWispUrl();
+    console.log("Using wisp at", wispUrl);
     await connection.setTransport("/epoxy/index.mjs", [{ wisp: wispUrl }]);
     console.log("Transport set!");
+  } else {
+    const bareUrl = getBareUrl();
+    console.log("Using bare at", bareUrl);
+    await connection.setTransport("/baremod/index.mjs", [bareUrl]);
+    console.log("Transport set!");
   }
+}
+
+// get the Holy Unblocker bare endpoint
+export function getBareUrl() {
+  // HTML element inserted by astro
+  // - it contains the [data-bare-server] attribute which tells the client what wisp server to use
+  // - this value is directly from appConfig.
+  const ele = document.getElementById("bareServerThing")!;
+  const separateBareServer = ele.getAttribute("data-bare")!;
+
+  // defaults to wisp on /api/wisp which is hosted by the Holy Unblocker runtime
+  // see: ./config/runtime.js
+  // and see separateWispServer in ./config/config.js
+  const bareAPI = formatURL(separateBareServer);
+  return bareAPI;
 }
 
 // get the Holy Unblocker wisp endpoint
@@ -58,7 +82,7 @@ export function getWispUrl() {
   // - it contains the [data-wisp-server] attribute which tells the client what wisp server to use
   // - this value is directly from appConfig.
   const ele = document.getElementById("wispServerThing")!;
-  const separateWispServer = ele.getAttribute("data-wisp-server")!;
+  const separateWispServer = ele.getAttribute("data-wisp")!;
 
   // defaults to wisp on /api/wisp which is hosted by the Holy Unblocker runtime
   // see: ./config/runtime.js
