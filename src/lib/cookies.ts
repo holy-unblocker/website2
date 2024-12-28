@@ -24,6 +24,8 @@ export function setSearchEngine(searchEngine: number) {
 }
 
 export function setProxyTransport(proxyTransport: string) {
+  const ele = document.getElementById("configThing")!;
+  ele.setAttribute("data-transport", proxyTransport);
   setCookie("trans", proxyTransport);
   setupBareMux();
 }
@@ -44,6 +46,14 @@ export function setProxyMode(proxyMode: string) {
   setCookie("prx", proxyMode);
 }
 
+export function setBareServer(bareServer: string) {
+  const ele = document.getElementById("configThing")!;
+  ele.setAttribute("data-bare", bareServer);
+  setCookie("bareServer", bareServer);
+}
+
 export function setWispServer(wispServer: string) {
+  const ele = document.getElementById("configThing")!;
+  ele.setAttribute("data-wisp", wispServer);
   setCookie("wispServer", wispServer);
 }

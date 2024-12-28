@@ -155,6 +155,7 @@ if (Astro.request.method === "POST")
     setSearchEngine,
     setProxyMode,
     setWispServer,
+    setBareServer,
   } from "@lib/cookies";
   import { getBareUrl, getWispUrl } from "@lib/register-sw";
 
@@ -186,7 +187,7 @@ if (Astro.request.method === "POST")
         alert("Invalid bare url!");
         return;
       }
-      setWispServer(newBareUrl.value);
+      setBareServer(newBareUrl.value);
     });
 
     const newWispUrl = document.getElementById(
