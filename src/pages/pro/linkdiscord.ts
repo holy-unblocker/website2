@@ -27,7 +27,7 @@ export const GET: APIRoute = async (context) => {
       authorization:
         "Basic " +
         Buffer.from(
-          appConfig.discord!.clientId + ":" + appConfig.discord.clientSecret
+          appConfig.discord!.clientId + ":" + appConfig.discord.clientSecret,
         ).toString("base64"),
     },
     method: "POST",
@@ -37,7 +37,7 @@ export const GET: APIRoute = async (context) => {
     console.error(
       "error getting oauth2 token",
       tokenRes.status,
-      await tokenRes.text()
+      await tokenRes.text(),
     );
     return new Response("oops 1", { status: 500 });
   }
@@ -63,7 +63,7 @@ export const GET: APIRoute = async (context) => {
     console.error(
       "error getting user info",
       userRes.status,
-      await userRes.text()
+      await userRes.text(),
     );
     return new Response("oops 2", { status: 500 });
   }
@@ -81,7 +81,7 @@ export const GET: APIRoute = async (context) => {
       headers: {
         authorization: `Bot ${appConfig.discord.botToken}`,
       },
-    }
+    },
   );
 
   if (memberRes.status === 404)

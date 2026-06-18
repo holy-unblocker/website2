@@ -1,9 +1,6 @@
 {
   "name": "website2",
-  "dockerComposeFile": [
-    "../docker-compose.yml",
-    "docker-compose.yml"
-  ],
+  "dockerComposeFile": ["../docker-compose.yml", "docker-compose.yml"],
   "workspaceFolder": "/workspace",
   "service": "holy-unblocker",
   "remoteUser": "root",

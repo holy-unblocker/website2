@@ -13,7 +13,7 @@ export function validatePassword(password: unknown) {
 
 export function validateEmail(
   email: unknown,
-  currentEmail?: string
+  currentEmail?: string,
 ): string | undefined {
   if (typeof email !== "string" || email === "")
     return "Please enter an email.";

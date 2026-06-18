@@ -25,12 +25,12 @@ const spamThreshold = 30e3;
 export async function canSendEmail(
   user: m.UserModel,
   email: string,
-  ip: string
+  ip: string,
 ): Promise<string | undefined> {
   const sent = (
     await db.query<m.EmailModel>(
       `SELECT * FROM email WHERE email = $1 OR ip = $2;`,
-      [email, ip]
+      [email, ip],
     )
   ).rows;
 
@@ -47,7 +47,7 @@ export async function canSendEmail(
   // record it
   await db.query(
     "INSERT INTO email(send_time,email,ip,user_id) VALUES($1,$2,$3,$4);",
-    [new Date(now), user.email, ip, user.id]
+    [new Date(now), user.email, ip, user.id],
   );
 }
 
@@ -58,10 +58,10 @@ export async function sendChangeEmailVerification(
   origin: string,
   user: m.UserModel,
   newEmail: string,
-  verificationSecret: string
+  verificationSecret: string,
 ) {
   const url = `${origin}/pro/verify-new-email?secret=${encodeURIComponent(
-    verificationSecret
+    verificationSecret,
   )}`;
 
   console.log("DEBUG CHANGE EMAIL VERIFICATION", [
@@ -88,7 +88,7 @@ export async function sendChangeEmailVerification(
 export async function sendChangePasswordNotification(
   origin: string,
   user: m.UserModel,
-  ip: string
+  ip: string,
 ) {
   // todo: add a recovery secret thats valid for only 30 days
   console.log("DEBUG CHANGE PASSWORD NOTIFICATION", [user.id]);
@@ -109,7 +109,7 @@ export async function sendChangePasswordNotification(
 export async function sendChangeEmailNotification(
   origin: string,
   user: m.UserModel,
-  ip: string
+  ip: string,
 ) {
   // todo: add a recovery secret thats valid for only 30 days
   console.log("DEBUG CHANGE EMAIL NOTIFICATION", [user.id]);
@@ -131,7 +131,7 @@ export async function sendEmailVerification(origin: string, user: m.UserModel) {
   console.log(
     "DEBUG EMAIL VERIFICATION",
     user.email,
-    user.email_verification_code
+    user.email_verification_code,
   );
 
   await mailer.sendMail({
@@ -149,10 +149,10 @@ export async function sendEmailVerification(origin: string, user: m.UserModel) {
 export async function sendPasswordVerification(
   origin: string,
   email: string,
-  verificationSecret: string
+  verificationSecret: string,
 ) {
   const url = `${origin}/pro/forgot-password?secret=${encodeURIComponent(
-    verificationSecret
+    verificationSecret,
   )}`;
 
   console.log("DEBUG PASSWORD VERIFICATION", {

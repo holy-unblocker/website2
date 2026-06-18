@@ -47,6 +47,6 @@ export const GET: APIRoute = ({ locals }) => {
       headers: {
         "content-type": "application/json",
       },
-    }
+    },
   );
 };

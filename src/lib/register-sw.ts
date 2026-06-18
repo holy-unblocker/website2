@@ -13,7 +13,7 @@ export async function setupServiceWorker() {
   // this provides a HUGE performance improvement
   if (!window.crossOriginIsolated && !isDev)
     console.warn(
-      "crossOriginIsolated should be enabled to increase performance."
+      "crossOriginIsolated should be enabled to increase performance.",
     );
 
   if (!navigator.serviceWorker) {
@@ -39,7 +39,7 @@ export async function setupServiceWorker() {
 export async function setupBareMux() {
   if (!("SharedWorker" in window))
     throw new Error(
-      "Your browser doesn't support the 'SharedWorker' API. Ultraviolet currently doesn't work on mobile. Sorry!"
+      "Your browser doesn't support the 'SharedWorker' API. Ultraviolet currently doesn't work on mobile. Sorry!",
     );
 
   const connection = new BareMuxConnection("/baremux/worker.js");

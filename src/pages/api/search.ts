@@ -33,7 +33,7 @@ export const POST: APIRoute = async (context) => {
             }),
           {
             signal: context.request.signal,
-          }
+          },
         );
 
         if (!res.ok) {
@@ -59,7 +59,7 @@ export const POST: APIRoute = async (context) => {
             }),
           {
             signal: context.request.signal,
-          }
+          },
         );
 
         if (!res.ok) {

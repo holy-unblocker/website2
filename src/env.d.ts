@@ -66,7 +66,7 @@ namespace App {
      */
     setSession: (
       secret?: string | null,
-      staySignedIn: boolean = true
+      staySignedIn: boolean = true,
     ) => boolean;
     // helpers for page permissions and redirects
     // for reused code

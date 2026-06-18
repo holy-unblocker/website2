@@ -15,7 +15,7 @@ export const POST: APIRoute = async ({ request }) => {
     event = stripe.webhooks.constructEvent(
       await request.text(),
       signature,
-      appConfig.stripe.webhookEndpointSecret
+      appConfig.stripe.webhookEndpointSecret,
     );
   } catch (err) {
     // @ts-ignore`
@@ -33,7 +33,7 @@ export const POST: APIRoute = async ({ request }) => {
         const invoice = (
           await db.query<m.InvoiceModel>(
             "UPDATE invoice SET paid = $1 WHERE id = $2 RETURNING *;",
-            [new Date(), object.number]
+            [new Date(), object.number],
           )
         ).rows[0];
 

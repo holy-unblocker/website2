@@ -36,12 +36,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (context.url.pathname.startsWith("/donate/"))
     return context.redirect(
       "/pro" + context.url.pathname.slice("/donate".length),
-      301
+      301,
     );
   if (context.url.pathname.startsWith("/sub/"))
     return context.redirect(
       "/pro" + context.url.pathname.slice("/sub".length),
-      301
+      301,
     );
 
   const clientKey = crypto.randomBytes(32);
@@ -172,7 +172,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
           path: "/",
           maxAge: maxAgeLimit,
           secure: true,
-        }
+        },
       );
       return true;
     } else {
@@ -195,7 +195,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     !context.cookies.has("autoCloak") &&
     !context.locals.isMainWebsite &&
     ["document", "iframe"].includes(
-      context.request.headers.get("sec-fetch-dest")!
+      context.request.headers.get("sec-fetch-dest")!,
     )
   ) {
     const cloak = await getRandomCloak();
@@ -382,7 +382,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const session = (
       await db.query<m.SessionModel>(
         `SELECT * FROM session WHERE secret = $1;`,
-        [cookie]
+        [cookie],
       )
     ).rows[0];
 
@@ -395,7 +395,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
       if (!user) {
         console.error(
-          "session had a reference to a non existant user...,erm what"
+          "session had a reference to a non existant user...,erm what",
         );
         context.locals.setSession();
       } else {
@@ -414,7 +414,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
               headers: {
                 authorization: `Bot ${appConfig.discord.botToken}`,
               },
-            }
+            },
           );
 
           switch (memberRes.status) {
@@ -483,18 +483,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.url.pathname === "/pro/signup"
           ? "/pro/signup"
           : `/pro/?to=${encodeURIComponent(
-              context.url.pathname + context.url.search
+              context.url.pathname + context.url.search,
             )}`,
-        307
+        307,
       ),
     toSignup: () =>
       context.redirect(
         context.url.pathname === "/pro/"
           ? "/pro/"
           : `/pro/?to=${encodeURIComponent(
-              context.url.pathname + context.url.search
+              context.url.pathname + context.url.search,
             )}`,
-        307
+        307,
       ),
     toVerifyEmail: () => context.redirect("/pro/verify-email", 302),
     toVerifyNewEmail: () => context.redirect("/pro/verify-new-email", 302),

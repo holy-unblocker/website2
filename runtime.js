@@ -43,7 +43,7 @@ try {
   copyFile("./config/config.example.js", "./config/config.js");
   console.log(
     startupTag,
-    chalk.italic("copying config.example.js -> config.js")
+    chalk.italic("copying config.example.js -> config.js"),
   );
 }
 
@@ -57,21 +57,20 @@ try {
 } catch (err) {
   // user config error
   console.error(
-    chalk.bold("An error occurred while trying to load ./config/config.js!")
+    chalk.bold("An error occurred while trying to load ./config/config.js!"),
   );
   console.error(err);
   console.error(
     chalk.grey.italic(
-      "This error was likely caused as a result of you changing something."
-    )
+      "This error was likely caused as a result of you changing something.",
+    ),
   );
   console.error(chalk.grey.italic("Please check your config then try again!"));
   process.exit(1);
 }
 
-const { db, giveTierDiscordRoles, accountsEnabled } = await import(
-  "./config/apis.js"
-);
+const { db, giveTierDiscordRoles, accountsEnabled } =
+  await import("./config/apis.js");
 
 // check runtime requirements
 // in both astro dev server & runtime
@@ -82,7 +81,7 @@ if (majorNodeVersion < 19) {
   console.error("Your NodeJS version is unsupported!");
   console.error("You need at least NodeJS v19 to run Holy Unblocker");
   console.error(
-    "You can fix this by upgrading NodeJS. Try installing nvm: https://github.com/nvm-sh/nvm"
+    "You can fix this by upgrading NodeJS. Try installing nvm: https://github.com/nvm-sh/nvm",
   );
   process.exit(1);
 }
@@ -98,25 +97,25 @@ client.on("ready", async () => {
       headers: {
         authorization: `Bot ${appConfig.discord.botToken}`,
       },
-    }
+    },
   );
 
   if (rolesRes.status !== 200) {
     console.error(
       "Error fetching roles for guild:",
       appConfig.discord.guildId,
-      rolesRes.status
+      rolesRes.status,
     );
     console.error(await rolesRes.text());
     if (rolesRes.status === 404) {
       console.log(
-        "Make sure you invited the bot to your server! Or that the guild ID is correct"
+        "Make sure you invited the bot to your server! Or that the guild ID is correct",
       );
       console.log("Use this link to invite the bot:");
       // we need MANAGE_ROLES to assign ppl their roles
       // this link should have that permission set
       console.log(
-        `https://discord.com/oauth2/authorize?client_id=${appConfig.discord.clientId}&scope=bot&permissions=268435456`
+        `https://discord.com/oauth2/authorize?client_id=${appConfig.discord.clientId}&scope=bot&permissions=268435456`,
       );
       process.exit(1);
     }
@@ -131,16 +130,16 @@ client.on("ready", async () => {
         headers: {
           authorization: `Bot ${appConfig.discord.botToken}`,
         },
-      }
+      },
     )
   ).json();
 
   if (clientMember.roles.length === 0) {
     console.error(
-      "In order to give users their subscription roles, the discord bot needs a role with Manage Roles."
+      "In order to give users their subscription roles, the discord bot needs a role with Manage Roles.",
     );
     console.error(
-      "You need to create a role, move it above the subscriber roles, and assign it to the Discord bot."
+      "You need to create a role, move it above the subscriber roles, and assign it to the Discord bot.",
     );
     process.exit(1);
   }
@@ -148,13 +147,13 @@ client.on("ready", async () => {
   // check if we can manage roles
   const canManageRoles = clientMember.roles.some((role) =>
     new PermissionsBitField(
-      serverRoles.find((e) => e.id === role).permissions
-    ).has("ManageRoles")
+      serverRoles.find((e) => e.id === role).permissions,
+    ).has("ManageRoles"),
   );
 
   if (!canManageRoles) {
     console.error(
-      "In order to give users their subscription roles, the Discord bot needs the Manage Roles permission."
+      "In order to give users their subscription roles, the Discord bot needs the Manage Roles permission.",
     );
     console.error("You need to give the Discord bot a role with permission.");
     process.exit(1);
@@ -174,7 +173,7 @@ client.on("ready", async () => {
       console.error("Cannot give users the role", role.name);
       console.error(
         "You need to give the Discord bot a role that's higher than",
-        role.name
+        role.name,
       );
       process.exit();
     }
@@ -274,7 +273,7 @@ if (!("db" in appConfig))
 // this is kinda cursed
 const uvConfigSrc = await readFile(
   new URL("./public/uv/uv.config.js", import.meta.url),
-  "utf-8"
+  "utf-8",
 );
 
 const compress = compression();
@@ -308,7 +307,7 @@ export function handleReq(req, res, middleware) {
     // thanks r58
     res.setHeader(
       "cross-origin-opener-policy-report-only",
-      "same-origin-allow-popups"
+      "same-origin-allow-popups",
     );
     res.setHeader("cross-origin-resource-policy", "same-origin");
   }
@@ -380,7 +379,7 @@ export function handleReq(req, res, middleware) {
       {
         method: req.method,
         headers: mirrorHeaders,
-      }
+      },
     );
 
     mirrorReq.on("error", (err) => {

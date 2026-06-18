@@ -13,7 +13,7 @@ export async function createSession(ip: string, user: m.UserModel) {
   return (
     await db.query<m.SessionModel>(
       `INSERT INTO session(secret,ip,user_id) VALUES ($1,$2,$3) RETURNING *;`,
-      [randomBytes(16).toString("hex"), ip, user.id]
+      [randomBytes(16).toString("hex"), ip, user.id],
     )
   ).rows[0];
 }
@@ -21,25 +21,25 @@ export async function createSession(ip: string, user: m.UserModel) {
 export async function BanUser(
   userId: number,
   reason: string,
-  expires: Date | null
+  expires: Date | null,
 ) {
   if (reason === "") reason = "No reason specified.";
 
   return (
     await db.query<m.BanModel>(
       "INSERT INTO ban(expires,reason,user_id) VALUES($1,$2,$3) RETURNING *;",
-      [expires, reason, userId]
+      [expires, reason, userId],
     )
   ).rows[0];
 }
 
 export async function isUserBanned(
-  userId: number
+  userId: number,
 ): Promise<m.BanModel | undefined> {
   const ban = (
     await db.query<m.BanModel>(
       "SELECT * FROM ban WHERE user_id = $1 AND (expires IS NULL OR expires > NOW())",
-      [userId]
+      [userId],
     )
   ).rows[0];
 
@@ -78,7 +78,7 @@ export async function unlinkDiscord(user: m.UserModel) {
 
   await db.query(
     "UPDATE users SET discord_id = null, discord_username = null, discord_avatar = null, discord_name = null, discord_updated = null WHERE id = $1;",
-    [user.id]
+    [user.id],
   );
 }
 
@@ -91,7 +91,7 @@ export interface DiscordUserData {
 
 export async function linkDiscord(
   user: m.UserModel,
-  userData: DiscordUserData
+  userData: DiscordUserData,
 ) {
   user.discord_id = userData.id;
   user.discord_username = userData.username;
@@ -108,13 +108,13 @@ export async function linkDiscord(
       user.discord_name,
       user.discord_updated,
       user.id,
-    ]
+    ],
   );
 }
 
 export async function validateCaptcha(
   token: any,
-  realIp: string
+  realIp: string,
 ): Promise<string | undefined> {
   if (!hcaptchaEnabled) return;
   if (typeof token !== "string") return "Invalid captcha token";
@@ -133,12 +133,12 @@ export const MONTH = DAY * 30;
 
 export async function addTimeToAccount(
   user: m.UserModel,
-  time: string | number | bigint
+  time: string | number | bigint,
 ) {
   const res = (
     await db.query<{ paid_until: Date }>(
       `UPDATE users SET paid_until = CASE WHEN paid_until <= NOW() THEN NOW() + ($1 * interval '1 millisecond') ELSE paid_until + ($1 * interval '1 millisecond') END WHERE id = $2 RETURNING paid_until;`,
-      [time, user.id]
+      [time, user.id],
     )
   ).rows[0];
   user.paid_until = res.paid_until;
@@ -160,14 +160,14 @@ function getNowpaymentsAPI() {
 export async function createInvoice(
   user: m.UserModel,
   time: number,
-  price: number
+  price: number,
 ) {
   const token = randomBytes(8).toString("hex").toUpperCase();
 
   const invoice = (
     await db.query<m.InvoiceModel>(
       "INSERT INTO invoice(token,user_id,time,price) VALUES($1,$2,$3,$4) RETURNING *;",
-      [token, user.id, time, price]
+      [token, user.id, time, price],
     )
   ).rows[0];
 
@@ -195,11 +195,11 @@ export async function createInvoice(
         });
 
         const finalizedInvoice = await stripe.invoices.finalizeInvoice(
-          stripeInvoice.id
+          stripeInvoice.id,
         );
 
         invoice.fiat_url = finalizedInvoice.hosted_invoice_url!;
-      })()
+      })(),
     );
 
   if (nowpaymentsEnabled)
@@ -224,13 +224,13 @@ export async function createInvoice(
 
         if (!res.ok)
           throw new Error(
-            `error creating crypto invoice: ${res.status} ${await res.text()}`
+            `error creating crypto invoice: ${res.status} ${await res.text()}`,
           );
 
         const data = (await res.json()) as { invoice_url: string };
 
         invoice.crypto_url = data.invoice_url;
-      })()
+      })(),
     );
 
   await Promise.all(promises);
@@ -238,7 +238,7 @@ export async function createInvoice(
   // we can only get a URL when the invoice is finalized
   await db.query(
     "UPDATE invoice SET fiat_url = $1, crypto_url = $2 WHERE id = $3;",
-    [invoice.fiat_url, invoice.crypto_url, invoice.id]
+    [invoice.fiat_url, invoice.crypto_url, invoice.id],
   );
 
   return invoice;

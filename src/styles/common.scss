@@ -14,8 +14,8 @@ $nav-height: 70px;
 $nav-height-border: 71px;
 
 @function offsetHex($color, $ness) {
-  @return "rgb(" + (red($color) + $ness) + ", " + (green($color) + $ness) + ", " +
-    (blue($color) + $ness) + ")";
+  @return "rgb(" + (red($color) + $ness) + ", " + (green($color) + $ness) +
+    ", " + (blue($color) + $ness) + ")";
 }
 
 @mixin screenMobile {

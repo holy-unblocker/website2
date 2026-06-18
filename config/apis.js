@@ -57,7 +57,7 @@ if (!accountsEnabled) {
     traps[prop] = {
       get: () => {
         throw new TypeError(
-          `Tried to get appConfig.${prop}, but stripe support isn't enabled.`
+          `Tried to get appConfig.${prop}, but stripe support isn't enabled.`,
         );
       },
     };
@@ -85,7 +85,7 @@ export async function giveTierDiscordRoles(user) {
       "to",
       user.discord_id,
       "in guild",
-      appConfig.discord.guildId
+      appConfig.discord.guildId,
     );
 
     // https://discord.com/developers/docs/resources/guild#add-guild-member-role
@@ -99,7 +99,7 @@ export async function giveTierDiscordRoles(user) {
             isPremium ? "Subscribed to" : "Unsubscribed from"
           } premium (${user.id})`,
         },
-      }
+      },
     );
 
     if (res.status !== 204) {
