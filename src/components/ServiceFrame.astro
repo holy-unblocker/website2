@@ -30,7 +30,11 @@ import Public from "@icons/public_24dp.svg?react";
   let lastSrc: string | undefined;
 
   function isProxyPage() {
-    return location.pathname === "/" || location.pathname === "/uv";
+    return (
+      location.pathname === "/" ||
+      location.pathname === "/uv" ||
+      location.pathname === "/scramjet"
+    );
   }
 
   function saveSrcInSearch(src?: string | undefined) {

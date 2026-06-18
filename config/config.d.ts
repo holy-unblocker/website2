@@ -62,6 +62,7 @@ export interface AppConfig {
     };
     github: {
       ultraviolet: string;
+      scramjet: string;
       titaniumnetwork: string;
       mercuryworkshop: string;
       holyunblocker: string;

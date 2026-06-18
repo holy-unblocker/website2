@@ -38,6 +38,13 @@ if (Astro.request.method === "POST")
             error = "Please enter a valid wisp server URL!";
         }
         break;
+      case "proxyEngine":
+        {
+          const proxyEngine = data.get("proxyEngine")?.toString();
+          if (!Astro.locals.setProxyEngine(proxyEngine))
+            error = "Please enter a valid proxy engine!";
+        }
+        break;
     }
   } catch (err) {
     console.error(err);
@@ -85,6 +92,19 @@ if (Astro.request.method === "POST")
           { name: "Bare", value: "bare" },
         ]}
         value={Astro.locals.proxyTransport}
+      />
+    </form>
+    <form method="post">
+      <p><HolyText text="Proxy Engine:" /></p>
+      <ThemeSelect
+        name="proxyEngine"
+        id="proxyEngine"
+        class={styles.themeSelect}
+        options={[
+          { name: "Scramjet", value: "scramjet" },
+          { name: "Ultraviolet", value: "uv" },
+        ]}
+        value={Astro.locals.proxyEngine}
       />
     </form>
     <form method="post">
@@ -149,6 +169,7 @@ if (Astro.request.method === "POST")
     setProxyMode,
     setWispServer,
     setBareServer,
+    setProxyEngine,
   } from "@lib/cookies";
   import { getBareUrl, getWispUrl } from "@lib/register-sw";
 
@@ -164,7 +185,7 @@ if (Astro.request.method === "POST")
     });
 
     const newBareUrl = document.getElementById(
-      "newBareUrl"
+      "newBareUrl",
     )! as HTMLInputElement;
     newBareUrl.placeholder = getBareUrl();
     newBareUrl.form!.addEventListener("submit", (event) => {
@@ -184,7 +205,7 @@ if (Astro.request.method === "POST")
     });
 
     const newWispUrl = document.getElementById(
-      "newWispUrl"
+      "newWispUrl",
     )! as HTMLInputElement;
     newWispUrl.placeholder = getWispUrl();
     newWispUrl.form!.addEventListener("submit", (event) => {
@@ -212,6 +233,13 @@ if (Astro.request.method === "POST")
 
     searchEngine.addEventListener("change", () => {
       setSearchEngine(Number(searchEngine.value));
+    });
+
+    const proxyEngine =
+      document.querySelector<HTMLInputElement>("#proxyEngine")!;
+
+    proxyEngine.addEventListener("change", () => {
+      setProxyEngine(proxyEngine.value);
     });
   });
 </script>

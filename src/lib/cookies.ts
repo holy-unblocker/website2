@@ -30,6 +30,10 @@ export function setProxyTransport(proxyTransport: string) {
   setupBareMux();
 }
 
+export function setProxyEngine(proxyEngine: string) {
+  setCookie("engine", proxyEngine);
+}
+
 // used for dynamically applying the new tab cloak
 // thanks astro transitions...
 export function getCloak() {

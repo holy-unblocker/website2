@@ -5,9 +5,12 @@ import Underline from "@icons/underline.svg?react";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import ProxyOmnibox from "@components/ProxyOmnibox.astro";
 import UltravioletIcon from "@icons/ultraviolet_icon.svg?react";
+import ScramjetIcon from "@icons/scramjet_icon.svg?react";
 import HolyText from "@components/HolyText.astro";
 import HolyLink from "@components/HolyLink.astro";
 import { appConfig } from "@config/config";
+
+const isScramjet = Astro.locals.proxyEngine === "scramjet";
 ---
 
 <MainLayout title="Holy Unblocker">
@@ -89,12 +92,16 @@ import { appConfig } from "@config/config";
       >
         <HolyText text="Get Started" />
       </button>
-      <ProxyOmnibox searchEngine={Astro.locals.searchEngine} />
+      <ProxyOmnibox
+        searchEngine={Astro.locals.searchEngine}
+        proxyEngine={Astro.locals.proxyEngine}
+      />
     </div>
-    <HolyLink class={styles.poweredBy} href="/uv">
-      <Fragment set:html={UltravioletIcon} />
+    <HolyLink class={styles.poweredBy} href={isScramjet ? "/scramjet" : "/uv"}>
+      <Fragment set:html={isScramjet ? ScramjetIcon : UltravioletIcon} />
       <span
-        ><HolyText text="Powered by " /><b><HolyText text="Ultraviolet" /></b
+        ><HolyText text="Powered by " /><b
+          ><HolyText text={isScramjet ? "Scramjet" : "Ultraviolet"} /></b
         ></span
       >
     </HolyLink>

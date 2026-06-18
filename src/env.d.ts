@@ -41,6 +41,10 @@ namespace App {
     // returns true if transport is valid, false if invalid
     setProxyTransport: (newProxyTransport?: string | null) => boolean;
 
+    proxyEngine: string;
+    // returns true if engine is valid, false if invalid
+    setProxyEngine: (newProxyEngine?: string | null) => boolean;
+
     bareServer: string;
     // returns true if valid vare server url, false if invalid
     setBareServer: (newBareServer?: string | null) => boolean;

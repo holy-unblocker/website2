@@ -154,6 +154,7 @@ export const appConfig = {
     },
     github: {
       ultraviolet: "https://github.com/titaniumnetwork-dev/Ultraviolet",
+      scramjet: "https://github.com/MercuryWorkshop/scramjet",
       titaniumnetwork: "https://github.com/titaniumnetwork-dev",
       mercuryworkshop: "https://github.com/MercuryWorkshop",
       // link to this repository

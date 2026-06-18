@@ -6,32 +6,6 @@ import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import HolyText from "@components/HolyText.astro";
 import HolyLink from "@components/HolyLink.astro";
-import UltravioletIcon from "@icons/ultraviolet.svg?react";
-
-/*const ProxyMeta = () => (
-  <Meta
-    title="Proxy"
-    description="Bypass blocks on your internet traffic with Holy Unblocker's web proxy."
-    faq={[
-      {
-        name: "What web proxies does Holy Unblocker have?",
-        acceptedAnswer: {
-          text: "Ultraviolet and Rammerhead. You can change the default proxy in your settings.",
-        },
-      },
-    ]}
-    actions={[
-      {
-        target: {
-          urlTemplate:
-            new URL(getHot("proxy").path, globalThis.location.toString()) +
-            "?q={search_term_string}",
-        },
-        "query-input": "required name=search_term_string",
-      },
-    ]}
-  />
-);*/
 ---
 
 <MainLayout title="Proxy">
@@ -48,12 +22,17 @@ import UltravioletIcon from "@icons/ultraviolet.svg?react";
   <main>
     <div class={styles.content}>
       <h1 class={styles.title}>
-        <span class={styles.titleIcon} set:html={UltravioletIcon} />
-        <HolyText text="Ultraviolet" />
+        <img
+          src="/scramjet.png"
+          alt="Scramjet"
+          class={styles.logo}
+          width="436"
+          height="225"
+        />
       </h1>
       <ProxyOmnibox
         searchEngine={Astro.locals.searchEngine}
-        proxyEngine="uv"
+        proxyEngine="scramjet"
       />
       <p>
         <HolyText
@@ -62,10 +41,10 @@ import UltravioletIcon from "@icons/ultraviolet.svg?react";
         <HolyLink class={themeStyles.themeLink} href="/faq" text="FAQ" />.
       </p>
       <p>
-        <HolyText text="Ultraviolet is" />
+        <HolyText text="Scramjet is" />
         <HolyLink
           class={themeStyles.themeLink}
-          href={appConfig.links.github.ultraviolet}
+          href={appConfig.links.github.scramjet}
           text="open source"
         />
         <HolyText

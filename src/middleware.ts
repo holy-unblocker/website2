@@ -285,6 +285,39 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   context.locals.setProxyTransport(context.cookies.get("trans")?.value);
 
+  // saves the proxy engine or delete it
+  context.locals.setProxyEngine = (newProxyEngine) => {
+    const validEngine =
+      typeof newProxyEngine === "string" &&
+      ["uv", "scramjet"].includes(newProxyEngine);
+
+    if (validEngine) {
+      context.cookies.set("engine", newProxyEngine as string, {
+        domain: cookieDomain,
+        sameSite: "lax",
+        path: "/",
+        maxAge: maxAgeLimit,
+        secure: true,
+      });
+      context.locals.proxyEngine = newProxyEngine as string;
+      return true;
+    } else {
+      // clear the cookie
+      if (context.cookies.has("engine"))
+        context.cookies.set("engine", "", {
+          domain: cookieDomain,
+          sameSite: "lax",
+          path: "/",
+          expires: new Date(0), // set it to as old as possible!!
+          secure: true,
+        });
+      context.locals.proxyEngine = "scramjet"; // default is scramjet
+      return false;
+    }
+  };
+
+  context.locals.setProxyEngine(context.cookies.get("engine")?.value);
+
   // saves the search engine or delete it
   context.locals.setSearchEngine = (newSearchEngine) => {
     let validSearchEngine = false;
