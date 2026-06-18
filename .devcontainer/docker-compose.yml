@@ -1,6 +1,15 @@
-version: '3.8'
+version: "3.8"
 services:
   holy-unblocker:
-    volumes:
-      - ..:/workspaces/website2:cached
     command: sleep infinity
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/workspace:cached
+      - holy-unblocker-config:/app/config
+volumes:
+  holy-unblocker-config:
+    name: holy-unblocker-config
+networks:
+  default:
+    name: holy-unblocker

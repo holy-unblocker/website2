@@ -5,7 +5,7 @@ import { BareMuxConnection } from "@mercuryworkshop/bare-mux";
 export async function setupServiceWorker() {
   // add your network hostname here or whatever
   // this is any page that does NOT have http: but can register a serviceworker
-  const isDev = ["localhost", "127.0.0.1"].includes(location.hostname);
+  const isDev = ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname);
 
   if (location.protocol !== "https:" && !isDev)
     throw new Error("HTTPS must be enabled to use Ultraviolet.");

@@ -1,19 +1,5 @@
--- Ensure the extension is created only if not exists
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
-
--- Theatre table with trigram index
-CREATE TABLE IF NOT EXISTS theatre (
-    index SERIAL,
-    id TEXT PRIMARY KEY NOT NULL UNIQUE,
-    name TEXT NOT NULL,
-    category TEXT NOT NULL,
-    type TEXT NOT NULL,
-    src TEXT NOT NULL,
-    plays INTEGER NOT NULL,
-    controls TEXT NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS trgm_idx ON theatre USING GIST (name gist_trgm_ops);
+-- Theatre/game data is served statically from config/games.json.
+-- The accounts system below still uses Postgres.
 
 -- DROP TABLE ban; DROP TABLE session; DROP TABLE payment; DROP TABLE email; DROP TABLE users;
 

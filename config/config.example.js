@@ -19,14 +19,14 @@ export const appConfig = {
 
   // FRONTEND LISTENING ADDRESS
   // an http server will be created on this host & port
-  host: "localhost",
+  host: "0.0.0.0",
   port: 8080,
 
   // specifies a mirror for the theatre api
   // this mirror is used if there are no database credentials
   theatreApiMirror: "https://holyubofficial.net/api/theatre/",
   // specifies a holy unblocker theatre mirror
-  theatreFilesMirror: "https://holyubofficial.net/cdn/",
+  theatreFilesMirror: "https://holy-unblocker.github.io/theatre/public/",
 
   // specifies the path to where theatre files are hosted.
   // See https://github.com/holy-unblocker/theatre/
@@ -42,7 +42,7 @@ export const appConfig = {
   // - %{hostname} - the website host WITHOUT the port appended - *why would you ever use this?*
   // - %{ws} - `ws:` or `wss:` depending on whether the location is http: or https:
   //separateBareServer: "%{protocol}//api.%{host}/bare/",
-  //separateWispServer: "%{ws}//api.%{host}/wisp/",
+  separateWispServer: "wss://wisp.mercurywork.shop/",
 
   // SUPPORT EMAIL
   // shown on /contact

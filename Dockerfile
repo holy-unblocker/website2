@@ -12,8 +12,6 @@ WORKDIR /app
 COPY . .
 COPY ./config/config.example.js ./config/config.js
 
-RUN sed -i 's/host: \"localhost\"/host: \"0.0.0.0\"/g' ./config/config.js
-
 RUN apk add --upgrade --no-cache python3 make g++
 RUN npm install
 RUN npm run build
