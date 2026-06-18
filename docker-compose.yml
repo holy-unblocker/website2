@@ -1,6 +1,6 @@
 services:
   holy-unblocker:
-    image: holywebwork/website2
+    image: node:24-trixie
     container_name: holy-unblocker
     restart: unless-stopped
     ports:

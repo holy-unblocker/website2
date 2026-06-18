@@ -1,0 +1,6 @@
+version: '3.8'
+services:
+  holy-unblocker:
+    volumes:
+      - ..:/workspaces/website2:cached
+    command: sleep infinity
