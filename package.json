@@ -8,7 +8,11 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "seed": "node ./dbSeed.js",
-    "astro": "astro"
+    "astro": "astro",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*": "prettier --ignore-unknown --write"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -50,5 +54,10 @@
     "typescript": "^5.5.4",
     "vite-plugin-static-copy": "^2.2.0",
     "wisp-server-node": "^1.1.7"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
+    "prettier": "^3.8.4"
   }
 }
