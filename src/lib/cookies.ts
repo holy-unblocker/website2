@@ -1,5 +1,10 @@
 import type { AppCloak } from "./cloak";
-import { setupBareMux, setupScramjet, getProxyEngine } from "./register-sw";
+import {
+  setupBareMux,
+  setupScramjet,
+  setupServiceWorker,
+  getProxyEngine,
+} from "./register-sw";
 
 function getCookie(name: string) {
   for (const cookie of document.cookie.split("; ")) {
@@ -35,6 +40,15 @@ export function setProxyEngine(proxyEngine: string) {
   const ele = document.getElementById("configThing");
   if (ele) ele.setAttribute("data-engine", proxyEngine);
   setCookie("engine", proxyEngine);
+}
+
+export function setAdblock(enabled: boolean) {
+  const ele = document.getElementById("configThing");
+  if (ele) ele.setAttribute("data-adblock", enabled ? "1" : "0");
+  setCookie("adblock", enabled ? "1" : "0");
+  // The service worker bakes in the adblock flag from its script URL, so it
+  // must be re-registered for the change to take effect.
+  setupServiceWorker();
 }
 
 // used for dynamically applying the new tab cloak

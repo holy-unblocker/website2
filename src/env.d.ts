@@ -46,6 +46,10 @@ namespace App {
     // returns true if engine is valid, false if invalid
     setProxyEngine: (newProxyEngine?: string | null) => boolean;
 
+    adblock: boolean;
+    // returns true if adblock is enabled, false if disabled
+    setAdblock: (newAdblock?: string | boolean | null) => boolean;
+
     bareServer: string;
     // returns true if valid vare server url, false if invalid
     setBareServer: (newBareServer?: string | null) => boolean;

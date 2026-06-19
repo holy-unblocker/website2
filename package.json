@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "seed": "node ./dbSeed.js",
     "astro": "astro",
+    "fetch-adblock": "node ./scripts/fetch-adblock.js",
     "prepare": "husky"
   },
   "lint-staged": {

@@ -23,13 +23,25 @@ export async function setupServiceWorker() {
       throw new Error("Incognito was enabled.");
     } else throw new Error("Your browser doesn't support service workers.");
   }
+  const swUrl = getAdblock() ? "/sw.js?adblock=1" : "/sw.js";
 
   const reg = await navigator.serviceWorker.getRegistration();
   if (reg) {
+    const activeUrl =
+      reg.active?.scriptURL ||
+      reg.installing?.scriptURL ||
+      reg.waiting?.scriptURL ||
+      "";
+    const wantAdblock = swUrl.includes("adblock=1");
+    const hasAdblock = activeUrl.includes("adblock=1");
+    if (wantAdblock !== hasAdblock) {
+      await navigator.serviceWorker.register(swUrl);
+      console.log("Service worker re-registered (adblock toggled)");
+    }
     await navigator.serviceWorker.ready;
     console.log("Service worker registered");
   } else {
-    await navigator.serviceWorker.register("/sw.js");
+    await navigator.serviceWorker.register(swUrl);
     console.log("Service worker registered");
     // console.log("Reloading the page to activate it.");
     // setTimeout(() => location.reload(), 100);
@@ -73,6 +85,13 @@ export function getProxyEngine(): string {
   if (pageEngine) return pageEngine;
 
   return document.getElementById("configThing")!.getAttribute("data-engine")!;
+}
+
+// whether adblock (domain blacklisting) is enabled, from #configThing
+export function getAdblock(): boolean {
+  return (
+    document.getElementById("configThing")?.getAttribute("data-adblock") === "1"
+  );
 }
 
 async function createScramjetTransport() {

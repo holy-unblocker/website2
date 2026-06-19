@@ -45,6 +45,12 @@ if (Astro.request.method === "POST")
             error = "Please enter a valid proxy engine!";
         }
         break;
+      case "adblock":
+        {
+          const adblock = data.get("adblock")?.toString();
+          Astro.locals.setAdblock(adblock === "1");
+        }
+        break;
     }
   } catch (err) {
     console.error(err);
@@ -105,6 +111,20 @@ if (Astro.request.method === "POST")
           { name: "Ultraviolet", value: "uv" },
         ]}
         value={Astro.locals.proxyEngine}
+      />
+    </form>
+    <form method="post">
+      <input type="text" name="type" value="adblock" hidden />
+      <p><HolyText text="Adblock:" /></p>
+      <ThemeSelect
+        name="adblock"
+        id="adblock"
+        class={styles.themeSelect}
+        options={[
+          { name: "Off", value: "0" },
+          { name: "On", value: "1" },
+        ]}
+        value={Astro.locals.adblock ? "1" : "0"}
       />
     </form>
     <form method="post">
@@ -170,6 +190,7 @@ if (Astro.request.method === "POST")
     setWispServer,
     setBareServer,
     setProxyEngine,
+    setAdblock,
   } from "@lib/cookies";
   import { getBareUrl, getWispUrl } from "@lib/register-sw";
 
@@ -240,6 +261,12 @@ if (Astro.request.method === "POST")
 
     proxyEngine.addEventListener("change", () => {
       setProxyEngine(proxyEngine.value);
+    });
+
+    const adblock = document.querySelector<HTMLInputElement>("#adblock")!;
+
+    adblock.addEventListener("change", () => {
+      setAdblock(adblock.value === "1");
     });
   });
 </script>

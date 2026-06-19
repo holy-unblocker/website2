@@ -318,6 +318,37 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   context.locals.setProxyEngine(context.cookies.get("engine")?.value);
 
+  // saves the adblock preference or clears it (defaults to off)
+  context.locals.setAdblock = (newAdblock) => {
+    const enabled = newAdblock === true || newAdblock === "1";
+
+    if (enabled) {
+      context.cookies.set("adblock", "1", {
+        domain: cookieDomain,
+        sameSite: "lax",
+        path: "/",
+        maxAge: maxAgeLimit,
+        secure: true,
+      });
+      context.locals.adblock = true;
+      return true;
+    } else {
+      // clear the cookie
+      if (context.cookies.has("adblock"))
+        context.cookies.set("adblock", "", {
+          domain: cookieDomain,
+          sameSite: "lax",
+          path: "/",
+          expires: new Date(0), // set it to as old as possible!!
+          secure: true,
+        });
+      context.locals.adblock = true;
+      return false;
+    }
+  };
+
+  context.locals.setAdblock(context.cookies.get("adblock")?.value);
+
   // saves the search engine or delete it
   context.locals.setSearchEngine = (newSearchEngine) => {
     let validSearchEngine = false;
