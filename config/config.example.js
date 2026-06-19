@@ -42,7 +42,7 @@ export const appConfig = {
   // - %{hostname} - the website host WITHOUT the port appended - *why would you ever use this?*
   // - %{ws} - `ws:` or `wss:` depending on whether the location is http: or https:
   //separateBareServer: "%{protocol}//api.%{host}/bare/",
-  separateWispServer: "wss://wisp.mercurywork.shop/",
+  //separateWispServer: "wss://wisp.mercurywork.shop/",
 
   // SUPPORT EMAIL
   // shown on /contact

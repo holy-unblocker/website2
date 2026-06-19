@@ -20,7 +20,10 @@ import { access, copyFile, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import send from "@fastify/send";
 import parseUrl from "parseurl";
-import wisp from "wisp-server-node";
+import {
+  server as wisp,
+  logging as wispLogging,
+} from "@mercuryworkshop/wisp-js/server";
 import bare from "@tomphttp/bare-server-node";
 import { ActivityType, Client, PermissionsBitField } from "discord.js";
 import chalk from "chalk";
@@ -428,6 +431,7 @@ export function handleReq(req, res, middleware) {
 // the url / is reserved for astro dev server HMR
 
 const wispServerLogging = false;
+wispLogging.set_level(wispServerLogging ? wispLogging.DEBUG : wispLogging.NONE);
 
 export function handleUpgrade(req, socket, head) {
   if (hostBare && bareServer.shouldRoute(req)) {
@@ -436,7 +440,7 @@ export function handleUpgrade(req, socket, head) {
   }
 
   if (hostWisp && req.url === "/api/wisp/") {
-    wisp.routeRequest(req, socket, head, { logging: wispServerLogging });
+    wisp.routeRequest(req, socket, head);
     return;
   }
 
