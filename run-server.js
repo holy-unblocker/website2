@@ -60,6 +60,10 @@ for (const dep of [
   "@ruffle-rs/ruffle",
   "@mercuryworkshop/bare-mux",
   "@mercuryworkshop/epoxy-transport",
+  "@mercuryworkshop/libcurl-transport",
+  "@mercuryworkshop/scramjet",
+  "@mercuryworkshop/scramjet-controller",
+  "@mercuryworkshop/scramjet-utils",
   "@titaniumnetwork-dev/ultraviolet",
   "wisp-server-node",
 ])

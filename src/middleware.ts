@@ -311,7 +311,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
           expires: new Date(0), // set it to as old as possible!!
           secure: true,
         });
-      context.locals.proxyEngine = "scramjet"; // default is scramjet
+      context.locals.proxyEngine = "uv"; // default is uv
       return false;
     }
   };

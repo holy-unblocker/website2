@@ -1,9 +1,12 @@
 <script src="/baremux/index.js" is:inline defer></script>
 <script src="/uv/uv.bundle.js" is:inline></script>
 <script src="/uv/uv.config.js" is:inline></script>
+<script src="/scram/scramjet.js" is:inline></script>
+<script src="/scramjet/controller.api.js" is:inline></script>
 <div
   id="configThing"
   data-transport={Astro.locals.proxyTransport}
+  data-engine={Astro.locals.proxyEngine}
   data-bare={Astro.locals.bareServer}
   data-wisp={Astro.locals.wispServer}
 >

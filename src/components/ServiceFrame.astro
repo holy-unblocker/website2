@@ -22,12 +22,22 @@ import Public from "@icons/public_24dp.svg?react";
 <div data-proxy-mode={Astro.locals.proxyMode} id="proxyModeSetting"></div>
 <script>
   import { decryptURL, encryptURL } from "@lib/cryptURL";
-  import { setupServiceWorker, setupBareMux } from "@lib/register-sw";
+  import {
+    setupServiceWorker,
+    setupBareMux,
+    setupScramjet,
+    scramjetGo,
+    getProxyEngine,
+  } from "@lib/register-sw";
   import { presentAboutBlank } from "@lib/aboutBlank";
 
   // stores the URL of the last proxied page
   // used for opening in new tabs...
   let lastSrc: string | undefined;
+
+  function encodeUvUrl(src: string): string {
+    return __uv$config!.prefix + __uv$config.encodeUrl!(src);
+  }
 
   function isProxyPage() {
     return (
@@ -45,7 +55,7 @@ import Public from "@icons/public_24dp.svg?react";
     history.pushState(
       {},
       "",
-      st === "" ? location.pathname : `${location.pathname}?${st}`
+      st === "" ? location.pathname : `${location.pathname}?${st}`,
     );
   }
 
@@ -88,7 +98,7 @@ import Public from "@icons/public_24dp.svg?react";
 
         const newSrc = location.href;
         const selector = contentWindow.document.querySelector(
-          'link[rel*="icon"]'
+          'link[rel*="icon"]',
         ) as HTMLLinkElement | null;
 
         const icon =
@@ -118,7 +128,12 @@ import Public from "@icons/public_24dp.svg?react";
     }
   }
 
-  setupBareMux();
+  function setupActiveEngine() {
+    if (getProxyEngine() === "scramjet") setupScramjet();
+    else setupBareMux();
+  }
+
+  setupActiveEngine();
   setupServiceWorker();
 
   function setServiceSrc(src?: string | null) {
@@ -137,7 +152,16 @@ import Public from "@icons/public_24dp.svg?react";
         throw new TypeError(`service frame must be a valid URL, got: ${src}`);
       }
 
-      const uvURL = __uv$config!.prefix + __uv$config.encodeUrl!(src);
+      if (getProxyEngine() === "scramjet") {
+        document.documentElement.setAttribute("data-service", "");
+        lastSrc = src;
+        saveSrcInSearch(src);
+        scramjetGo(serviceEmbed, src).catch((err) => console.error(err));
+        checkForEmbedChanges();
+        return;
+      }
+
+      const uvURL = encodeUvUrl(src);
 
       switch (proxyMode) {
         case "embedded":
@@ -173,6 +197,8 @@ import Public from "@icons/public_24dp.svg?react";
       return;
     }
 
+    setupActiveEngine();
+
     const serviceEmbed =
       document.querySelector<HTMLIFrameElement>("#serviceEmbed")!;
 
@@ -198,7 +224,11 @@ import Public from "@icons/public_24dp.svg?react";
 
     openInNew.addEventListener("click", () => {
       console.log("Opening", lastSrc, "in new window");
-      window.open(__uv$config.prefix! + __uv$config.encodeUrl!(lastSrc!));
+      if (getProxyEngine() === "scramjet") {
+        if (serviceEmbed.src) window.open(serviceEmbed.src);
+      } else {
+        window.open(encodeUvUrl(lastSrc!));
+      }
     });
 
     const closeService =

@@ -1,5 +1,5 @@
 import type { AppCloak } from "./cloak";
-import { setupBareMux } from "./register-sw";
+import { setupBareMux, setupScramjet, getProxyEngine } from "./register-sw";
 
 function getCookie(name: string) {
   for (const cookie of document.cookie.split("; ")) {
@@ -27,10 +27,13 @@ export function setProxyTransport(proxyTransport: string) {
   const ele = document.getElementById("configThing")!;
   ele.setAttribute("data-transport", proxyTransport);
   setCookie("trans", proxyTransport);
-  setupBareMux();
+  if (getProxyEngine() === "scramjet") setupScramjet();
+  else setupBareMux();
 }
 
 export function setProxyEngine(proxyEngine: string) {
+  const ele = document.getElementById("configThing");
+  if (ele) ele.setAttribute("data-engine", proxyEngine);
   setCookie("engine", proxyEngine);
 }
 

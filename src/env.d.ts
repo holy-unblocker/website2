@@ -1,5 +1,6 @@
 /// <reference types="astro/client" />
 /// <reference types="@titaniumnetwork-dev/ultraviolet/client" />
+/// <reference types="@mercuryworkshop/scramjet-controller" />
 
 declare module "*.svg?react" {
   const SVG: string;
@@ -101,6 +102,14 @@ namespace App {
 
 declare var wisp_api: string;
 declare var theatre_cdn: string;
+
+interface ScramjetGlobal {
+  controller: InstanceType<typeof $scramjetController.Controller>;
+}
+
+interface Window {
+  $scramjet?: ScramjetGlobal;
+}
 
 // dynamic api for the banner component
 interface BannerAPI {

@@ -203,7 +203,16 @@ if (mirrorError) {
   import TheatreAPI from "@lib/TheatreAPI";
   import { encryptURL } from "@lib/cryptURL";
   import { getGlobalSettings } from "@lib/storage";
-  import { setupServiceWorker, setupBareMux } from "@lib/register-sw";
+  import {
+    setupServiceWorker,
+    setupBareMux,
+    scramjetGo,
+    getProxyEngine,
+  } from "@lib/register-sw";
+
+  function encodeUvUrl(src: string): string {
+    return __uv$config!.prefix + __uv$config.encodeUrl!(src);
+  }
 
   // called on page load and when fullscreen changes
   // to fix clicks/keyboard input not going to the game
@@ -280,11 +289,15 @@ if (mirrorError) {
       case "proxy":
         setupServiceWorker().then(async () => {
           try {
-            await setupBareMux();
+            if (getProxyEngine() === "scramjet") {
+              await scramjetGo(playerFrame, url);
+            } else {
+              await setupBareMux();
+              playerFrame.src = encodeUvUrl(url);
+            }
           } catch (err) {
             console.error(err);
           }
-          playerFrame.src = __uv$config!.prefix + __uv$config.encodeUrl!(url);
         });
         break;
       case "embed":

@@ -6,6 +6,7 @@ import { svgr } from "./svgmin.mjs";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
 import { bareModulePath } from "@mercuryworkshop/bare-as-module3";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
+import { scramjetPath } from "@mercuryworkshop/scramjet/path";
 import { createRequire } from "node:module";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
@@ -19,6 +20,15 @@ const { handleReq, handleUpgrade } = await import("./runtime.js");
 const { appConfig } = await import("./config/config.js");
 const require = createRequire(import.meta.url);
 const rufflePath = path.resolve(require.resolve("@ruffle-rs/ruffle"), "..");
+
+const scramjetControllerPath = path.resolve(
+  require.resolve("@mercuryworkshop/scramjet-controller"),
+  "..",
+);
+const scramjetUtilsPath = path.resolve(
+  require.resolve("@mercuryworkshop/scramjet-utils"),
+  "..",
+);
 
 // https://astro.build/config
 export default defineConfig({
@@ -55,6 +65,30 @@ export default defineConfig({
           {
             src: "node_modules/@mercuryworkshop/epoxy-transport/dist/*",
             dest: "epoxy",
+            rename: { stripBase: true },
+            overwrite: false,
+          },
+          {
+            src: "node_modules/@mercuryworkshop/libcurl-transport/dist/*",
+            dest: "libcurl",
+            rename: { stripBase: true },
+            overwrite: false,
+          },
+          {
+            src: scramjetPath + "/*",
+            dest: "scram",
+            rename: { stripBase: true },
+            overwrite: false,
+          },
+          {
+            src: scramjetControllerPath + "/*",
+            dest: "scramjet",
+            rename: { stripBase: true },
+            overwrite: false,
+          },
+          {
+            src: scramjetUtilsPath + "/*",
+            dest: "scramjet",
             rename: { stripBase: true },
             overwrite: false,
           },

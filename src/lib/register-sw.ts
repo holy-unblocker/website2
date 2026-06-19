@@ -1,3 +1,4 @@
+/// <reference types="@mercuryworkshop/scramjet-controller" />
 import { BareMuxConnection } from "@mercuryworkshop/bare-mux";
 
 // will register /sw.js and setup bare mux
@@ -59,6 +60,132 @@ export async function setupBareMux() {
     await connection.setTransport("/baremod/index.mjs", [bareUrl]);
     console.log("Transport set!");
   }
+}
+
+export function getProxyEngine(): string {
+  const path = location.pathname.replace(/\/+$/, "");
+  if (path === "/uv") return "uv";
+  if (path === "/scramjet") return "scramjet";
+
+  const pageEngine = document
+    .getElementById("omnibox")
+    ?.getAttribute("data-proxy-engine");
+  if (pageEngine) return pageEngine;
+
+  return document.getElementById("configThing")!.getAttribute("data-engine")!;
+}
+
+async function createScramjetTransport() {
+  const ele = document.getElementById("configThing")!;
+  const transport = ele.getAttribute("data-transport")!;
+  const wispUrl = getWispUrl();
+
+  const dynamicImport = (specifier: string): Promise<any> =>
+    import(/* @vite-ignore */ specifier);
+
+  if (transport === "epoxy") {
+    const { default: EpoxyClient } = await dynamicImport("/epoxy/index.mjs");
+    console.log("Scramjet using epoxy wisp at", wispUrl);
+    const client = new EpoxyClient({ wisp: wispUrl });
+    await client.init();
+    return wrapTransport(client);
+  }
+
+  const { default: LibcurlClient } = await dynamicImport("/libcurl/index.mjs");
+  console.log("Scramjet using libcurl wisp at", wispUrl);
+  const client = new LibcurlClient({ wisp: wispUrl });
+  await client.init();
+  return wrapTransport(client);
+}
+
+// Normalize a transport's response headers into an entries array.
+// @mercuryworkshop/proxy-transports@1.0.2 stores BareResponse.rawHeaders as the
+// raw object returned by transport.request(), but Scramjet 2.x iterates
+// rawHeaders as [key, value] pairs (`for (const [k, v] of rawHeaders)`),
+// throwing "TypeError: i is not iterable" on a plain object. Converting
+// request()'s headers to entries makes them iterable while still constructing a
+// valid Headers (which also accepts entries).
+function headersToEntries(headers: any): [string, string][] {
+  if (!headers) return [];
+  if (Array.isArray(headers)) return headers as [string, string][];
+  if (typeof headers.entries === "function")
+    return [...(headers.entries() as Iterable<[string, string]>)];
+  const out: [string, string][] = [];
+  for (const key of Object.keys(headers)) {
+    const value = headers[key];
+    if (Array.isArray(value)) for (const v of value) out.push([key, v]);
+    else out.push([key, value as string]);
+  }
+  return out;
+}
+
+// Wrap a ProxyTransport so request() returns header entries (see above).
+function wrapTransport<T extends { request: (...args: any[]) => any }>(
+  client: T,
+): T {
+  const originalRequest = client.request.bind(client);
+  client.request = async (...args: any[]) => {
+    const res = await originalRequest(...args);
+    if (res && typeof res === "object" && "headers" in res)
+      res.headers = headersToEntries(res.headers);
+    return res;
+  };
+  return client;
+}
+
+let scramjetReady: Promise<void> | undefined;
+let scramjetController:
+  | InstanceType<typeof $scramjetController.Controller>
+  | undefined;
+const scramjetFrames = new WeakMap<
+  HTMLIFrameElement,
+  InstanceType<typeof $scramjetController.Frame>
+>();
+
+export function setupScramjet(): Promise<void> {
+  if (scramjetReady) return scramjetReady;
+
+  scramjetReady = (async () => {
+    const { Controller, config } = $scramjetController;
+
+    config.prefix = "/scram/service/";
+    config.scramjetPath = "/scram/scramjet.js";
+    config.wasmPath = "/scram/scramjet.wasm";
+    config.injectPath = "/scramjet/controller.inject.js";
+
+    const [registration, transport] = await Promise.all([
+      navigator.serviceWorker.ready,
+      createScramjetTransport(),
+    ]);
+
+    const controller = new Controller({
+      serviceworker: registration.active!,
+      transport,
+    });
+    await controller.wait();
+    scramjetController = controller;
+
+    window.$scramjet = { controller };
+
+    console.log("Scramjet controller initialized at", controller.prefix);
+  })();
+
+  return scramjetReady;
+}
+
+export async function scramjetGo(
+  iframe: HTMLIFrameElement,
+  url: string,
+): Promise<void> {
+  await setupScramjet();
+  if (!scramjetController) throw new Error("Scramjet controller is not ready.");
+
+  let frame = scramjetFrames.get(iframe);
+  if (!frame) {
+    frame = scramjetController.createFrame(iframe);
+    scramjetFrames.set(iframe, frame);
+  }
+  frame.go(url);
 }
 
 // get the Holy Unblocker bare endpoint
