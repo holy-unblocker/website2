@@ -183,7 +183,7 @@ const engine = searchEngines[searchEngine];
 
     // set src using search params
     // allow querying omnibox
-    // eg: https://holyubofficial.net/?q=hello+world will search for "Hello World"
+    // eg: https://holyunb.locker/?q=hello+world will search for "Hello World"
     const query = new URLSearchParams(location.search).get("q");
     if (typeof query === "string") {
       const newParams = new URLSearchParams(location.search);

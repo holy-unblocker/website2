@@ -1,8 +1,8 @@
 // This config is only loaded on the serverside and should never be used on the client.
 
 // Example configuration:
-// - no local db operations, mirrors holyubofficial.net for game database
-// - not hosting theatre files locally, mirrors holyubofficial.net for thumbnails and game files
+// - no local db operations, mirrors holyunb.locker for game database
+// - not hosting theatre files locally, mirrors holyunb.locker for thumbnails and game files
 // - hosts wisp-server-node
 
 /**
@@ -24,7 +24,7 @@ export const appConfig = {
 
   // specifies a mirror for the theatre api
   // this mirror is used if there are no database credentials
-  theatreApiMirror: "https://holyubofficial.net/api/theatre/",
+  theatreApiMirror: "https://holyunb.locker/api/theatre/",
   // specifies a holy unblocker theatre mirror
   theatreFilesMirror: "https://holy-unblocker.github.io/theatre/public/",
 
@@ -35,7 +35,7 @@ export const appConfig = {
 
   // wisp server url
   // If not specified, it will host wisp locally on /api/wisp
-  // holyubofficial.net hosts wisp on the `api.` subdomain
+  // holyunb.locker hosts wisp on the `api.` subdomain
   // string vars are calculated on the client-side, not by astro!!
   // - %{ws} - `ws:` or `wss:` depending on whether the location is http: or https:
   // - %{host} - the website host with the port appended, eg `127.0.0.1:4321`
@@ -46,7 +46,7 @@ export const appConfig = {
 
   // SUPPORT EMAIL
   // shown on /contact
-  //supportEmail: "support@holyubofficial.net",
+  //supportEmail: "support@holyunb.locker",
 
   // a link to the main Holy Unblocker website
   // - is a hostname, doesn't include the port
@@ -54,7 +54,7 @@ export const appConfig = {
   // - used to not automatically set a cloak
   // - used to determine if metadata should be inserted
   // - used to determine if x-robots-tag should be set
-  mainWebsite: "holyubofficial.net",
+  mainWebsite: "holyunb.locker",
 
   // POSTGRES DATABASE CONFIG
   // if no credentials are specified, it will proxy the mirror
@@ -112,7 +112,7 @@ export const appConfig = {
   //  botToken: "DISCORD BOT TOKEN HERE",
   //  clientId: "OAUTH CLIENT ID",
   //  clientSecret: "OAUTH CLIENT SECRET",
-  //  clientRedirectURI: "https://holyubofficial.net/pro/linkdiscord",
+  //  clientRedirectURI: "https://holyunb.locker/pro/linkdiscord",
   //  guildId: "1263780452356063273", // holy unblocker's discord server
   //  roleIds: {
   //    premium: "1264613836040835093", // premium subscribers
@@ -140,11 +140,11 @@ export const appConfig = {
   //  },
   // people can contact us via our support email
   //  sender: {
-  //    address: "support@holyubofficial.net",
+  //    address: "support@holyunb.locker",
   //    name: "Holy Unblocker Team",
   //  },
   //  // email to send verifications from
-  //  noreply: "noreply@holyubofficial.net",
+  //  noreply: "noreply@holyunb.locker",
   //},
 
   // general website links
