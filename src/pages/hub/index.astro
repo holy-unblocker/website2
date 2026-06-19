@@ -11,12 +11,20 @@ import { dbEnabled, theatreAPI, theatreAPIMirror } from "@lib/theatre";
 import type { ListData, TheatreEntryMin } from "@lib/TheatreAPI";
 import TheatreItem from "@components/TheatreItem.astro";
 import TheatreCategory from "@components/TheatreCategory.astro";
+import ThemeSelect from "@components/ThemeSelect.astro";
 import Banner from "@components/Banner.astro";
 import TheatrePlayer from "@components/TheatrePlayer.astro";
 
 const entryLimit = 15;
 
 // const categoryQuery = categories.map((category) => category.id).join(",");
+
+const sortOptions = [
+  { name: "Most Popular", value: "mostPopular" },
+  { name: "Least Popular", value: "leastPopular" },
+  { name: "Name (A-Z)", value: "nameASC" },
+  { name: "Name (Z-A)", value: "nameDESC" },
+];
 
 let error: string | undefined;
 let data: ListData | undefined;
@@ -25,10 +33,38 @@ const v = Astro.url.searchParams.get("v");
 
 const q = Astro.url.searchParams.get("q");
 
+const sortParam = Astro.url.searchParams.get("sort");
+const sort =
+  typeof sortParam === "string" &&
+  sortOptions.some((e) => e.value === sortParam)
+    ? sortParam
+    : "mostPopular";
+
+let apiSort: string | undefined;
+let apiOrder: string | undefined;
+switch (sort) {
+  case "leastPopular":
+    apiSort = "plays";
+    apiOrder = "asc";
+    break;
+  case "mostPopular":
+    apiSort = "plays";
+    break;
+  case "nameASC":
+    apiSort = "name";
+    apiOrder = "asc";
+    break;
+  case "nameDESC":
+    apiSort = "name";
+    apiOrder = "desc";
+    break;
+}
+
 if (v === null)
   try {
     data = await (dbEnabled ? theatreAPI : theatreAPIMirror).list({
-      sort: "plays",
+      sort: apiSort,
+      order: apiOrder,
       limitPerCategory: entryLimit,
       search: q,
     });
@@ -87,6 +123,9 @@ if (data !== undefined) {
           <TheatreSearchBar />
           <main class={styles.main}>
             <Banner error={error} />
+            <div class={styles.name} style="justify-content: flex-end">
+              <ThemeSelect options={sortOptions} id="sort" value={sort} />
+            </div>
             {renderCategories.map(({ category, entries }) => (
               <section class={styles.expand}>
                 <div class={styles.name}>
@@ -121,3 +160,19 @@ if (data !== undefined) {
     <TheatrePlayer id={v} />
   )
 }
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const sortInput = document.querySelector<HTMLInputElement>("#sort");
+    if (sortInput === null) return;
+
+    sortInput.addEventListener("change", () => {
+      const params = new URLSearchParams(location.search);
+      if (sortInput.value === "mostPopular") params.delete("sort");
+      else params.set("sort", sortInput.value);
+      const st = params.toString();
+      location.href = st === "" ? location.pathname : `${location.pathname}?${st}`;
+    });
+  });
+</script>
+
