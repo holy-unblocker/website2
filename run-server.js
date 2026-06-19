@@ -64,8 +64,8 @@ for (const dep of [
   "@mercuryworkshop/scramjet",
   "@mercuryworkshop/scramjet-controller",
   "@mercuryworkshop/scramjet-utils",
+  "@mercuryworkshop/wisp-js",
   "@titaniumnetwork-dev/ultraviolet",
-  "wisp-server-node",
 ])
   console.log(
     " - " +
