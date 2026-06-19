@@ -4,7 +4,6 @@ import node from "@astrojs/node";
 import { defineConfig } from "astro/config";
 import { svgr } from "./svgmin.mjs";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
-import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
 import { bareModulePath } from "@mercuryworkshop/bare-as-module3";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { createRequire } from "node:module";
@@ -54,7 +53,7 @@ export default defineConfig({
             overwrite: false,
           },
           {
-            src: epoxyPath,
+            src: "node_modules/@mercuryworkshop/epoxy-transport/dist/*",
             dest: "epoxy",
             rename: { stripBase: true },
             overwrite: false,
