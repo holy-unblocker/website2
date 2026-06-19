@@ -3,6 +3,8 @@
  * This file should only contain SCSS mixins and variables
  */
 
+@use "sass:color";
+
 // Fonts and fallbacks
 $MontserratAlternates: "Montserrat Alternates", "Arial", "sans-serif";
 $Lato: "Lato", "Helvetica Neue", "Helvetica", "Arial", "sans-serif";
@@ -14,8 +16,9 @@ $nav-height: 70px;
 $nav-height-border: 71px;
 
 @function offsetHex($color, $ness) {
-  @return "rgb(" + (red($color) + $ness) + ", " + (green($color) + $ness) +
-    ", " + (blue($color) + $ness) + ")";
+  @return "rgb(" + (color.channel($color, "red", $space: rgb) + $ness) + ", " +
+    (color.channel($color, "green", $space: rgb) + $ness) + ", " +
+    (color.channel($color, "blue", $space: rgb) + $ness) + ")";
 }
 
 @mixin screenMobile {

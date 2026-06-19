@@ -1,5 +1,5 @@
 /* a lot of this is still being adapted */
-@import "./common.scss";
+@use "./common.scss" as *;
 
 .prettyinput[readonly] {
   cursor: default;

@@ -1,7 +1,7 @@
 // encrypting/decrypt parts of the URL
 // particularly proxy,compat
 import { fromBase64, toBase64 } from "@smithy/util-base64";
-import { cbc } from "@noble/ciphers/aes";
+import { cbc } from "@noble/ciphers/aes.js";
 
 let key: Uint8Array | undefined;
 

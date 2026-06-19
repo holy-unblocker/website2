@@ -1,6 +1,6 @@
 @use "sass:map";
-@import "./nord.scss";
-@import "./common.scss";
+@use "./common.scss" as *;
+@use "./nord.scss" as *;
 
 /*
 Design for dark theme first.

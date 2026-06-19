@@ -1,7 +1,7 @@
 ---
 import styles from "@styles/Subscriber.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
-import { authenticator } from "otplib";
+import { generate, verify } from "otplib";
 import { db } from "@config/apis";
 import Banner from "@components/Banner.astro";
 
@@ -27,13 +27,13 @@ if (Astro.request.method === "POST")
           if (
             typeof token !== "string" ||
             (token !== user.totp_backup_code &&
-              !authenticator.verify({ token, secret: user.totp_secret! }))
+              !verify({ token, secret: user.totp_secret! }))
           ) {
             error = "Incorrect 2FA code, please try again.";
           } else {
             await db.query(
               "UPDATE session SET totp_verified = true WHERE user_id = $1;",
-              [user.id]
+              [user.id],
             );
             return acc.toDash();
           }
@@ -49,7 +49,7 @@ if (user.totp_secret !== null)
     "DEBUG 2FA CODE:",
     user.email,
     user.totp_backup_code,
-    authenticator.generate(user.totp_secret)
+    generate({ secret: user.totp_secret }),
   );
 ---
 

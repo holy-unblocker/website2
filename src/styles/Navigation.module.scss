@@ -1,4 +1,4 @@
-@import "./common.scss";
+@use "./common.scss" as *;
 
 .nav > .logo,
 .content > .menu > .top > .logo {

@@ -1,4 +1,4 @@
-@import "./common.scss";
+@use "./common.scss" as *;
 
 html {
   background-color: var(--background);

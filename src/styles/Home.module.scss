@@ -1,7 +1,7 @@
 @use "sass:map";
-@import "./common.scss";
-@import "./nord.scss";
-@import "@fontsource/catamaran";
+@use "./common.scss" as *;
+@use "./nord.scss" as *;
+@use "@fontsource/catamaran" as *;
 
 $homeNight: (
   home-pretty: #bfd1f3,

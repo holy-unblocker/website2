@@ -2,7 +2,7 @@
 import themeStyles from "@styles/ThemeElements.module.scss";
 import styles from "@styles/Subscriber.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
-import { authenticator } from "otplib";
+import { generate, generateSecret, generateURI, verify } from "otplib";
 import { db } from "@config/apis";
 import crypto from "node:crypto";
 import qrcode from "qrcode";
@@ -38,7 +38,7 @@ if (Astro.request.method === "POST")
           } else if (
             typeof token !== "string" ||
             (token !== user.totp_backup_code &&
-              !authenticator.verify({ token, secret: user.totp_secret! }))
+              !verify({ token, secret: user.totp_secret! }))
           ) {
             error = "Incorrect 2FA code, please try again.";
           } else {
@@ -47,7 +47,7 @@ if (Astro.request.method === "POST")
             user.totp_backup_code = null;
             await db.query(
               "UPDATE users SET totp_enabled = null, totp_backup_code = null WHERE id = $1;",
-              [user.id]
+              [user.id],
             );
             success = "2FA disabled.";
           }
@@ -63,7 +63,7 @@ if (Astro.request.method === "POST")
             error = "2FA secret not ready";
           } else if (
             typeof token !== "string" ||
-            !authenticator.verify({ token, secret: user.totp_secret })
+            !verify({ token, secret: user.totp_secret })
           ) {
             error = "Incorrect 2FA code, please try again.";
             genNewCode = false;
@@ -74,13 +74,13 @@ if (Astro.request.method === "POST")
             user.totp_backup_code = backupCode;
             await db.query(
               "UPDATE users SET totp_enabled = $1, totp_backup_code = $2 WHERE id = $3;",
-              [user.totp_enabled, user.totp_backup_code, user.id]
+              [user.totp_enabled, user.totp_backup_code, user.id],
             );
             success = "2FA enabled.";
             user.session.totp_verified = true;
             await db.query(
               "UPDATE session SET totp_verified = true WHERE user_id = $1;",
-              [user.id]
+              [user.id],
             );
           }
         }
@@ -91,18 +91,18 @@ if (Astro.request.method === "POST")
   }
 
 if (!user.totp_enabled && genNewCode) {
-  user.totp_secret = authenticator.generateSecret();
+  user.totp_secret = generateSecret();
   await db.query("UPDATE users SET totp_secret = $1 WHERE id = $2;", [
     user.totp_secret,
     user.id,
   ]);
 }
 
-const otpauth = authenticator.keyuri(
-  user.email,
-  "Holy Unblocker",
-  user.totp_secret!
-);
+const otpauth = generateURI({
+  issuer: "Holy Unblocker",
+  label: user.email,
+  secret: user.totp_secret!,
+});
 const qr = await qrcode.toDataURL(otpauth);
 
 if (user.totp_secret !== null)
@@ -110,7 +110,7 @@ if (user.totp_secret !== null)
     "DEBUG 2FA CODE:",
     user.email,
     user.totp_backup_code,
-    authenticator.generate(user.totp_secret)
+    generate({ secret: user.totp_secret }),
   );
 ---
 

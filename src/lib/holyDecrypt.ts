@@ -1,6 +1,6 @@
 // loaded on client
 import { fromBase64 } from "@smithy/util-base64";
-import { cbc } from "@noble/ciphers/aes";
+import { cbc } from "@noble/ciphers/aes.js";
 
 let key: Uint8Array;
 
