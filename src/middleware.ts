@@ -66,16 +66,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
     : "https:";
   context.locals.origin = proto + "//" + context.url.host;
 
-  // The `domain` cookie attribute must be a real dotted hostname. localhost,
-  // IPv4 addresses and (bracketed) IPv6 addresses are rejected by the `cookie`
-  // library, so omit `domain` for those and let it default to the current host.
-  const cookieDomain =
-    !context.url.hostname.includes(".") ||
-    /^[0-9.]+$/.test(context.url.hostname) ||
-    context.url.hostname.includes(":")
-      ? undefined
-      : context.url.hostname;
-
   // context.locals.obfus = new HolyObfuscator(context.url.hostname, context.locals.isMainWebsite);
 
   context.locals.isMainWebsite =
@@ -93,7 +83,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     if (validBareServer) {
       context.cookies.set("bareServer", newBareServer as string, {
-        domain: cookieDomain,
+        domain: context.url.hostname,
         sameSite: "lax",
         path: "/",
         maxAge: maxAgeLimit,
@@ -105,7 +95,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       // clear the cookie
       if (context.cookies.has("bareServer"))
         context.cookies.set("bareServer", "", {
-          domain: cookieDomain,
+          domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
           expires: new Date(0), // set it to as old as possible!!
@@ -128,7 +118,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     if (validWispServer) {
       context.cookies.set("wispServer", newWispServer as string, {
-        domain: cookieDomain,
+        domain: context.url.hostname,
         sameSite: "lax",
         path: "/",
         maxAge: maxAgeLimit,
@@ -140,7 +130,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       // clear the cookie
       if (context.cookies.has("wispServer"))
         context.cookies.set("wispServer", "", {
-          domain: cookieDomain,
+          domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
           expires: new Date(0), // set it to as old as possible!!
@@ -167,7 +157,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         "cloak",
         new URLSearchParams({ ...cloak }).toString(),
         {
-          domain: cookieDomain,
+          domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
           maxAge: maxAgeLimit,
@@ -179,7 +169,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       // clear the cloak
       if (context.cookies.has("cloak"))
         context.cookies.set("cloak", "", {
-          domain: cookieDomain,
+          domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
           expires: new Date(0), // as old as possible
@@ -212,7 +202,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // indicate that the cloak was already randomly picked
   context.cookies.set("autoCloak", "1", {
-    domain: cookieDomain,
+    domain: context.url.hostname,
     sameSite: "lax",
     path: "/",
     maxAge: maxAgeLimit,
@@ -227,7 +217,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     if (validTheme) {
       context.cookies.set("theme", newTheme as string, {
-        domain: cookieDomain,
+        domain: context.url.hostname,
         sameSite: "lax",
         path: "/",
         maxAge: maxAgeLimit,
@@ -239,7 +229,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       // clear the cookie
       if (context.cookies.has("theme"))
         context.cookies.set("theme", "", {
-          domain: cookieDomain,
+          domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
           expires: new Date(0), // set it to as old as possible!!
@@ -260,7 +250,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     if (validTransport) {
       context.cookies.set("trans", newProxyTransport as string, {
-        domain: cookieDomain,
+        domain: context.url.hostname,
         sameSite: "lax",
         path: "/",
         maxAge: maxAgeLimit,
@@ -272,7 +262,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       // clear the cookie
       if (context.cookies.has("trans"))
         context.cookies.set("trans", "", {
-          domain: cookieDomain,
+          domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
           expires: new Date(0), // set it to as old as possible!!
@@ -293,7 +283,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     if (validEngine) {
       context.cookies.set("engine", newProxyEngine as string, {
-        domain: cookieDomain,
+        domain: context.url.hostname,
         sameSite: "lax",
         path: "/",
         maxAge: maxAgeLimit,
@@ -363,7 +353,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       validSearchEngine = true;
     if (validSearchEngine) {
       context.cookies.set("srch", (newSearchEngine as number).toString(), {
-        domain: cookieDomain,
+        domain: context.url.hostname,
         sameSite: "lax",
         path: "/",
         maxAge: maxAgeLimit,
@@ -375,7 +365,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       // clear the cookie
       if (context.cookies.has("srch"))
         context.cookies.set("srch", "", {
-          domain: cookieDomain,
+          domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
           expires: new Date(0), // set it to as old as possible!!
@@ -415,7 +405,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // set the session
     if (typeof secret === "string") {
       context.cookies.set("session", secret, {
-        domain: cookieDomain,
+        domain: context.url.hostname,
         sameSite: "lax",
         path: "/pro/",
         maxAge: staySignedIn ? maxAgeLimit : undefined,
@@ -428,7 +418,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       // clear the session
       if (context.cookies.has("session"))
         context.cookies.set("session", "", {
-          domain: cookieDomain,
+          domain: context.url.hostname,
           sameSite: "lax",
           path: "/pro/",
           expires: new Date(0), // set it to as old as possible!!

@@ -1,11 +1,6 @@
 import styles from "@styles/TheatreCategory.module.scss";
 import TheatreAPI, { type TheatreEntryMin } from "@lib/TheatreAPI";
-import type { ListData, ListOptions } from "@lib/TheatreAPI";
-
-// minimal shape shared by the client TheatreAPI and the server StaticTheatre
-interface TheatreLister {
-  list(options: ListOptions, signal?: AbortSignal): Promise<ListData>;
-}
+import type TheatreWrapper from "@lib/TheatreWrapper";
 
 // this script is shared by the server to do SSR fetching
 // and on the client for rendering items
@@ -42,7 +37,7 @@ export function renderTheatreItem(item?: TheatreEntryMin) {
 }
 
 export async function fetchListData(
-  api: TheatreLister,
+  api: TheatreAPI | TheatreWrapper,
   search: string | undefined | null,
   category: string[] | undefined | null,
   sort: string | undefined | null,

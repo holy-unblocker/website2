@@ -1,11 +1,16 @@
-import StaticTheatre from "./StaticTheatre";
-import type TheatreAPI from "./TheatreAPI";
+import { db, dbEnabled } from "@config/apis";
+import { appConfig } from "@config/config";
+import TheatreWrapper from "./TheatreWrapper";
+import TheatreAPI from "./TheatreAPI";
 
-// Game data is served statically from config/games.json (no Postgres).
-// `dbEnabled` is kept true so existing consumers use the local data source
-// (`theatreAPI`) rather than proxying the remote mirror.
-export const dbEnabled = true;
+export { dbEnabled };
 
-export const theatreAPI: StaticTheatre = new StaticTheatre();
+// extra wrappers for theatre stuff
 
-export const theatreAPIMirror: TheatreAPI = undefined as any;
+export const theatreAPI: TheatreWrapper = dbEnabled
+  ? new TheatreWrapper(db)
+  : (undefined as any);
+
+export const theatreAPIMirror: TheatreAPI = dbEnabled
+  ? (undefined as any)
+  : new TheatreAPI(appConfig.theatreApiMirror);
