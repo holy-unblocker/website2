@@ -56,6 +56,12 @@ export const appConfig = {
   // - used to determine if x-robots-tag should be set
   mainWebsite: "holyunb.locker",
 
+  // GOOGLE ADSENSE
+  // your AdSense publisher ID, eg "ca-pub-XXXXXXXXXXXXXXXX"
+  // if specified, the adsbygoogle.js snippet is added to the page head
+  // (only on the main website)
+  //adsenseClient: "ca-pub-XXXXXXXXXXXXXXXX",
+
   // POSTGRES DATABASE CONFIG
   // if no credentials are specified, it will proxy the mirror
   // optionally string

@@ -87,6 +87,13 @@ const { cloak } = Astro.locals;
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="og:image" content="/tnbanner.jpg" />
           <link rel="sitemap" href="/sitemap-index.xml" />
+          {appConfig.adsenseClient && (
+            <script
+              async
+              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${appConfig.adsenseClient}`}
+              crossorigin="anonymous"
+            />
+          )}
         </>
       ) : (
         <>
@@ -268,13 +275,13 @@ const { cloak } = Astro.locals;
       document.addEventListener("keydown", keydown);
 
       for (const nav of document.querySelectorAll<HTMLAnchorElement>(
-        "[data-nav]"
+        "[data-nav]",
       ))
         nav.addEventListener("click", () => setNavExpanded(false));
 
       document.addEventListener("astro:page-load", () => {
         for (const setting of document.querySelectorAll<HTMLAnchorElement>(
-          "a[data-nav]"
+          "a[data-nav]",
         ))
           if (new URL(setting.href).pathname === location.pathname)
             setting.setAttribute("data-selected", "");

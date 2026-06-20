@@ -26,6 +26,7 @@ export interface AppConfig {
       };
   supportEmail: string;
   mainWebsite: string;
+  adsenseClient?: string;
   stripe: {
     secret: string;
     webhookEndpointSecret: string;
