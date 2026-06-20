@@ -295,7 +295,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       // clear the cookie
       if (context.cookies.has("engine"))
         context.cookies.set("engine", "", {
-          domain: cookieDomain,
+          domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
           expires: new Date(0), // set it to as old as possible!!
@@ -314,7 +314,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     if (enabled) {
       context.cookies.set("adblock", "1", {
-        domain: cookieDomain,
+        domain: context.url.hostname,
         sameSite: "lax",
         path: "/",
         maxAge: maxAgeLimit,
@@ -326,7 +326,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       // clear the cookie
       if (context.cookies.has("adblock"))
         context.cookies.set("adblock", "", {
-          domain: cookieDomain,
+          domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
           expires: new Date(0), // set it to as old as possible!!
