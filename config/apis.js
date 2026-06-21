@@ -71,6 +71,7 @@ if (!accountsEnabled) {
 
   for (const prop of ["stripe", "docker", "mailer", "discord"])
     traps[prop] = {
+      enumerable: false,
       get: () => {
         throw new TypeError(
           `Tried to get appConfig.${prop}, but stripe support isn't enabled.`,
