@@ -598,8 +598,8 @@ const initialSelectedId = Astro.params.id ?? null;
           pendingThumbnail = null;
         }
         updateCachedEntry(json);
-        showSuccess(id ? "Theatre entry updated." : "Theatre entry created.");
-        refreshVisibleList();
+        // re-sync the sidebar from the server so names/plays/order stay current
+        await refreshList();
         setForm(json);
         if (selectedId === json.id) refreshThumbnail();
         // a freshly created entry now has a url of its own
@@ -736,7 +736,6 @@ const initialSelectedId = Astro.params.id ?? null;
         pendingThumbnail = file;
         thumbnailPreview.src = URL.createObjectURL(file);
         thumbnailPreview.style.opacity = "1";
-        showSuccess("Thumbnail will be uploaded when you save.");
         thumbnailInput.value = "";
         return;
       }

@@ -43,6 +43,7 @@ export const POST: APIRoute = async (context) => {
       body.src,
       body.category,
       body.controls,
+      typeof body.plays === "number" ? body.plays : undefined,
     );
 
     return new Response(JSON.stringify(entry), {

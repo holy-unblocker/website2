@@ -226,6 +226,7 @@ export default class TheatreWrapper {
     src: TheatreEntry["src"],
     category: TheatreEntry["category"],
     controls: TheatreEntry["controls"],
+    plays?: TheatreEntry["plays"],
   ) {
     const entry = {
       id: Math.random().toString(36).slice(2),
@@ -233,7 +234,7 @@ export default class TheatreWrapper {
       type,
       category,
       src,
-      plays: 0,
+      plays: typeof plays === "number" ? Math.max(0, Math.trunc(plays)) : 0,
       controls,
     };
 
