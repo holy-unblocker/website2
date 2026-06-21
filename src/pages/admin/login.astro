@@ -3,6 +3,7 @@ import MainLayout from "@layouts/MainLayout.astro";
 import Banner from "@components/Banner.astro";
 import InputPassword from "@components/InputPassword.astro";
 import styles from "@styles/TheatreAdmin.module.scss";
+import subStyles from "@styles/Subscriber.module.scss";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import { loginAdmin, canBootstrapTheatreAdmin } from "@lib/admin";
 
@@ -10,6 +11,10 @@ const { user } = Astro.locals;
 if (user && user.admin) return Astro.redirect("/admin/theatre", 302);
 
 const canSignup = await canBootstrapTheatreAdmin();
+
+// when signup is enabled and no admin exists yet, send people straight to it
+if (canSignup && Astro.request.method !== "POST")
+  return Astro.redirect("/admin/signup", 302);
 
 let error: string | undefined;
 let email: string | undefined;
@@ -40,7 +45,7 @@ if (Astro.request.method === "POST")
       <label class={styles.field}>
         <span>Email</span>
         <input
-          class={styles.input}
+          class={subStyles.prettyinput}
           type="email"
           name="email"
           value={email}

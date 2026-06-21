@@ -3,6 +3,7 @@ import MainLayout from "@layouts/MainLayout.astro";
 import Banner from "@components/Banner.astro";
 import InputPassword from "@components/InputPassword.astro";
 import styles from "@styles/TheatreAdmin.module.scss";
+import subStyles from "@styles/Subscriber.module.scss";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import { signupAdmin, canBootstrapTheatreAdmin } from "@lib/admin";
 
@@ -46,7 +47,7 @@ if (Astro.request.method === "POST")
       <label class={styles.field}>
         <span>Email</span>
         <input
-          class={styles.input}
+          class={subStyles.prettyinput}
           type="email"
           name="email"
           value={email}
