@@ -232,6 +232,8 @@ const initialSelectedId = Astro.params.id ?? null;
     const entries = new Map();
     let selectedId = null;
     let selectedCategories = [];
+    // a validated thumbnail staged before a new entry exists; uploaded on save
+    let pendingThumbnail = null;
 
     const initialEntries = initialData.entries || [];
     for (const entry of initialEntries) entries.set(entry.id, entry);
@@ -505,7 +507,9 @@ const initialSelectedId = Astro.params.id ?? null;
         thumbnailPreview.removeAttribute("src");
         thumbnailPreview.style.opacity = "0";
       }
-      // upload is only possible once the entry has an id; remove only when saved
+      // switching entries discards any thumbnail staged for a new entry
+      pendingThumbnail = null;
+      // upload works for both new (staged) and saved entries; remove needs a saved one
       if (uploadThumbnail) uploadThumbnail.disabled = false;
       if (removeThumbnail) removeThumbnail.disabled = !entry;
       previewName.textContent = entry?.name || "Untitled entry";
@@ -588,10 +592,16 @@ const initialSelectedId = Astro.params.id ?? null;
         });
         const json = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(json.message || "Unable to save theatre entry.");
+        // upload any thumbnail that was staged before the entry existed
+        if (!id && pendingThumbnail) {
+          await uploadThumbnailFor(json.id, pendingThumbnail);
+          pendingThumbnail = null;
+        }
         updateCachedEntry(json);
         showSuccess(id ? "Theatre entry updated." : "Theatre entry created.");
         refreshVisibleList();
         setForm(json);
+        if (selectedId === json.id) refreshThumbnail();
         // a freshly created entry now has a url of its own
         const path = `/admin/theatre/${encodeURIComponent(json.id)}`;
         if (location.pathname !== path)
@@ -692,16 +702,24 @@ const initialSelectedId = Astro.params.id ?? null;
       });
     }
 
+    // uploads a validated webp to a given entry id
+    async function uploadThumbnailFor(id, file) {
+      const body = new FormData();
+      body.append("thumbnail", file);
+      const res = await fetch(
+        `/api/theatre/${encodeURIComponent(id)}/thumbnail`,
+        { method: "PUT", body },
+      );
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.message || "Unable to upload thumbnail.");
+    }
+
     uploadThumbnail?.addEventListener("click", () => {
-      if (!selectedId) {
-        showError("Save the entry before uploading a thumbnail.");
-        return;
-      }
       thumbnailInput.click();
     });
     thumbnailInput?.addEventListener("change", async () => {
       const file = thumbnailInput.files && thumbnailInput.files[0];
-      if (!file || !selectedId) {
+      if (!file) {
         thumbnailInput.value = "";
         return;
       }
@@ -713,15 +731,18 @@ const initialSelectedId = Astro.params.id ?? null;
         return;
       }
 
+      // no entry yet: stage the file and preview it locally; uploaded on save
+      if (!selectedId) {
+        pendingThumbnail = file;
+        thumbnailPreview.src = URL.createObjectURL(file);
+        thumbnailPreview.style.opacity = "1";
+        showSuccess("Thumbnail will be uploaded when you save.");
+        thumbnailInput.value = "";
+        return;
+      }
+
       try {
-        const body = new FormData();
-        body.append("thumbnail", file);
-        const res = await fetch(
-          `/api/theatre/${encodeURIComponent(selectedId)}/thumbnail`,
-          { method: "PUT", body },
-        );
-        const json = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(json.message || "Unable to upload thumbnail.");
+        await uploadThumbnailFor(selectedId, file);
         showSuccess("Thumbnail uploaded.");
         refreshThumbnail();
       } catch (err) {
