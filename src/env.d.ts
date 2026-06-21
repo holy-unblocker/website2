@@ -57,6 +57,9 @@ namespace App {
     // returns true if valid wisp server url, false if invalid
     setWispServer: (newWispServer?: string | null) => boolean;
     proxyMode: string;
+    proxyRoutes: ReturnType<
+      typeof import("@lib/proxyRoutes.js").getProxyRouteMap
+    >;
     setProxyMode: (newProxyMode?: string | null) => boolean;
     searchEngine: number;
     setSearchEngine: (newSearchEngine?: string | number | null) => boolean;
@@ -106,14 +109,6 @@ namespace App {
 
 declare var wisp_api: string;
 declare var theatre_cdn: string;
-
-interface ScramjetGlobal {
-  controller: InstanceType<typeof $scramjetController.Controller>;
-}
-
-interface Window {
-  $scramjet?: ScramjetGlobal;
-}
 
 // dynamic api for the banner component
 interface BannerAPI {

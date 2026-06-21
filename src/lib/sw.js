@@ -82,7 +82,7 @@ function uvTargetHostname(reqUrl) {
 const blocked = () => new Response(new Blob(), { status: 406 });
 
 self.addEventListener("fetch", (event) => {
-  // Scramjet handles its own prefix (/scram/service/ routes)
+  // Scramjet handles its own service prefix.
   if (
     typeof $scramjetController !== "undefined" &&
     $scramjetController.shouldRoute(event)

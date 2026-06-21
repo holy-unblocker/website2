@@ -11,6 +11,12 @@ import engines from "@lib/searchEngines";
 import { getRandomCloak, type AppCloak } from "@lib/cloak";
 import { appConfig } from "@config/config";
 import crypto from "node:crypto";
+import {
+  createProxyRouteSeed,
+  getProxyRouteMap,
+  proxyRouteCookie,
+  proxyRouteCookieMaxAge,
+} from "@lib/proxyRoutes.js";
 
 // 400 days in seconds
 const maxAgeLimit = 60 * 60 * 24 * 400;
@@ -65,6 +71,20 @@ export const onRequest = defineMiddleware(async (context, next) => {
     ? "http:"
     : "https:";
   context.locals.origin = proto + "//" + context.url.host;
+
+  let proxyRouteSeed = context.cookies.get(proxyRouteCookie)?.value;
+  if (!proxyRouteSeed) {
+    proxyRouteSeed = createProxyRouteSeed();
+    context.cookies.set(proxyRouteCookie, proxyRouteSeed, {
+      domain: context.url.hostname,
+      sameSite: "lax",
+      path: "/",
+      maxAge: proxyRouteCookieMaxAge,
+      secure: true,
+      httpOnly: true,
+    });
+  }
+  context.locals.proxyRoutes = getProxyRouteMap(proxyRouteSeed);
 
   // context.locals.obfus = new HolyObfuscator(context.url.hostname, context.locals.isMainWebsite);
 

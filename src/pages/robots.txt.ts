@@ -6,6 +6,8 @@ export const GET: APIRoute = ({ url, locals }) => {
 Allow: /
 Disallow: /~/
 Disallow: /uv/
+Disallow: ${locals.proxyRoutes.paths.uvService}
+Disallow: ${locals.proxyRoutes.paths.scramService}
 Disallow: /cdn/
 Disallow: /api/
 Sitemap: https://${url.host}/sitemap-index.xml`

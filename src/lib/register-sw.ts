@@ -1,8 +1,7 @@
 /// <reference types="@mercuryworkshop/scramjet-controller" />
 import { BareMuxConnection } from "@mercuryworkshop/bare-mux";
 
-// will register /sw.js and setup bare mux
-// reloads the page to activate the sw.js if it wasn't registered
+// registers the randomized service worker and sets up BareMux.
 export async function setupServiceWorker() {
   // add your network hostname here or whatever
   // this is any page that does NOT have http: but can register a serviceworker
@@ -23,7 +22,8 @@ export async function setupServiceWorker() {
       throw new Error("Incognito was enabled.");
     } else throw new Error("Your browser doesn't support service workers.");
   }
-  const swUrl = getAdblock() ? "/sw.js?adblock=1" : "/sw.js";
+  const swPath = getProxyRoutes().paths.serviceWorker;
+  const swUrl = getAdblock() ? `${swPath}?adblock=1` : swPath;
 
   const reg = await navigator.serviceWorker.getRegistration();
   if (reg) {
@@ -34,14 +34,39 @@ export async function setupServiceWorker() {
       "";
     const wantAdblock = swUrl.includes("adblock=1");
     const hasAdblock = activeUrl.includes("adblock=1");
-    if (wantAdblock !== hasAdblock) {
-      await navigator.serviceWorker.register(swUrl);
-      console.log("Service worker re-registered (adblock toggled)");
+
+    // Check the active registration points at the same seeded script. If the
+    // user lost their scope/seed cookie, the seeded path changes, so the
+    // existing scriptURL won't match swPath and we must re-register.
+    let samePath = false;
+    if (activeUrl) {
+      try {
+        samePath = new URL(activeUrl).pathname === swPath;
+      } catch {
+        samePath = false;
+      }
+    }
+
+    if (wantAdblock !== hasAdblock || !samePath) {
+      await navigator.serviceWorker.register(swUrl, {
+        scope: "/",
+        updateViaCache: "none",
+      });
+      console.log(
+        !samePath
+          ? "Service worker re-registered (script path changed)"
+          : "Service worker re-registered (adblock toggled)",
+      );
+    } else {
+      await reg.update();
     }
     await navigator.serviceWorker.ready;
     console.log("Service worker registered");
   } else {
-    await navigator.serviceWorker.register(swUrl);
+    await navigator.serviceWorker.register(swUrl, {
+      scope: "/",
+      updateViaCache: "none",
+    });
     console.log("Service worker registered");
     // console.log("Reloading the page to activate it.");
     // setTimeout(() => location.reload(), 100);
@@ -55,7 +80,8 @@ export async function setupBareMux() {
       "Your browser doesn't support the 'SharedWorker' API. Ultraviolet currently doesn't work on mobile. Sorry!",
     );
 
-  const connection = new BareMuxConnection("/baremux/worker.js");
+  const routes = getProxyRoutes();
+  const connection = new BareMuxConnection(routes.assets.baremuxWorker);
 
   const ele = document.getElementById("configThing")!;
   const transport = ele.getAttribute("data-transport")!;
@@ -64,12 +90,14 @@ export async function setupBareMux() {
   if (transport === "epoxy") {
     const wispUrl = getWispUrl();
     console.log("Using wisp at", wispUrl);
-    await connection.setTransport("/epoxy/index.mjs", [{ wisp: wispUrl }]);
+    await connection.setTransport(routes.assets.epoxyIndex, [
+      { wisp: wispUrl },
+    ]);
     console.log("Transport set!");
   } else {
     const bareUrl = getBareUrl();
     console.log("Using bare at", bareUrl);
-    await connection.setTransport("/baremod/index.mjs", [bareUrl]);
+    await connection.setTransport(routes.assets.baremodIndex, [bareUrl]);
     console.log("Transport set!");
   }
 }
@@ -98,58 +126,19 @@ async function createScramjetTransport() {
   const ele = document.getElementById("configThing")!;
   const transport = ele.getAttribute("data-transport")!;
   const wispUrl = getWispUrl();
+  const routes = getProxyRoutes();
 
   const dynamicImport = (specifier: string): Promise<any> =>
     import(/* @vite-ignore */ specifier);
 
-  if (transport === "epoxy") {
-    const { default: EpoxyClient } = await dynamicImport("/epoxy/index.mjs");
-    console.log("Scramjet using epoxy wisp at", wispUrl);
-    const client = new EpoxyClient({ wisp: wispUrl });
-    await client.init();
-    return wrapTransport(client);
-  }
+  const url =
+    transport === "epoxy"
+      ? routes.assets.epoxyIndex
+      : routes.assets.libcurlIndex;
 
-  const { default: LibcurlClient } = await dynamicImport("/libcurl/index.mjs");
-  console.log("Scramjet using libcurl wisp at", wispUrl);
-  const client = new LibcurlClient({ wisp: wispUrl });
-  await client.init();
-  return wrapTransport(client);
-}
-
-// Normalize a transport's response headers into an entries array.
-// @mercuryworkshop/proxy-transports@1.0.2 stores BareResponse.rawHeaders as the
-// raw object returned by transport.request(), but Scramjet 2.x iterates
-// rawHeaders as [key, value] pairs (`for (const [k, v] of rawHeaders)`),
-// throwing "TypeError: i is not iterable" on a plain object. Converting
-// request()'s headers to entries makes them iterable while still constructing a
-// valid Headers (which also accepts entries).
-function headersToEntries(headers: any): [string, string][] {
-  if (!headers) return [];
-  if (Array.isArray(headers)) return headers as [string, string][];
-  if (typeof headers.entries === "function")
-    return [...(headers.entries() as Iterable<[string, string]>)];
-  const out: [string, string][] = [];
-  for (const key of Object.keys(headers)) {
-    const value = headers[key];
-    if (Array.isArray(value)) for (const v of value) out.push([key, v]);
-    else out.push([key, value as string]);
-  }
-  return out;
-}
-
-// Wrap a ProxyTransport so request() returns header entries (see above).
-function wrapTransport<T extends { request: (...args: any[]) => any }>(
-  client: T,
-): T {
-  const originalRequest = client.request.bind(client);
-  client.request = async (...args: any[]) => {
-    const res = await originalRequest(...args);
-    if (res && typeof res === "object" && "headers" in res)
-      res.headers = headersToEntries(res.headers);
-    return res;
-  };
-  return client;
+  console.log("Scramjet transport:", transport, "wisp:", wispUrl);
+  const { default: TransportClient } = await dynamicImport(url);
+  return new TransportClient({ wisp: wispUrl });
 }
 
 let scramjetReady: Promise<void> | undefined;
@@ -165,31 +154,91 @@ export function setupScramjet(): Promise<void> {
   if (scramjetReady) return scramjetReady;
 
   scramjetReady = (async () => {
-    const { Controller, config } = $scramjetController;
-
-    config.prefix = "/scram/service/";
-    config.scramjetPath = "/scram/scramjet.js";
-    config.wasmPath = "/scram/scramjet.wasm";
-    config.injectPath = "/scramjet/controller.inject.js";
+    const { Controller } = $scramjetController;
+    const { defaultConfig } = $scramjet;
+    const routes = getProxyRoutes();
 
     const [registration, transport] = await Promise.all([
       navigator.serviceWorker.ready,
       createScramjetTransport(),
     ]);
 
+    const serviceworker =
+      navigator.serviceWorker.controller ?? registration.active!;
+
     const controller = new Controller({
-      serviceworker: registration.active!,
+      serviceworker,
       transport,
+      config: {
+        prefix: routes.scramjet.prefix,
+        scramjetPath: routes.scramjet.scramjetPath,
+        wasmPath: routes.scramjet.wasmPath,
+        injectPath: routes.scramjet.injectPath,
+      },
+      scramjetConfig: {
+        ...defaultConfig,
+        flags: {
+          ...defaultConfig.flags,
+          allowFailedIntercepts: true,
+          allowInvalidJs: true,
+        },
+      },
     });
     await controller.wait();
     scramjetController = controller;
-
-    window.$scramjet = { controller };
 
     console.log("Scramjet controller initialized at", controller.prefix);
   })();
 
   return scramjetReady;
+}
+
+type ProxyRoutes = {
+  paths: Record<
+    | "serviceWorker"
+    | "uvService"
+    | "scramService"
+    | "registerUV"
+    | "registerScramjet",
+    string
+  >;
+  assets: Record<
+    | "baremuxIndex"
+    | "baremuxWorker"
+    | "baremodIndex"
+    | "epoxyIndex"
+    | "libcurlIndex"
+    | "uvBundle"
+    | "uvConfig"
+    | "uvHandler"
+    | "uvClient"
+    | "uvSw"
+    | "scramjet"
+    | "scramjetWasm"
+    | "scramjetControllerApi"
+    | "scramjetControllerInject"
+    | "scramjetControllerSw",
+    string
+  >;
+  scramjet: {
+    prefix: string;
+    scramjetPath: string;
+    wasmPath: string;
+    injectPath: string;
+  };
+};
+
+function getProxyRoutes(): ProxyRoutes {
+  const raw = document
+    .getElementById("configThing")!
+    .getAttribute("data-proxy-routes");
+  if (!raw) throw new Error("Missing proxy route metadata.");
+  return JSON.parse(raw) as ProxyRoutes;
+}
+
+// the randomized /scram/service/ prefix for the current user
+export function getScramjetPrefix(): string {
+  return getProxyRoutes().scramjet.prefix;
 }
 
 export async function scramjetGo(

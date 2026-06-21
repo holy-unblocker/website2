@@ -10,7 +10,7 @@ const searchEngines: AppSearchEngine[] = [
   },
   {
     name: "DuckDuckGo",
-    format: "https://duckduckgo.com/?q=%s",
+    format: "https://html.duckduckgo.com/html/?q=%s",
   },
   {
     name: "Bing",

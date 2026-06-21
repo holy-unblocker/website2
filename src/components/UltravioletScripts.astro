@@ -1,8 +1,14 @@
-<script src="/baremux/index.js" is:inline defer></script>
-<script src="/uv/uv.bundle.js" is:inline></script>
-<script src="/uv/uv.config.js" is:inline></script>
-<script src="/scram/scramjet.js" is:inline></script>
-<script src="/scramjet/controller.api.js" is:inline></script>
+---
+import { serializeProxyRoutes } from "@lib/proxyRoutes.js";
+
+const proxyRoutes = Astro.locals.proxyRoutes;
+---
+
+<script src={proxyRoutes.assets.baremuxIndex} is:inline defer></script>
+<script src={proxyRoutes.assets.uvBundle} is:inline></script>
+<script src={proxyRoutes.assets.uvConfig} is:inline></script>
+<script src={proxyRoutes.assets.scramjet} is:inline></script>
+<script src={proxyRoutes.assets.scramjetControllerApi} is:inline></script>
 <div
   id="configThing"
   data-transport={Astro.locals.proxyTransport}
@@ -10,5 +16,6 @@
   data-adblock={Astro.locals.adblock ? "1" : "0"}
   data-bare={Astro.locals.bareServer}
   data-wisp={Astro.locals.wispServer}
+  data-proxy-routes={serializeProxyRoutes(proxyRoutes)}
 >
 </div>

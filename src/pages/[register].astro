@@ -1,0 +1,86 @@
+---
+import EncryptionKey from "@components/EncryptionKey.astro";
+import HolyText from "@components/HolyText.astro";
+import UltravioletScripts from "@components/UltravioletScripts.astro";
+import "@fontsource/lato/index.css";
+import "@fontsource/lato/700.css";
+import CompatLayout from "@layouts/CompatLayout.astro";
+import { proxyAssetResponse } from "@lib/proxyAssetResponse";
+import "@styles/root.scss";
+import "@styles/theme.scss";
+
+const routes = Astro.locals.proxyRoutes;
+const pathname = Astro.url.pathname;
+
+const asset = await proxyAssetResponse(pathname, routes);
+if (asset) return asset;
+
+let engine: "uv" | "scramjet" | null = null;
+if (pathname === routes.paths.registerUV) engine = "uv";
+else if (pathname === routes.paths.registerScramjet) engine = "scramjet";
+
+if (engine === null) return new Response(null, { status: 404 });
+
+Astro.response.headers.set("x-robots-tag", "noindex");
+
+const loadingText = engine === "scramjet" ? "Scramjet is loading..." : "Ultraviolet is loading...";
+---
+
+<CompatLayout>
+  <EncryptionKey />
+  <main class="padded" data-register-engine={engine}>
+    <HolyText text={loadingText} />
+  </main>
+  <UltravioletScripts />
+</CompatLayout>
+<script>
+  import { reportCompatError } from "@lib/compat";
+  import {
+    setupServiceWorker,
+    setupBareMux,
+    setupScramjet,
+    getScramjetPrefix,
+  } from "@lib/register-sw";
+
+  console.log(location.href);
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const engine = document
+      .querySelector<HTMLElement>("main[data-register-engine]")
+      ?.getAttribute("data-register-engine") as "uv" | "scramjet" | null;
+
+    try {
+      if (engine === "scramjet") {
+        const prefix = getScramjetPrefix();
+        if (!location.pathname.startsWith(prefix))
+          throw new TypeError(
+            `register-scramjet was served on a non-scramjet path: ${location.pathname}`
+          );
+
+        await setupBareMux();
+        await setupServiceWorker();
+        await setupScramjet();
+      } else {
+        if (!location.pathname.startsWith(__uv$config.prefix!))
+          throw new TypeError(
+            `register-uv was served on a non-uv path: ${location.pathname}`
+          );
+
+        console.log(
+          "Destination:",
+          __uv$config.decodeUrl!(
+            location.pathname.slice(__uv$config.prefix!.length)
+          )
+        );
+
+        await setupBareMux();
+        await setupServiceWorker();
+      }
+
+      console.log("SW registered");
+      setTimeout(() => location.reload(), 500);
+    } catch (err) {
+      reportCompatError(err, undefined, engine === "scramjet" ? "Scramjet" : "Ultraviolet");
+    }
+  });
+</script>

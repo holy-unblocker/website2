@@ -16,7 +16,7 @@
 import http from "node:http";
 import https from "node:https";
 import { dirname, resolve } from "node:path";
-import { access, copyFile, readFile } from "node:fs/promises";
+import { access, copyFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import send from "@fastify/send";
 import parseUrl from "parseurl";
@@ -28,6 +28,7 @@ import bare from "@tomphttp/bare-server-node";
 import { ActivityType, Client, PermissionsBitField } from "discord.js";
 import chalk from "chalk";
 import compression from "compression";
+import { getProxyRouteMap, proxyRouteCookie } from "./src/lib/proxyRoutes.js";
 
 let startupTag = chalk.grey(chalk.bold("Holy Unblocker:"));
 
@@ -225,25 +226,13 @@ client.on("guildMemberAdd", async (member) => {
 if (accountsEnabled && appConfig.discord.listenForJoins)
   client.login(appConfig.discord.botToken);
 
-/**
- *
- * cursed ultraviolet config loader
- * configs can be location-aware
- * @param {string} host
- * @param {string} url
- * @returns {import("@titaniumnetwork-dev/ultraviolet").UVConfig}
- */
-function getUVConfig(host, url) {
-  const mockEnv = {
-    Ultraviolet: {
-      codec: { xor: {} },
-    },
-    location: new URL(`http://${host}${url}`),
-  };
-  mockEnv.self = mockEnv;
-  new Function(...Object.keys(mockEnv), uvConfigSrc)(...Object.values(mockEnv));
-  // console.log(mockEnv);
-  return mockEnv.__uv$config;
+function getCookie(req, name) {
+  const cookie = req.headers.cookie;
+  if (typeof cookie !== "string") return;
+  for (const part of cookie.split(";")) {
+    const [key, ...value] = part.trim().split("=");
+    if (key === name) return decodeURIComponent(value.join("="));
+  }
 }
 
 /**
@@ -272,13 +261,6 @@ if (!hasTheatreFiles)
 if (!("db" in appConfig))
   appMirrors.push({ prefix: "/api/theatre/", url: appConfig.theatreApiMirror });
 
-// now we can use self.__uv$config in the backend
-// this is kinda cursed
-const uvConfigSrc = await readFile(
-  new URL("./public/uv/uv.config.js", import.meta.url),
-  "utf-8",
-);
-
 const compress = compression();
 
 const bareServer = bare.createBareServer("/api/bare/");
@@ -306,12 +288,11 @@ export function handleReq(req, res, middleware) {
   // DO NOT DO NOT SET THIS ON /pro/ OR ACCOUNT DETAILS WILL BE LEAKED
   // if (isCDN || req.url.startsWith("/compat/")) {
   if (!req.url.startsWith("/pro")) {
-    // this makes loading epoxy TLS faster
+    // enable cross-origin isolation (crossOriginIsolated === true)
+    // this makes loading epoxy TLS faster and unlocks SharedArrayBuffer
     // thanks r58
-    res.setHeader(
-      "cross-origin-opener-policy-report-only",
-      "same-origin-allow-popups",
-    );
+    res.setHeader("cross-origin-opener-policy", "same-origin");
+    res.setHeader("cross-origin-embedder-policy", "credentialless");
     res.setHeader("cross-origin-resource-policy", "same-origin");
   }
 
@@ -348,14 +329,17 @@ export function handleReq(req, res, middleware) {
     return;
   }
 
-  const __uv$config = getUVConfig(req.headers.host, req.url);
-  // console.log("got config", __uv$config);
+  const proxyRoutes = getProxyRouteMap(getCookie(req, proxyRouteCookie));
 
-  // we want the uv service page to fallback to a page that registers the service worker
-  // internal redirect
-  if (req.url.startsWith(__uv$config.prefix)) {
-    req.url = "/register-uv";
-    // app(req, res);
+  // we want the service pages to fallback to a page that registers the service worker
+  // internal redirect so the browser URL stays the seeded service URL, while we
+  // render the seeded register route (never the fixed /register-* path)
+  if (req.url.startsWith(proxyRoutes.uvConfig.prefix)) {
+    req.url = proxyRoutes.paths.registerUV;
+    return middleware();
+  }
+  if (req.url.startsWith(proxyRoutes.scramjet.prefix)) {
+    req.url = proxyRoutes.paths.registerScramjet;
     return middleware();
   }
 
