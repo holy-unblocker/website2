@@ -53,6 +53,13 @@ export async function fetchListData(
     case "mostPopular":
       apiSort = "plays";
       break;
+    case "recentlyAddedDESC":
+      apiSort = "index";
+      break;
+    case "recentlyAddedASC":
+      apiSort = "index";
+      apiOrder = "asc";
+      break;
     case "nameASC":
       apiSort = "name";
       apiOrder = "asc";

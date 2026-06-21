@@ -78,6 +78,11 @@ export const appConfig = {
   //  database: "dbname",
   //},
 
+  // THEATRE ADMIN BOOTSTRAP
+  // when true and the database has no admin users, /admin/signup can create
+  // the first theatre admin account
+  theatreAdminSignupEnabled: false,
+
   /// STRIPE CONFIG
   // - ASSIGN A STRIPE CUSTOMER ID TO EACH USER
   // - CREATE INVOICES FOR SUBSCRIPTIONS

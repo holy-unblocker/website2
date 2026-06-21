@@ -125,6 +125,13 @@ const { cloak } = Astro.locals;
         text="Holy Unblocker"
       />
       <div class={styles.shiftRight}></div>
+      <a
+        href="/admin/"
+        aria-label="Admin"
+        tabindex="-1"
+        class:list={[styles.button, styles.center]}
+        style="opacity:0"
+      ></a>
       <HolyLink
         href={appConfig.links.github.holyunblocker}
         title="GitHub"

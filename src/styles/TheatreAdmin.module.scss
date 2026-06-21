@@ -1,0 +1,535 @@
+@use "./common.scss" as *;
+
+.adminMain {
+  width: 100%;
+  height: calc(100vh - 60px);
+  padding: 18px 3vw 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.authMain {
+  width: 100%;
+  min-height: calc(100vh - 120px);
+  padding: 18px 3vw;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+}
+
+.authForm {
+  width: min(430px, 100%);
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background-accent-deep-1);
+}
+
+.authTitle {
+  margin: 0;
+  text-align: center;
+  font-size: 22px;
+}
+
+.authHint {
+  margin: 0;
+  color: var(--text-accent);
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  flex: none;
+
+  h1 {
+    margin: 0;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: var(--text-accent);
+  }
+}
+
+.headerActions,
+.editorHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerActions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.pruneToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-accent);
+  cursor: pointer;
+  user-select: none;
+
+  input {
+    cursor: pointer;
+  }
+}
+
+.shell {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(300px, 430px) minmax(0, 1fr);
+  gap: 14px;
+  height: calc(100vh - 150px);
+  max-height: calc(100vh - 150px);
+}
+
+.listPanel,
+.editorPanel {
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background-accent-deep-1);
+}
+
+.listPanel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editorPanel {
+  overflow: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.editorPanel form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px 42px;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+
+.filterWrap {
+  position: relative;
+}
+
+.filterMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 10;
+  width: 240px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background-accent-deep-1);
+  box-shadow: 0 8px 24px var(--shadow);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.filterField {
+  display: grid;
+  gap: 5px;
+
+  span,
+  div {
+    font-size: 13px;
+  }
+}
+
+.filterSelect {
+  width: 100%;
+  min-width: 0;
+}
+
+.searchBox {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--background-accent);
+
+  svg {
+    color: var(--text-placeholder);
+  }
+
+  input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    color: var(--text);
+    background: transparent;
+  }
+}
+
+.iconButton,
+.secondaryButton,
+.dangerButton,
+.primaryButton {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  background: var(--background-accent);
+  cursor: pointer;
+  font: inherit;
+}
+
+.iconButton {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  flex: none;
+
+  svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.primaryButton {
+  color: var(--action-secondary);
+  background: var(--action);
+}
+
+.dangerButton {
+  color: #fff;
+  background: var(--error);
+}
+
+.wide {
+  width: 100%;
+}
+
+.secondaryButton:hover,
+.iconButton:hover {
+  background: var(--background-accent-deep-2);
+}
+
+.primaryButton:hover {
+  background: var(--action-hover);
+}
+
+.iconButton:disabled,
+.dangerButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.resultsMeta {
+  padding: 8px 12px;
+  color: var(--text-accent);
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+
+.entryList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.entryButton {
+  width: 100%;
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &[data-selected="true"] {
+    background: var(--background-accent);
+    box-shadow: inset 3px 0 0 var(--action);
+  }
+
+  strong,
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  span {
+    color: var(--text-accent);
+    font-size: 13px;
+  }
+}
+
+.editorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 5px;
+
+  span {
+    color: var(--text-accent);
+    font-size: 14px;
+  }
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  background: var(--background-accent);
+  font: inherit;
+}
+
+.select {
+  height: 42px;
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+  font-family:
+    ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+}
+
+.categoryChips {
+  min-height: 34px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.categoryChip {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  background: var(--background-accent);
+  cursor: pointer;
+  font: inherit;
+
+  &[data-empty="true"] {
+    cursor: default;
+    color: var(--text-accent);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.categoryAdd {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  gap: 8px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 14px;
+  margin-top: auto;
+}
+
+.actionGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.notice {
+  margin: 0 0 12px;
+}
+
+.emptyState {
+  padding: 24px 12px;
+  color: var(--text-accent);
+  text-align: center;
+}
+
+.detailPanel {
+  width: 100%;
+  max-width: 760px;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background-accent-deep-1);
+}
+
+.detailMain {
+  height: auto;
+  min-height: calc(100vh - 60px);
+}
+
+.preview {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--background-accent);
+
+  img {
+    width: 110px;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 5px;
+    background: var(--background);
+  }
+
+  div {
+    min-width: 0;
+  }
+
+  strong,
+  span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  span {
+    margin-top: 4px;
+    color: var(--text-accent);
+  }
+}
+
+.thumbnailActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+
+  &[hidden] {
+    display: none;
+  }
+
+  .secondaryButton {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 860px) {
+  .adminMain {
+    min-height: auto;
+  }
+
+  .header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .headerActions,
+  .editorHeader,
+  .editorHeaderActions {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .shell {
+    height: auto;
+    max-height: none;
+    grid-template-columns: 1fr;
+  }
+
+  .listPanel {
+    height: min(70vh, 620px);
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .actionGroup,
+  .primaryButton,
+  .secondaryButton,
+  .dangerButton {
+    width: 100%;
+  }
+}

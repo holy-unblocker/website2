@@ -1,0 +1,69 @@
+---
+import MainLayout from "@layouts/MainLayout.astro";
+import Banner from "@components/Banner.astro";
+import InputPassword from "@components/InputPassword.astro";
+import styles from "@styles/TheatreAdmin.module.scss";
+import themeStyles from "@styles/ThemeElements.module.scss";
+import { signupAdmin, canBootstrapTheatreAdmin } from "@lib/admin";
+
+const { user } = Astro.locals;
+if (user && user.admin) return Astro.redirect("/admin/theatre", 302);
+
+// once an admin exists, this route is closed
+if (!(await canBootstrapTheatreAdmin()))
+  return Astro.redirect("/admin/login", 302);
+
+let error: string | undefined;
+let email: string | undefined;
+
+if (Astro.request.method === "POST")
+  try {
+    const data = await Astro.request.formData();
+    email = data.get("email")?.toString().trim() || "";
+    const password = data.get("password")?.toString() || "";
+
+    error = await signupAdmin(Astro, email, password);
+
+    if (!error) return Astro.redirect("/admin/theatre?welcome", 302);
+    Astro.response.status = 400;
+  } catch (err) {
+    console.error(err);
+    error = "An internal error occurred. Please try again later.";
+    Astro.response.status = 500;
+  }
+---
+
+<MainLayout title="Create Theatre Admin">
+  <main class={styles.authMain}>
+    <form class={styles.authForm} method="post">
+      <h1 class={styles.authTitle}>Create theatre admin</h1>
+      {error && <script>history.pushState({}, "")</script>}
+      <Banner error={error} />
+      <p class={styles.authHint}>
+        This is the first administrator account. Once it is created, this page
+        closes automatically.
+      </p>
+      <label class={styles.field}>
+        <span>Email</span>
+        <input
+          class={styles.input}
+          type="email"
+          name="email"
+          value={email}
+          required
+        />
+      </label>
+      <label class={styles.field}>
+        <span>Password</span>
+        <InputPassword id="password" name="password" validate />
+      </label>
+      <button class:list={[styles.primaryButton, styles.wide]} type="submit"
+        >Create admin</button
+      >
+      <p class={styles.authHint}>
+        Already have an account?{" "}
+        <a class={themeStyles.themeLink} href="/admin/login">Log in</a>
+      </p>
+    </form>
+  </main>
+</MainLayout>

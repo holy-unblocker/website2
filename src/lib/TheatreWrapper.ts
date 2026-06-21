@@ -31,6 +31,7 @@ export function rowToMin(entry: m.TheatreModel): TheatreEntryMin {
     id: entry.id,
     name: entry.name,
     category: entry.category.split(","),
+    plays: entry.plays,
   };
 }
 
@@ -150,6 +151,11 @@ export default class TheatreWrapper {
     const order = [];
 
     switch (options.sort) {
+      case "index":
+        // index is a SERIAL, so it doubles as insertion order ("recently
+        // added"). default to newest first; order: "asc" flips to oldest first.
+        order.push(options.order === "asc" ? '"index"' : '"index" DESC');
+        break;
       case "name":
         order.push("name", "id");
         break;
@@ -168,9 +174,11 @@ export default class TheatreWrapper {
     if (order.length) {
       select[2] = [
         "ORDER BY",
-        (options.order === "asc"
-          ? order.map((order) => `${order} DESC`)
-          : order
+        (options.sort === "index"
+          ? order
+          : options.order === "asc"
+            ? order.map((order) => `${order} DESC`)
+            : order
         ).join(","),
       ]
         .filter(Boolean)
@@ -253,6 +261,7 @@ export default class TheatreWrapper {
     src: TheatreEntry["src"],
     category: TheatreEntry["category"],
     controls: TheatreEntry["controls"],
+    plays?: TheatreEntry["plays"],
   ) {
     let entry = await this.show(id);
 
@@ -268,6 +277,8 @@ export default class TheatreWrapper {
 
     if (controls === undefined) controls = entry.controls;
 
+    if (plays === undefined) plays = entry.plays;
+
     entry = {
       id,
       name,
@@ -275,10 +286,13 @@ export default class TheatreWrapper {
       category,
       src,
       controls,
-      plays: 0,
+      plays,
     };
 
     validate(entry);
+
+    if (typeof entry.plays !== "number" || !Number.isFinite(entry.plays))
+      throw new TypeError("Entry plays was not a number");
 
     const vars: unknown[] = [];
 
@@ -290,12 +304,56 @@ export default class TheatreWrapper {
           entry.category.join(","),
         )}, src = $${vars.push(entry.src)}, controls = $${vars.push(
           JSON.stringify(entry.controls),
+        )}, plays = $${vars.push(
+          Math.max(0, Math.trunc(entry.plays)),
         )} WHERE id = $${vars.push(entry.id)} RETURNING *;`,
         vars,
       )
     ).rows[0];
 
     return res === undefined ? undefined : rowTo(res);
+  }
+  /**
+   * Swap the ordering (index) of an entry with its neighbour in the given
+   * direction. Returns true if a swap occurred.
+   */
+  async move(id: string, direction: "up" | "down"): Promise<boolean> {
+    const current = (
+      await this.client.query<{ index: number }>(
+        "SELECT index FROM theatre WHERE id = $1;",
+        [id],
+      )
+    ).rows[0];
+
+    if (current === undefined) return false;
+
+    // a lower index renders earlier, so "up" targets the greatest index that
+    // is still below the current one
+    const neighbour = (
+      await this.client.query<{ id: string; index: number }>(
+        direction === "up"
+          ? "SELECT id, index FROM theatre WHERE index < $1 ORDER BY index DESC LIMIT 1;"
+          : "SELECT id, index FROM theatre WHERE index > $1 ORDER BY index ASC LIMIT 1;",
+        [current.index],
+      )
+    ).rows[0];
+
+    if (neighbour === undefined) return false;
+
+    // swap via a temporary out-of-range index to satisfy any uniqueness
+    await this.client.query("UPDATE theatre SET index = -1 WHERE id = $1;", [
+      id,
+    ]);
+    await this.client.query("UPDATE theatre SET index = $1 WHERE id = $2;", [
+      current.index,
+      neighbour.id,
+    ]);
+    await this.client.query("UPDATE theatre SET index = $1 WHERE id = $2;", [
+      neighbour.index,
+      id,
+    ]);
+
+    return true;
   }
   async countPlay(id: string): Promise<boolean> {
     return (
@@ -306,5 +364,85 @@ export default class TheatreWrapper {
         )
       ).rowCount !== 0
     );
+  }
+  /**
+   * Return every entry in full (insertion order) for exporting.
+   */
+  async exportAll(): Promise<TheatreEntry[]> {
+    const { rows } = await this.client.query<TheatreModel>(
+      'SELECT * FROM theatre ORDER BY "index";',
+    );
+    return rows.map(rowTo);
+  }
+  /**
+   * Insert or update a single entry, preserving its id. Used by import.
+   */
+  async importOne(input: Partial<TheatreEntry>) {
+    const entry: TheatreEntry = {
+      id:
+        typeof input.id === "string"
+          ? input.id
+          : Math.random().toString(36).slice(2),
+      name: input.name as string,
+      type: input.type as string,
+      src: input.src as string,
+      category: Array.isArray(input.category) ? input.category : [],
+      controls: Array.isArray(input.controls) ? input.controls : [],
+      plays:
+        typeof input.plays === "number"
+          ? Math.max(0, Math.trunc(input.plays))
+          : 0,
+    };
+
+    validate(entry);
+
+    const vars: unknown[] = [];
+    await this.client.query(
+      `INSERT INTO theatre(id, name, type, category, src, plays, controls) VALUES ($${vars.push(
+        entry.id,
+      )}, $${vars.push(entry.name)}, $${vars.push(entry.type)}, $${vars.push(
+        entry.category.join(","),
+      )}, $${vars.push(entry.src)}, $${vars.push(entry.plays)}, $${vars.push(
+        JSON.stringify(entry.controls),
+      )})
+      ON CONFLICT (id) DO UPDATE SET
+        name = EXCLUDED.name,
+        type = EXCLUDED.type,
+        category = EXCLUDED.category,
+        src = EXCLUDED.src,
+        plays = EXCLUDED.plays,
+        controls = EXCLUDED.controls;`,
+      vars,
+    );
+
+    return entry;
+  }
+  /**
+   * Import a list of entries. When prune is true, any entry not present in the
+   * import is removed. Returns counts of what changed.
+   */
+  async importEntries(entries: Partial<TheatreEntry>[], prune = false) {
+    if (!Array.isArray(entries))
+      throw new TypeError("Expected an array of entries");
+
+    const keptIds: string[] = [];
+    for (const entry of entries) {
+      const saved = await this.importOne(entry);
+      keptIds.push(saved.id);
+    }
+
+    let pruned = 0;
+    if (prune) {
+      const res =
+        keptIds.length === 0
+          ? await this.client.query("DELETE FROM theatre;")
+          : await this.client.query(
+              "DELETE FROM theatre WHERE NOT (id = ANY($1));",
+              [keptIds],
+            );
+      pruned = res.rowCount ?? 0;
+    }
+
+    return { imported: keptIds.length, pruned };
   }
 }

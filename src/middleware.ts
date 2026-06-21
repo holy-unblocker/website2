@@ -1,4 +1,4 @@
-import { db, accountsEnabled } from "@config/apis";
+import { db, accountsEnabled, userSystemEnabled } from "@config/apis";
 import {
   m,
   isUserBanned,
@@ -414,9 +414,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   )
     context.locals.proxyMode = proxyMode;
 
-  if (!accountsEnabled) {
-    if (context.url.pathname.startsWith("/pro/"))
-      return new Response("Account system is disabled", { status: 400 });
+  if (!userSystemEnabled) {
+    if (
+      context.url.pathname.startsWith("/pro/") ||
+      context.url.pathname.startsWith("/admin/")
+    )
+      return new Response("User system is disabled", { status: 400 });
     // don't bother loading logic for account stuff
     return next();
   }
@@ -427,7 +430,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       context.cookies.set("session", secret, {
         domain: context.url.hostname,
         sameSite: "lax",
-        path: "/pro/",
+        path: "/",
         maxAge: staySignedIn ? maxAgeLimit : undefined,
         secure: true,
         httpOnly: true,
@@ -440,15 +443,27 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.cookies.set("session", "", {
           domain: context.url.hostname,
           sameSite: "lax",
-          path: "/pro/",
+          path: "/",
           expires: new Date(0), // set it to as old as possible!!
           secure: true,
           httpOnly: true,
         });
 
+      context.cookies.set("session", "", {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/pro/",
+        expires: new Date(0),
+        secure: true,
+        httpOnly: true,
+      });
+
       return false;
     }
   };
+
+  if (!accountsEnabled && context.url.pathname.startsWith("/pro/"))
+    return new Response("Account system is disabled", { status: 400 });
 
   const cookie = context.cookies.get("session")?.value;
 

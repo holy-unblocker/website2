@@ -48,6 +48,7 @@ export interface TheatreEntryMin {
   name: string;
   id: string;
   category: string[];
+  plays?: number;
 }
 
 export interface ListData {
@@ -79,7 +80,7 @@ export interface ListOptions {
    * default is desc, unless 'search' is specified
    */
   order?: "desc" | "asc" | string | null;
-  sort?: "name" | "plays" | string | null;
+  sort?: "index" | "name" | "plays" | string | null;
   limit?: number;
   offset?: number;
   limitPerCategory?: number;

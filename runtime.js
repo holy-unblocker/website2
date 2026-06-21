@@ -322,8 +322,9 @@ export function handleReq(req, res, middleware) {
       } else {
         // normalize the url
         if ("Location" in headers) headers.Location = "/cdn" + headers.Location;
-        stream.pipe(res);
+        // write the head before piping so redirect status/headers aren't lost
         res.writeHead(statusCode, headers);
+        stream.pipe(res);
       }
     });
     return;
@@ -385,7 +386,31 @@ export function handleReq(req, res, middleware) {
 
       // support redirects
       const loc = mirrorRes.headers["location"];
-      if (typeof loc === "string") res.setHeader("location", loc);
+      if (typeof loc === "string") {
+        // the upstream Location is relative to the mirror's own URL, so a bare
+        // redirect (eg. adding a trailing slash to a directory) would escape
+        // the local mirror prefix and 404 against astro. resolve it against the
+        // upstream URL and, if it still points inside the mirror, map it back
+        // under the local prefix (eg. /cdn/).
+        let normalizedLoc = loc;
+        try {
+          const resolved = new URL(loc, mirrorURL);
+          const base = new URL(mirror.url);
+          if (
+            resolved.origin === base.origin &&
+            resolved.pathname.startsWith(base.pathname)
+          ) {
+            normalizedLoc =
+              mirror.prefix +
+              resolved.pathname.slice(base.pathname.length) +
+              resolved.search +
+              resolved.hash;
+          }
+        } catch {
+          // leave the location untouched if it can't be parsed
+        }
+        res.setHeader("location", normalizedLoc);
+      }
 
       const ct = mirrorRes.headers["content-type"];
       if (typeof ct === "string") res.setHeader("content-type", ct);

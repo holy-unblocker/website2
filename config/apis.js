@@ -3,15 +3,31 @@ import nodemailer from "nodemailer";
 import { appConfig } from "./config.js";
 import { Stripe } from "stripe";
 import Dockerode from "dockerode";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 export const dbEnabled = "db" in appConfig;
 export const stripeEnabled = dbEnabled && "stripe" in appConfig;
 export const nowpaymentsEnabled = dbEnabled && "nowpayments" in appConfig;
 export const accountsEnabled = stripeEnabled || nowpaymentsEnabled;
+export const userSystemEnabled = dbEnabled;
+export const theatreAdminSignupEnabled =
+  dbEnabled && appConfig.theatreAdminSignupEnabled === true;
 export const discordEnabled = accountsEnabled && "discord" in appConfig;
 export const discordListening =
   discordEnabled && "listenForJoins" in appConfig.discord;
 export const hcaptchaEnabled = accountsEnabled && "hcaptcha" in appConfig;
+
+// when theatre files are hosted locally, admins can upload/remove thumbnails
+export const theatreFilesEnabled = "theatreFilesPath" in appConfig;
+// resolved the same way runtime.js does (relative to the project root)
+export const theatreFilesPath = theatreFilesEnabled
+  ? resolve(
+      dirname(fileURLToPath(import.meta.url)),
+      "..",
+      appConfig.theatreFilesPath,
+    )
+  : undefined;
 
 export const db = await initDB();
 

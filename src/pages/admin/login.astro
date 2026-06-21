@@ -1,0 +1,69 @@
+---
+import MainLayout from "@layouts/MainLayout.astro";
+import Banner from "@components/Banner.astro";
+import InputPassword from "@components/InputPassword.astro";
+import styles from "@styles/TheatreAdmin.module.scss";
+import themeStyles from "@styles/ThemeElements.module.scss";
+import { loginAdmin, canBootstrapTheatreAdmin } from "@lib/admin";
+
+const { user } = Astro.locals;
+if (user && user.admin) return Astro.redirect("/admin/theatre", 302);
+
+const canSignup = await canBootstrapTheatreAdmin();
+
+let error: string | undefined;
+let email: string | undefined;
+
+if (Astro.request.method === "POST")
+  try {
+    const data = await Astro.request.formData();
+    email = data.get("email")?.toString().trim() || "";
+    const password = data.get("password")?.toString() || "";
+
+    error = await loginAdmin(Astro, email, password);
+
+    if (!error) return Astro.redirect("/admin/theatre", 302);
+    Astro.response.status = 401;
+  } catch (err) {
+    console.error(err);
+    error = "An internal error occurred. Please try again later.";
+    Astro.response.status = 500;
+  }
+---
+
+<MainLayout title="Theatre Admin Login">
+  <main class={styles.authMain}>
+    <form class={styles.authForm} method="post">
+      <h1 class={styles.authTitle}>Theatre Admin</h1>
+      {error && <script>history.pushState({}, "")</script>}
+      <Banner error={error} />
+      <label class={styles.field}>
+        <span>Email</span>
+        <input
+          class={styles.input}
+          type="email"
+          name="email"
+          value={email}
+          required
+        />
+      </label>
+      <label class={styles.field}>
+        <span>Password</span>
+        <InputPassword id="password" name="password" />
+      </label>
+      <button class:list={[styles.primaryButton, styles.wide]} type="submit"
+        >Log in</button
+      >
+      {
+        canSignup && (
+          <p class={styles.authHint}>
+            No admin account yet?{" "}
+            <a class={themeStyles.themeLink} href="/admin/signup">
+              Create the first admin
+            </a>
+          </p>
+        )
+      }
+    </form>
+  </main>
+</MainLayout>

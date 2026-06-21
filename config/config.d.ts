@@ -27,6 +27,7 @@ export interface AppConfig {
   supportEmail: string;
   mainWebsite: string;
   adsenseClient?: string;
+  theatreAdminSignupEnabled?: boolean;
   stripe: {
     secret: string;
     webhookEndpointSecret: string;

@@ -1,0 +1,898 @@
+---
+import MainLayout from "@layouts/MainLayout.astro";
+import Banner from "@components/Banner.astro";
+import ThemeSelect from "@components/ThemeSelect.astro";
+import styles from "@styles/TheatreAdmin.module.scss";
+import SearchIcon from "@icons/search_24dp.svg?react";
+import FilterIcon from "@icons/sort_24dp.svg?react";
+import EditIcon from "@icons/drive_file_rename_outline_24dp.svg?react";
+import DeleteIcon from "@icons/delete_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
+import CheckIcon from "@icons/check_24dp.svg?react";
+import ArrowUpIcon from "@icons/arrow_drop_up_24dp.svg?react";
+import ArrowDownIcon from "@icons/arrow_drop_down_24dp.svg?react";
+import CloseIcon from "@icons/close_24dp.svg?react";
+import { theatreAPI } from "@lib/theatre";
+import { theatreFilesEnabled } from "@config/apis";
+import { theatreTypes } from "@lib/TheatreWrapper";
+import { theatreCategories } from "@lib/gameCategories";
+import { canBootstrapTheatreAdmin } from "@lib/admin";
+
+const { user, acc } = Astro.locals;
+if (!user) {
+  if (await canBootstrapTheatreAdmin()) return Astro.redirect("/admin/signup", 302);
+  return Astro.redirect("/admin/login", 302);
+}
+if (await acc.isBanned()) return acc.toBan();
+if (!user.admin) return Astro.redirect("/admin/login", 302);
+
+// the panel renders the full list and filters client-side
+const initialData = await theatreAPI.list({ sort: "index" });
+const welcome = Astro.url.searchParams.has("welcome");
+
+// optional entry id from the URL (/admin/theatre/<id>); no game is opened by
+// default on the bare /admin/theatre route
+const initialSelectedId = Astro.params.id ?? null;
+---
+
+<MainLayout title="Theatre Admin">
+  <main class={styles.adminMain}>
+    <div class={styles.header}>
+      <div>
+        <h1 class="page-title">Theatre Admin</h1>
+        <p>{initialData.total || 0} entries</p>
+      </div>
+      <div class={styles.headerActions}>
+        <label class={styles.pruneToggle} title="Delete entries not present in the imported file">
+          <input type="checkbox" id="importPrune" />
+          <span>Prune on import</span>
+        </label>
+        <input type="file" id="importInput" accept="application/json,.json" hidden />
+        <button class={styles.secondaryButton} type="button" id="importGames">Import JSON</button>
+        <button class={styles.secondaryButton} type="button" id="exportGames">Export JSON</button>
+        <a href="/admin/logout" class={styles.secondaryButton} data-astro-prefetch="false">Log out</a>
+      </div>
+    </div>
+
+    {
+      welcome && (
+        <Banner
+          id="welcomeBanner"
+          success="Theatre admin account created."
+          dismissable
+        />
+      )
+    }
+    <p class="prettyBanner" data-error data-dismissable id="adminError" hidden>
+      <span id="adminErrorText"></span>
+      <button type="button" class="close" id="adminErrorClose" aria-label="Dismiss">&times;</button>
+    </p>
+    <p class="prettyBanner" data-success data-dismissable id="adminSuccess" hidden>
+      <span id="adminSuccessText"></span>
+      <button type="button" class="close" id="adminSuccessClose" aria-label="Dismiss">&times;</button>
+    </p>
+
+    <section class={styles.shell} data-admin-root>
+      <aside class={styles.listPanel}>
+        <div class={styles.toolbar}>
+          <label class={styles.searchBox} title="Search theatre">
+            <span set:html={SearchIcon} />
+            <input id="search" type="search" placeholder="Search" autocomplete="off" />
+          </label>
+          <div class={styles.filterWrap}>
+            <button class={styles.iconButton} type="button" id="filterToggle" title="Filter & sort" aria-label="Filter & sort" aria-expanded="false" set:html={FilterIcon} />
+            <div class={styles.filterMenu} id="filterMenu" hidden>
+              <label class={styles.filterField}>
+                <span>Sort by</span>
+                <ThemeSelect
+                  class={styles.filterSelect}
+                  id="sortSelect"
+                  name="sortSelect"
+                  value="recentlyAddedDESC"
+                  options={[
+                    { name: "Most Popular", value: "mostPopular" },
+                    { name: "Least Popular", value: "leastPopular" },
+                    { name: "Recently Added", value: "recentlyAddedDESC" },
+                    { name: "Oldest First", value: "recentlyAddedASC" },
+                    { name: "Name (A-Z)", value: "nameDESC" },
+                    { name: "Name (Z-A)", value: "nameASC" },
+                  ]}
+                />
+              </label>
+              <label class={styles.filterField}>
+                <span>Category</span>
+                <ThemeSelect
+                  class={styles.filterSelect}
+                  id="categorySelect"
+                  name="categorySelect"
+                  value=""
+                  options={[
+                    { name: "All categories", value: "" },
+                    ...theatreCategories.map((category) => ({
+                      name: category.name,
+                      value: category.id,
+                    })),
+                  ]}
+                />
+              </label>
+            </div>
+          </div>
+          <button class={styles.iconButton} type="button" id="newEntry" title="New entry" aria-label="New entry">+</button>
+        </div>
+        <div class={styles.resultsMeta} id="resultsMeta">Loading entries</div>
+        <div class={styles.entryList} id="entryList"></div>
+      </aside>
+
+      <section class={styles.editorPanel}>
+        <div class={styles.editorHeader}>
+          <h2 id="editorTitle">New entry</h2>
+          <div class={styles.editorHeaderActions}>
+            <button class={styles.iconButton} type="button" id="moveUp" title="Move up" aria-label="Move up" set:html={ArrowUpIcon} />
+            <button class={styles.iconButton} type="button" id="moveDown" title="Move down" aria-label="Move down" set:html={ArrowDownIcon} />
+            <a id="openPublic" class={styles.secondaryButton} href="/hub/" target="_blank" rel="noreferrer">Open</a>
+          </div>
+        </div>
+        <div class={styles.preview}>
+          <img id="thumbnailPreview" alt="" style="opacity:0" />
+          <div>
+            <strong id="previewName">Untitled entry</strong>
+            <span id="previewMeta">No ID yet</span>
+            {
+              theatreFilesEnabled && (
+                <div class={styles.thumbnailActions} id="thumbnailActions">
+                  <input
+                    type="file"
+                    id="thumbnailInput"
+                    accept="image/webp"
+                    hidden
+                  />
+                  <button class={styles.secondaryButton} type="button" id="uploadThumbnail">
+                    Upload thumbnail
+                  </button>
+                  <button class={styles.secondaryButton} type="button" id="removeThumbnail">
+                    Remove
+                  </button>
+                </div>
+              )
+            }
+          </div>
+        </div>
+        <form id="entryForm">
+          <input type="hidden" name="id" id="entryId" />
+          <div class={styles.formGrid}>
+            <label class={styles.field}>
+              <span>Name</span>
+              <input class={styles.input} name="name" id="name" required />
+            </label>
+            <label class={styles.field}>
+              <span>Type</span>
+              <select class={styles.select} name="type" id="type" required>
+                {theatreTypes.map((type) => <option value={type}>{type}</option>)}
+              </select>
+            </label>
+            <label class:list={[styles.field, styles.full]}>
+              <span>Source</span>
+              <input class={styles.input} name="src" id="src" required />
+            </label>
+            <label class={styles.field}>
+              <span>Play count</span>
+              <input class={styles.input} type="number" min="0" step="1" name="plays" id="plays" />
+            </label>
+            <div class:list={[styles.field, styles.full]}>
+              <span>Categories</span>
+              <div class={styles.categoryChips} id="categoryChips"></div>
+              <div class={styles.categoryAdd}>
+                <input
+                  class={styles.input}
+                  id="categoryInput"
+                  list="categoryOptions"
+                  placeholder="Add a category"
+                  autocomplete="off"
+                />
+                <button
+                  class={styles.iconButton}
+                  type="button"
+                  id="addCategory"
+                  title="Add category"
+                  aria-label="Add category"
+                >+</button>
+              </div>
+              <datalist id="categoryOptions">
+                {theatreCategories.map((category) => <option value={category.id}>{category.name}</option>)}
+              </datalist>
+            </div>
+            <label class:list={[styles.field, styles.full]}>
+              <span>Controls JSON</span>
+              <textarea class={styles.textarea} name="controls" id="controls" required></textarea>
+            </label>
+          </div>
+          <div class={styles.actions}>
+            <button class={styles.dangerButton} type="button" id="deleteEntry"><span set:html={DeleteIcon} />Delete</button>
+            <div class={styles.actionGroup}>
+              <button class={styles.secondaryButton} type="button" id="resetForm"><span set:html={EditIcon} />Reset</button>
+              <button class={styles.primaryButton} type="submit"><span set:html={CheckIcon} />Save</button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <script
+    is:inline
+    define:vars={{
+      initialData,
+      initialSelectedId,
+      theatreFilesEnabled,
+      emptyStateClass: styles.emptyState,
+      entryButtonClass: styles.entryButton,
+      chipClass: styles.categoryChip,
+      closeIconHtml: CloseIcon,
+    }}
+  >
+    const entries = new Map();
+    let selectedId = null;
+    let selectedCategories = [];
+
+    const initialEntries = initialData.entries || [];
+    for (const entry of initialEntries) entries.set(entry.id, entry);
+
+    const entryList = document.getElementById("entryList");
+    const resultsMeta = document.getElementById("resultsMeta");
+    const form = document.getElementById("entryForm");
+    const errorBox = document.getElementById("adminError");
+    const successBox = document.getElementById("adminSuccess");
+    const errorBoxText = document.getElementById("adminErrorText");
+    const successBoxText = document.getElementById("adminSuccessText");
+    document
+      .getElementById("adminErrorClose")
+      ?.addEventListener("click", () => (errorBox.hidden = true));
+    document
+      .getElementById("adminSuccessClose")
+      ?.addEventListener("click", () => (successBox.hidden = true));
+    const welcomeBanner = document.getElementById("welcomeBanner");
+    const search = document.getElementById("search");
+    const editorTitle = document.getElementById("editorTitle");
+    const openPublic = document.getElementById("openPublic");
+    const thumbnailPreview = document.getElementById("thumbnailPreview");
+    // fade the preview out if the thumbnail doesn't exist (eg. brand new entry)
+    thumbnailPreview.addEventListener("error", () => {
+      thumbnailPreview.style.opacity = "0";
+    });
+    const previewName = document.getElementById("previewName");
+    const previewMeta = document.getElementById("previewMeta");
+    const thumbnailInput = document.getElementById("thumbnailInput");
+    const uploadThumbnail = document.getElementById("uploadThumbnail");
+    const removeThumbnail = document.getElementById("removeThumbnail");
+    const deleteEntry = document.getElementById("deleteEntry");
+    const moveUp = document.getElementById("moveUp");
+    const moveDown = document.getElementById("moveDown");
+    const categoryChips = document.getElementById("categoryChips");
+    const categoryInput = document.getElementById("categoryInput");
+    const addCategory = document.getElementById("addCategory");
+    const sortSelect = document.getElementById("sortSelect");
+    const categorySelect = document.getElementById("categorySelect");
+    const filterToggle = document.getElementById("filterToggle");
+    const filterMenu = document.getElementById("filterMenu");
+
+    // category currently used to filter the list ("" = all)
+    let categoryFilter = "";
+
+    const validSorts = [
+      "mostPopular",
+      "leastPopular",
+      "recentlyAddedDESC",
+      "recentlyAddedASC",
+      "nameDESC",
+      "nameASC",
+    ];
+
+    // persists the current search/sort/category into the url query, keeping the
+    // /admin/theatre/<id> path intact (mirrors the /hub page param handling)
+    function writeParams() {
+      const params = new URLSearchParams(location.search);
+
+      const q = search.value.trim();
+      if (q === "") params.delete("q");
+      else params.set("q", q);
+
+      const sort = sortSelect ? sortSelect.value : "recentlyAddedDESC";
+      if (sort === "recentlyAddedDESC") params.delete("sort");
+      else params.set("sort", sort);
+
+      if (categoryFilter === "") params.delete("category");
+      else params.set("category", categoryFilter);
+
+      const st = params.toString();
+      history.replaceState(
+        {},
+        "",
+        st === "" ? location.pathname : `${location.pathname}?${st}`,
+      );
+    }
+
+    // maps the dropdown value to API sort/order query params
+    // (mirrors the public sort options in TheatreCategory.astro)
+    function sortParams(value) {
+      switch (value) {
+        case "leastPopular":
+          return "order=asc";
+        case "mostPopular":
+          return "sort=plays";
+        case "recentlyAddedASC":
+          return "sort=index&order=asc";
+        case "nameASC":
+          return "sort=name&order=asc";
+        case "nameDESC":
+          return "sort=name&order=desc";
+        case "recentlyAddedDESC":
+        default:
+          return "sort=index";
+      }
+    }
+
+    const fields = {
+      id: document.getElementById("entryId"),
+      name: document.getElementById("name"),
+      type: document.getElementById("type"),
+      src: document.getElementById("src"),
+      plays: document.getElementById("plays"),
+      controls: document.getElementById("controls"),
+    };
+
+    function showBanner(element, textTarget, text) {
+      textTarget.textContent = text;
+      element.hidden = false;
+    }
+
+    function showError(text) {
+      successBox.hidden = true;
+      showBanner(errorBox, errorBoxText, text);
+    }
+
+    function showSuccess(text) {
+      errorBox.hidden = true;
+      showBanner(successBox, successBoxText, text);
+    }
+
+    function defaultControls() {
+      return JSON.stringify(
+        [],
+        null,
+        2,
+      );
+    }
+
+    function getVisibleEntries() {
+      const query = search.value.trim().toLowerCase();
+      return initialEntries.filter((entry) => {
+        const categories = entry.category || [];
+        if (categoryFilter !== "" && !categories.includes(categoryFilter))
+          return false;
+        if (query === "") return true;
+        return (
+          entry.name.toLowerCase().includes(query) ||
+          entry.id.toLowerCase().includes(query) ||
+          categories.some((category) =>
+            category.toLowerCase().includes(query),
+          )
+        );
+      });
+    }
+
+    function refreshVisibleList() {
+      renderList(getVisibleEntries());
+    }
+
+    function renderList(list) {
+      entryList.textContent = "";
+      resultsMeta.textContent = `${list.length} shown of ${initialEntries.length}`;
+
+      if (list.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = emptyStateClass;
+        empty.textContent = "No theatre entries found.";
+        entryList.append(empty);
+        return;
+      }
+
+      for (const entry of list) {
+        const button = document.createElement("a");
+        button.className = entryButtonClass;
+        button.href = `/admin/theatre/${encodeURIComponent(entry.id)}`;
+        button.dataset.id = entry.id;
+        button.dataset.selected = entry.id === selectedId ? "true" : "false";
+        button.innerHTML = `<strong></strong><span></span>`;
+        button.querySelector("strong").textContent = entry.name;
+        button.querySelector("span").textContent = `${entry.id} · ${entry.plays ?? 0} plays · ${(entry.category || []).join(", ")}`;
+        button.addEventListener("click", (event) => {
+          // allow opening in a new tab; otherwise edit inline
+          if (event.metaKey || event.ctrlKey || event.button === 1) return;
+          event.preventDefault();
+          selectEntry(entry.id);
+        });
+        entryList.append(button);
+      }
+    }
+
+    function renderCategories() {
+      categoryChips.textContent = "";
+
+      if (selectedCategories.length === 0) {
+        const empty = document.createElement("span");
+        empty.className = chipClass;
+        empty.dataset.empty = "true";
+        empty.textContent = "No categories";
+        categoryChips.append(empty);
+        return;
+      }
+
+      for (const category of selectedCategories) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = chipClass;
+        button.title = `Remove ${category}`;
+        button.innerHTML = `<span></span><span>${closeIconHtml}</span>`;
+        button.querySelector("span").textContent = category;
+        button.addEventListener("click", () => {
+          selectedCategories = selectedCategories.filter(
+            (value) => value !== category,
+          );
+          renderCategories();
+        });
+        categoryChips.append(button);
+      }
+    }
+
+    function addCategoryValue(value) {
+      const category = value.trim();
+      if (category === "") return;
+      if (!selectedCategories.includes(category)) selectedCategories.push(category);
+      categoryInput.value = "";
+      renderCategories();
+    }
+
+    function updateCachedEntry(entry) {
+      const index = initialEntries.findIndex((item) => item.id === entry.id);
+      const minEntry = {
+        id: entry.id,
+        name: entry.name,
+        category: entry.category,
+        plays: entry.plays,
+      };
+      if (index === -1) initialEntries.push(minEntry);
+      else initialEntries[index] = minEntry;
+      entries.set(entry.id, entry);
+    }
+
+    function updateSelectedListState() {
+      let selectedButton = null;
+      for (const button of entryList.querySelectorAll("[data-id]")) {
+        const isSelected = button.dataset.id === selectedId;
+        button.dataset.selected = isSelected ? "true" : "false";
+        if (isSelected) selectedButton = button;
+      }
+      // bring the active entry into view (eg. when deep-linked on load)
+      if (selectedButton) {
+        const itemTop = selectedButton.offsetTop;
+        const itemBottom = itemTop + selectedButton.offsetHeight;
+        const viewTop = entryList.scrollTop;
+        const viewBottom = viewTop + entryList.clientHeight;
+        if (itemTop < viewTop || itemBottom > viewBottom)
+          selectedButton.scrollIntoView({ block: "nearest" });
+      }
+    }
+
+    function setForm(entry) {
+      selectedId = entry?.id || null;
+      fields.id.value = entry?.id || "";
+      fields.name.value = entry?.name || "";
+      fields.type.value = entry?.type || "embed";
+      fields.src.value = entry?.src || "";
+      fields.plays.value = (entry?.plays || 0).toString();
+      selectedCategories = [...(entry?.category || [])];
+      fields.controls.value = JSON.stringify(entry?.controls || JSON.parse(defaultControls()), null, 2);
+      editorTitle.textContent = entry ? `Editing ${entry.name}` : "New entry";
+      openPublic.href = entry ? `/hub/?v=${encodeURIComponent(entry.id)}` : "/hub/";
+      openPublic.toggleAttribute("hidden", !entry);
+      deleteEntry.disabled = !entry;
+      moveUp.disabled = !entry;
+      moveDown.disabled = !entry;
+      if (entry) {
+        thumbnailPreview.src = `/cdn/thumbnails/${encodeURIComponent(entry.id)}.webp`;
+        thumbnailPreview.style.opacity = "1";
+      } else {
+        // no id yet (new entry): keep the image in layout but blank
+        thumbnailPreview.removeAttribute("src");
+        thumbnailPreview.style.opacity = "0";
+      }
+      // upload is only possible once the entry has an id; remove only when saved
+      if (uploadThumbnail) uploadThumbnail.disabled = false;
+      if (removeThumbnail) removeThumbnail.disabled = !entry;
+      previewName.textContent = entry?.name || "Untitled entry";
+      previewMeta.textContent = entry ? `${entry.id} · ${entry.plays || 0} plays` : "No ID yet";
+      renderCategories();
+      updateSelectedListState();
+    }
+
+    async function loadEntry(id) {
+      const res = await fetch(`/api/theatre/${encodeURIComponent(id)}/`);
+      if (!res.ok) throw new Error("Unable to load theatre entry.");
+      return await res.json();
+    }
+
+    async function selectEntry(id, updateHistory = true) {
+      try {
+        const entry = await loadEntry(id);
+        updateCachedEntry(entry);
+        setForm(entry);
+        if (updateHistory) {
+          const path = `/admin/theatre/${encodeURIComponent(entry.id)}`;
+          // keep the active search/sort/category query when switching games
+          if (location.pathname !== path)
+            history.pushState({}, "", path + location.search);
+        }
+      } catch (err) {
+        showError(err instanceof Error ? err.message : "Unable to load theatre entry.");
+      }
+    }
+
+    // resets the editor to "new entry" and returns to the base admin url
+    function clearSelection(updateHistory = true) {
+      setForm(null);
+      if (updateHistory && location.pathname !== "/admin/theatre")
+        history.pushState({}, "", "/admin/theatre" + location.search);
+    }
+
+    async function refreshList() {
+      try {
+        const query = sortParams(sortSelect ? sortSelect.value : "index");
+        const res = await fetch(`/api/theatre/?${query}`);
+        if (!res.ok) throw new Error("Unable to load theatre entries.");
+        const data = await res.json();
+        initialEntries.splice(0, initialEntries.length, ...(data.entries || []));
+        for (const entry of data.entries || []) entries.set(entry.id, entry);
+        refreshVisibleList();
+      } catch (err) {
+        showError(err instanceof Error ? err.message : "Unable to load theatre entries.");
+      }
+    }
+
+    function readPayload() {
+      let controls;
+      try {
+        controls = JSON.parse(fields.controls.value);
+      } catch {
+        throw new Error("Controls must be valid JSON.");
+      }
+
+      return {
+        name: fields.name.value.trim(),
+        type: fields.type.value,
+        src: fields.src.value.trim(),
+        plays: Number(fields.plays.value || "0"),
+        category: selectedCategories,
+        controls,
+      };
+    }
+
+    async function saveEntry(event) {
+      event.preventDefault();
+
+      try {
+        const payload = readPayload();
+        const id = fields.id.value;
+        const res = await fetch(id ? `/api/theatre/${encodeURIComponent(id)}/` : "/api/theatre/", {
+          method: id ? "PATCH" : "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.message || "Unable to save theatre entry.");
+        updateCachedEntry(json);
+        showSuccess(id ? "Theatre entry updated." : "Theatre entry created.");
+        refreshVisibleList();
+        setForm(json);
+        // a freshly created entry now has a url of its own
+        const path = `/admin/theatre/${encodeURIComponent(json.id)}`;
+        if (location.pathname !== path)
+          history.pushState({}, "", path + location.search);
+      } catch (err) {
+        showError(err instanceof Error ? err.message : "Unable to save theatre entry.");
+      }
+    }
+
+    async function moveEntry(direction) {
+      const id = fields.id.value;
+      if (!id) return;
+
+      try {
+        const res = await fetch(`/api/theatre/${encodeURIComponent(id)}/`, {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ move: direction }),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.message || "Unable to move theatre entry.");
+        // showSuccess(direction === "up" ? "Entry moved up." : "Entry moved down.");
+        await refreshList();
+        await selectEntry(id, false);
+      } catch (err) {
+        showError(err instanceof Error ? err.message : "Unable to move theatre entry.");
+      }
+    }
+
+    async function removeEntry() {
+      const id = fields.id.value;
+      if (!id) return;
+      if (!confirm(`Delete ${fields.name.value || id}?`)) return;
+
+      try {
+        const res = await fetch(`/api/theatre/${encodeURIComponent(id)}/`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error("Unable to delete theatre entry.");
+        entries.delete(id);
+        const index = initialEntries.findIndex((entry) => entry.id === id);
+        if (index !== -1) initialEntries.splice(index, 1);
+        showSuccess("Theatre entry deleted.");
+        clearSelection();
+        refreshVisibleList();
+      } catch (err) {
+        showError(err instanceof Error ? err.message : "Unable to delete theatre entry.");
+      }
+    }
+
+    let searchTimer;
+    search.addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        refreshVisibleList();
+        writeParams();
+      }, 120);
+    });
+
+    document.getElementById("newEntry").addEventListener("click", () => clearSelection());
+    document.getElementById("resetForm").addEventListener("click", async () => {
+      if (selectedId) await selectEntry(selectedId, false);
+      else clearSelection(false);
+    });
+    deleteEntry.addEventListener("click", removeEntry);
+    moveUp.addEventListener("click", () => moveEntry("up"));
+    moveDown.addEventListener("click", () => moveEntry("down"));
+
+    // refresh the preview, busting the cache so a new/removed thumbnail shows
+    function refreshThumbnail() {
+      if (!selectedId) return;
+      thumbnailPreview.src = `/cdn/thumbnails/${encodeURIComponent(selectedId)}.webp?t=${Date.now()}`;
+      thumbnailPreview.style.opacity = "1";
+    }
+
+    // ensure the upload is a 200x200 webp before sending it to the server
+    function validateThumbnail(file) {
+      return new Promise((resolve) => {
+        if (file.type !== "image/webp") {
+          resolve("Thumbnail must be a webp image.");
+          return;
+        }
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          if (img.naturalWidth !== 200 || img.naturalHeight !== 200)
+            resolve(
+              `Thumbnail must be 200x200 (got ${img.naturalWidth}x${img.naturalHeight}).`,
+            );
+          else resolve(undefined);
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve("Could not read the image.");
+        };
+        img.src = url;
+      });
+    }
+
+    uploadThumbnail?.addEventListener("click", () => {
+      if (!selectedId) {
+        showError("Save the entry before uploading a thumbnail.");
+        return;
+      }
+      thumbnailInput.click();
+    });
+    thumbnailInput?.addEventListener("change", async () => {
+      const file = thumbnailInput.files && thumbnailInput.files[0];
+      if (!file || !selectedId) {
+        thumbnailInput.value = "";
+        return;
+      }
+
+      const invalid = await validateThumbnail(file);
+      if (invalid) {
+        showError(invalid);
+        thumbnailInput.value = "";
+        return;
+      }
+
+      try {
+        const body = new FormData();
+        body.append("thumbnail", file);
+        const res = await fetch(
+          `/api/theatre/${encodeURIComponent(selectedId)}/thumbnail`,
+          { method: "PUT", body },
+        );
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.message || "Unable to upload thumbnail.");
+        showSuccess("Thumbnail uploaded.");
+        refreshThumbnail();
+      } catch (err) {
+        showError(err instanceof Error ? err.message : "Unable to upload thumbnail.");
+      } finally {
+        thumbnailInput.value = "";
+      }
+    });
+    removeThumbnail?.addEventListener("click", async () => {
+      if (!selectedId) return;
+      if (!confirm("Remove this thumbnail?")) return;
+
+      try {
+        const res = await fetch(
+          `/api/theatre/${encodeURIComponent(selectedId)}/thumbnail`,
+          { method: "DELETE" },
+        );
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.message || "Unable to remove thumbnail.");
+        showSuccess("Thumbnail removed.");
+        thumbnailPreview.removeAttribute("src");
+        thumbnailPreview.style.opacity = "0";
+      } catch (err) {
+        showError(err instanceof Error ? err.message : "Unable to remove thumbnail.");
+      }
+    });
+
+    addCategory.addEventListener("click", () => addCategoryValue(categoryInput.value));
+    categoryInput.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      addCategoryValue(categoryInput.value);
+    });
+    sortSelect?.addEventListener("change", () => {
+      refreshList();
+      writeParams();
+    });
+    categorySelect?.addEventListener("change", () => {
+      categoryFilter = categorySelect.value || "";
+      refreshVisibleList();
+      writeParams();
+    });
+
+    // filter popover open/close
+    function setFilterOpen(open) {
+      filterMenu.hidden = !open;
+      filterToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    filterToggle?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      setFilterOpen(filterMenu.hidden);
+    });
+    document.addEventListener("click", (event) => {
+      if (filterMenu.hidden) return;
+      if (!filterMenu.contains(event.target) && event.target !== filterToggle)
+        setFilterOpen(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setFilterOpen(false);
+    });
+
+    // export all games to a downloadable JSON file
+    document.getElementById("exportGames")?.addEventListener("click", async () => {
+      try {
+        const res = await fetch("/api/theatre/export");
+        if (!res.ok) throw new Error("Unable to export games.");
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "theatre.json";
+        document.body.append(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showSuccess("Games exported.");
+      } catch (err) {
+        showError(err instanceof Error ? err.message : "Unable to export games.");
+      }
+    });
+
+    // import games from a JSON file, optionally pruning missing entries
+    const importInput = document.getElementById("importInput");
+    const importPrune = document.getElementById("importPrune");
+    document.getElementById("importGames")?.addEventListener("click", () => importInput.click());
+    importInput?.addEventListener("change", async () => {
+      const file = importInput.files && importInput.files[0];
+      if (!file) return;
+
+      const prune = importPrune.checked;
+      if (prune && !confirm("Prune is on: entries not in the file will be deleted. Continue?")) {
+        importInput.value = "";
+        return;
+      }
+
+      try {
+        const text = await file.text();
+        let entries;
+        try {
+          entries = JSON.parse(text);
+        } catch {
+          throw new Error("File is not valid JSON.");
+        }
+
+        const res = await fetch("/api/theatre/import", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ entries, prune }),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.message || "Unable to import games.");
+        showSuccess(
+          `Imported ${json.imported} ${json.imported === 1 ? "entry" : "entries"}` +
+            (prune ? `, pruned ${json.pruned}.` : "."),
+        );
+        await refreshList();
+      } catch (err) {
+        showError(err instanceof Error ? err.message : "Unable to import games.");
+      } finally {
+        importInput.value = "";
+      }
+    });
+
+    form.addEventListener("submit", saveEntry);
+
+    welcomeBanner?.addEventListener("close", () => {
+      const url = new URL(location.href);
+      url.searchParams.delete("welcome");
+      history.replaceState({}, "", url);
+    });
+
+    // resolves the entry id currently encoded in the url, if any
+    function idFromPath() {
+      const match = location.pathname.match(/^\/admin\/theatre\/(.+)$/);
+      return match ? decodeURIComponent(match[1]) : null;
+    }
+
+    // keep the editor in sync with browser back/forward navigation
+    window.addEventListener("popstate", () => {
+      const id = idFromPath();
+      if (id) selectEntry(id, false);
+      else clearSelection(false);
+    });
+
+    // restore search/sort/category from the url query (mirrors the /hub page)
+    const initialParams = new URLSearchParams(location.search);
+
+    const initialQuery = initialParams.get("q");
+    if (initialQuery) search.value = initialQuery;
+
+    const initialSort = initialParams.get("sort");
+    const initialCategory = initialParams.get("category");
+    if (initialCategory) categoryFilter = initialCategory;
+
+    // the ThemeSelect value setter is hooked by its own (deferred) script, so
+    // apply the restored dropdown values after it has initialized
+    requestAnimationFrame(() => {
+      if (initialSort && validSorts.includes(initialSort) && sortSelect)
+        sortSelect.value = initialSort;
+      if (initialCategory && categorySelect)
+        categorySelect.value = initialCategory;
+    });
+
+    renderList(initialEntries);
+    // apply the restored search/category filter to the initial render
+    refreshVisibleList();
+    // if a non-default sort was restored, refetch in that order
+    if (initialSort && initialSort !== "recentlyAddedDESC")
+      requestAnimationFrame(refreshList);
+    // open the entry from the url if present; otherwise start on a blank form
+    if (initialSelectedId) selectEntry(initialSelectedId, false);
+    else setForm(null);
+  </script>
+</MainLayout>

@@ -21,6 +21,14 @@ export const nowpaymentsEnabled: boolean;
  */
 export const accountsEnabled: boolean;
 /**
+ * whether database-backed login/session support is enabled
+ */
+export const userSystemEnabled: boolean;
+/**
+ * whether the first theatre admin can be created from /admin/signup
+ */
+export const theatreAdminSignupEnabled: boolean;
+/**
  * discord bot integration
  */
 export const discordEnabled: boolean;
@@ -32,6 +40,14 @@ export const discordListening: boolean;
  * whether hcaptcha challenges should be displayed
  */
 export const hcaptchaEnabled: boolean;
+/**
+ * whether theatre files (eg. thumbnails) are hosted locally and writable
+ */
+export const theatreFilesEnabled: boolean;
+/**
+ * absolute path to the locally-hosted theatre files, if configured
+ */
+export const theatreFilesPath: string | undefined;
 /**
  * docker connection
  */

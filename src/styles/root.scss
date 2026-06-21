@@ -154,6 +154,18 @@ main > .prettyBanner {
     background-color: #d4edda;
     border-color: #c3e6cb;
   }
+
+  position: relative;
+
+  .close {
+    border: none;
+    font: inherit;
+    right: 15px;
+    position: absolute;
+    color: inherit;
+    background-color: transparent;
+    cursor: pointer;
+  }
 }
 
 .page-title {

@@ -4,11 +4,13 @@ import themeStyles from "@styles/ThemeElements.module.scss";
 // part of the subscriber css
 
 interface Props {
+  id?: string;
   error?: string;
   success?: string;
+  dismissable?: boolean;
 }
 
-const { error, success } = Astro.props;
+const { id, error, success, dismissable = false } = Astro.props;
 
 function markdown(content: string) {
   return content.replace(
@@ -21,7 +23,49 @@ function markdown(content: string) {
 
 {
   success && (
-    <p class="prettyBanner" data-success set:text={markdown(success)} />
+    <p
+      id={id}
+      class="prettyBanner"
+      data-success
+      data-dismissable={dismissable ? "" : undefined}
+    >
+      <span set:text={markdown(success)} />
+      {dismissable && (
+        <button type="button" class="close" aria-label="Dismiss">
+          &times;
+        </button>
+      )}
+    </p>
   )
 }
-{error && <p class="prettyBanner" data-error set:html={markdown(error)} />}
+{
+  error && (
+    <p
+      id={id}
+      class="prettyBanner"
+      data-error
+      data-dismissable={dismissable ? "" : undefined}
+    >
+      <span set:html={markdown(error)} />
+      {dismissable && (
+        <button type="button" class="prettyBannerClose" aria-label="Dismiss">
+          &times;
+        </button>
+      )}
+    </p>
+  )
+}
+
+{
+  dismissable && (
+    <script>
+      document.querySelectorAll<HTMLElement>(".prettyBanner[data-dismissable]").forEach((banner) => {
+        const closeBtn = banner.querySelector<HTMLButtonElement>(".close");
+        closeBtn?.addEventListener("click", () => {
+          banner.dispatchEvent(new CustomEvent("close", { bubbles: true }));
+          banner.remove();
+        });
+      });
+    </script>
+  )
+}
