@@ -20,6 +20,9 @@ const rufflePath = path.resolve(require.resolve("@ruffle-rs/ruffle"), "..");
 // https://astro.build/config
 export default defineConfig({
   output: "server",
+  security: {
+    checkOrigin: false,
+  },
   adapter: node({
     mode: "middleware",
   }),

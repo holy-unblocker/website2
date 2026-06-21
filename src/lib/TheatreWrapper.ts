@@ -396,24 +396,35 @@ export default class TheatreWrapper {
 
     validate(entry);
 
-    const vars: unknown[] = [];
-    await this.client.query(
-      `INSERT INTO theatre(id, name, type, category, src, plays, controls) VALUES ($${vars.push(
-        entry.id,
-      )}, $${vars.push(entry.name)}, $${vars.push(entry.type)}, $${vars.push(
+    const updateVars: unknown[] = [];
+    const updated = await this.client.query(
+      `UPDATE theatre SET name = $${updateVars.push(
+        entry.name,
+      )}, type = $${updateVars.push(entry.type)}, category = $${updateVars.push(
         entry.category.join(","),
-      )}, $${vars.push(entry.src)}, $${vars.push(entry.plays)}, $${vars.push(
+      )}, src = $${updateVars.push(entry.src)}, plays = $${updateVars.push(
+        entry.plays,
+      )}, controls = $${updateVars.push(
         JSON.stringify(entry.controls),
-      )})
-      ON CONFLICT (id) DO UPDATE SET
-        name = EXCLUDED.name,
-        type = EXCLUDED.type,
-        category = EXCLUDED.category,
-        src = EXCLUDED.src,
-        plays = EXCLUDED.plays,
-        controls = EXCLUDED.controls;`,
-      vars,
+      )} WHERE id = $${updateVars.push(entry.id)};`,
+      updateVars,
     );
+
+    if ((updated.rowCount ?? 0) === 0) {
+      const insertVars: unknown[] = [];
+      await this.client.query(
+        `INSERT INTO theatre(id, name, type, category, src, plays, controls) VALUES ($${insertVars.push(
+          entry.id,
+        )}, $${insertVars.push(entry.name)}, $${insertVars.push(
+          entry.type,
+        )}, $${insertVars.push(entry.category.join(","))}, $${insertVars.push(
+          entry.src,
+        )}, $${insertVars.push(entry.plays)}, $${insertVars.push(
+          JSON.stringify(entry.controls),
+        )});`,
+        insertVars,
+      );
+    }
 
     return entry;
   }
