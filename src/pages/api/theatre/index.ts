@@ -3,7 +3,7 @@ import { requireTheatreAdmin } from "@lib/admin";
 import type { ListAPIQuery, ListOptions } from "@lib/TheatreAPI";
 import type { APIRoute } from "astro";
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, locals }) => {
   const q: ListOptions = {};
 
   const query = Object.fromEntries(url.searchParams) as ListAPIQuery;
@@ -21,6 +21,8 @@ export const GET: APIRoute = async ({ url }) => {
   if (typeof query.category === "string")
     q.category = query.category.split(",");
   if (typeof query.ids === "string") q.ids = query.ids.split(",");
+  if (query.includeHidden === "true" && locals.user?.admin)
+    q.includeHidden = true;
 
   const data = await theatreAPI.list(q);
 
@@ -44,6 +46,7 @@ export const POST: APIRoute = async (context) => {
       body.category,
       body.controls,
       typeof body.plays === "number" ? body.plays : undefined,
+      typeof body.hidden === "boolean" ? body.hidden : undefined,
     );
 
     return new Response(JSON.stringify(entry), {

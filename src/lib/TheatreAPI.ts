@@ -42,6 +42,7 @@ export interface TheatreEntry {
   name: string;
   plays: number;
   src: string;
+  hidden: boolean;
 }
 
 export interface TheatreEntryMin {
@@ -49,6 +50,7 @@ export interface TheatreEntryMin {
   id: string;
   category: string[];
   plays?: number;
+  hidden?: boolean;
 }
 
 export interface ListData {
@@ -72,6 +74,7 @@ export interface TheatreEntry {
   name: string;
   plays: number;
   src: string;
+  hidden: boolean;
 }
 
 export interface ListOptions {
@@ -86,6 +89,11 @@ export interface ListOptions {
   limitPerCategory?: number;
   category?: string[] | null;
   ids?: string[];
+  /**
+   * include hidden entries in the results (admin only). public listings omit
+   * hidden entries by default.
+   */
+  includeHidden?: boolean;
 }
 
 export interface ListAPIQuery {
@@ -97,6 +105,7 @@ export interface ListAPIQuery {
   limitPerCategory?: string;
   category?: string;
   ids?: string;
+  includeHidden?: string;
 }
 
 export default class TheatreAPI {
@@ -112,6 +121,7 @@ export default class TheatreAPI {
       if (
         typeof e === "string" ||
         typeof e === "number" ||
+        typeof e === "boolean" ||
         (typeof e === "object" && e !== null)
       )
         result[param] = e.toString();
@@ -172,13 +182,6 @@ export default class TheatreAPI {
       method: "PATCH",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(entry),
-    });
-  }
-  async move(id: string, direction: "up" | "down") {
-    return await this.fetch<TheatreEntry>(id + "/", {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ move: direction }),
     });
   }
   async remove(id: string) {

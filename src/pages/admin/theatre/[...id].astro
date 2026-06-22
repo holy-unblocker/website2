@@ -8,8 +8,6 @@ import FilterIcon from "@icons/sort_24dp.svg?react";
 import EditIcon from "@icons/drive_file_rename_outline_24dp.svg?react";
 import DeleteIcon from "@icons/delete_24dp_FILL1_wght400_GRAD0_opsz24.svg?react";
 import CheckIcon from "@icons/check_24dp.svg?react";
-import ArrowUpIcon from "@icons/arrow_drop_up_24dp.svg?react";
-import ArrowDownIcon from "@icons/arrow_drop_down_24dp.svg?react";
 import CloseIcon from "@icons/close_24dp.svg?react";
 import { theatreAPI } from "@lib/theatre";
 import { theatreFilesEnabled } from "@config/apis";
@@ -26,12 +24,21 @@ if (await acc.isBanned()) return acc.toBan();
 if (!user.admin) return Astro.redirect("/admin/login", 302);
 
 // the panel renders the full list and filters client-side
-const initialData = await theatreAPI.list({ sort: "index" });
+const initialData = await theatreAPI.list({ sort: "index", includeHidden: true });
 const welcome = Astro.url.searchParams.has("welcome");
 
 // optional entry id from the URL (/admin/theatre/<id>); no game is opened by
 // default on the bare /admin/theatre route
 const initialSelectedId = Astro.params.id ?? null;
+
+if (!initialSelectedId && !welcome) {
+  const first = initialData.entries[0];
+  if (first)
+    return Astro.redirect(
+      `/admin/theatre/${encodeURIComponent(first.id)}${Astro.url.search}`,
+      302,
+    );
+}
 ---
 
 <MainLayout title="Theatre Admin">
@@ -39,7 +46,7 @@ const initialSelectedId = Astro.params.id ?? null;
     <div class={styles.header}>
       <div>
         <h1 class="page-title">Theatre Admin</h1>
-        <p>{initialData.total || 0} entries</p>
+        <p id="entryCount">{initialData.total || 0} entries</p>
       </div>
       <div class={styles.headerActions}>
         <label class={styles.pruneToggle} title="Delete entries not present in the imported file">
@@ -126,8 +133,6 @@ const initialSelectedId = Astro.params.id ?? null;
         <div class={styles.editorHeader}>
           <h2 id="editorTitle">New entry</h2>
           <div class={styles.editorHeaderActions}>
-            <button class={styles.iconButton} type="button" id="moveUp" title="Move up" aria-label="Move up" set:html={ArrowUpIcon} />
-            <button class={styles.iconButton} type="button" id="moveDown" title="Move down" aria-label="Move down" set:html={ArrowDownIcon} />
             <a id="openPublic" class={styles.secondaryButton} href="/hub/" target="_blank" rel="noreferrer">Open</a>
           </div>
         </div>
@@ -176,6 +181,10 @@ const initialSelectedId = Astro.params.id ?? null;
             <label class={styles.field}>
               <span>Play count</span>
               <input class={styles.input} type="number" min="0" step="1" name="plays" id="plays" />
+            </label>
+            <label class:list={[styles.field, styles.full, styles.checkboxField]}>
+              <input type="checkbox" name="hidden" id="hidden" />
+              <span>Hidden (not shown in the public theatre)</span>
             </label>
             <div class:list={[styles.field, styles.full]}>
               <span>Categories</span>
@@ -281,6 +290,7 @@ const initialSelectedId = Astro.params.id ?? null;
     for (const entry of initialEntries) entries.set(entry.id, entry);
 
     const entryList = document.querySelector<HTMLDivElement>("#entryList")!;
+    const entryCount = document.querySelector<HTMLParagraphElement>("#entryCount")!;
     const resultsMeta = document.querySelector<HTMLDivElement>("#resultsMeta")!;
     const form = document.querySelector<HTMLFormElement>("#entryForm")!;
     const errorBox = document.querySelector<HTMLParagraphElement>("#adminError")!;
@@ -308,8 +318,6 @@ const initialSelectedId = Astro.params.id ?? null;
     const uploadThumbnail = document.querySelector<HTMLButtonElement>("#uploadThumbnail");
     const removeThumbnail = document.querySelector<HTMLButtonElement>("#removeThumbnail");
     const deleteEntry = document.querySelector<HTMLButtonElement>("#deleteEntry")!;
-    const moveUp = document.querySelector<HTMLButtonElement>("#moveUp")!;
-    const moveDown = document.querySelector<HTMLButtonElement>("#moveDown")!;
     const categoryChips = document.querySelector<HTMLDivElement>("#categoryChips")!;
     const categoryInput = document.querySelector<HTMLInputElement>("#categoryInput")!;
     const addCategory = document.querySelector<HTMLButtonElement>("#addCategory")!;
@@ -380,6 +388,7 @@ const initialSelectedId = Astro.params.id ?? null;
       type: document.querySelector<HTMLSelectElement>("#type")!,
       src: document.querySelector<HTMLInputElement>("#src")!,
       plays: document.querySelector<HTMLInputElement>("#plays")!,
+      hidden: document.querySelector<HTMLInputElement>("#hidden")!,
       controls: document.querySelector<HTMLTextAreaElement>("#controls")!,
     };
 
@@ -433,6 +442,7 @@ const initialSelectedId = Astro.params.id ?? null;
 
     function renderList(list: TheatreEntryMin[]) {
       entryList.textContent = "";
+      entryCount.textContent = `${initialEntries.length} ${initialEntries.length === 1 ? "entry" : "entries"}`;
       resultsMeta.textContent = `${list.length} shown of ${initialEntries.length}`;
 
       if (list.length === 0) {
@@ -449,8 +459,10 @@ const initialSelectedId = Astro.params.id ?? null;
         button.href = `/admin/theatre/${encodeURIComponent(entry.id)}`;
         button.dataset.id = entry.id;
         button.dataset.selected = entry.id === selectedId ? "true" : "false";
+        button.dataset.hidden = entry.hidden ? "true" : "false";
         button.innerHTML = `<strong></strong><span></span>`;
-        button.querySelector("strong")!.textContent = entry.name;
+        button.querySelector("strong")!.textContent =
+          entry.hidden ? `${entry.name} (hidden)` : entry.name;
         button.querySelector("span")!.textContent = `${entry.id} · ${entry.plays ?? 0} plays · ${(entry.category || []).join(", ")}`;
         button.addEventListener("click", (event) => {
           // allow opening in a new tab; otherwise edit inline
@@ -506,6 +518,7 @@ const initialSelectedId = Astro.params.id ?? null;
         name: entry.name,
         category: entry.category,
         plays: entry.plays,
+        hidden: entry.hidden,
       };
       if (index === -1) initialEntries.push(minEntry);
       else initialEntries[index] = minEntry;
@@ -537,14 +550,13 @@ const initialSelectedId = Astro.params.id ?? null;
       fields.type.value = entry?.type || "embed";
       fields.src.value = entry?.src || "";
       fields.plays.value = (entry?.plays || 0).toString();
+      fields.hidden.checked = entry?.hidden ?? false;
       selectedCategories = [...(entry?.category || [])];
       fields.controls.value = JSON.stringify(entry?.controls || JSON.parse(defaultControls()), null, 2);
       editorTitle.textContent = entry ? `Editing ${entry.name}` : "New entry";
       openPublic.href = entry ? `/hub/?v=${encodeURIComponent(entry.id)}` : "/hub/";
       openPublic.toggleAttribute("hidden", !entry);
       deleteEntry.disabled = !entry;
-      moveUp.disabled = !entry;
-      moveDown.disabled = !entry;
       if (entry) {
         thumbnailPreview.src = `/cdn/thumbnails/${encodeURIComponent(entry.id)}.webp`;
         thumbnailPreview.style.opacity = "1";
@@ -594,7 +606,10 @@ const initialSelectedId = Astro.params.id ?? null;
     async function refreshList() {
       try {
         const data = await api.list(
-          sortOptions(sortSelect ? sortSelect.value : "index"),
+          {
+            ...sortOptions(sortSelect ? sortSelect.value : "index"),
+            includeHidden: true,
+          },
         );
         initialEntries.splice(0, initialEntries.length, ...(data.entries || []));
         for (const entry of data.entries || []) entries.set(entry.id, entry);
@@ -617,6 +632,7 @@ const initialSelectedId = Astro.params.id ?? null;
         type: fields.type.value,
         src: fields.src.value.trim(),
         plays: Number(fields.plays.value || "0"),
+        hidden: fields.hidden.checked,
         category: selectedCategories,
         controls,
       };
@@ -650,19 +666,6 @@ const initialSelectedId = Astro.params.id ?? null;
       }
     }
 
-    async function moveEntry(direction: "up" | "down") {
-      const id = fields.id.value;
-      if (!id) return;
-
-      try {
-        await api.move(id, direction);
-        await refreshList();
-        await selectEntry(id, false);
-      } catch (err) {
-        showError(err instanceof Error ? err.message : "Unable to move theatre entry.");
-      }
-    }
-
     async function removeEntry() {
       const id = fields.id.value;
       if (!id) return;
@@ -673,7 +676,7 @@ const initialSelectedId = Astro.params.id ?? null;
         entries.delete(id);
         const index = initialEntries.findIndex((entry) => entry.id === id);
         if (index !== -1) initialEntries.splice(index, 1);
-        showSuccess("Theatre entry deleted.");
+        // showSuccess("Theatre entry deleted.");
         clearSelection();
         refreshVisibleList();
       } catch (err) {
@@ -700,8 +703,6 @@ const initialSelectedId = Astro.params.id ?? null;
         else clearSelection(false);
       });
     deleteEntry.addEventListener("click", removeEntry);
-    moveUp.addEventListener("click", () => moveEntry("up"));
-    moveDown.addEventListener("click", () => moveEntry("down"));
 
     // refresh the preview, busting the cache so a new/removed thumbnail shows
     function refreshThumbnail() {

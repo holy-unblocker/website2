@@ -7,6 +7,7 @@ export interface TheatreModel {
   src: string;
   plays: number;
   controls: string;
+  hidden: boolean;
 }
 
 export interface UserModel {

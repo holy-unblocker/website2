@@ -10,8 +10,11 @@ CREATE TABLE IF NOT EXISTS theatre (
     type TEXT NOT NULL,
     src TEXT NOT NULL,
     plays INTEGER NOT NULL,
-    controls TEXT NOT NULL
+    controls TEXT NOT NULL,
+    hidden BOOLEAN NOT NULL DEFAULT false
 );
+
+ALTER TABLE theatre ADD COLUMN IF NOT EXISTS hidden BOOLEAN NOT NULL DEFAULT false;
 
 CREATE INDEX IF NOT EXISTS trgm_idx ON theatre USING GIST (name gist_trgm_ops);
 

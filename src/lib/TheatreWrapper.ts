@@ -32,6 +32,7 @@ export function rowToMin(entry: m.TheatreModel): TheatreEntryMin {
     name: entry.name,
     category: entry.category.split(","),
     plays: entry.plays,
+    hidden: !!entry.hidden,
   };
 }
 
@@ -227,6 +228,7 @@ export default class TheatreWrapper {
     category: TheatreEntry["category"],
     controls: TheatreEntry["controls"],
     plays?: TheatreEntry["plays"],
+    hidden?: TheatreEntry["hidden"],
   ) {
     const entry = {
       id: Math.random().toString(36).slice(2),
@@ -236,6 +238,7 @@ export default class TheatreWrapper {
       src,
       plays: typeof plays === "number" ? Math.max(0, Math.trunc(plays)) : 0,
       controls,
+      hidden: hidden === true,
     };
 
     validate(entry);
@@ -243,13 +246,13 @@ export default class TheatreWrapper {
     const vars: unknown[] = [];
 
     await this.client.query(
-      `INSERT INTO theatre(id, name, type, category, src, plays, controls) VALUES ($${vars.push(
+      `INSERT INTO theatre(id, name, type, category, src, plays, controls, hidden) VALUES ($${vars.push(
         entry.id,
       )}, $${vars.push(entry.name)}, $${vars.push(entry.type)}, $${vars.push(
         entry.category.join(","),
       )}, $${vars.push(entry.src)}, $${vars.push(entry.plays)}, $${vars.push(
         JSON.stringify(entry.controls),
-      )});`,
+      )}, $${vars.push(entry.hidden)});`,
       vars,
     );
 
@@ -263,6 +266,7 @@ export default class TheatreWrapper {
     category: TheatreEntry["category"],
     controls: TheatreEntry["controls"],
     plays?: TheatreEntry["plays"],
+    hidden?: TheatreEntry["hidden"],
   ) {
     let entry = await this.show(id);
 
@@ -280,6 +284,8 @@ export default class TheatreWrapper {
 
     if (plays === undefined) plays = entry.plays;
 
+    if (hidden === undefined) hidden = entry.hidden;
+
     entry = {
       id,
       name,
@@ -288,6 +294,7 @@ export default class TheatreWrapper {
       src,
       controls,
       plays,
+      hidden,
     };
 
     validate(entry);
@@ -307,54 +314,14 @@ export default class TheatreWrapper {
           JSON.stringify(entry.controls),
         )}, plays = $${vars.push(
           Math.max(0, Math.trunc(entry.plays)),
+        )}, hidden = $${vars.push(
+          entry.hidden === true,
         )} WHERE id = $${vars.push(entry.id)} RETURNING *;`,
         vars,
       )
     ).rows[0];
 
     return res === undefined ? undefined : rowTo(res);
-  }
-  /**
-   * Swap the ordering (index) of an entry with its neighbour in the given
-   * direction. Returns true if a swap occurred.
-   */
-  async move(id: string, direction: "up" | "down"): Promise<boolean> {
-    const current = (
-      await this.client.query<{ index: number }>(
-        "SELECT index FROM theatre WHERE id = $1;",
-        [id],
-      )
-    ).rows[0];
-
-    if (current === undefined) return false;
-
-    // a lower index renders earlier, so "up" targets the greatest index that
-    // is still below the current one
-    const neighbour = (
-      await this.client.query<{ id: string; index: number }>(
-        direction === "up"
-          ? "SELECT id, index FROM theatre WHERE index < $1 ORDER BY index DESC LIMIT 1;"
-          : "SELECT id, index FROM theatre WHERE index > $1 ORDER BY index ASC LIMIT 1;",
-        [current.index],
-      )
-    ).rows[0];
-
-    if (neighbour === undefined) return false;
-
-    // swap via a temporary out-of-range index to satisfy any uniqueness
-    await this.client.query("UPDATE theatre SET index = -1 WHERE id = $1;", [
-      id,
-    ]);
-    await this.client.query("UPDATE theatre SET index = $1 WHERE id = $2;", [
-      current.index,
-      neighbour.id,
-    ]);
-    await this.client.query("UPDATE theatre SET index = $1 WHERE id = $2;", [
-      neighbour.index,
-      id,
-    ]);
-
-    return true;
   }
   async countPlay(id: string): Promise<boolean> {
     return (
@@ -393,6 +360,7 @@ export default class TheatreWrapper {
         typeof input.plays === "number"
           ? Math.max(0, Math.trunc(input.plays))
           : 0,
+      hidden: input.hidden === true,
     };
 
     validate(entry);
@@ -407,6 +375,8 @@ export default class TheatreWrapper {
         entry.plays,
       )}, controls = $${updateVars.push(
         JSON.stringify(entry.controls),
+      )}, hidden = $${updateVars.push(
+        entry.hidden,
       )} WHERE id = $${updateVars.push(entry.id)};`,
       updateVars,
     );
@@ -414,7 +384,7 @@ export default class TheatreWrapper {
     if ((updated.rowCount ?? 0) === 0) {
       const insertVars: unknown[] = [];
       await this.client.query(
-        `INSERT INTO theatre(id, name, type, category, src, plays, controls) VALUES ($${insertVars.push(
+        `INSERT INTO theatre(id, name, type, category, src, plays, controls, hidden) VALUES ($${insertVars.push(
           entry.id,
         )}, $${insertVars.push(entry.name)}, $${insertVars.push(
           entry.type,
@@ -422,7 +392,7 @@ export default class TheatreWrapper {
           entry.src,
         )}, $${insertVars.push(entry.plays)}, $${insertVars.push(
           JSON.stringify(entry.controls),
-        )});`,
+        )}, $${insertVars.push(entry.hidden)});`,
         insertVars,
       );
     }

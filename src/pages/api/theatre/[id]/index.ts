@@ -21,21 +21,6 @@ export const PATCH: APIRoute = async (context) => {
   try {
     const body = await context.request.json();
 
-    // reordering is handled separately from field updates
-    if (body.move === "up" || body.move === "down") {
-      const moved = await theatreAPI.move(context.params.id!, body.move);
-      if (!moved)
-        return new Response(
-          JSON.stringify({ message: "Unable to move entry." }),
-          { status: 400, headers: { "content-type": "application/json" } },
-        );
-
-      const entry = await theatreAPI.show(context.params.id!);
-      return new Response(JSON.stringify(entry), {
-        headers: { "content-type": "application/json" },
-      });
-    }
-
     const entry = await theatreAPI.update(
       context.params.id!,
       body.name,
@@ -44,6 +29,7 @@ export const PATCH: APIRoute = async (context) => {
       body.category,
       body.controls,
       typeof body.plays === "number" ? body.plays : undefined,
+      typeof body.hidden === "boolean" ? body.hidden : undefined,
     );
 
     if (!entry) return new Response(null, { status: 404 });

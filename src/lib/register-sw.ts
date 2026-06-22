@@ -34,29 +34,12 @@ export async function setupServiceWorker() {
       "";
     const wantAdblock = swUrl.includes("adblock=1");
     const hasAdblock = activeUrl.includes("adblock=1");
-
-    // Check the active registration points at the same seeded script. If the
-    // user lost their scope/seed cookie, the seeded path changes, so the
-    // existing scriptURL won't match swPath and we must re-register.
-    let samePath = false;
-    if (activeUrl) {
-      try {
-        samePath = new URL(activeUrl).pathname === swPath;
-      } catch {
-        samePath = false;
-      }
-    }
-
-    if (wantAdblock !== hasAdblock || !samePath) {
+    if (wantAdblock !== hasAdblock) {
       await navigator.serviceWorker.register(swUrl, {
         scope: "/",
         updateViaCache: "none",
       });
-      console.log(
-        !samePath
-          ? "Service worker re-registered (script path changed)"
-          : "Service worker re-registered (adblock toggled)",
-      );
+      console.log("Service worker re-registered (adblock toggled)");
     } else {
       await reg.update();
     }
