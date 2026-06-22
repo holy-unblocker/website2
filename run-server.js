@@ -58,13 +58,13 @@ console.log(chalk.bold("Dependencies:"));
 
 for (const dep of [
   "@ruffle-rs/ruffle",
+  "mrrowisp",
   "@mercuryworkshop/bare-mux",
   "@mercuryworkshop/epoxy-transport",
   "@mercuryworkshop/libcurl-transport",
   "@mercuryworkshop/scramjet",
   "@mercuryworkshop/scramjet-controller",
   "@mercuryworkshop/scramjet-utils",
-  "@mercuryworkshop/wisp-js",
   "@titaniumnetwork-dev/ultraviolet",
 ])
   console.log(

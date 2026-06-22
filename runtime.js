@@ -20,10 +20,7 @@ import { access, copyFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import send from "@fastify/send";
 import parseUrl from "parseurl";
-import {
-  server as wisp,
-  logging as wispLogging,
-} from "@mercuryworkshop/wisp-js/server";
+import { Mrrowisp } from "mrrowisp";
 import bare from "@tomphttp/bare-server-node";
 import { ActivityType, Client, PermissionsBitField } from "discord.js";
 import chalk from "chalk";
@@ -270,6 +267,19 @@ const bareServer = bare.createBareServer("/api/bare/");
 const hostBare = !("separateBareServer" in appConfig);
 const hostWisp = !("separateWispServer" in appConfig);
 
+const wispServerLogging = false;
+/**
+ * @type {Mrrowisp | undefined}
+ */
+let wisp;
+if (hostWisp) {
+  wisp = new Mrrowisp({
+    logLevel: wispServerLogging ? "debug" : "none",
+    allowUDP: false,
+  });
+  await wisp.start();
+}
+
 /**
  *
  * @param {import("http").IncomingMessage} req
@@ -442,9 +452,6 @@ export function handleReq(req, res, middleware) {
 // handle 'upgrade' event on http server
 // the url / is reserved for astro dev server HMR
 
-const wispServerLogging = false;
-wispLogging.set_level(wispServerLogging ? wispLogging.DEBUG : wispLogging.NONE);
-
 export function handleUpgrade(req, socket, head) {
   if (hostBare && bareServer.shouldRoute(req)) {
     bareServer.routeUpgrade(req, socket, head);
@@ -452,7 +459,7 @@ export function handleUpgrade(req, socket, head) {
   }
 
   if (hostWisp && req.url === "/api/wisp/") {
-    wisp.routeRequest(req, socket, head);
+    wisp.route(req, socket, head);
     return;
   }
 
