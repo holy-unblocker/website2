@@ -15,7 +15,6 @@ export const randomCloaks: (string | AppCloak)[] = [
   "about:blank",
   // LMS and educational sites:
   "https://canvas.instructure.com/",
-  "https://www.edmodo.com/",
   "https://www.khanacademy.org/",
   "https://quizlet.com/",
   "https://www.turnitin.com/",
