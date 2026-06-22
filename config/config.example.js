@@ -26,7 +26,7 @@ export const appConfig = {
   // this mirror is used if there are no database credentials
   theatreApiMirror: "https://holyunb.locker/api/theatre/",
   // specifies a holy unblocker theatre mirror
-  theatreFilesMirror: "https://holy-unblocker.github.io/theatre/public/",
+  theatreFilesMirror: "https://holyunb.locker/cdn/",
 
   // specifies the path to where theatre files are hosted.
   // See https://github.com/holy-unblocker/theatre/
