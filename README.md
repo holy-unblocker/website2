@@ -142,7 +142,15 @@ Execute all commands from the root of the project, employing a terminal:
 
 ## <img src="docs/acc.gif" alt="Account System" height="80px">
 
-The first account created will be given admin for convenience.
+The first account created will be given admin for convenience. You can change `theatreAdminSignupEnabled` to false in the config.
+
+## <img src="docs/admin.gif" alt="Admin Stuff" height="80px">
+
+You can hop on the admin panel at http://localhost:8080/admin/ or press the invisible admin panel icon in the navbar. It's to the left of the GitHub repository button.
+
+If your games list looks dull then you can grab a copy of the database from https://github.com/holy-unblocker/theatre/raw/refs/heads/master/games.json and import it into the panel.
+
+<img src="docs/admin.jpg" width="142" height="69">
 
 ## SVG formatting guide
 
@@ -168,6 +176,6 @@ im writing this here because I look crazy for updating like 30 svgs in one commi
   - otherwise, DO NOT ADD THE ABOVE, IT IS USELESS IF THE ICON IS EMBEDDED ON THE PAGE
 
   - `root.css` sets the fill to currentColor
-  - the only exception to this is [./src/icons/ultraviolet.svg](./src/icons/)
-  - the Ultraviolet SVG with colors doesn't exist anywhere else (yet?)
-    - I made the svg btw
+  - the only exception to this is [./src/icons/ultraviolet.svg](./src/icons/ultraviolet.svg) and [./src/icons/scramjet.svg](./src/icons/scramjet.svg)
+  - the Ultraviolet/Scramjet SVG with colors doesn't exist anywhere else (yet?)
+    - I made the svgs btw
