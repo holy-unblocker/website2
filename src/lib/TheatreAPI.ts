@@ -159,4 +159,52 @@ export default class TheatreAPI {
       signal,
     );
   }
+  // ADMIN METHODS
+  async create(entry: Partial<TheatreEntry>) {
+    return await this.fetch<TheatreEntry>("", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(entry),
+    });
+  }
+  async update(id: string, entry: Partial<TheatreEntry>) {
+    return await this.fetch<TheatreEntry>(id + "/", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(entry),
+    });
+  }
+  async move(id: string, direction: "up" | "down") {
+    return await this.fetch<TheatreEntry>(id + "/", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ move: direction }),
+    });
+  }
+  async remove(id: string) {
+    return await this.fetch<unknown>(id + "/", { method: "DELETE" });
+  }
+  async uploadThumbnail(id: string, file: File) {
+    const body = new FormData();
+    body.append("thumbnail", file);
+    return await this.fetch<unknown>(id + "/thumbnail", {
+      method: "PUT",
+      body,
+    });
+  }
+  async deleteThumbnail(id: string) {
+    return await this.fetch<unknown>(id + "/thumbnail", { method: "DELETE" });
+  }
+  async importEntries(entries: unknown, prune: boolean) {
+    return await this.fetch<{ imported: number; pruned: number }>("import", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ entries, prune }),
+    });
+  }
+  async exportBlob(signal?: AbortSignal) {
+    const outgoing = await fetch(this.api + "export", { signal });
+    if (!outgoing.ok) throw new Error("Unable to export games.");
+    return await outgoing.blob();
+  }
 }

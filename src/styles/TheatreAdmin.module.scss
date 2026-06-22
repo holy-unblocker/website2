@@ -73,14 +73,84 @@
 .pruneToggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  height: 38px;
+  padding: 0 12px;
+  box-sizing: border-box;
   font-size: 13px;
-  color: var(--text-accent);
+  color: var(--text);
+  background: var(--background-accent);
+  border: 1px solid var(--border);
+  border-radius: 5px;
   cursor: pointer;
   user-select: none;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 
+  &:hover {
+    background: var(--background-accent-deep-2);
+  }
+
+  // hide the native box; draw our own
   input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    flex: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--background);
     cursor: pointer;
+    position: relative;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+
+    &:checked {
+      background: var(--action);
+      border-color: var(--action);
+    }
+
+    // checkmark
+    &:checked::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 4px;
+      height: 8px;
+      border: solid var(--action-secondary);
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    &:focus-visible {
+      outline: 0;
+      box-shadow: 0 0 0 0.15rem #0056ff3f;
+    }
+  }
+
+  // highlight the whole pill when active
+  &:has(input:checked) {
+    color: var(--action-secondary);
+    background: var(--action);
+    border-color: var(--action);
+
+    input {
+      border-color: var(--action-secondary);
+    }
+
+    input:checked {
+      background: var(--action-secondary);
+      border-color: var(--action-secondary);
+    }
+
+    input:checked::after {
+      border-color: var(--action);
+    }
   }
 }
 
