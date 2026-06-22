@@ -2,6 +2,7 @@
 import SettingsLayout from "@layouts/SettingsLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import styles from "@styles/Settings.module.scss";
+import pt from "@styles/PageTitle.module.scss";
 import Check from "@icons/check_24dp.svg?react";
 import { extractCloakData, getRandomCloak } from "@lib/cloak";
 import Banner from "@components/Banner.astro";
@@ -63,20 +64,20 @@ if (Astro.request.method === "POST")
 
 <SettingsLayout title="Tab Cloak Settings">
   <section class={styles.section}>
-    <h1 class="page-title sub settings">
+    <h1 class:list={[pt.pageTitle, pt.sub, pt.settings, styles.pageTitle]}>
       <HolyText text="Tab Cloak Settings" />
     </h1>
     <Banner success={success} error={error} />
-    <p>
+    <p class={styles.intro}>
       <HolyText
         text="Tab Cloaking allows you to disguise Holy Unblocker as any website (eg. Google Classroom, Apple, Bing, Gmail, about:blank, etc)."
       />
     </p>
-    <div>
-      <p>URL</p>
-      <form method="post">
+    <div class={styles.card}>
+      <form method="post" class:list={[styles.row, styles.rowStacked]}>
         <!-- noscript support -->
-        <div class:list={[themeStyles.ThemeInputBar, styles.inputBar]}>
+        <p>URL</p>
+        <div class:list={[themeStyles.ThemeInputBar, styles.inputBar, styles.control]}>
           <input
             class={themeStyles.thinPadRight}
             type="text"
@@ -92,15 +93,13 @@ if (Astro.request.method === "POST")
         </div>
       </form>
     </div>
-    <div>
+    <div class={styles.cardActions}>
       <form method="post">
         <input type="text" name="type" value="reset" hidden />
         <button class={themeStyles.ThemeButton}
           ><HolyText text="Reset Cloak" /></button
         >
       </form>
-    </div>
-    <div>
       <form method="post">
         <input type="text" name="type" value="random" hidden />
         <button class={themeStyles.ThemeButton}

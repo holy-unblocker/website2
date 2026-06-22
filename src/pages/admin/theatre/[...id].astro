@@ -3,6 +3,8 @@ import MainLayout from "@layouts/MainLayout.astro";
 import Banner from "@components/Banner.astro";
 import ThemeSelect from "@components/ThemeSelect.astro";
 import styles from "@styles/TheatreAdmin.module.scss";
+import pt from "@styles/PageTitle.module.scss";
+import bs from "@styles/Banner.module.scss";
 import SearchIcon from "@icons/search_24dp.svg?react";
 import FilterIcon from "@icons/sort_24dp.svg?react";
 import EditIcon from "@icons/drive_file_rename_outline_24dp.svg?react";
@@ -45,7 +47,7 @@ if (!initialSelectedId && !welcome) {
   <main class={styles.adminMain}>
     <div class={styles.header}>
       <div>
-        <h1 class="page-title">Theatre Admin</h1>
+        <h1 class={pt.pageTitle}>Theatre Admin</h1>
         <p id="entryCount">{initialData.total || 0} entries</p>
       </div>
       <div class={styles.headerActions}>
@@ -69,13 +71,13 @@ if (!initialSelectedId && !welcome) {
         />
       )
     }
-    <p class="prettyBanner" data-error data-dismissable id="adminError" hidden>
+    <p class={bs.prettyBanner} data-error data-dismissable id="adminError" hidden>
       <span id="adminErrorText"></span>
-      <button type="button" class="close" id="adminErrorClose" aria-label="Dismiss">&times;</button>
+      <button type="button" class={bs.close} id="adminErrorClose" aria-label="Dismiss">&times;</button>
     </p>
-    <p class="prettyBanner" data-success data-dismissable id="adminSuccess" hidden>
+    <p class={bs.prettyBanner} data-success data-dismissable id="adminSuccess" hidden>
       <span id="adminSuccessText"></span>
-      <button type="button" class="close" id="adminSuccessClose" aria-label="Dismiss">&times;</button>
+      <button type="button" class={bs.close} id="adminSuccessClose" aria-label="Dismiss">&times;</button>
     </p>
 
     <section class={styles.shell} data-admin-root>

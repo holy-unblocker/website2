@@ -71,6 +71,7 @@ $control-radius: 5px;
 .headerActions {
   flex-wrap: wrap;
   justify-content: flex-end;
+  line-height: 16px;
 }
 
 .pruneToggle {
@@ -80,7 +81,6 @@ $control-radius: 5px;
   height: $control-height;
   padding: 0 10px;
   box-sizing: border-box;
-  font-size: 13px;
   color: var(--text);
   background: var(--background-accent);
   border: 1px solid var(--border);

@@ -1,6 +1,7 @@
 ---
 // this is the register page
 import styles from "@styles/Subscriber.module.scss";
+import bs from "@styles/Banner.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import InputPassword from "@components/InputPassword.astro";
@@ -103,7 +104,7 @@ if (Astro.request.method === "POST") {
       {error && <script>history.pushState({}, "")</script>}
       {
         emailExists && (
-          <p class="prettyBanner" data-error>
+          <p class={bs.prettyBanner} data-error>
             Email already exists.{" "}
             <u>
               <a href="/pro/">Did you mean to login?</a>

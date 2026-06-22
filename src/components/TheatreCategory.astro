@@ -1,6 +1,7 @@
 ---
 import TheatreSearchBar from "@components/TheatreSearchBar.astro";
 import styles from "@styles/TheatreCategory.module.scss";
+import pt from "@styles/PageTitle.module.scss";
 import ThemeSelect from "./ThemeSelect.astro";
 import { dbEnabled, theatreAPI, theatreAPIMirror } from "@lib/theatre";
 import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
@@ -74,16 +75,21 @@ const maxPage =
 
 <TheatreSearchBar />
 <main class={styles.main}>
-  <h1 class="page-title sub">
+  <h1 class:list={[pt.pageTitle, pt.sub]}>
     {
       isGame && (
-        <HolyLink class="back-button" href="/hub/" set:html={ArrowBackIcon} />
+        <HolyLink class={pt.backButton} href="/hub/" set:html={ArrowBackIcon} />
       )
     }
     <HolyText text={Astro.props.name} />
     {
       typeof Astro.props.search !== "string" && (
-        <ThemeSelect options={sortOptions} id="sort" value={sort} />
+        <ThemeSelect
+          class={pt.sort}
+          options={sortOptions}
+          id="sort"
+          value={sort}
+        />
       )
     }
   </h1>

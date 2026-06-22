@@ -1,6 +1,7 @@
 ---
 import styles from "@styles/Subscriber.module.scss";
 import themeStyles from "@styles/ThemeElements.module.scss";
+import pt from "@styles/PageTitle.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import Banner from "@components/Banner.astro";
 import ArrowBackIcon from "@icons/arrow_back_FILL0_wght400_GRAD0_opsz24.svg?react";
@@ -51,11 +52,11 @@ if (!error && isPoor) {
 {isPoor && <script>history.pushState({}, "", "/pro/tiers")</script>}
 <MainLayout>
   <main class={styles.pricing}>
-    <div class:list={["page-title", styles.pageTitle]}>
+    <div class:list={[pt.pageTitle, styles.pageTitle]}>
       {
         user && (
           <a
-            class="back-button"
+            class={pt.backButton}
             href="/pro/dashboard"
             set:html={ArrowBackIcon}
           />

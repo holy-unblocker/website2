@@ -1,0 +1,38 @@
+@use "./common.scss" as *;
+
+.prettyBanner {
+  font-size: 15px;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+  box-sizing: border-box;
+  position: relative;
+
+  a {
+    font-weight: bold;
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  &[data-error] {
+    color: #b94a48;
+    background-color: #f2dede;
+    border-color: #eed3d7;
+  }
+
+  &[data-success] {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+  }
+
+  .close {
+    border: none;
+    font: inherit;
+    right: 15px;
+    position: absolute;
+    color: inherit;
+    background-color: transparent;
+    cursor: pointer;
+  }
+}

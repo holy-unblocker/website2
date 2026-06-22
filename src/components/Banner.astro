@@ -1,5 +1,6 @@
 ---
 import themeStyles from "@styles/ThemeElements.module.scss";
+import styles from "@styles/Banner.module.scss";
 // a really simple wrapper wrapper for the prettybanner element
 // part of the subscriber css
 
@@ -25,13 +26,19 @@ function markdown(content: string) {
   success && (
     <p
       id={id}
-      class="prettyBanner"
+      class={styles.prettyBanner}
+      data-pretty-banner
       data-success
       data-dismissable={dismissable ? "" : undefined}
     >
       <span set:text={markdown(success)} />
       {dismissable && (
-        <button type="button" class="close" aria-label="Dismiss">
+        <button
+          type="button"
+          class={styles.close}
+          data-banner-close
+          aria-label="Dismiss"
+        >
           &times;
         </button>
       )}
@@ -42,13 +49,19 @@ function markdown(content: string) {
   error && (
     <p
       id={id}
-      class="prettyBanner"
+      class={styles.prettyBanner}
+      data-pretty-banner
       data-error
       data-dismissable={dismissable ? "" : undefined}
     >
       <span set:html={markdown(error)} />
       {dismissable && (
-        <button type="button" class="prettyBannerClose" aria-label="Dismiss">
+        <button
+          type="button"
+          class={styles.close}
+          data-banner-close
+          aria-label="Dismiss"
+        >
           &times;
         </button>
       )}
@@ -59,8 +72,8 @@ function markdown(content: string) {
 {
   dismissable && (
     <script>
-      document.querySelectorAll<HTMLElement>(".prettyBanner[data-dismissable]").forEach((banner) => {
-        const closeBtn = banner.querySelector<HTMLButtonElement>(".close");
+      document.querySelectorAll<HTMLElement>("[data-pretty-banner][data-dismissable]").forEach((banner) => {
+        const closeBtn = banner.querySelector<HTMLButtonElement>("[data-banner-close]");
         closeBtn?.addEventListener("click", () => {
           banner.dispatchEvent(new CustomEvent("close", { bubbles: true }));
           banner.remove();

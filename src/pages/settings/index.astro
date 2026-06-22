@@ -2,6 +2,7 @@
 import ThemeSelect from "@components/ThemeSelect.astro";
 import SettingsLayout from "@layouts/SettingsLayout.astro";
 import styles from "@styles/Settings.module.scss";
+import pt from "@styles/PageTitle.module.scss";
 import Banner from "@components/Banner.astro";
 
 let error: string | undefined;
@@ -29,25 +30,29 @@ if (Astro.request.method === "POST")
 <SettingsLayout title="General Settings">
   {error && <Banner error={error} />}
   <section class={styles.section}>
-    <h1 class="page-title sub settings">Theme Settings</h1>
-    <p>Theme:</p>
-    <form>
-      <!-- noscript support -->
-      <input type="text" name="type" value="theme" hidden />
-      <ThemeSelect
-        class={styles.themeSelect}
-        value={Astro.locals.theme}
-        name="value"
-        id="themeSwitcher"
-        options={[
-          { name: "Day", value: "Day" },
-          {
-            name: "Night",
-            value: "night",
-          },
-        ]}
-      />
-    </form>
+    <h1 class:list={[pt.pageTitle, pt.sub, pt.settings, styles.pageTitle]}>
+      Theme Settings
+    </h1>
+    <div class={styles.card}>
+      <form class={styles.row}>
+        <!-- noscript support -->
+        <input type="text" name="type" value="theme" hidden />
+        <p>Theme</p>
+        <ThemeSelect
+          class={styles.themeSelect}
+          value={Astro.locals.theme}
+          name="value"
+          id="themeSwitcher"
+          options={[
+            { name: "Day", value: "day" },
+            {
+              name: "Night",
+              value: "night",
+            },
+          ]}
+        />
+      </form>
+    </div>
   </section>
 </SettingsLayout>
 <script>

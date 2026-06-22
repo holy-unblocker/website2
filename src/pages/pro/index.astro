@@ -1,6 +1,7 @@
 ---
 // login page
 import styles from "@styles/Subscriber.module.scss";
+import pt from "@styles/PageTitle.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import InputPassword from "@components/InputPassword.astro";
@@ -76,7 +77,7 @@ const bai = Astro.url.searchParams.has("bai");
   <main class={styles.subscriberMain}>
     <div class={styles.register}>
       <div class={styles.description}>
-        <h1 class:list={[styles.pageTitle, "page-title"]}>
+        <h1 class:list={[styles.pageTitle, pt.pageTitle]}>
           Subscriber Dashboard
         </h1>
         <p>

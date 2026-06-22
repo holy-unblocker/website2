@@ -1,5 +1,6 @@
 ---
 import themeStyles from "@styles/ThemeElements.module.scss";
+import gh from "@styles/Ghost.module.scss";
 import { appConfig } from "@config/config";
 import MainLayout from "@layouts/MainLayout.astro";
 import HolyText from "@components/HolyText.astro";
@@ -96,7 +97,7 @@ import HolyLink from "@components/HolyLink.astro";
         />
       </p>
     </section>
-    <p class="ghost">
+    <p class={gh.ghost}>
       <HolyText text="Not what you're looking for? Please feel free to " />
       <HolyLink
         class={themeStyles.themeLink}

@@ -96,7 +96,7 @@ const isScramjet = Astro.locals.proxyEngine === "scramjet";
         proxyEngine={Astro.locals.proxyEngine}
       />
     </div>
-    <HolyLink class={styles.poweredBy} href={isScramjet ? "/scramjet" : "/uv"}>
+    <HolyLink class={styles.poweredBy} href={isScramjet ? "/sj" : "/uv"}>
       <Fragment set:html={isScramjet ? ScramjetIcon : UltravioletIcon} />
       <span
         ><HolyText text="Powered by " /><b

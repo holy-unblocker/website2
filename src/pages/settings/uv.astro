@@ -2,6 +2,8 @@
 import ThemeSelect from "@components/ThemeSelect.astro";
 import SettingsLayout from "@layouts/SettingsLayout.astro";
 import styles from "@styles/Settings.module.scss";
+import pt from "@styles/PageTitle.module.scss";
+import gh from "@styles/Ghost.module.scss";
 import Check from "@icons/check_24dp.svg?react";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import Banner from "@components/Banner.astro";
@@ -59,112 +61,124 @@ if (Astro.request.method === "POST")
 
 <SettingsLayout title="Proxy Settings">
   <section class={styles.section}>
-    <h1 class="page-title sub settings"><HolyText text="Proxy Settings" /></h1>
+    <h1 class:list={[pt.pageTitle, pt.sub, pt.settings, styles.pageTitle]}>
+      <HolyText text="Proxy Settings" />
+    </h1>
     <Banner error={error} />
-    <form method="post">
-      <p><HolyText text="Proxy Mode:" /></p>
-      <ThemeSelect
-        name="proxyMode"
-        id="proxyMode"
-        class={styles.themeSelect}
-        options={[
-          { name: "Embedded", value: "embedded" },
-          { name: "Redirect", value: "redirect" },
-          { name: "about:blank", value: "about:blank" },
-        ]}
-        value={Astro.locals.proxyMode}
-      />
-    </form>
-    <form method="post">
-      <p><HolyText text="Search Engine:" /></p>
-      <ThemeSelect
-        name="searchEngine"
-        class={styles.themeSelect}
-        id="searchEngine"
-        options={searchEngines.map(({ name }, i) => ({
-          name,
-          value: i.toString(),
-        }))}
-        value={Astro.locals.searchEngine.toString()}
-      />
-    </form><form method="post">
-      <p><HolyText text="Transport:" /></p>
-      <ThemeSelect
-        name="proxyTransport"
-        id="proxyTransport"
-        class={styles.themeSelect}
-        options={[
-          { name: "Epoxy", value: "epoxy" },
-          { name: "Bare", value: "bare" },
-        ]}
-        value={Astro.locals.proxyTransport}
-      />
-    </form>
-    <form method="post">
-      <p><HolyText text="Proxy Engine:" /></p>
-      <ThemeSelect
-        name="proxyEngine"
-        id="proxyEngine"
-        class={styles.themeSelect}
-        options={[
-          { name: "Scramjet", value: "scramjet" },
-          { name: "Ultraviolet", value: "uv" },
-        ]}
-        value={Astro.locals.proxyEngine}
-      />
-    </form>
-    <form method="post">
-      <input type="text" name="type" value="adblock" hidden />
-      <p><HolyText text="Adblock:" /></p>
-      <ThemeSelect
-        name="adblock"
-        id="adblock"
-        class={styles.themeSelect}
-        options={[
-          { name: "Off", value: "0" },
-          { name: "On", value: "1" },
-        ]}
-        value={Astro.locals.adblock ? "1" : "0"}
-      />
-    </form>
-    <form method="post">
-      <!-- noscript support -->
-      <p><HolyText text="Bare Server:" /></p>
-      <input type="text" name="type" value="bareServer" hidden />
-      <div class:list={[themeStyles.ThemeInputBar, styles.inputBar]}>
-        <input
-          class={themeStyles.thinPadRight}
-          type="text"
-          name="newBareUrl"
-          placeholder="https://holyunb.locker/api/bare/"
-          id="newBareUrl"
+
+    <div class={styles.card}>
+      <p class={styles.cardTitle}><HolyText text="Connection" /></p>
+      <form method="post" class={styles.row}>
+        <p><HolyText text="Proxy Mode" /></p>
+        <ThemeSelect
+          name="proxyMode"
+          id="proxyMode"
+          class={styles.themeSelect}
+          options={[
+            { name: "Embedded", value: "embedded" },
+            { name: "Redirect", value: "redirect" },
+            { name: "about:blank", value: "about:blank" },
+          ]}
+          value={Astro.locals.proxyMode}
         />
-        <button
-          type="submit"
-          class:list={[themeStyles.ThemeButton, themeStyles.block]}
-          set:html={Check}
+      </form>
+      <form method="post" class={styles.row}>
+        <p><HolyText text="Search Engine" /></p>
+        <ThemeSelect
+          name="searchEngine"
+          class={styles.themeSelect}
+          id="searchEngine"
+          options={searchEngines.map(({ name }, i) => ({
+            name,
+            value: i.toString(),
+          }))}
+          value={Astro.locals.searchEngine.toString()}
         />
-      </div>
-    </form>
-    <form method="post">
-      <!-- noscript support -->
-      <p><HolyText text="Wisp Server:" /></p>
-      <input type="text" name="type" value="wispServer" hidden />
-      <div class:list={[themeStyles.ThemeInputBar, styles.inputBar]}>
-        <input
-          class={themeStyles.thinPadRight}
-          type="text"
-          name="newWispUrl"
-          placeholder="wss://holyunb.locker/api/wisp/"
-          id="newWispUrl"
+      </form>
+      <form method="post" class={styles.row}>
+        <p><HolyText text="Transport" /></p>
+        <ThemeSelect
+          name="proxyTransport"
+          id="proxyTransport"
+          class={styles.themeSelect}
+          options={[
+            { name: "Epoxy", value: "epoxy" },
+            { name: "Bare", value: "bare" },
+          ]}
+          value={Astro.locals.proxyTransport}
         />
-        <button
-          type="submit"
-          class:list={[themeStyles.ThemeButton, themeStyles.block]}
-          set:html={Check}
+      </form>
+      <form method="post" class={styles.row}>
+        <p><HolyText text="Proxy Engine" /></p>
+        <ThemeSelect
+          name="proxyEngine"
+          id="proxyEngine"
+          class={styles.themeSelect}
+          options={[
+            { name: "Scramjet", value: "scramjet" },
+            { name: "Ultraviolet", value: "uv" },
+          ]}
+          value={Astro.locals.proxyEngine}
         />
-      </div>
-    </form>
+      </form>
+      <form method="post" class={styles.row}>
+        <input type="text" name="type" value="adblock" hidden />
+        <p><HolyText text="Adblock" /></p>
+        <ThemeSelect
+          name="adblock"
+          id="adblock"
+          class={styles.themeSelect}
+          options={[
+            { name: "Off", value: "0" },
+            { name: "On", value: "1" },
+          ]}
+          value={Astro.locals.adblock ? "1" : "0"}
+        />
+      </form>
+    </div>
+
+    <div class={styles.card}>
+      <p class={styles.cardTitle}><HolyText text="Servers" /></p>
+      <form method="post" class:list={[styles.row, styles.rowStacked]}>
+        <!-- noscript support -->
+        <p><HolyText text="Bare Server" /></p>
+        <input type="text" name="type" value="bareServer" hidden />
+        <div class:list={[themeStyles.ThemeInputBar, styles.inputBar, styles.control]}>
+          <input
+            class={themeStyles.thinPadRight}
+            type="text"
+            name="newBareUrl"
+            placeholder="https://holyunb.locker/api/bare/"
+            id="newBareUrl"
+          />
+          <button
+            type="submit"
+            class:list={[themeStyles.ThemeButton, themeStyles.block]}
+            set:html={Check}
+          />
+        </div>
+      </form>
+      <form method="post" class:list={[styles.row, styles.rowStacked]}>
+        <!-- noscript support -->
+        <p><HolyText text="Wisp Server" /></p>
+        <input type="text" name="type" value="wispServer" hidden />
+        <div class:list={[themeStyles.ThemeInputBar, styles.inputBar, styles.control]}>
+          <input
+            class={themeStyles.thinPadRight}
+            type="text"
+            name="newWispUrl"
+            placeholder="wss://holyunb.locker/api/wisp/"
+            id="newWispUrl"
+          />
+          <button
+            type="submit"
+            class:list={[themeStyles.ThemeButton, themeStyles.block]}
+            set:html={Check}
+          />
+        </div>
+      </form>
+    </div>
+
     <!-- noscript!!!! -->
     <noscript>
       <input
@@ -175,7 +189,7 @@ if (Astro.request.method === "POST")
     </noscript>
     {
       !Astro.locals.isMainWebsite && (
-        <p class="ghost">
+        <p class:list={[gh.ghost, styles.ghost]}>
           <HolyText text="Are you the maintainer of this instance? If you want to use a separate Wisp server by default, and even configure it on a subdomain, you can change 'separateWispServer' in ./config/config.js of your instance." />
         </p>
       )
