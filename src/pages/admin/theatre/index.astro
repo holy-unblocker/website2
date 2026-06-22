@@ -4,19 +4,22 @@ import { canBootstrapTheatreAdmin } from "@lib/admin";
 
 const { user, acc } = Astro.locals;
 if (!user) {
-  if (await canBootstrapTheatreAdmin()) return Astro.redirect("/admin/signup", 302);
+  if (await canBootstrapTheatreAdmin())
+    return Astro.redirect("/admin/signup", 302);
   return Astro.redirect("/admin/login", 302);
 }
 if (await acc.isBanned()) return acc.toBan();
 if (!user.admin) return Astro.redirect("/admin/login", 302);
 
 // the editor lives in [...id].astro; redirect to the first game in the list
-const { entries } = await theatreAPI.list({ sort: "index", includeHidden: true });
+const { entries } = await theatreAPI.list({
+  sort: "index",
+  includeHidden: true,
+});
 const first = entries[0];
-return Astro.redirect(
-  first
-    ? `/admin/theatre/${encodeURIComponent(first.id)}${Astro.url.search}`
-    : `/admin/theatre${Astro.url.search}`,
-  302,
-);
+const page = first
+  ? `/admin/theatre/${encodeURIComponent(first.id)}${Astro.url.search}`
+  : `/admin/theatre${Astro.url.search}`;
+page; // clear unused warning
+return Astro.redirect(page, 302);
 ---
