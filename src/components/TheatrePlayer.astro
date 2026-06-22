@@ -208,10 +208,12 @@ if (mirrorError) {
     setupBareMux,
     scramjetGo,
     getProxyEngine,
+    getUvConfig,
   } from "@lib/register-sw";
 
   function encodeUvUrl(src: string): string {
-    return __uv$config!.prefix + __uv$config.encodeUrl!(src);
+    const uvConfig = getUvConfig();
+    return uvConfig.prefix + uvConfig.encodeUrl(src);
   }
 
   // called on page load and when fullscreen changes

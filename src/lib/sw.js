@@ -1,7 +1,7 @@
 // Ultraviolet + Scramjet service worker, with optional domain adblocking.
 importScripts("/uv/uv.bundle.js");
 importScripts("/uv/uv.config.js");
-importScripts(__uv$config.sw || "/uv/uv.sw.js");
+importScripts(globalThis["__uv$config"].sw || "/uv/uv.sw.js");
 importScripts("/scramjet/controller.sw.js");
 
 let uv;
@@ -69,11 +69,20 @@ function scramjetTargetHostname(reqUrl) {
   }
 }
 
+function getUvConfig() {
+  return globalThis["__uv$config"];
+}
+
+function getScramjetController() {
+  return globalThis["$scramjetController"];
+}
+
 // Extract the real target hostname from an Ultraviolet service URL.
 function uvTargetHostname(reqUrl) {
   try {
-    const encoded = new URL(reqUrl).pathname.replace(__uv$config.prefix, "");
-    return new URL(__uv$config.decodeUrl(encoded)).hostname;
+    const uvConfig = getUvConfig();
+    const encoded = new URL(reqUrl).pathname.replace(uvConfig.prefix, "");
+    return new URL(uvConfig.decodeUrl(encoded)).hostname;
   } catch {
     return null;
   }
@@ -82,21 +91,25 @@ function uvTargetHostname(reqUrl) {
 const blocked = () => new Response(new Blob(), { status: 406 });
 
 self.addEventListener("fetch", (event) => {
+  const scramjetController = getScramjetController();
+
   // Scramjet handles its own service prefix.
   if (
-    typeof $scramjetController !== "undefined" &&
-    $scramjetController.shouldRoute(event)
+    typeof scramjetController !== "undefined" &&
+    scramjetController.shouldRoute(event)
   ) {
     if (isBlacklistedDomain(scramjetTargetHostname(event.request.url))) {
       event.respondWith(blocked());
       return;
     }
-    event.respondWith($scramjetController.route(event));
+    event.respondWith(scramjetController.route(event));
     return;
   }
 
+  const uvConfig = getUvConfig();
+
   // Ultraviolet
-  if (event.request.url.startsWith(location.origin + __uv$config.prefix)) {
+  if (event.request.url.startsWith(location.origin + uvConfig.prefix)) {
     if (isBlacklistedDomain(uvTargetHostname(event.request.url))) {
       event.respondWith(blocked());
       return;

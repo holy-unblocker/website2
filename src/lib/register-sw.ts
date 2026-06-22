@@ -1,5 +1,14 @@
 /// <reference types="@mercuryworkshop/scramjet-controller" />
 import { BareMuxConnection } from "@mercuryworkshop/bare-mux";
+import type * as Scramjet from "@mercuryworkshop/scramjet";
+import type * as ScramjetController from "@mercuryworkshop/scramjet-controller";
+
+type UvConfig = {
+  prefix: string;
+  encodeUrl: (url: string) => string;
+  decodeUrl: (url: string) => string;
+  sw?: string;
+};
 
 // registers the randomized service worker and sets up BareMux.
 export async function setupServiceWorker() {
@@ -125,20 +134,38 @@ async function createScramjetTransport() {
 }
 
 let scramjetReady: Promise<void> | undefined;
-let scramjetController:
-  | InstanceType<typeof $scramjetController.Controller>
-  | undefined;
+let activeScramjetController: ScramjetController.Controller | undefined;
 const scramjetFrames = new WeakMap<
   HTMLIFrameElement,
-  InstanceType<typeof $scramjetController.Frame>
+  ScramjetController.Frame
 >();
+
+function getGlobalValue<T>(name: string): T {
+  const value = (globalThis as Record<string, unknown>)[name];
+  if (!value) throw new Error(`Missing proxy global: ${name}`);
+  return value as T;
+}
+
+export function getUvConfig(): UvConfig {
+  return getGlobalValue<UvConfig>(getProxyRoutes().globals.uvConfig);
+}
+
+function getScramjet(): typeof Scramjet {
+  return getGlobalValue<typeof Scramjet>(getProxyRoutes().globals.scramjet);
+}
+
+function getScramjetController(): typeof ScramjetController {
+  return getGlobalValue<typeof ScramjetController>(
+    getProxyRoutes().globals.scramjetController,
+  );
+}
 
 export function setupScramjet(): Promise<void> {
   if (scramjetReady) return scramjetReady;
 
   scramjetReady = (async () => {
-    const { Controller } = $scramjetController;
-    const { defaultConfig } = $scramjet;
+    const { Controller } = getScramjetController();
+    const { defaultConfig } = getScramjet();
     const routes = getProxyRoutes();
 
     const [registration, transport] = await Promise.all([
@@ -153,10 +180,10 @@ export function setupScramjet(): Promise<void> {
       serviceworker,
       transport,
       config: {
-        prefix: routes.scramjet.prefix,
-        scramjetPath: routes.scramjet.scramjetPath,
-        wasmPath: routes.scramjet.wasmPath,
-        injectPath: routes.scramjet.injectPath,
+        prefix: routes.sjConfig.prefix,
+        scramjetPath: routes.sjConfig.scramjetPath,
+        wasmPath: routes.sjConfig.wasmPath,
+        injectPath: routes.sjConfig.injectPath,
       },
       scramjetConfig: {
         ...defaultConfig,
@@ -168,7 +195,7 @@ export function setupScramjet(): Promise<void> {
       },
     });
     await controller.wait();
-    scramjetController = controller;
+    activeScramjetController = controller;
 
     console.log("Scramjet controller initialized at", controller.prefix);
   })();
@@ -203,7 +230,20 @@ type ProxyRoutes = {
     | "scramjetControllerSw",
     string
   >;
-  scramjet: {
+  globals: {
+    uvConfig: string;
+    scramjet: string;
+    scramjetController: string;
+  };
+  uvConfig: {
+    prefix: string;
+    handler: string;
+    bundle: string;
+    config: string;
+    client: string;
+    sw: string;
+  };
+  sjConfig: {
     prefix: string;
     scramjetPath: string;
     wasmPath: string;
@@ -221,7 +261,7 @@ function getProxyRoutes(): ProxyRoutes {
 
 // the randomized /scram/service/ prefix for the current user
 export function getScramjetPrefix(): string {
-  return getProxyRoutes().scramjet.prefix;
+  return getProxyRoutes().sjConfig.prefix;
 }
 
 export async function scramjetGo(
@@ -229,11 +269,12 @@ export async function scramjetGo(
   url: string,
 ): Promise<void> {
   await setupScramjet();
-  if (!scramjetController) throw new Error("Scramjet controller is not ready.");
+  if (!activeScramjetController)
+    throw new Error("Scramjet controller is not ready.");
 
   let frame = scramjetFrames.get(iframe);
   if (!frame) {
-    frame = scramjetController.createFrame(iframe);
+    frame = activeScramjetController.createFrame(iframe);
     scramjetFrames.set(iframe, frame);
   }
   frame.go(url);

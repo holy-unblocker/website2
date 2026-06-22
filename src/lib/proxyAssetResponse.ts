@@ -10,6 +10,9 @@ const publicRoot = path.resolve(process.cwd(), "public");
 const serviceWorkerPath = path.resolve(process.cwd(), "src/lib/sw.js");
 const staticRoots = [path.resolve(process.cwd(), "dist/client"), publicRoot];
 const ruffleRoot = path.resolve(require.resolve("@ruffle-rs/ruffle"), "..");
+const legacyUvConfigGlobal = "__uv" + "$config";
+const legacyScramjetGlobal = "$" + "scramjet";
+const legacyScramjetControllerGlobal = legacyScramjetGlobal + "Controller";
 
 const contentTypes: Record<string, string> = {
   ".js": "application/javascript; charset=utf-8",
@@ -53,7 +56,19 @@ function withProxyTemplates(
   routes: App.Locals["proxyRoutes"],
   currentPublicPath?: string,
 ) {
-  let out = source.replaceAll("__uv$config", routes.uvConfigGlobal);
+  const scramjetPlaceholder = "__HU_SCRAMJET_GLOBAL__";
+  const scramjetControllerPlaceholder = "__HU_SCRAMJET_CONTROLLER_GLOBAL__";
+  let out = source.replaceAll(legacyUvConfigGlobal, routes.globals.uvConfig);
+  out = out.replaceAll(
+    legacyScramjetControllerGlobal,
+    scramjetControllerPlaceholder,
+  );
+  out = out.replaceAll(legacyScramjetGlobal, scramjetPlaceholder);
+  out = out.replaceAll(
+    scramjetControllerPlaceholder,
+    routes.globals.scramjetController,
+  );
+  out = out.replaceAll(scramjetPlaceholder, routes.globals.scramjet);
   out = out.replaceAll("/scram/service/", routes.paths.scramService);
   out = out.replaceAll("/sw.js", routes.paths.serviceWorker);
 
@@ -79,13 +94,16 @@ function withProxyTemplates(
 }
 
 function uvConfigSource(routes: App.Locals["proxyRoutes"]) {
-  return `self[${JSON.stringify(routes.uvConfigGlobal)}] = {\n  prefix: ${JSON.stringify(routes.uvConfig.prefix)},\n  encodeUrl: Ultraviolet.codec.xor.encode,\n  decodeUrl: Ultraviolet.codec.xor.decode,\n  handler: ${JSON.stringify(routes.uvConfig.handler)},\n  bundle: ${JSON.stringify(routes.uvConfig.bundle)},\n  config: ${JSON.stringify(routes.uvConfig.config)},\n  client: ${JSON.stringify(routes.uvConfig.client)},\n  sw: ${JSON.stringify(routes.uvConfig.sw)},\n};\nself.__uv$config = self[${JSON.stringify(routes.uvConfigGlobal)}];\n`;
+  return `self[${JSON.stringify(routes.globals.uvConfig)}] = {\n  prefix: ${JSON.stringify(routes.uvConfig.prefix)},\n  encodeUrl: Ultraviolet.codec.xor.encode,\n  decodeUrl: Ultraviolet.codec.xor.decode,\n  handler: ${JSON.stringify(routes.uvConfig.handler)},\n  bundle: ${JSON.stringify(routes.uvConfig.bundle)},\n  config: ${JSON.stringify(routes.uvConfig.config)},\n  client: ${JSON.stringify(routes.uvConfig.client)},\n  sw: ${JSON.stringify(routes.uvConfig.sw)},\n};\n`;
 }
 
 function patchScramjetControllerWorker(source: string) {
+  const scramjetConfigPrefix = `globalThis[${JSON.stringify(
+    legacyScramjetGlobal,
+  )}].config.prefix`;
   const patched = source.replace(
     "headers:n.headers",
-    "headers:((e,s)=>{let t=new Headers,r=Array.isArray(e)?e:Object.entries(e||{});for(let[e,o]of r){if(Array.isArray(o))t.append(o[0],o[1]);else if(/^\\d+$/.test(e)){let s=String(o),r=s.indexOf(',');r>0&&t.append(s.slice(0,r),s.slice(r+1))}else t.append(e,String(o))}let o=t.get('location');if(o){try{let e=new URL(o,s),r='/'+encodeURIComponent(e.href);t.set('location',location.origin+$scramjet.config.prefix+'x/'+r)}catch{}}return t})(n.headers,o&&o.url)",
+    `headers:((e,s)=>{let t=new Headers,r=Array.isArray(e)?e:Object.entries(e||{});for(let[e,o]of r){if(Array.isArray(o))t.append(o[0],o[1]);else if(/^\\d+$/.test(e)){let s=String(o),r=s.indexOf(',');r>0&&t.append(s.slice(0,r),s.slice(r+1))}else t.append(e,String(o))}let o=t.get('location');if(o){try{let e=new URL(o,s),r='/'+encodeURIComponent(e.href);t.set('location',location.origin+${scramjetConfigPrefix}+'x/'+r)}catch{}}return t})(n.headers,o&&o.url)`,
   );
   if (patched === source) {
     throw new Error("Unable to patch Scramjet controller worker headers.");

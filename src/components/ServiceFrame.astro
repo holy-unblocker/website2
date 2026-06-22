@@ -28,6 +28,7 @@ import Public from "@icons/public_24dp.svg?react";
     setupScramjet,
     scramjetGo,
     getProxyEngine,
+    getUvConfig,
   } from "@lib/register-sw";
   import { presentAboutBlank } from "@lib/aboutBlank";
 
@@ -36,7 +37,8 @@ import Public from "@icons/public_24dp.svg?react";
   let lastSrc: string | undefined;
 
   function encodeUvUrl(src: string): string {
-    return __uv$config!.prefix + __uv$config.encodeUrl!(src);
+    const uvConfig = getUvConfig();
+    return uvConfig.prefix + uvConfig.encodeUrl(src);
   }
 
   function isProxyPage() {

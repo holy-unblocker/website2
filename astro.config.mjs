@@ -41,6 +41,13 @@ export default defineConfig({
         ],
       },
       assetsInlineLimit: 0,
+      rollupOptions: {
+        output: {
+          assetFileNames: "_astro/[hash][extname]",
+          chunkFileNames: "_astro/[hash].js",
+          entryFileNames: "_astro/[hash].js",
+        },
+      },
     },
     plugins: [
       svgr(),

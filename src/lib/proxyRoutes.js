@@ -13,6 +13,7 @@ export const proxyRouteCookieMaxAge = 60 * 60 * 24 * 400;
 const require = createRequire(import.meta.url);
 let vendorAssetRegistry;
 const proxyAssetVersion = "2026-06-headers-v2";
+const astroAssetBase = "/_astro";
 
 function packageDist(specifier) {
   let dir = path.dirname(require.resolve(specifier));
@@ -62,7 +63,11 @@ function segment(seed, label) {
 }
 
 function routePath(seed, label, ext = "") {
-  return `/${segment(seed, label)}${ext}`;
+  return `${astroAssetBase}/${segment(seed, label)}${ext}`;
+}
+
+function routePrefix(seed, label, ext = ".js") {
+  return `${astroAssetBase}/${segment(seed, label)}${ext}/`;
 }
 
 function walkFiles(root, dir = "") {
@@ -133,13 +138,17 @@ export function getProxyRouteMap(seed) {
     "-",
     "_",
   );
+  const scramjetGlobalSuffix = segment(
+    normalizedSeed,
+    "scramjet-global",
+  ).replaceAll("-", "_");
 
   const paths = {
     serviceWorker: routePath(normalizedSeed, "service-worker", ".js"),
-    uvService: `/${segment(normalizedSeed, "uv-service")}/`,
-    scramService: `/${segment(normalizedSeed, "scram-service")}/`,
-    registerUV: routePath(normalizedSeed, "register-uv"),
-    registerScramjet: routePath(normalizedSeed, "register-scramjet"),
+    uvService: routePrefix(normalizedSeed, "uv-service"),
+    scramService: routePrefix(normalizedSeed, "scram-service"),
+    registerUV: routePath(normalizedSeed, "register-uv", ".html"),
+    registerScramjet: routePath(normalizedSeed, "register-scramjet", ".html"),
   };
 
   const assets = {
@@ -159,6 +168,11 @@ export function getProxyRouteMap(seed) {
     scramjetControllerInject: file(files, "/scramjet/controller.inject.js"),
     scramjetControllerSw: file(files, "/scramjet/controller.sw.js"),
   };
+  const globals = {
+    uvConfig: uvConfigSuffix,
+    scramjet: scramjetGlobalSuffix,
+    scramjetController: scramjetGlobalSuffix,
+  };
 
   return {
     seed: normalizedSeed,
@@ -166,7 +180,8 @@ export function getProxyRouteMap(seed) {
     routeFiles,
     paths,
     assets,
-    uvConfigGlobal: `__uv$config_${uvConfigSuffix}`,
+    globals,
+    uvConfigGlobal: globals.uvConfig,
     uvConfig: {
       prefix: paths.uvService,
       handler: assets.uvHandler,
@@ -175,7 +190,7 @@ export function getProxyRouteMap(seed) {
       client: assets.uvClient,
       sw: assets.uvSw,
     },
-    scramjet: {
+    sjConfig: {
       prefix: paths.scramService,
       scramjetPath: assets.scramjet,
       wasmPath: assets.scramjetWasm,
@@ -194,8 +209,9 @@ export function serializeProxyRoutes(routes) {
   return JSON.stringify({
     paths: routes.paths,
     assets: routes.assets,
+    globals: routes.globals,
     uvConfigGlobal: routes.uvConfigGlobal,
     uvConfig: routes.uvConfig,
-    scramjet: routes.scramjet,
+    sjConfig: routes.sjConfig,
   });
 }

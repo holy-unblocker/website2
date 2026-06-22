@@ -5,7 +5,10 @@ import UltravioletScripts from "@components/UltravioletScripts.astro";
 import "@fontsource/lato/index.css";
 import "@fontsource/lato/700.css";
 import CompatLayout from "@layouts/CompatLayout.astro";
-import { proxyAssetResponse } from "@lib/proxyAssetResponse";
+import {
+  proxyAssetResponse,
+  staticAssetResponse,
+} from "@lib/proxyAssetResponse";
 import "@styles/root.scss";
 import "@styles/theme.scss";
 
@@ -19,7 +22,11 @@ let engine: "uv" | "scramjet" | null = null;
 if (pathname === routes.paths.registerUV) engine = "uv";
 else if (pathname === routes.paths.registerScramjet) engine = "scramjet";
 
-if (engine === null) return new Response(null, { status: 404 });
+if (engine === null) {
+  const staticFile = await staticAssetResponse(pathname);
+  if (staticFile) return staticFile;
+  return new Response(null, { status: 404 });
+}
 
 Astro.response.headers.set("x-robots-tag", "noindex");
 
