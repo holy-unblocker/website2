@@ -62,6 +62,7 @@
   },
   "devDependencies": {
     "husky": "^9.1.7",
+    "javascript-obfuscator": "^5.4.3",
     "lint-staged": "^17.0.7",
     "prettier": "^3.8.4"
   },

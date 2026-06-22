@@ -152,7 +152,7 @@ async function vendorResponse(
   asset: NonNullable<ReturnType<typeof getProxyAsset>>,
   routes: App.Locals["proxyRoutes"],
 ) {
-  const { filePath, publicPath } = asset;
+  const { filePath, obfuscatedFilePath, publicPath } = asset;
   const ext = path.extname(filePath);
   const basename = path.basename(filePath);
   const shouldTemplate = ext === ".js" || ext === ".mjs" || ext === ".cjs";
@@ -167,11 +167,18 @@ async function vendorResponse(
   }
 
   if (shouldTemplate) {
-    let source = await readFile(filePath, "utf-8");
-    if (publicPath === "/uv/uv.sw.js") {
+    let sourcePath = filePath;
+    try {
+      await access(obfuscatedFilePath);
+      sourcePath = obfuscatedFilePath;
+    } catch {}
+
+    let source = await readFile(sourcePath, "utf-8");
+    const isObfuscated = sourcePath === obfuscatedFilePath;
+    if (!isObfuscated && publicPath === "/uv/uv.sw.js") {
       source = patchUltravioletWorker(source);
     }
-    if (publicPath === "/scramjet/controller.sw.js") {
+    if (!isObfuscated && publicPath === "/scramjet/controller.sw.js") {
       source = patchScramjetControllerWorker(source);
     }
     return new Response(withProxyTemplates(source, routes, publicPath), {

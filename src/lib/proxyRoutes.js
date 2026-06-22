@@ -14,6 +14,14 @@ const require = createRequire(import.meta.url);
 let vendorAssetRegistry;
 const proxyAssetVersion = "2026-06-headers-v2";
 const astroAssetBase = "/_astro";
+export const obfuscatedVendorRoot = path.resolve(
+  process.cwd(),
+  "dist/client/_proxy-vendor",
+);
+
+export function getObfuscatedVendorPath(publicPath) {
+  return path.join(obfuscatedVendorRoot, publicPath.replace(/^\/+/, ""));
+}
 
 function packageDist(specifier) {
   let dir = path.dirname(require.resolve(specifier));
@@ -98,6 +106,7 @@ export function getVendorAssetRegistry() {
           publicBase,
           publicPath,
           filePath: path.join(root, relativePath),
+          obfuscatedFilePath: getObfuscatedVendorPath(publicPath),
         });
       }
     }

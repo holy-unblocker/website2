@@ -3,6 +3,7 @@ import sitemap from "@astrojs/sitemap";
 import node from "@astrojs/node";
 import { defineConfig } from "astro/config";
 import { svgr } from "./svgmin.mjs";
+import obfuscator from "./obfuscator.mjs";
 import { createRequire } from "node:module";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
@@ -90,6 +91,14 @@ export default defineConfig({
     },
     sitemap({
       changefreq: "daily",
+    }),
+    obfuscator({
+      obfuscator: {
+        stringArray: true,
+        splitStrings: true,
+        stringArrayEncoding: ["rc4"],
+        stringArrayThreshold: 1,
+      },
     }),
   ],
 });
