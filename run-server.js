@@ -119,12 +119,15 @@ console.log(st[+apis.dbEnabled], chalk.bold("Postgres credentials"));
 if (!apis.dbEnabled) {
   console.log(` - ${no} no database credentials found`);
 
-  console.log(` - ${yes} proxying API requests to`, appConfig.theatreApiMirror);
+  console.log(
+    ` - ${yes} proxying API requests to`,
+    appConfig.theatre.apiMirror,
+  );
 
   try {
-    new URL(appConfig.theatreApiMirror);
+    new URL(appConfig.theatre.apiMirror);
   } catch (err) {
-    console.log("Invalid mirror URL", appConfig.theatreApiMirror);
+    console.log("Invalid mirror URL", appConfig.theatre.apiMirror);
     process.exit(1);
   }
 
@@ -136,18 +139,18 @@ if (!apis.dbEnabled) {
   console.log(chalk.grey("    and it uses postgres"));
 }
 
-const hasTheatreFiles = "theatreFilesPath" in appConfig;
+const hasTheatreFiles = "filesPath" in appConfig.theatre;
 console.log(st[+hasTheatreFiles], chalk.bold("Theatre files"));
 if (!hasTheatreFiles) {
   console.log(
     ` - ${yes} proxying theatre files to`,
-    appConfig.theatreFilesMirror,
+    appConfig.theatre.filesMirror,
   );
 
   try {
-    new URL(appConfig.theatreFilesMirror);
+    new URL(appConfig.theatre.filesMirror);
   } catch (err) {
-    console.log("Invalid mirror URL", appConfig.theatreFilesMirror);
+    console.log("Invalid mirror URL", appConfig.theatre.filesMirror);
     process.exit(1);
   }
 

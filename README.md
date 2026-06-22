@@ -142,7 +142,7 @@ Execute all commands from the root of the project, employing a terminal:
 
 ## <img src="docs/acc.gif" alt="Account System" height="80px">
 
-The first account created will be given admin for convenience. You can change `theatreAdminSignupEnabled` to false in the config.
+The first account created will be given admin for convenience. You can change `theatre.adminSignupEnabled` to false in the config.
 
 ## <img src="docs/admin.gif" alt="Admin Stuff" height="80px">
 

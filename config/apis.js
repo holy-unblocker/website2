@@ -12,20 +12,22 @@ export const nowpaymentsEnabled = dbEnabled && "nowpayments" in appConfig;
 export const accountsEnabled = stripeEnabled || nowpaymentsEnabled;
 export const userSystemEnabled = dbEnabled;
 export const theatreAdminSignupEnabled =
-  dbEnabled && appConfig.theatreAdminSignupEnabled === true;
+  dbEnabled && appConfig.theatre.adminSignupEnabled === true;
+export const theatrePlayCountingEnabled =
+  dbEnabled && appConfig.theatre.playCountingEnabled !== false;
 export const discordEnabled = accountsEnabled && "discord" in appConfig;
 export const discordListening =
   discordEnabled && "listenForJoins" in appConfig.discord;
 export const hcaptchaEnabled = accountsEnabled && "hcaptcha" in appConfig;
 
 // when theatre files are hosted locally, admins can upload/remove thumbnails
-export const theatreFilesEnabled = "theatreFilesPath" in appConfig;
+export const theatreFilesEnabled = "filesPath" in appConfig.theatre;
 // resolved the same way runtime.js does (relative to the project root)
 export const theatreFilesPath = theatreFilesEnabled
   ? resolve(
       dirname(fileURLToPath(import.meta.url)),
       "..",
-      appConfig.theatreFilesPath,
+      appConfig.theatre.filesPath,
     )
   : undefined;
 

@@ -13,4 +13,4 @@ export const theatreAPI: TheatreWrapper = dbEnabled
 
 export const theatreAPIMirror: TheatreAPI = dbEnabled
   ? (undefined as any)
-  : new TheatreAPI(appConfig.theatreApiMirror);
+  : new TheatreAPI(appConfig.theatre.apiMirror);

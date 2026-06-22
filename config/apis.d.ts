@@ -29,6 +29,10 @@ export const userSystemEnabled: boolean;
  */
 export const theatreAdminSignupEnabled: boolean;
 /**
+ * whether opening theatre games increments their play counts
+ */
+export const theatrePlayCountingEnabled: boolean;
+/**
  * discord bot integration
  */
 export const discordEnabled: boolean;

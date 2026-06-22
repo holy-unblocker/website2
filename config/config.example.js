@@ -22,16 +22,25 @@ export const appConfig = {
   host: "0.0.0.0",
   port: 8080,
 
-  // specifies a mirror for the theatre api
-  // this mirror is used if there are no database credentials
-  theatreApiMirror: "https://holyunb.locker/api/theatre/",
-  // specifies a holy unblocker theatre mirror
-  theatreFilesMirror: "https://holyunb.locker/cdn/",
+  theatre: {
+    // specifies a mirror for the theatre api
+    // this mirror is used if there are no database credentials
+    apiMirror: "https://holyunb.locker/api/theatre/",
+    // specifies a holy unblocker theatre mirror
+    filesMirror: "https://holyunb.locker/cdn/",
 
-  // specifies the path to where theatre files are hosted.
-  // See https://github.com/holy-unblocker/theatre/
-  // If not specified, it will proxy the mirror
-  //theatreFilesPath: "/home/ubuntu/theatre/public/",
+    // specifies the path to where theatre files are hosted.
+    // See https://github.com/holy-unblocker/theatre/
+    // If not specified, it will proxy the mirror
+    //filesPath: "/home/ubuntu/theatre/public/",
+
+    // when true and the database has no admin users, /admin/signup can create
+    // the first theatre admin account
+    adminSignupEnabled: true,
+
+    // when false, opening theatre games will not increment their play counts
+    playCountingEnabled: true,
+  },
 
   // wisp server url
   // If not specified, it will host wisp locally on /api/wisp
@@ -77,11 +86,6 @@ export const appConfig = {
   //  port: 5432,
   //  database: "dbname",
   //},
-
-  // THEATRE ADMIN BOOTSTRAP
-  // when true and the database has no admin users, /admin/signup can create
-  // the first theatre admin account
-  theatreAdminSignupEnabled: true,
 
   /// STRIPE CONFIG
   // - ASSIGN A STRIPE CUSTOMER ID TO EACH USER

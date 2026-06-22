@@ -10,9 +10,13 @@ export interface AppConfig {
   hatBadge?: "dev" | "beta" | "normal";
   host: string;
   port: number;
-  theatreApiMirror: string;
-  theatreFilesMirror: string;
-  theatreFilesPath: string;
+  theatre: {
+    apiMirror: string;
+    filesMirror: string;
+    filesPath?: string;
+    adminSignupEnabled?: boolean;
+    playCountingEnabled?: boolean;
+  };
   separateBareServer?: string;
   separateWispServer?: string;
   db:
@@ -27,7 +31,6 @@ export interface AppConfig {
   supportEmail: string;
   mainWebsite: string;
   adsenseClient?: string;
-  theatreAdminSignupEnabled?: boolean;
   stripe: {
     secret: string;
     webhookEndpointSecret: string;

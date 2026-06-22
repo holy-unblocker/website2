@@ -243,10 +243,10 @@ function getCookie(req, name) {
 
 // simple mirror middleware that supports GET/POST
 
-const hasTheatreFiles = "theatreFilesPath" in appConfig;
+const hasTheatreFiles = "filesPath" in appConfig.theatre;
 
 const cdnAbs =
-  hasTheatreFiles && resolve(__dirname, appConfig.theatreFilesPath);
+  hasTheatreFiles && resolve(__dirname, appConfig.theatre.filesPath);
 
 /**
  * @type {AppMirror[]}
@@ -255,11 +255,14 @@ const appMirrors = [];
 
 // setup theatre mirror
 if (!hasTheatreFiles)
-  appMirrors.push({ prefix: "/cdn/", url: appConfig.theatreFilesMirror });
+  appMirrors.push({ prefix: "/cdn/", url: appConfig.theatre.filesMirror });
 
 // setup theatre api mirror
 if (!("db" in appConfig))
-  appMirrors.push({ prefix: "/api/theatre/", url: appConfig.theatreApiMirror });
+  appMirrors.push({
+    prefix: "/api/theatre/",
+    url: appConfig.theatre.apiMirror,
+  });
 
 const compress = compression();
 
