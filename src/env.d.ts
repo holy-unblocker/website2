@@ -49,6 +49,10 @@ namespace App {
     adblock: boolean;
     // returns true if adblock is enabled, false if disabled
     setAdblock: (newAdblock?: string | boolean | null) => boolean;
+    // whether scripts are stripped from proxied pages
+    noscript: boolean;
+    // returns true if noscript is enabled, false if disabled
+    setNoscript: (newNoscript?: string | boolean | null) => boolean;
 
     bareServer: string;
     // returns true if valid vare server url, false if invalid
@@ -56,6 +60,15 @@ namespace App {
     wispServer: string;
     // returns true if valid wisp server url, false if invalid
     setWispServer: (newWispServer?: string | null) => boolean;
+    // the instance default bare/wisp servers (before any user override)
+    defaultBareServer: string;
+    defaultWispServer: string;
+    // whether this instance offers a tor-routed proxy (config has torProxy)
+    torAvailable: boolean;
+    // whether the client opted into routing through tor (the "t" cookie)
+    tor: boolean;
+    // toggles routing through tor; returns true if tor is now enabled
+    setTor: (enabled?: string | boolean | null) => boolean;
     proxyMode: string;
     proxyRoutes: ReturnType<
       typeof import("@lib/proxyRoutes.js").getProxyRouteMap

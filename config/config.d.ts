@@ -19,6 +19,8 @@ export interface AppConfig {
   };
   separateBareServer?: string;
   separateWispServer?: string;
+  proxyServer?: string;
+  torProxy?: string;
   db:
     | string
     | {

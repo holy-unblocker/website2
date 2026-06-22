@@ -10,6 +10,9 @@ import { scramjetPath } from "@mercuryworkshop/scramjet/path";
 export const proxyRouteCookie = "re";
 export const proxyRouteCookieMaxAge = 60 * 60 * 24 * 400;
 
+export const torCookie = "t";
+export const torCookieMaxAge = 60 * 60 * 24 * 400;
+
 const require = createRequire(import.meta.url);
 let vendorAssetRegistry;
 const proxyAssetVersion = "2026-06-headers-v2";

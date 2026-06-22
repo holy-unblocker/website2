@@ -21,11 +21,16 @@ import { fileURLToPath } from "node:url";
 import send from "@fastify/send";
 import parseUrl from "parseurl";
 import { Mrrowisp } from "mrrowisp";
+import { ProxyAgent } from "proxy-agent";
 import bare from "@tomphttp/bare-server-node";
 import { ActivityType, Client, PermissionsBitField } from "discord.js";
 import chalk from "chalk";
 import compression from "compression";
-import { getProxyRouteMap, proxyRouteCookie } from "./src/lib/proxyRoutes.js";
+import {
+  getProxyRouteMap,
+  proxyRouteCookie,
+  torCookie,
+} from "./src/lib/proxyRoutes.js";
 
 let startupTag = chalk.grey(chalk.bold("Holy Unblocker:"));
 
@@ -263,21 +268,77 @@ if (!("db" in appConfig))
 
 const compress = compression();
 
-const bareServer = bare.createBareServer("/api/bare/");
+// when configured, route all locally-hosted proxy traffic through an upstream
+// proxy. ProxyAgent picks the right transport (http/https/socks) from the URL.
+const hasProxyServer = "proxyServer" in appConfig;
+const proxyAgent = hasProxyServer
+  ? new ProxyAgent({ getProxyForUrl: () => appConfig.proxyServer })
+  : undefined;
+
+// when a tor proxy is configured we host a SECOND bare server and a SECOND
+// wisp instance that route through tor. clients opt in with the tor cookie.
+const hasTorProxy = "torProxy" in appConfig;
+const torAgent = hasTorProxy
+  ? new ProxyAgent({ getProxyForUrl: () => appConfig.torProxy })
+  : undefined;
+
 const hostBare = !("separateBareServer" in appConfig);
 const hostWisp = !("separateWispServer" in appConfig);
 
+/**
+ * @param {ProxyAgent | undefined} agent
+ */
+function createBare(agent) {
+  return bare.createBareServer(
+    "/api/bare/",
+    agent ? { httpAgent: agent, httpsAgent: agent } : undefined,
+  );
+}
+
+const bareServer = createBare(proxyAgent);
+// tor-routed bare server (only created when torProxy is configured)
+const torBareServer = hasTorProxy ? createBare(torAgent) : undefined;
+
 const wispServerLogging = false;
+
+/**
+ * @param {string | undefined} proxy
+ */
+async function createWisp(proxy) {
+  const server = new Mrrowisp({
+    logLevel: wispServerLogging ? "debug" : "none",
+    allowUDP: false,
+    ...(proxy ? { proxy } : {}),
+  });
+  await server.start();
+  return server;
+}
+
 /**
  * @type {Mrrowisp | undefined}
  */
 let wisp;
+/**
+ * tor-routed wisp instance (only created when torProxy is configured)
+ * @type {Mrrowisp | undefined}
+ */
+let torWisp;
 if (hostWisp) {
-  wisp = new Mrrowisp({
-    logLevel: wispServerLogging ? "debug" : "none",
-    allowUDP: false,
-  });
-  await wisp.start();
+  wisp = await createWisp(hasProxyServer ? appConfig.proxyServer : undefined);
+  if (hasTorProxy) torWisp = await createWisp(appConfig.torProxy);
+}
+
+/**
+ * picks the tor or normal variant of a server based on the client's tor cookie.
+ * @template T
+ * @param {import("http").IncomingMessage} req
+ * @param {T} normal
+ * @param {T | undefined} tor
+ * @returns {T}
+ */
+function pickByTor(req, normal, tor) {
+  if (tor && getCookie(req, torCookie) === "1") return tor;
+  return normal;
 }
 
 /**
@@ -288,7 +349,7 @@ if (hostWisp) {
  */
 export function handleReq(req, res, middleware) {
   if (hostBare && bareServer.shouldRoute(req)) {
-    bareServer.routeRequest(req, res);
+    pickByTor(req, bareServer, torBareServer).routeRequest(req, res);
     return;
   }
 
@@ -454,12 +515,12 @@ export function handleReq(req, res, middleware) {
 
 export function handleUpgrade(req, socket, head) {
   if (hostBare && bareServer.shouldRoute(req)) {
-    bareServer.routeUpgrade(req, socket, head);
+    pickByTor(req, bareServer, torBareServer).routeUpgrade(req, socket, head);
     return;
   }
 
   if (hostWisp && req.url === "/api/wisp/") {
-    wisp.route(req, socket, head);
+    pickByTor(req, wisp, torWisp).route(req, socket, head);
     return;
   }
 

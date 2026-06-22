@@ -22,6 +22,28 @@ export const appConfig = {
   host: "0.0.0.0",
   port: 8080,
 
+  // UPSTREAM PROXY SERVER
+  // when set, all locally-hosted proxy traffic is routed through this upstream
+  // proxy. this applies to both the bare server and the locally-hosted mrrowisp
+  // wisp server.
+  // - has no effect on the bare/wisp servers when they're hosted separately
+  //   (see separateBareServer / separateWispServer below)
+  // - accepts an http://, https://, socks://, socks4://, or socks5:// URL
+  // - credentials may be embedded, eg "socks5://user:pass@127.0.0.1:1080"
+  //proxyServer: "socks5://127.0.0.1:1080",
+
+  // TOR PROXY SERVER
+  // when set, a SECOND bare server and a SECOND mrrowisp wisp instance are
+  // hosted that route all of their traffic through this Tor proxy. clients that
+  // have opted into Tor (the "t" cookie is set to "1") are routed to these
+  // tor-enabled servers, while everyone else keeps using the normal ones.
+  // - typically a Tor SOCKS5 endpoint, eg "socks5://127.0.0.1:9050"
+  // - has no effect when bare/wisp are hosted separately
+  //   (see separateBareServer / separateWispServer below)
+  // - this is independent of proxyServer above; the non-tor servers still use
+  //   proxyServer (if set) while the tor servers always use torProxy
+  //torProxy: "socks5://127.0.0.1:9050",
+
   theatre: {
     // specifies a mirror for the theatre api
     // this mirror is used if there are no database credentials

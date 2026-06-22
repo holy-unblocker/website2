@@ -32,7 +32,11 @@ export async function setupServiceWorker() {
     } else throw new Error("Your browser doesn't support service workers.");
   }
   const swPath = getProxyRoutes().paths.serviceWorker;
-  const swUrl = getAdblock() ? `${swPath}?adblock=1` : swPath;
+  const swParams = new URLSearchParams();
+  if (getAdblock()) swParams.set("adblock", "1");
+  if (getNoscript()) swParams.set("noscript", "1");
+  const swQuery = swParams.toString();
+  const swUrl = swQuery ? `${swPath}?${swQuery}` : swPath;
 
   const reg = await navigator.serviceWorker.getRegistration();
   if (reg) {
@@ -43,12 +47,14 @@ export async function setupServiceWorker() {
       "";
     const wantAdblock = swUrl.includes("adblock=1");
     const hasAdblock = activeUrl.includes("adblock=1");
-    if (wantAdblock !== hasAdblock) {
+    const wantNoscript = swUrl.includes("noscript=1");
+    const hasNoscript = activeUrl.includes("noscript=1");
+    if (wantAdblock !== hasAdblock || wantNoscript !== hasNoscript) {
       await navigator.serviceWorker.register(swUrl, {
         scope: "/",
         updateViaCache: "none",
       });
-      console.log("Service worker re-registered (adblock toggled)");
+      console.log("Service worker re-registered (adblock/noscript toggled)");
     } else {
       await reg.update();
     }
@@ -111,6 +117,14 @@ export function getProxyEngine(): string {
 export function getAdblock(): boolean {
   return (
     document.getElementById("configThing")?.getAttribute("data-adblock") === "1"
+  );
+}
+
+// whether noscript (stripping scripts from proxied pages) is enabled, from #configThing
+export function getNoscript(): boolean {
+  return (
+    document.getElementById("configThing")?.getAttribute("data-noscript") ===
+    "1"
   );
 }
 

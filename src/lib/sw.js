@@ -13,6 +13,9 @@ function getUV() {
 const ADBLOCK_ENABLED =
   new URL(self.location.href).searchParams.get("adblock") === "1";
 
+const NOSCRIPT_ENABLED =
+  new URL(self.location.href).searchParams.get("noscript") === "1";
+
 const SJ_PREFIX = "/scram/service/";
 
 const blacklist = {};
@@ -90,6 +93,71 @@ function uvTargetHostname(reqUrl) {
 
 const blocked = () => new Response(new Blob(), { status: 406 });
 
+// when noscript is enabled, requests for scripts inside the proxy are
+// neutralized by serving an empty script body instead of the real one.
+const SCRIPT_DESTINATIONS = [
+  "script",
+  "worker",
+  "sharedworker",
+  "serviceworker",
+];
+const isScriptRequest = (request) =>
+  NOSCRIPT_ENABLED && SCRIPT_DESTINATIONS.includes(request.destination);
+const emptyScript = () =>
+  new Response("", {
+    status: 200,
+    headers: { "content-type": "text/javascript" },
+  });
+
+// strip every <script> tag, inline on* event handler, and javascript: url from
+// an HTML string so proxied pages can't execute any JS.
+function stripScripts(html) {
+  return (
+    html
+      // drop <script ...>...</script> blocks (including unclosed trailing ones)
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, "")
+      .replace(/<script\b[^>]*>[\s\S]*$/gi, "")
+      // drop self-closing / sourced script tags with no body
+      .replace(/<script\b[^>]*\/?>/gi, "")
+      // drop <noscript> wrappers but keep their contents (they're the fallback)
+      .replace(/<\/?noscript\b[^>]*>/gi, "")
+      // strip inline event handlers: on...="..." / on...='...' / on...=value
+      .replace(/\son[a-z0-9_-]+\s*=\s*("[^"]*"|'[^']*'|[^\s"'>]+)/gi, "")
+      // neutralize javascript: urls in href/src/action/etc.
+      .replace(
+        /\s(href|src|action|formaction|xlink:href)\s*=\s*("javascript:[^"]*"|'javascript:[^']*'|javascript:[^\s"'>]+)/gi,
+        ' $1="#"',
+      )
+  );
+}
+
+const HTML_TYPE = /text\/html|application\/xhtml\+xml/i;
+
+// if noscript is on and the response is HTML, rewrite the body to remove all JS.
+async function sanitizeResponse(response) {
+  if (!NOSCRIPT_ENABLED) return response;
+  const contentType = response.headers.get("content-type") || "";
+  if (!HTML_TYPE.test(contentType)) return response;
+
+  const html = await response.text();
+  const stripped = stripScripts(html);
+
+  const headers = new Headers(response.headers);
+  // body length changed; let the browser recompute it
+  headers.delete("content-length");
+  // a CSP that forbids scripts as a second layer of defense
+  headers.set(
+    "content-security-policy",
+    "script-src 'none'; worker-src 'none';",
+  );
+
+  return new Response(stripped, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 self.addEventListener("fetch", (event) => {
   const scramjetController = getScramjetController();
 
@@ -102,7 +170,13 @@ self.addEventListener("fetch", (event) => {
       event.respondWith(blocked());
       return;
     }
-    event.respondWith(scramjetController.route(event));
+    if (isScriptRequest(event.request)) {
+      event.respondWith(emptyScript());
+      return;
+    }
+    event.respondWith(
+      Promise.resolve(scramjetController.route(event)).then(sanitizeResponse),
+    );
     return;
   }
 
@@ -114,6 +188,12 @@ self.addEventListener("fetch", (event) => {
       event.respondWith(blocked());
       return;
     }
-    event.respondWith(getUV().fetch(event));
+    if (isScriptRequest(event.request)) {
+      event.respondWith(emptyScript());
+      return;
+    }
+    event.respondWith(
+      Promise.resolve(getUV().fetch(event)).then(sanitizeResponse),
+    );
   }
 });

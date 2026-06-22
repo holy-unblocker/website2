@@ -51,6 +51,13 @@ export function setAdblock(enabled: boolean) {
   setupServiceWorker();
 }
 
+export function setNoscript(enabled: boolean) {
+  const ele = document.getElementById("configThing");
+  if (ele) ele.setAttribute("data-noscript", enabled ? "1" : "0");
+  setCookie("noscript", enabled ? "1" : "0");
+  setupServiceWorker();
+}
+
 // used for dynamically applying the new tab cloak
 // thanks astro transitions...
 export function getCloak() {
@@ -77,4 +84,24 @@ export function setWispServer(wispServer: string) {
   const ele = document.getElementById("configThing")!;
   ele.setAttribute("data-wisp", wispServer);
   setCookie("wispServer", wispServer);
+}
+
+// toggle routing the proxy through tor. the server hosts a second bare/wisp
+// pair that goes through tor and routes clients to it based on the "t" cookie.
+// while tor is on we pin the bare/wisp servers to this instance (clearing any
+// custom server) so traffic actually flows through our tor-routed servers.
+export function setTor(enabled: boolean) {
+  const ele = document.getElementById("configThing");
+  if (ele) ele.setAttribute("data-tor", enabled ? "1" : "0");
+  setCookie("t", enabled ? "1" : "0");
+  if (enabled && ele) {
+    // drop any custom bare/wisp server so we use this instance's routed ones,
+    // and reset the runtime config to the instance defaults
+    document.cookie = `bareServer=; max-age=0; samesite=strict; path=/; domain=.${location.hostname}`;
+    document.cookie = `wispServer=; max-age=0; samesite=strict; path=/; domain=.${location.hostname}`;
+    const defaultBare = ele.getAttribute("data-default-bare");
+    const defaultWisp = ele.getAttribute("data-default-wisp");
+    if (defaultBare !== null) ele.setAttribute("data-bare", defaultBare);
+    if (defaultWisp !== null) ele.setAttribute("data-wisp", defaultWisp);
+  }
 }

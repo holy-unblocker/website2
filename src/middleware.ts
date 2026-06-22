@@ -16,6 +16,7 @@ import {
   getProxyRouteMap,
   proxyRouteCookie,
   proxyRouteCookieMaxAge,
+  torCookie,
 } from "@lib/proxyRoutes.js";
 
 // 400 days in seconds
@@ -161,6 +162,53 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   };
   context.locals.setWispServer(context.cookies.get("wispServer")?.value);
+
+  // expose the instance defaults so the client can reset to them (eg when
+  // toggling tor off without a full page reload)
+  context.locals.defaultBareServer = defaultBareServer;
+  context.locals.defaultWispServer = defaultWispServer;
+
+  // whether this instance offers a tor-routed proxy (config has torProxy)
+  context.locals.torAvailable = "torProxy" in appConfig;
+  // whether the client has opted into routing through tor (the "t" cookie)
+  context.locals.tor =
+    context.locals.torAvailable &&
+    context.cookies.get(torCookie)?.value === "1";
+
+  // saves the tor preference or clears it (defaults to off).
+  // while tor is on we pin bare/wisp to this instance (clearing any custom
+  // server) so traffic actually flows through our tor-routed servers.
+  context.locals.setTor = (enabled) => {
+    const on =
+      context.locals.torAvailable && (enabled === true || enabled === "1");
+
+    if (on) {
+      context.cookies.set(torCookie, "1", {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        maxAge: maxAgeLimit,
+        secure: true,
+      });
+      context.locals.tor = true;
+      // drop any custom bare/wisp server so we use the routed defaults
+      context.locals.setBareServer(undefined);
+      context.locals.setWispServer(undefined);
+      return true;
+    } else {
+      // clear the cookie
+      if (context.cookies.has(torCookie))
+        context.cookies.set(torCookie, "", {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          expires: new Date(0), // set it to as old as possible!!
+          secure: true,
+        });
+      context.locals.tor = false;
+      return false;
+    }
+  };
 
   // encode the cloak or delete it
   context.locals.setCloak = (cloak) => {
@@ -358,6 +406,38 @@ export const onRequest = defineMiddleware(async (context, next) => {
   };
 
   context.locals.setAdblock(context.cookies.get("adblock")?.value);
+
+  // saves the noscript preference or clears it (defaults to off).
+  // strips scripts from proxied pages via the service worker.
+  context.locals.setNoscript = (newNoscript) => {
+    const enabled = newNoscript === true || newNoscript === "1";
+
+    if (enabled) {
+      context.cookies.set("noscript", "1", {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        maxAge: maxAgeLimit,
+        secure: true,
+      });
+      context.locals.noscript = true;
+      return true;
+    } else {
+      // clear the cookie
+      if (context.cookies.has("noscript"))
+        context.cookies.set("noscript", "", {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          expires: new Date(0), // set it to as old as possible!!
+          secure: true,
+        });
+      context.locals.noscript = false;
+      return false;
+    }
+  };
+
+  context.locals.setNoscript(context.cookies.get("noscript")?.value);
 
   // saves the search engine or delete it
   context.locals.setSearchEngine = (newSearchEngine) => {

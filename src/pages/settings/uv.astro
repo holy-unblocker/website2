@@ -53,6 +53,18 @@ if (Astro.request.method === "POST")
           Astro.locals.setAdblock(adblock === "1");
         }
         break;
+      case "noscript":
+        {
+          const noscript = data.get("noscript")?.toString();
+          Astro.locals.setNoscript(noscript === "1");
+        }
+        break;
+      case "tor":
+        {
+          const tor = data.get("tor")?.toString();
+          Astro.locals.setTor(tor === "1");
+        }
+        break;
     }
   } catch (err) {
     console.error(err);
@@ -135,10 +147,44 @@ if (Astro.request.method === "POST")
           value={Astro.locals.adblock ? "1" : "0"}
         />
       </form>
+      <form method="post" class={styles.row}>
+        <input type="text" name="type" value="noscript" hidden />
+        <p><HolyText text="Disable Scripts" /></p>
+        <ThemeSelect
+          name="noscript"
+          id="noscript"
+          class={styles.themeSelect}
+          options={[
+            { name: "Off", value: "0" },
+            { name: "On", value: "1" },
+          ]}
+          value={Astro.locals.noscript ? "1" : "0"}
+        />
+      </form>
     </div>
 
     <div class={styles.card}>
       <p class={styles.cardTitle}><HolyText text="Servers" /></p>
+      {
+        Astro.locals.torAvailable && (
+          <form method="post" class={styles.row}>
+            <input type="text" name="type" value="tor" hidden />
+            <p>
+              <HolyText text="Route through Tor" />
+            </p>
+            <ThemeSelect
+              name="tor"
+              id="tor"
+              class={styles.themeSelect}
+              options={[
+                { name: "Off", value: "0" },
+                { name: "On", value: "1" },
+              ]}
+              value={Astro.locals.tor ? "1" : "0"}
+            />
+          </form>
+        )
+      }
       <form method="post" class:list={[styles.row, styles.rowStacked]}>
         <!-- noscript support -->
         <p><HolyText text="Bare Server" /></p>
@@ -150,6 +196,7 @@ if (Astro.request.method === "POST")
             name="newBareUrl"
             placeholder="https://holyunb.locker/api/bare/"
             id="newBareUrl"
+            disabled={Astro.locals.tor}
           />
           <button
             type="submit"
@@ -169,6 +216,7 @@ if (Astro.request.method === "POST")
             name="newWispUrl"
             placeholder="wss://holyunb.locker/api/wisp/"
             id="newWispUrl"
+            disabled={Astro.locals.tor}
           />
           <button
             type="submit"
@@ -205,6 +253,8 @@ if (Astro.request.method === "POST")
     setBareServer,
     setProxyEngine,
     setAdblock,
+    setTor,
+    setNoscript,
   } from "@lib/cookies";
   import { getBareUrl, getWispUrl } from "@lib/register-sw";
 
@@ -225,6 +275,8 @@ if (Astro.request.method === "POST")
     newBareUrl.placeholder = getBareUrl();
     newBareUrl.form!.addEventListener("submit", (event) => {
       event.preventDefault();
+      // ignore edits while tor pins the bare server
+      if (newBareUrl.disabled) return;
       if (newBareUrl.value === "") {
         document.cookie = `bare=; expires=${new Date(0)}`;
         location.reload();
@@ -243,8 +295,29 @@ if (Astro.request.method === "POST")
       "newWispUrl",
     )! as HTMLInputElement;
     newWispUrl.placeholder = getWispUrl();
+    // when tor is enabled, the bare/wisp servers are pinned to this instance (so
+    // traffic flows through our tor-routed servers), so show them and lock the
+    // fields. when disabled, unlock and clear so the placeholder default shows.
+    const tor = document.querySelector<HTMLInputElement>("#tor");
+    const syncServerLock = () => {
+      const torOn = tor?.value === "1";
+      newBareUrl.disabled = torOn;
+      newWispUrl.disabled = torOn;
+      if (torOn) {
+        newBareUrl.value = getBareUrl();
+        newWispUrl.value = getWispUrl();
+      } else {
+        newBareUrl.value = "";
+        newWispUrl.value = "";
+        newBareUrl.placeholder = getBareUrl();
+        newWispUrl.placeholder = getWispUrl();
+      }
+    };
+    syncServerLock();
     newWispUrl.form!.addEventListener("submit", (event) => {
       event.preventDefault();
+      // ignore edits while tor pins the wisp server
+      if (newWispUrl.disabled) return;
       if (newWispUrl.value === "") {
         document.cookie = `wisp=; expires=${new Date(0)}`;
         location.reload();
@@ -282,5 +355,17 @@ if (Astro.request.method === "POST")
     adblock.addEventListener("change", () => {
       setAdblock(adblock.value === "1");
     });
+
+    const noscript = document.querySelector<HTMLInputElement>("#noscript")!;
+
+    noscript.addEventListener("change", () => {
+      setNoscript(noscript.value === "1");
+    });
+
+    if (tor)
+      tor.addEventListener("change", () => {
+        setTor(tor.value === "1");
+        syncServerLock();
+      });
   });
 </script>
