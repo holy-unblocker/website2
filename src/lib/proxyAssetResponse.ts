@@ -3,16 +3,14 @@ import { access, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { Readable } from "node:stream";
-import { getProxyAsset } from "@lib/proxyRoutes.js";
+import { getProxyAsset, rewriteProxyGlobals } from "@lib/proxyRoutes.js";
 
 const require = createRequire(import.meta.url);
 const publicRoot = path.resolve(process.cwd(), "public");
 const serviceWorkerPath = path.resolve(process.cwd(), "src/lib/sw.js");
 const staticRoots = [path.resolve(process.cwd(), "dist/client"), publicRoot];
 const ruffleRoot = path.resolve(require.resolve("@ruffle-rs/ruffle"), "..");
-const legacyUvConfigGlobal = "__uv" + "$config";
 const legacyScramjetGlobal = "$" + "scramjet";
-const legacyScramjetControllerGlobal = legacyScramjetGlobal + "Controller";
 
 const contentTypes: Record<string, string> = {
   ".js": "application/javascript; charset=utf-8",
@@ -56,19 +54,7 @@ function withProxyTemplates(
   routes: App.Locals["proxyRoutes"],
   currentPublicPath?: string,
 ) {
-  const scramjetPlaceholder = "__HU_SCRAMJET_GLOBAL__";
-  const scramjetControllerPlaceholder = "__HU_SCRAMJET_CONTROLLER_GLOBAL__";
-  let out = source.replaceAll(legacyUvConfigGlobal, routes.globals.uvConfig);
-  out = out.replaceAll(
-    legacyScramjetControllerGlobal,
-    scramjetControllerPlaceholder,
-  );
-  out = out.replaceAll(legacyScramjetGlobal, scramjetPlaceholder);
-  out = out.replaceAll(
-    scramjetControllerPlaceholder,
-    routes.globals.scramjetController,
-  );
-  out = out.replaceAll(scramjetPlaceholder, routes.globals.scramjet);
+  let out = rewriteProxyGlobals(source, routes);
   out = out.replaceAll("/scram/service/", routes.paths.scramService);
   out = out.replaceAll("/sw.js", routes.paths.serviceWorker);
 

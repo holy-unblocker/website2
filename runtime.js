@@ -29,6 +29,7 @@ import compression from "compression";
 import {
   getProxyRouteMap,
   proxyRouteCookie,
+  rewriteProxyGlobals,
   torCookie,
 } from "./src/lib/proxyRoutes.js";
 
@@ -341,6 +342,119 @@ function pickByTor(req, normal, tor) {
   return normal;
 }
 
+const javascriptType =
+  /(?:^|;)\s*(?:application|text)\/(?:javascript|ecmascript|x-javascript|javascript1\.[0-9])\b|(?:^|;)\s*application\/(?:x-)?(?:java|ecma)script\b/i;
+const htmlType = /(?:^|;)\s*(?:text\/html|application\/xhtml\+xml)\b/i;
+
+function headerValue(headers, name) {
+  const value = headers[name.toLowerCase()];
+  return Array.isArray(value) ? value.join(", ") : value;
+}
+
+function shouldRewriteJavascript(headers) {
+  const contentType = headerValue(headers, "content-type");
+  const contentEncoding = headerValue(headers, "content-encoding");
+  return (
+    typeof contentType === "string" &&
+    javascriptType.test(contentType) &&
+    (contentEncoding === undefined || contentEncoding === "identity")
+  );
+}
+
+function shouldSpoofHtmlStatus(req, headers, statusCode) {
+  const contentType = headerValue(headers, "content-type");
+  return (
+    statusCode === 404 &&
+    typeof contentType === "string" &&
+    htmlType.test(contentType) &&
+    req.url.startsWith("/_astro/")
+  );
+}
+
+function normalizeWriteHeadArgs(statusCode, statusMessage, headers) {
+  if (typeof statusMessage === "object" && statusMessage !== null) {
+    return { statusCode, statusMessage: undefined, headers: statusMessage };
+  }
+  return { statusCode, statusMessage, headers };
+}
+
+function installProxyResponseHook(req, res, routes) {
+  const write = res.write.bind(res);
+  const end = res.end.bind(res);
+  const writeHead = res.writeHead.bind(res);
+  let buffering = false;
+  let headWritten = false;
+  const chunks = [];
+
+  function appendChunk(chunk, encoding) {
+    if (!chunk) return;
+    if (Buffer.isBuffer(chunk)) chunks.push(chunk);
+    else if (typeof chunk === "string")
+      chunks.push(Buffer.from(chunk, encoding));
+    else chunks.push(Buffer.from(chunk));
+  }
+
+  function writeCallback(encoding, callback) {
+    if (typeof callback === "function") return callback;
+    if (typeof encoding === "function") return encoding;
+  }
+
+  res.writeHead = (statusCode, statusMessage, headers) => {
+    const normalized = normalizeWriteHeadArgs(
+      statusCode,
+      statusMessage,
+      headers,
+    );
+    if (normalized.headers) {
+      for (const [name, value] of Object.entries(normalized.headers)) {
+        res.setHeader(name, value);
+      }
+    }
+
+    const outgoingHeaders = res.getHeaders();
+    buffering = shouldRewriteJavascript(outgoingHeaders);
+    if (shouldSpoofHtmlStatus(req, outgoingHeaders, normalized.statusCode)) {
+      normalized.statusCode = 200;
+      normalized.statusMessage = "OK";
+    }
+
+    if (buffering) return res;
+
+    headWritten = true;
+    if (typeof normalized.statusMessage === "string") {
+      return writeHead(normalized.statusCode, normalized.statusMessage);
+    }
+    return writeHead(normalized.statusCode);
+  };
+
+  res.write = (chunk, encoding, callback) => {
+    if (buffering) {
+      appendChunk(chunk, typeof encoding === "string" ? encoding : undefined);
+      const done = writeCallback(encoding, callback);
+      if (done) process.nextTick(done);
+      return true;
+    }
+    return write(chunk, encoding, callback);
+  };
+
+  res.end = (chunk, encoding, callback) => {
+    if (!buffering) return end(chunk, encoding, callback);
+
+    appendChunk(chunk, typeof encoding === "string" ? encoding : undefined);
+
+    const source = Buffer.concat(chunks).toString("utf-8");
+    const rewritten = rewriteProxyGlobals(source, routes);
+    const done = writeCallback(encoding, callback);
+    res.removeHeader("content-length");
+    res.removeHeader("etag");
+    res.removeHeader("content-md5");
+    res.removeHeader("digest");
+
+    if (!headWritten) writeHead(res.statusCode, res.statusMessage);
+    return end(rewritten, "utf-8", done);
+  };
+}
+
 /**
  *
  * @param {import("http").IncomingMessage} req
@@ -352,6 +466,13 @@ export function handleReq(req, res, middleware) {
     pickByTor(req, bareServer, torBareServer).routeRequest(req, res);
     return;
   }
+
+  const proxyRoutes = getProxyRouteMap(getCookie(req, proxyRouteCookie));
+  // strip client encoding negotiation so upstream (Vite in dev, compression in
+  // prod) serves identity-encoded JS the rewrite hook can buffer and patch.
+  // we re-compress ourselves below via compress().
+  delete req.headers["accept-encoding"];
+  installProxyResponseHook(req, res, proxyRoutes);
 
   // hooks the res
   compress(req, res, () => {});
@@ -403,8 +524,6 @@ export function handleReq(req, res, middleware) {
     });
     return;
   }
-
-  const proxyRoutes = getProxyRouteMap(getCookie(req, proxyRouteCookie));
 
   // we want the service pages to fallback to a page that registers the service worker
   // internal redirect so the browser URL stays the seeded service URL, while we

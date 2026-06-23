@@ -208,12 +208,10 @@ if (mirrorError) {
     setupBareMux,
     scramjetGo,
     getProxyEngine,
-    getUvConfig,
   } from "@lib/register-sw";
 
   function encodeUvUrl(src: string): string {
-    const uvConfig = getUvConfig();
-    return uvConfig.prefix + uvConfig.encodeUrl(src);
+    return __uv$config.prefix + __uv$config.encodeUrl!(src);
   }
 
   // called on page load and when fullscreen changes
@@ -291,7 +289,7 @@ if (mirrorError) {
       case "proxy":
         setupServiceWorker().then(async () => {
           try {
-            if (getProxyEngine() === "scramjet") {
+            if (getProxyEngine() === "sj") {
               await scramjetGo(playerFrame, url);
             } else {
               await setupBareMux();

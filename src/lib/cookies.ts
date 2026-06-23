@@ -32,7 +32,7 @@ export function setProxyTransport(proxyTransport: string) {
   const ele = document.getElementById("configThing")!;
   ele.setAttribute("data-transport", proxyTransport);
   setCookie("trans", proxyTransport);
-  if (getProxyEngine() === "scramjet") setupScramjet();
+  if (getProxyEngine() === "sj") setupScramjet();
   else setupBareMux();
 }
 

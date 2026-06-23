@@ -154,32 +154,12 @@ const scramjetFrames = new WeakMap<
   ScramjetController.Frame
 >();
 
-function getGlobalValue<T>(name: string): T {
-  const value = (globalThis as Record<string, unknown>)[name];
-  if (!value) throw new Error(`Missing proxy global: ${name}`);
-  return value as T;
-}
-
-export function getUvConfig(): UvConfig {
-  return getGlobalValue<UvConfig>(getProxyRoutes().globals.uvConfig);
-}
-
-function getScramjet(): typeof Scramjet {
-  return getGlobalValue<typeof Scramjet>(getProxyRoutes().globals.scramjet);
-}
-
-function getScramjetController(): typeof ScramjetController {
-  return getGlobalValue<typeof ScramjetController>(
-    getProxyRoutes().globals.scramjetController,
-  );
-}
-
 export function setupScramjet(): Promise<void> {
   if (scramjetReady) return scramjetReady;
 
   scramjetReady = (async () => {
-    const { Controller } = getScramjetController();
-    const { defaultConfig } = getScramjet();
+    const { Controller } = $scramjetController;
+    const { defaultConfig } = $scramjet;
     const routes = getProxyRoutes();
 
     const [registration, transport] = await Promise.all([
@@ -244,11 +224,6 @@ type ProxyRoutes = {
     | "scramjetControllerSw",
     string
   >;
-  globals: {
-    uvConfig: string;
-    scramjet: string;
-    scramjetController: string;
-  };
   uvConfig: {
     prefix: string;
     handler: string;

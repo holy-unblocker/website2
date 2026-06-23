@@ -72,20 +72,11 @@ function scramjetTargetHostname(reqUrl) {
   }
 }
 
-function getUvConfig() {
-  return globalThis["__uv$config"];
-}
-
-function getScramjetController() {
-  return globalThis["$scramjetController"];
-}
-
 // Extract the real target hostname from an Ultraviolet service URL.
 function uvTargetHostname(reqUrl) {
   try {
-    const uvConfig = getUvConfig();
-    const encoded = new URL(reqUrl).pathname.replace(uvConfig.prefix, "");
-    return new URL(uvConfig.decodeUrl(encoded)).hostname;
+    const encoded = new URL(reqUrl).pathname.replace(__uv$config.prefix, "");
+    return new URL(__uv$config.decodeUrl(encoded)).hostname;
   } catch {
     return null;
   }
@@ -159,13 +150,8 @@ async function sanitizeResponse(response) {
 }
 
 self.addEventListener("fetch", (event) => {
-  const scramjetController = getScramjetController();
-
   // Scramjet handles its own service prefix.
-  if (
-    typeof scramjetController !== "undefined" &&
-    scramjetController.shouldRoute(event)
-  ) {
+  if ($scramjetController.shouldRoute(event)) {
     if (isBlacklistedDomain(scramjetTargetHostname(event.request.url))) {
       event.respondWith(blocked());
       return;
@@ -175,15 +161,13 @@ self.addEventListener("fetch", (event) => {
       return;
     }
     event.respondWith(
-      Promise.resolve(scramjetController.route(event)).then(sanitizeResponse),
+      Promise.resolve($scramjetController.route(event)).then(sanitizeResponse),
     );
     return;
   }
 
-  const uvConfig = getUvConfig();
-
   // Ultraviolet
-  if (event.request.url.startsWith(location.origin + uvConfig.prefix)) {
+  if (event.request.url.startsWith(location.origin + __uv$config.prefix)) {
     if (isBlacklistedDomain(uvTargetHostname(event.request.url))) {
       event.respondWith(blocked());
       return;

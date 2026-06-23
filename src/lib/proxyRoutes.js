@@ -17,6 +17,9 @@ const require = createRequire(import.meta.url);
 let vendorAssetRegistry;
 const proxyAssetVersion = "2026-06-headers-v2";
 const astroAssetBase = "/_astro";
+const legacyUvConfigGlobal = "__uv" + "$config";
+const legacyScramjetGlobal = "$" + "scramjet";
+const legacyScramjetControllerGlobal = legacyScramjetGlobal + "Controller";
 export const obfuscatedVendorRoot = path.resolve(
   process.cwd(),
   "dist/client/_proxy-vendor",
@@ -79,6 +82,40 @@ function routePath(seed, label, ext = "") {
 
 function routePrefix(seed, label, ext = ".js") {
   return `${astroAssetBase}/${segment(seed, label)}${ext}/`;
+}
+
+function globalIdentifier(seed, label, length) {
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const bytes = crypto
+    .createHash("sha512")
+    .update(seed)
+    .update(":global:")
+    .update(label)
+    .digest();
+  let identifier = "";
+  let offset = 0;
+
+  while (identifier.length < length) {
+    if (offset >= bytes.length) {
+      const extra = crypto
+        .createHash("sha512")
+        .update(seed)
+        .update(":global:")
+        .update(label)
+        .update(":")
+        .update(String(identifier.length))
+        .digest();
+      for (const byte of extra) {
+        identifier += charset[byte % charset.length];
+        if (identifier.length === length) break;
+      }
+      break;
+    }
+    identifier += charset[bytes[offset] % charset.length];
+    offset += 1;
+  }
+
+  return identifier;
 }
 
 function walkFiles(root, dir = "") {
@@ -146,15 +183,6 @@ function file(files, publicPath) {
 export function getProxyRouteMap(seed) {
   const normalizedSeed = typeof seed === "string" && seed ? seed : "default";
   const { files, routeFiles } = vendorFileRoutes(normalizedSeed);
-  const uvConfigSuffix = segment(normalizedSeed, "uv-config").replaceAll(
-    "-",
-    "_",
-  );
-  const scramjetGlobalSuffix = segment(
-    normalizedSeed,
-    "scramjet-global",
-  ).replaceAll("-", "_");
-
   const paths = {
     serviceWorker: routePath(normalizedSeed, "service-worker", ".js"),
     uvService: routePrefix(normalizedSeed, "uv-service"),
@@ -181,9 +209,17 @@ export function getProxyRouteMap(seed) {
     scramjetControllerSw: file(files, "/scramjet/controller.sw.js"),
   };
   const globals = {
-    uvConfig: uvConfigSuffix,
-    scramjet: scramjetGlobalSuffix,
-    scramjetController: scramjetGlobalSuffix,
+    uvConfig: globalIdentifier(
+      normalizedSeed,
+      "uv-config",
+      "__uv$config".length,
+    ),
+    scramjet: globalIdentifier(normalizedSeed, "scramjet", "$scramjet".length),
+    scramjetController: globalIdentifier(
+      normalizedSeed,
+      "scramjet-controller",
+      "$scramjetController".length,
+    ),
   };
 
   return {
@@ -215,6 +251,23 @@ export function getProxyAsset(routes, pathname) {
   const publicPath = routes.routeFiles[pathname];
   if (!publicPath) return;
   return getVendorAssetRegistry().get(publicPath);
+}
+
+export function rewriteProxyGlobals(source, routes) {
+  const scramjetPlaceholder = "__HU_SCRAMJET_GLOBAL__";
+  const scramjetControllerPlaceholder = "__HU_SCRAMJET_CONTROLLER_GLOBAL__";
+  let out = source.replaceAll(legacyUvConfigGlobal, routes.globals.uvConfig);
+  out = out.replaceAll(
+    legacyScramjetControllerGlobal,
+    scramjetControllerPlaceholder,
+  );
+  out = out.replaceAll(legacyScramjetGlobal, scramjetPlaceholder);
+  out = out.replaceAll(
+    scramjetControllerPlaceholder,
+    routes.globals.scramjetController,
+  );
+  out = out.replaceAll(scramjetPlaceholder, routes.globals.scramjet);
+  return out;
 }
 
 export function serializeProxyRoutes(routes) {

@@ -28,7 +28,6 @@ import Public from "@icons/public_24dp.svg?react";
     setupScramjet,
     scramjetGo,
     getProxyEngine,
-    getUvConfig,
   } from "@lib/register-sw";
   import { presentAboutBlank } from "@lib/aboutBlank";
 
@@ -37,8 +36,7 @@ import Public from "@icons/public_24dp.svg?react";
   let lastSrc: string | undefined;
 
   function encodeUvUrl(src: string): string {
-    const uvConfig = getUvConfig();
-    return uvConfig.prefix + uvConfig.encodeUrl(src);
+    return __uv$config.prefix + __uv$config.encodeUrl!(src);
   }
 
   function isProxyPage() {
@@ -131,7 +129,7 @@ import Public from "@icons/public_24dp.svg?react";
   }
 
   function setupActiveEngine() {
-    if (getProxyEngine() === "scramjet") setupScramjet();
+    if (getProxyEngine() === "sj") setupScramjet();
     else setupBareMux();
   }
 
@@ -154,7 +152,7 @@ import Public from "@icons/public_24dp.svg?react";
         throw new TypeError(`service frame must be a valid URL, got: ${src}`);
       }
 
-      if (getProxyEngine() === "scramjet") {
+      if (getProxyEngine() === "sj") {
         document.documentElement.setAttribute("data-service", "");
         lastSrc = src;
         saveSrcInSearch(src);
@@ -226,7 +224,7 @@ import Public from "@icons/public_24dp.svg?react";
 
     openInNew.addEventListener("click", () => {
       console.log("Opening", lastSrc, "in new window");
-      if (getProxyEngine() === "scramjet") {
+      if (getProxyEngine() === "sj") {
         if (serviceEmbed.src) window.open(serviceEmbed.src);
       } else {
         window.open(encodeUvUrl(lastSrc!));
