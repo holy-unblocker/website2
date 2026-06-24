@@ -104,7 +104,7 @@ function segment(seed, label) {
     .update(":")
     .update(label)
     .digest("base64url")
-    .slice(0, 18);
+    .slice(0, 8);
 }
 
 function routePath(seed, label, ext = "") {

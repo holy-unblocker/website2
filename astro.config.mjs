@@ -50,6 +50,19 @@ export default defineConfig({
         },
       },
     },
+    environments: {
+      client: {
+        build: {
+          rollupOptions: {
+            output: {
+              assetFileNames: "_astro/[hash][extname]",
+              chunkFileNames: "_astro/[hash].js",
+              entryFileNames: "_astro/[hash].js",
+            },
+          },
+        },
+      },
+    },
     plugins: [
       svgr(),
       viteStaticCopy({
