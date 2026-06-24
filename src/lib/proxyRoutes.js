@@ -48,8 +48,7 @@ const globalVariableNames = [
   "loadScramjetWasm",
   "__scramjet_controller",
   "__scramjet_controller_channel",
-  /(?<![/_-])bare-mux-path(?![/_-])/g,
-  /(?<![/_-])bare-mux(?![/_-])/g,
+  /(?<![/_-])bare-mux(-path)?(?![/_-])/g,
   "scramjetTargetHostname",
 ];
 export const obfuscatedVendorRoot = path.resolve(
