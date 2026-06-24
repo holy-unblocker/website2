@@ -17,9 +17,40 @@ const require = createRequire(import.meta.url);
 let vendorAssetRegistry;
 const proxyAssetVersion = "2026-06-headers-v2";
 const astroAssetBase = "/_astro";
-const legacyUvConfigGlobal = "__uv" + "$config";
-const legacyScramjetGlobal = "$" + "scramjet";
-const legacyScramjetControllerGlobal = legacyScramjetGlobal + "Controller";
+const globalVariableNames = [
+  "__uv",
+  "$scramjetController",
+  "$scramjet",
+  "Ultraviolet",
+  "UVServiceWorker",
+  "@mercuryworkshop/scramjet",
+  "scramjetGo",
+  "scramjetConfig",
+  "scramjetReady",
+  "scramjetFrames",
+  "ScramjetFrame",
+  "scramjet-attr",
+  "SCRAMJET",
+  "scramjetPath",
+  "scramjetWasm",
+  "setupScramjet",
+  "ScramjetClient",
+  "scramjet client",
+  "scramjet-injected",
+  "ScramjetHeaders",
+  "ScramjetFetchTrackedClient",
+  "ScramjetFetchHandler",
+  "&quot;scramjet;&quot;",
+  "createScramjetTransport",
+  "activeScramjetController",
+  "getScramjetPrefix",
+  "Scramjet",
+  "loadScramjetWasm",
+  "__scramjet_controller",
+  "__scramjet_controller_channel",
+  /(?<![/_-])bare-mux/g,
+  "scramjetTargetHostname",
+];
 export const obfuscatedVendorRoot = path.resolve(
   process.cwd(),
   "dist/client/_proxy-vendor",
@@ -84,7 +115,8 @@ function routePrefix(seed, label, ext = ".js") {
   return `${astroAssetBase}/${segment(seed, label)}${ext}/`;
 }
 
-function globalIdentifier(seed, label, length) {
+function globalIdentifier(seed, label) {
+  const length = label.length;
   const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const bytes = crypto
     .createHash("sha512")
@@ -116,6 +148,16 @@ function globalIdentifier(seed, label, length) {
   }
 
   return identifier;
+}
+
+export function proxyGlobalIdentifier(routes, label) {
+  const normalizedSeed =
+    typeof routes.seed === "string" && routes.seed ? routes.seed : "default";
+  return globalIdentifier(normalizedSeed, label);
+}
+
+export function proxyUvConfigGlobal(routes) {
+  return `${proxyGlobalIdentifier(routes, "__uv")}$config`;
 }
 
 function walkFiles(root, dir = "") {
@@ -188,7 +230,7 @@ export function getProxyRouteMap(seed) {
     uvService: routePrefix(normalizedSeed, "uv-service"),
     scramService: routePrefix(normalizedSeed, "scram-service"),
     registerUV: routePath(normalizedSeed, "register-uv", ".html"),
-    registerScramjet: routePath(normalizedSeed, "register-scramjet", ".html"),
+    registerSJ: routePath(normalizedSeed, "register-scramjet", ".html"),
   };
 
   const assets = {
@@ -202,24 +244,11 @@ export function getProxyRouteMap(seed) {
     uvHandler: file(files, "/uv/uv.handler.js"),
     uvClient: file(files, "/uv/uv.client.js"),
     uvSw: file(files, "/uv/uv.sw.js"),
-    scramjet: file(files, "/scram/scramjet.js"),
-    scramjetWasm: file(files, "/scram/scramjet.wasm"),
-    scramjetControllerApi: file(files, "/scramjet/controller.api.js"),
-    scramjetControllerInject: file(files, "/scramjet/controller.inject.js"),
-    scramjetControllerSw: file(files, "/scramjet/controller.sw.js"),
-  };
-  const globals = {
-    uvConfig: globalIdentifier(
-      normalizedSeed,
-      "uv-config",
-      "__uv$config".length,
-    ),
-    scramjet: globalIdentifier(normalizedSeed, "scramjet", "$scramjet".length),
-    scramjetController: globalIdentifier(
-      normalizedSeed,
-      "scramjet-controller",
-      "$scramjetController".length,
-    ),
+    sj: file(files, "/scram/scramjet.js"),
+    sjWasm: file(files, "/scram/scramjet.wasm"),
+    sjControllerApi: file(files, "/scramjet/controller.api.js"),
+    sjControllerInject: file(files, "/scramjet/controller.inject.js"),
+    sjControllerSw: file(files, "/scramjet/controller.sw.js"),
   };
 
   return {
@@ -228,8 +257,6 @@ export function getProxyRouteMap(seed) {
     routeFiles,
     paths,
     assets,
-    globals,
-    uvConfigGlobal: globals.uvConfig,
     uvConfig: {
       prefix: paths.uvService,
       handler: assets.uvHandler,
@@ -240,9 +267,9 @@ export function getProxyRouteMap(seed) {
     },
     sjConfig: {
       prefix: paths.scramService,
-      scramjetPath: assets.scramjet,
-      wasmPath: assets.scramjetWasm,
-      injectPath: assets.scramjetControllerInject,
+      scramjetPath: assets.sj,
+      wasmPath: assets.sjWasm,
+      injectPath: assets.sjControllerInject,
     },
   };
 }
@@ -256,17 +283,33 @@ export function getProxyAsset(routes, pathname) {
 export function rewriteProxyGlobals(source, routes) {
   const scramjetPlaceholder = "__HU_SCRAMJET_GLOBAL__";
   const scramjetControllerPlaceholder = "__HU_SCRAMJET_CONTROLLER_GLOBAL__";
-  let out = source.replaceAll(legacyUvConfigGlobal, routes.globals.uvConfig);
+
+  let out = source;
+  for (const original of globalVariableNames) {
+    if (original instanceof RegExp) {
+      // use the regex source (without flags) as the stable label so the
+      // obfuscated identifier is deterministic across requests.
+      const obfuscated = proxyGlobalIdentifier(routes, original.source);
+      out = out.replaceAll(original, obfuscated);
+      continue;
+    }
+    const obfuscated = proxyGlobalIdentifier(routes, original);
+    if (original === "$scramjetController") {
+      out = out.replaceAll(original, scramjetControllerPlaceholder);
+    } else if (original === "$scramjet") {
+      out = out.replaceAll(original, scramjetPlaceholder);
+    } else {
+      out = out.replaceAll(original, obfuscated);
+    }
+  }
   out = out.replaceAll(
-    legacyScramjetControllerGlobal,
     scramjetControllerPlaceholder,
+    proxyGlobalIdentifier(routes, "$scramjetController"),
   );
-  out = out.replaceAll(legacyScramjetGlobal, scramjetPlaceholder);
   out = out.replaceAll(
-    scramjetControllerPlaceholder,
-    routes.globals.scramjetController,
+    scramjetPlaceholder,
+    proxyGlobalIdentifier(routes, "$scramjet"),
   );
-  out = out.replaceAll(scramjetPlaceholder, routes.globals.scramjet);
   return out;
 }
 
@@ -274,8 +317,6 @@ export function serializeProxyRoutes(routes) {
   return JSON.stringify({
     paths: routes.paths,
     assets: routes.assets,
-    globals: routes.globals,
-    uvConfigGlobal: routes.uvConfigGlobal,
     uvConfig: routes.uvConfig,
     sjConfig: routes.sjConfig,
   });

@@ -5,6 +5,7 @@ import {
   setupServiceWorker,
   getProxyEngine,
 } from "./register-sw";
+import { getSiteConfig, setSiteConfig } from "./siteConfig";
 
 function getCookie(name: string) {
   for (const cookie of document.cookie.split("; ")) {
@@ -29,22 +30,19 @@ export function setSearchEngine(searchEngine: number) {
 }
 
 export function setProxyTransport(proxyTransport: string) {
-  const ele = document.getElementById("configThing")!;
-  ele.setAttribute("data-transport", proxyTransport);
+  setSiteConfig("transport", proxyTransport);
   setCookie("trans", proxyTransport);
   if (getProxyEngine() === "sj") setupScramjet();
   else setupBareMux();
 }
 
 export function setProxyEngine(proxyEngine: string) {
-  const ele = document.getElementById("configThing");
-  if (ele) ele.setAttribute("data-engine", proxyEngine);
+  setSiteConfig("engine", proxyEngine);
   setCookie("engine", proxyEngine);
 }
 
 export function setAdblock(enabled: boolean) {
-  const ele = document.getElementById("configThing");
-  if (ele) ele.setAttribute("data-adblock", enabled ? "1" : "0");
+  setSiteConfig("adblock", enabled ? "1" : "0");
   setCookie("adblock", enabled ? "1" : "0");
   // The service worker bakes in the adblock flag from its script URL, so it
   // must be re-registered for the change to take effect.
@@ -52,8 +50,7 @@ export function setAdblock(enabled: boolean) {
 }
 
 export function setNoscript(enabled: boolean) {
-  const ele = document.getElementById("configThing");
-  if (ele) ele.setAttribute("data-noscript", enabled ? "1" : "0");
+  setSiteConfig("noscript", enabled ? "1" : "0");
   setCookie("noscript", enabled ? "1" : "0");
   setupServiceWorker();
 }
@@ -74,15 +71,17 @@ export function setProxyMode(proxyMode: string) {
   setCookie("prx", proxyMode);
 }
 
+export function setRuntimeCloak(slug: string) {
+  setCookie("runtimeCloak", slug);
+}
+
 export function setBareServer(bareServer: string) {
-  const ele = document.getElementById("configThing")!;
-  ele.setAttribute("data-bare", bareServer);
+  setSiteConfig("bare", bareServer);
   setCookie("bareServer", bareServer);
 }
 
 export function setWispServer(wispServer: string) {
-  const ele = document.getElementById("configThing")!;
-  ele.setAttribute("data-wisp", wispServer);
+  setSiteConfig("wisp", wispServer);
   setCookie("wispServer", wispServer);
 }
 
@@ -91,17 +90,15 @@ export function setWispServer(wispServer: string) {
 // while tor is on we pin the bare/wisp servers to this instance (clearing any
 // custom server) so traffic actually flows through our tor-routed servers.
 export function setTor(enabled: boolean) {
-  const ele = document.getElementById("configThing");
-  if (ele) ele.setAttribute("data-tor", enabled ? "1" : "0");
+  const config = getSiteConfig();
+  setSiteConfig("tor", enabled ? "1" : "0");
   setCookie("t", enabled ? "1" : "0");
-  if (enabled && ele) {
+  if (enabled) {
     // drop any custom bare/wisp server so we use this instance's routed ones,
     // and reset the runtime config to the instance defaults
     document.cookie = `bareServer=; max-age=0; samesite=strict; path=/; domain=.${location.hostname}`;
     document.cookie = `wispServer=; max-age=0; samesite=strict; path=/; domain=.${location.hostname}`;
-    const defaultBare = ele.getAttribute("data-default-bare");
-    const defaultWisp = ele.getAttribute("data-default-wisp");
-    if (defaultBare !== null) ele.setAttribute("data-bare", defaultBare);
-    if (defaultWisp !== null) ele.setAttribute("data-wisp", defaultWisp);
+    setSiteConfig("bare", config.defaultBare);
+    setSiteConfig("wisp", config.defaultWisp);
   }
 }

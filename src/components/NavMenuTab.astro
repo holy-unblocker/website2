@@ -11,9 +11,10 @@ type Props = Record<string, any> & {
   iconOutlined?: string;
   tabIndex?: number;
   isNew?: boolean;
+  noTitle?: boolean;
 };
 
-const { href, name, iconFilled, iconOutlined, isNew } = Astro.props;
+const { href, name, iconFilled, iconOutlined, isNew, noTitle } = Astro.props;
 
 const selected = Astro.url.pathname === href;
 ---
@@ -24,7 +25,7 @@ const selected = Astro.url.pathname === href;
   data-selected={selected || null}
   data-outlined={iconOutlined !== undefined || null}
   class={styles.entry}
-  title={name}
+  title={noTitle ? undefined : name}
 >
   <span class={styles.icon} set:html={iconFilled + (iconOutlined || "")} />
   <HolyText class={styles.name} text={name} />

@@ -3,14 +3,18 @@ import { access, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { Readable } from "node:stream";
-import { getProxyAsset, rewriteProxyGlobals } from "@lib/proxyRoutes.js";
+import {
+  getProxyAsset,
+  proxyGlobalIdentifier,
+  proxyUvConfigGlobal,
+  rewriteProxyGlobals,
+} from "@lib/proxyRoutes.js";
 
 const require = createRequire(import.meta.url);
 const publicRoot = path.resolve(process.cwd(), "public");
 const serviceWorkerPath = path.resolve(process.cwd(), "src/lib/sw.js");
 const staticRoots = [path.resolve(process.cwd(), "dist/client"), publicRoot];
 const ruffleRoot = path.resolve(require.resolve("@ruffle-rs/ruffle"), "..");
-const legacyScramjetGlobal = "$" + "scramjet";
 
 const contentTypes: Record<string, string> = {
   ".js": "application/javascript; charset=utf-8",
@@ -49,6 +53,22 @@ function replaceStringLiteral(source: string, from: string, to: string) {
   return out;
 }
 
+function stripSourceMappingUrl(source: string) {
+  return source.replace(/[\r\n]*\/\/[#@]\s*sourceMappingURL=.*/g, "");
+}
+
+function patchUltravioletWorker(source: string) {
+  // Normalize bare-mux rawHeaders (array or numeric-keyed object) into a plain object.
+  const patched = source.replace(
+    "for(let t in o.rawHeaders)this.headers[t.toLowerCase()]=o.rawHeaders[t]",
+    "for(let t in o.rawHeaders){let e=o.rawHeaders[t];if(Array.isArray(e))this.headers[String(e[0]).toLowerCase()]=e[1];else if(/^\\d+$/.test(t)){let o=String(e),r=o.indexOf(',');r>0&&(this.headers[o.slice(0,r).toLowerCase()]=o.slice(r+1))}else this.headers[t.toLowerCase()]=e}",
+  );
+  if (patched === source) {
+    throw new Error("Unable to patch Ultraviolet worker raw headers.");
+  }
+  return patched;
+}
+
 function withProxyTemplates(
   source: string,
   routes: App.Locals["proxyRoutes"],
@@ -76,36 +96,16 @@ function withProxyTemplates(
     }
   }
 
+  out = out.replaceAll(
+    /\bscramjet\b/g,
+    proxyGlobalIdentifier(routes, "scramjet"),
+  );
+
   return out;
 }
 
 function uvConfigSource(routes: App.Locals["proxyRoutes"]) {
-  return `self[${JSON.stringify(routes.globals.uvConfig)}] = {\n  prefix: ${JSON.stringify(routes.uvConfig.prefix)},\n  encodeUrl: Ultraviolet.codec.xor.encode,\n  decodeUrl: Ultraviolet.codec.xor.decode,\n  handler: ${JSON.stringify(routes.uvConfig.handler)},\n  bundle: ${JSON.stringify(routes.uvConfig.bundle)},\n  config: ${JSON.stringify(routes.uvConfig.config)},\n  client: ${JSON.stringify(routes.uvConfig.client)},\n  sw: ${JSON.stringify(routes.uvConfig.sw)},\n};\n`;
-}
-
-function patchScramjetControllerWorker(source: string) {
-  const scramjetConfigPrefix = `globalThis[${JSON.stringify(
-    legacyScramjetGlobal,
-  )}].config.prefix`;
-  const patched = source.replace(
-    "headers:n.headers",
-    `headers:((e,s)=>{let t=new Headers,r=Array.isArray(e)?e:Object.entries(e||{});for(let[e,o]of r){if(Array.isArray(o))t.append(o[0],o[1]);else if(/^\\d+$/.test(e)){let s=String(o),r=s.indexOf(',');r>0&&t.append(s.slice(0,r),s.slice(r+1))}else t.append(e,String(o))}let o=t.get('location');if(o){try{let e=new URL(o,s),r='/'+encodeURIComponent(e.href);t.set('location',location.origin+${scramjetConfigPrefix}+'x/'+r)}catch{}}return t})(n.headers,o&&o.url)`,
-  );
-  if (patched === source) {
-    throw new Error("Unable to patch Scramjet controller worker headers.");
-  }
-  return patched;
-}
-
-function patchUltravioletWorker(source: string) {
-  const patched = source.replace(
-    "for(let t in o.rawHeaders)this.headers[t.toLowerCase()]=o.rawHeaders[t]",
-    "for(let t in o.rawHeaders){let e=o.rawHeaders[t];if(Array.isArray(e))this.headers[String(e[0]).toLowerCase()]=e[1];else if(/^\\d+$/.test(t)){let o=String(e),r=o.indexOf(',');r>0&&(this.headers[o.slice(0,r).toLowerCase()]=o.slice(r+1))}else this.headers[t.toLowerCase()]=e}",
-  );
-  if (patched === source) {
-    throw new Error("Unable to patch Ultraviolet worker raw headers.");
-  }
-  return patched;
+  return `self[${JSON.stringify(proxyUvConfigGlobal(routes))}] = {\n  prefix: ${JSON.stringify(routes.uvConfig.prefix)},\n  encodeUrl: Ultraviolet.codec.xor.encode,\n  decodeUrl: Ultraviolet.codec.xor.decode,\n  handler: ${JSON.stringify(routes.uvConfig.handler)},\n  bundle: ${JSON.stringify(routes.uvConfig.bundle)},\n  config: ${JSON.stringify(routes.uvConfig.config)},\n  client: ${JSON.stringify(routes.uvConfig.client)},\n  sw: ${JSON.stringify(routes.uvConfig.sw)},\n};\n`;
 }
 
 async function existingVendorFile(
@@ -137,6 +137,7 @@ function fileResponse(filePath: string, cacheControl: string) {
 async function vendorResponse(
   asset: NonNullable<ReturnType<typeof getProxyAsset>>,
   routes: App.Locals["proxyRoutes"],
+  isMainWebsite: boolean,
 ) {
   const { filePath, obfuscatedFilePath, publicPath } = asset;
   const ext = path.extname(filePath);
@@ -160,14 +161,12 @@ async function vendorResponse(
     } catch {}
 
     let source = await readFile(sourcePath, "utf-8");
-    const isObfuscated = sourcePath === obfuscatedFilePath;
-    if (!isObfuscated && publicPath === "/uv/uv.sw.js") {
-      source = patchUltravioletWorker(source);
+    if (!isMainWebsite) {
+      source = stripSourceMappingUrl(
+        withProxyTemplates(source, routes, publicPath),
+      );
     }
-    if (!isObfuscated && publicPath === "/scramjet/controller.sw.js") {
-      source = patchScramjetControllerWorker(source);
-    }
-    return new Response(withProxyTemplates(source, routes, publicPath), {
+    return new Response(source, {
       headers: {
         ...headersFor(filePath),
         "cache-control": cacheControlFor(publicPath),
@@ -187,10 +186,14 @@ async function vendorResponse(
 export async function proxyAssetResponse(
   pathname: string,
   routes: App.Locals["proxyRoutes"],
+  isMainWebsite: boolean,
 ) {
   if (pathname === routes.paths.serviceWorker) {
     const source = await readFile(serviceWorkerPath, "utf-8");
-    return new Response(withProxyTemplates(source, routes), {
+    const responseSource = isMainWebsite
+      ? source
+      : stripSourceMappingUrl(withProxyTemplates(source, routes));
+    return new Response(responseSource, {
       headers: {
         "content-type": "application/javascript; charset=utf-8",
         "cache-control": "private, no-cache",
@@ -200,7 +203,20 @@ export async function proxyAssetResponse(
   }
 
   const asset = getProxyAsset(routes, pathname);
-  if (asset) return vendorResponse(asset, routes);
+  if (asset) {
+    if (pathname === routes.assets.uvSw) {
+      let source = await readFile(asset.filePath, "utf-8");
+      source = patchUltravioletWorker(source);
+      source = withProxyTemplates(source, routes, asset.publicPath);
+      return new Response(source, {
+        headers: {
+          ...headersFor(asset.filePath),
+          "cache-control": cacheControlFor(asset.publicPath),
+        },
+      });
+    }
+    return vendorResponse(asset, routes, isMainWebsite);
+  }
 }
 
 export async function staticAssetResponse(pathname: string) {

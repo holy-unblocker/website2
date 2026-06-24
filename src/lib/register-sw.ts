@@ -1,14 +1,7 @@
 /// <reference types="@mercuryworkshop/scramjet-controller" />
 import { BareMuxConnection } from "@mercuryworkshop/bare-mux";
-import type * as Scramjet from "@mercuryworkshop/scramjet";
 import type * as ScramjetController from "@mercuryworkshop/scramjet-controller";
-
-type UvConfig = {
-  prefix: string;
-  encodeUrl: (url: string) => string;
-  decodeUrl: (url: string) => string;
-  sw?: string;
-};
+import { getSiteConfig } from "./siteConfig";
 
 // registers the randomized service worker and sets up BareMux.
 export async function setupServiceWorker() {
@@ -81,8 +74,7 @@ export async function setupBareMux() {
   const routes = getProxyRoutes();
   const connection = new BareMuxConnection(routes.assets.baremuxWorker);
 
-  const ele = document.getElementById("configThing")!;
-  const transport = ele.getAttribute("data-transport")!;
+  const transport = getSiteConfig().transport;
   console.log("Transport:", transport);
 
   if (transport === "epoxy") {
@@ -103,34 +95,28 @@ export async function setupBareMux() {
 export function getProxyEngine(): string {
   const path = location.pathname.replace(/\/+$/, "");
   if (path === "/uv") return "uv";
-  if (path === "/scramjet") return "scramjet";
+  if (path === "/sj") return "sj";
 
   const pageEngine = document
     .getElementById("omnibox")
     ?.getAttribute("data-proxy-engine");
   if (pageEngine) return pageEngine;
 
-  return document.getElementById("configThing")!.getAttribute("data-engine")!;
+  return getSiteConfig().engine;
 }
 
-// whether adblock (domain blacklisting) is enabled, from #configThing
+// whether adblock (domain blacklisting) is enabled, from #config
 export function getAdblock(): boolean {
-  return (
-    document.getElementById("configThing")?.getAttribute("data-adblock") === "1"
-  );
+  return getSiteConfig().adblock === "1";
 }
 
-// whether noscript (stripping scripts from proxied pages) is enabled, from #configThing
+// whether noscript (stripping scripts from proxied pages) is enabled, from #config
 export function getNoscript(): boolean {
-  return (
-    document.getElementById("configThing")?.getAttribute("data-noscript") ===
-    "1"
-  );
+  return getSiteConfig().noscript === "1";
 }
 
 async function createScramjetTransport() {
-  const ele = document.getElementById("configThing")!;
-  const transport = ele.getAttribute("data-transport")!;
+  const transport = getSiteConfig().transport;
   const wispUrl = getWispUrl();
   const routes = getProxyRoutes();
 
@@ -217,11 +203,11 @@ type ProxyRoutes = {
     | "uvHandler"
     | "uvClient"
     | "uvSw"
-    | "scramjet"
-    | "scramjetWasm"
-    | "scramjetControllerApi"
-    | "scramjetControllerInject"
-    | "scramjetControllerSw",
+    | "sj"
+    | "sjWasm"
+    | "sjControllerApi"
+    | "sjControllerInject"
+    | "sjControllerSw",
     string
   >;
   uvConfig: {
@@ -241,9 +227,7 @@ type ProxyRoutes = {
 };
 
 function getProxyRoutes(): ProxyRoutes {
-  const raw = document
-    .getElementById("configThing")!
-    .getAttribute("data-proxy-routes");
+  const raw = getSiteConfig().routes;
   if (!raw) throw new Error("Missing proxy route metadata.");
   return JSON.parse(raw) as ProxyRoutes;
 }
@@ -271,11 +255,7 @@ export async function scramjetGo(
 
 // get the Holy Unblocker bare endpoint
 export function getBareUrl() {
-  // HTML element inserted by astro
-  // - it contains the [data-bare-server] attribute which tells the client what wisp server to use
-  // - this value is directly from appConfig.
-  const ele = document.getElementById("configThing")!;
-  const separateBareServer = ele.getAttribute("data-bare")!;
+  const separateBareServer = getSiteConfig().bare;
 
   // defaults to wisp on /api/wisp which is hosted by the Holy Unblocker runtime
   // see: ./config/runtime.js
@@ -286,11 +266,7 @@ export function getBareUrl() {
 
 // get the Holy Unblocker wisp endpoint
 export function getWispUrl() {
-  // HTML element inserted by astro
-  // - it contains the [data-wisp-server] attribute which tells the client what wisp server to use
-  // - this value is directly from appConfig.
-  const ele = document.getElementById("configThing")!;
-  const separateWispServer = ele.getAttribute("data-wisp")!;
+  const separateWispServer = getSiteConfig().wisp;
 
   // defaults to wisp on /api/wisp which is hosted by the Holy Unblocker runtime
   // see: ./config/runtime.js

@@ -1,7 +1,7 @@
 // Ultraviolet + Scramjet service worker, with optional domain adblocking.
 importScripts("/uv/uv.bundle.js");
 importScripts("/uv/uv.config.js");
-importScripts(globalThis["__uv$config"].sw || "/uv/uv.sw.js");
+importScripts(__uv$config.sw || "/uv/uv.sw.js");
 importScripts("/scramjet/controller.sw.js");
 
 let uv;

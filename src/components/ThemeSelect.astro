@@ -1,6 +1,7 @@
 ---
 import themeStyles from "@styles/ThemeElements.module.scss";
 import ExpandMore from "@icons/expand_more_24dp.svg?react";
+import HolyText from "./HolyText.astro";
 
 interface Props {
   options: {
@@ -24,9 +25,16 @@ for (const child of Astro.props.options) {
   if (child.value === Astro.props.value) defaultSelected = options.length;
   options.push(option);
 }
+
+const optionsJson = JSON.stringify(options);
+const tsData = Astro.locals.isMainWebsite
+  ? optionsJson
+  : await Astro.locals.encryptText(optionsJson);
 ---
 
 <script>
+  import { holyDecrypt } from "@lib/holyDecrypt";
+
   function loadSelects() {
     for (const ts of document.querySelectorAll<
       HTMLDivElement & { hooked?: boolean }
@@ -35,8 +43,11 @@ for (const child of Astro.props.options) {
       ts.hooked = true;
 
       const toggle = ts.querySelector<HTMLDivElement>("[data-ts-toggle]")!;
+      const raw = ts.getAttribute("data-ts")!;
+      const encrypted = ts.hasAttribute("data-ts-ec");
+      const json = encrypted ? holyDecrypt(raw) : raw;
       const options = (
-        JSON.parse(ts.getAttribute("data-ts")!) as [
+        JSON.parse(json) as [
           name: string,
           value: string,
           disabled?: number,
@@ -177,7 +188,8 @@ for (const child of Astro.props.options) {
   document.addEventListener("astro:page-load", loadSelects);
 </script>
 <div
-  data-ts={JSON.stringify(options)}
+  data-ts={tsData}
+  data-ts-ec={Astro.locals.isMainWebsite ? undefined : ""}
   tabindex="0"
   class:list={[themeStyles.ThemeSelect, Astro.props.class]}
   data-selected={defaultSelected === 0 ? undefined : defaultSelected}
@@ -185,14 +197,14 @@ for (const child of Astro.props.options) {
 >
   <input readonly hidden name={Astro.props.name} />
   <div data-ts-toggle class={themeStyles.toggle}>
-    <span data-ts-name>{Astro.props.options[defaultSelected].name}</span>
+    <span data-ts-name><HolyText text={Astro.props.options[defaultSelected].name} /></span>
     <div set:html={ExpandMore} />
   </div>
   <div class={themeStyles.list} data-ts-list>
     {
       Astro.props.options.map((option) => (
         <div data-disabled={option.disabled ? "1" : undefined}>
-          {option.name}
+          <HolyText text={option.name} />
         </div>
       ))
     }

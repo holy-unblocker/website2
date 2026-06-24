@@ -203,6 +203,8 @@ html[data-tab] {
     visibility: hidden;
     display: flex;
     flex-direction: column;
+    max-height: min(360px, 60vh);
+    overflow-y: auto;
     border: 1px solid var(--border);
     border-top: none;
     border-bottom-left-radius: 8px;
@@ -217,7 +219,11 @@ html[data-tab] {
       // toggle icon adds 30px (width + padding)
       // add 15 px to factor in 15px padding on both sides
       padding: 0px calc(30px + 15px) 0px 15px;
+      box-sizing: border-box;
       cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
 
       &:last-of-type {
         border-bottom: none;

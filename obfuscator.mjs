@@ -50,7 +50,7 @@ export default function obfuscator(opts) {
   function reservedVendorStrings(currentPublicPath) {
     const paths = [...getVendorAssetRegistry().keys()];
     const reserved = new Set([
-      "__uv$config",
+      "__uv",
       "$scramjet",
       "$scramjetController",
       "/scram/service/",
@@ -92,7 +92,7 @@ export default function obfuscator(opts) {
       stringArrayThreshold: 1,
       reservedNames: [
         ...(obfuscatorOptions.reservedNames || []),
-        "^__uv\\$config$",
+        "^__uv",
         "^\\$scramjet$",
         "^\\$scramjetController$",
         "^UVServiceWorker$",

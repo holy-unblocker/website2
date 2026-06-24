@@ -1,26 +1,28 @@
 ---
 import { serializeProxyRoutes } from "@lib/proxyRoutes.js";
+import styles from "@styles/UVScripts.module.scss";
 
 const proxyRoutes = Astro.locals.proxyRoutes;
+const siteConfig = JSON.stringify({
+  transport: Astro.locals.proxyTransport,
+  engine: Astro.locals.proxyEngine,
+  adblock: Astro.locals.adblock ? "1" : "0",
+  noscript: Astro.locals.noscript ? "1" : "0",
+  bare: Astro.locals.bareServer,
+  wisp: Astro.locals.wispServer,
+  defaultBare: Astro.locals.defaultBareServer,
+  defaultWisp: Astro.locals.defaultWispServer,
+  torAvailable: Astro.locals.torAvailable ? "1" : "0",
+  tor: Astro.locals.tor ? "1" : "0",
+  routes: serializeProxyRoutes(proxyRoutes),
+});
 ---
 
 <script src={proxyRoutes.assets.baremuxIndex} is:inline defer></script>
 <script src={proxyRoutes.assets.uvBundle} is:inline></script>
 <script src={proxyRoutes.assets.uvConfig} is:inline></script>
-<script src={proxyRoutes.assets.scramjet} is:inline></script>
-<script src={proxyRoutes.assets.scramjetControllerApi} is:inline></script>
-<div
-  id="configThing"
-  data-transport={Astro.locals.proxyTransport}
-  data-engine={Astro.locals.proxyEngine}
-  data-adblock={Astro.locals.adblock ? "1" : "0"}
-  data-noscript={Astro.locals.noscript ? "1" : "0"}
-  data-bare={Astro.locals.bareServer}
-  data-wisp={Astro.locals.wispServer}
-  data-default-bare={Astro.locals.defaultBareServer}
-  data-default-wisp={Astro.locals.defaultWispServer}
-  data-tor-available={Astro.locals.torAvailable ? "1" : "0"}
-  data-tor={Astro.locals.tor ? "1" : "0"}
-  data-proxy-routes={serializeProxyRoutes(proxyRoutes)}
->
-</div>
+<script src={proxyRoutes.assets.sj} is:inline></script>
+<script src={proxyRoutes.assets.sjControllerApi} is:inline></script>
+<div class={styles.siteConfig} set:text={encodeURIComponent(
+  await Astro.locals.encryptText(siteConfig),
+)} />

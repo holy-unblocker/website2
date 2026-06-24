@@ -533,7 +533,7 @@ export function handleReq(req, res, middleware) {
     return middleware();
   }
   if (req.url.startsWith(proxyRoutes.sjConfig.prefix)) {
-    req.url = proxyRoutes.paths.registerScramjet;
+    req.url = proxyRoutes.paths.registerSJ;
     return middleware();
   }
 

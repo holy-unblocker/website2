@@ -22,18 +22,9 @@ import HolyLink from "@components/HolyLink.astro";
   <main>
     <div class={styles.content}>
       <h1 class={styles.title}>
-        <img
-          src="/scramjet.png"
-          alt="Scramjet"
-          class={styles.logo}
-          width="436"
-          height="225"
-        />
+        <img src="/sj.png" class={styles.logo} width="436" height="225" />
       </h1>
-      <ProxyOmnibox
-        searchEngine={Astro.locals.searchEngine}
-        proxyEngine="scramjet"
-      />
+      <ProxyOmnibox searchEngine={Astro.locals.searchEngine} proxyEngine="sj" />
       <p>
         <HolyText
           text="If you're having issues with the proxy, try troubleshooting your problem by looking at the"

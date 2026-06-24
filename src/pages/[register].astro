@@ -12,18 +12,18 @@ import "@styles/theme.scss";
 const routes = Astro.locals.proxyRoutes;
 const pathname = Astro.url.pathname;
 
-const asset = await proxyAssetResponse(pathname, routes);
+const asset = await proxyAssetResponse(pathname, routes, Astro.locals.isMainWebsite);
 if (asset) return asset;
 
-let engine: "uv" | "scramjet" | null = null;
+let engine: "uv" | "sj" | null = null;
 if (pathname === routes.paths.registerUV) engine = "uv";
-else if (pathname === routes.paths.registerScramjet) engine = "scramjet";
+else if (pathname === routes.paths.registerSJ) engine = "sj";
 
 if (engine === null) return new Response(null, { status: 404 });
 
 Astro.response.headers.set("x-robots-tag", "noindex");
 
-const loadingText = engine === "scramjet" ? "Scramjet is loading..." : "Ultraviolet is loading...";
+const loadingText = engine === "sj" ? "Scramjet is loading..." : "Ultraviolet is loading...";
 ---
 
 <CompatLayout>
@@ -47,10 +47,10 @@ const loadingText = engine === "scramjet" ? "Scramjet is loading..." : "Ultravio
   document.addEventListener("DOMContentLoaded", async () => {
     const engine = document
       .querySelector<HTMLElement>("main[data-register-engine]")
-      ?.getAttribute("data-register-engine") as "uv" | "scramjet" | null;
+      ?.getAttribute("data-register-engine") as "uv" | "sj" | null;
 
     try {
-      if (engine === "scramjet") {
+      if (engine === "sj") {
         const prefix = getScramjetPrefix();
         if (!location.pathname.startsWith(prefix))
           throw new TypeError(
@@ -78,7 +78,7 @@ const loadingText = engine === "scramjet" ? "Scramjet is loading..." : "Ultravio
       console.log("SW registered");
       setTimeout(() => location.reload(), 500);
     } catch (err) {
-      reportCompatError(err, undefined, engine === "scramjet" ? "Scramjet" : "Ultraviolet");
+      reportCompatError(err, undefined, engine === "sj" ? "Scramjet" : "Ultraviolet");
     }
   });
 </script>
