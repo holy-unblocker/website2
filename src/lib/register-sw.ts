@@ -1,6 +1,7 @@
 /// <reference types="@mercuryworkshop/scramjet-controller" />
 import { BareMuxConnection } from "@mercuryworkshop/bare-mux";
 import type * as ScramjetController from "@mercuryworkshop/scramjet-controller";
+import { getURLKeyBase64 } from "./cryptURL";
 import { getSiteConfig } from "./siteConfig";
 
 // registers the randomized service worker and sets up BareMux.
@@ -28,6 +29,7 @@ export async function setupServiceWorker() {
   const swParams = new URLSearchParams();
   if (getAdblock()) swParams.set("adblock", "1");
   if (getNoscript()) swParams.set("noscript", "1");
+  swParams.set("key", getURLKeyBase64());
   const swQuery = swParams.toString();
   const swUrl = swQuery ? `${swPath}?${swQuery}` : swPath;
 
@@ -42,7 +44,15 @@ export async function setupServiceWorker() {
     const hasAdblock = activeUrl.includes("adblock=1");
     const wantNoscript = swUrl.includes("noscript=1");
     const hasNoscript = activeUrl.includes("noscript=1");
-    if (wantAdblock !== hasAdblock || wantNoscript !== hasNoscript) {
+    const wantedKey = new URL(swUrl, location.href).searchParams.get("key");
+    const activeKey = activeUrl
+      ? new URL(activeUrl).searchParams.get("key")
+      : null;
+    if (
+      wantAdblock !== hasAdblock ||
+      wantNoscript !== hasNoscript ||
+      wantedKey !== activeKey
+    ) {
       await navigator.serviceWorker.register(swUrl, {
         scope: "/",
         updateViaCache: "none",

@@ -3,6 +3,7 @@ import { access, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { Readable } from "node:stream";
+import { transform } from "esbuild";
 import {
   getProxyAsset,
   proxyGlobalIdentifier,
@@ -13,8 +14,21 @@ import {
 const require = createRequire(import.meta.url);
 const publicRoot = path.resolve(process.cwd(), "public");
 const serviceWorkerPath = path.resolve(process.cwd(), "src/lib/sw.js");
+const uvConfigTemplatePath = path.resolve(
+  process.cwd(),
+  "src/lib/uv.config.js",
+);
 const staticRoots = [path.resolve(process.cwd(), "dist/client"), publicRoot];
 const ruffleRoot = path.resolve(require.resolve("@ruffle-rs/ruffle"), "..");
+
+const uvConfigTemplate = (async () => {
+  const source = await readFile(uvConfigTemplatePath, "utf-8");
+  const { code } = await transform(source, {
+    minify: true,
+    format: "iife",
+  });
+  return code;
+})();
 
 const contentTypes: Record<string, string> = {
   ".js": "application/javascript; charset=utf-8",
@@ -104,8 +118,22 @@ function withProxyTemplates(
   return out;
 }
 
-function uvConfigSource(routes: App.Locals["proxyRoutes"]) {
-  return `self[${JSON.stringify(proxyUvConfigGlobal(routes))}] = {\n  prefix: ${JSON.stringify(routes.uvConfig.prefix)},\n  encodeUrl: Ultraviolet.codec.xor.encode,\n  decodeUrl: Ultraviolet.codec.xor.decode,\n  handler: ${JSON.stringify(routes.uvConfig.handler)},\n  bundle: ${JSON.stringify(routes.uvConfig.bundle)},\n  config: ${JSON.stringify(routes.uvConfig.config)},\n  client: ${JSON.stringify(routes.uvConfig.client)},\n  sw: ${JSON.stringify(routes.uvConfig.sw)},\n};\n`;
+async function uvConfigSource(routes: App.Locals["proxyRoutes"]) {
+  const replacements: Record<string, string> = {
+    UV_CONFIG_GLOBAL: proxyUvConfigGlobal(routes),
+    UV_PREFIX: routes.uvConfig.prefix,
+    UV_HANDLER: routes.uvConfig.handler,
+    UV_BUNDLE: routes.uvConfig.bundle,
+    UV_CONFIG: routes.uvConfig.config,
+    UV_CLIENT: routes.uvConfig.client,
+    UV_SW: routes.uvConfig.sw,
+  };
+
+  const template = await uvConfigTemplate;
+  return template.replace(/%\{(\w+)\}/g, (match, key: string) => {
+    const value = replacements[key];
+    return value === undefined ? match : value;
+  });
 }
 
 async function existingVendorFile(
@@ -145,7 +173,7 @@ async function vendorResponse(
   const shouldTemplate = ext === ".js" || ext === ".mjs" || ext === ".cjs";
 
   if (basename === "uv.config.js") {
-    return new Response(uvConfigSource(routes), {
+    return new Response(await uvConfigSource(routes), {
       headers: {
         ...headersFor(filePath),
         "cache-control": cacheControlFor(publicPath),
