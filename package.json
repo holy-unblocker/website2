@@ -28,7 +28,7 @@
     "@mercuryworkshop/epoxy-transport": "^3.0.1",
     "@mercuryworkshop/libcurl-transport": "^2.0.5",
     "@mercuryworkshop/scramjet": "2.0.67-alpha.1",
-    "@mercuryworkshop/scramjet-controller": "0.0.13",
+    "@mercuryworkshop/scramjet-controller": "^0.0.14",
     "@mercuryworkshop/scramjet-utils": "^0.0.3",
     "@noble/ciphers": "^2.2.0",
     "@ruffle-rs/ruffle": "^0.3.0",
