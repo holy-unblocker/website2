@@ -21,6 +21,11 @@ const globalVariableNames = [
   "__uv",
   "$scramjetController",
   "$scramjet",
+  "$scramitize",
+  "scramitize",
+  "$scramerr",
+  "$scramdbg",
+  "scramtag",
   "Ultraviolet",
   "UVServiceWorker",
   "@mercuryworkshop/scramjet",
@@ -271,7 +276,10 @@ export function getProxyRouteMap(seed) {
     },
     sjConfig: {
       prefix: paths.scramService,
-      scramjetPath: assets.sj,
+      // The controller bundle reads `config.scramjetPath`, which is rewritten
+      // by rewriteProxyGlobals to the obfuscated identifier. Emit the value
+      // under that same obfuscated key so the controller can resolve it.
+      [globalIdentifier(normalizedSeed, "scramjetPath")]: assets.sj,
       wasmPath: assets.sjWasm,
       injectPath: assets.sjControllerInject,
     },
@@ -285,36 +293,61 @@ export function getProxyAsset(routes, pathname) {
 }
 
 export function rewriteProxyGlobals(source, routes) {
-  const scramjetPlaceholder = "__HU_SCRAMJET_GLOBAL__";
-  const scramjetControllerPlaceholder = "__HU_SCRAMJET_CONTROLLER_GLOBAL__";
-
   let out = source;
-  for (const original of globalVariableNames) {
-    if (original instanceof RegExp) {
-      // use the regex source (without flags) as the stable label so the
-      // obfuscated identifier is deterministic across requests.
-      const obfuscated = proxyGlobalIdentifier(routes, original.source);
-      out = out.replaceAll(original, obfuscated);
-      continue;
-    }
-    const obfuscated = proxyGlobalIdentifier(routes, original);
-    if (original === "$scramjetController") {
-      out = out.replaceAll(original, scramjetControllerPlaceholder);
-    } else if (original === "$scramjet") {
-      out = out.replaceAll(original, scramjetPlaceholder);
-    } else {
-      out = out.replaceAll(original, obfuscated);
-    }
+  const orderedGlobals = [...globalVariableNames].sort((left, right) => {
+    const leftLength =
+      left instanceof RegExp ? left.source.length : left.length;
+    const rightLength =
+      right instanceof RegExp ? right.source.length : right.length;
+    return rightLength - leftLength;
+  });
+
+  for (const original of orderedGlobals) {
+    const obfuscated = proxyGlobalIdentifier(
+      routes,
+      original instanceof RegExp ? original.source : original,
+    );
+    out = out.replaceAll(original, obfuscated);
   }
-  out = out.replaceAll(
-    scramjetControllerPlaceholder,
-    proxyGlobalIdentifier(routes, "$scramjetController"),
-  );
-  out = out.replaceAll(
-    scramjetPlaceholder,
-    proxyGlobalIdentifier(routes, "$scramjet"),
-  );
+
   return out;
+}
+
+// Identifiers that the Scramjet rewriter WASM emits verbatim into rewritten
+// page JS. These must match the obfuscated globals defined by the core runtime
+// bundle. Each entry is rewritten in-place inside the WASM binary using a
+// length-preserving obfuscated identifier so the module stays byte-valid (WASM
+// string literals carry LEB128 length prefixes that must not change).
+const wasmEmbeddedGlobals = [
+  "$scramjet",
+  "$scramitize",
+  "$scramerr",
+  "scramtag",
+];
+
+export function rewriteWasmGlobals(buffer, routes) {
+  let text = Buffer.from(buffer).toString("latin1");
+  let changed = false;
+
+  const ordered = [...wasmEmbeddedGlobals].sort(
+    (left, right) => right.length - left.length,
+  );
+
+  for (const original of ordered) {
+    const obfuscated = proxyGlobalIdentifier(routes, original);
+    if (obfuscated.length !== original.length) continue;
+    if (!text.includes(original)) continue;
+    text = text.split(original).join(obfuscated);
+    changed = true;
+  }
+
+  if (!changed) return Buffer.from(buffer);
+
+  const rewritten = Buffer.from(text, "latin1");
+  if (rewritten.length !== buffer.length || !WebAssembly.validate(rewritten)) {
+    return Buffer.from(buffer);
+  }
+  return rewritten;
 }
 
 export function serializeProxyRoutes(routes) {

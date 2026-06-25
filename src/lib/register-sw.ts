@@ -179,12 +179,10 @@ export function setupScramjet(): Promise<void> {
     const controller = new Controller({
       serviceworker,
       transport,
-      config: {
-        prefix: routes.sjConfig.prefix,
-        scramjetPath: routes.sjConfig.scramjetPath,
-        wasmPath: routes.sjConfig.wasmPath,
-        injectPath: routes.sjConfig.injectPath,
-      },
+      // sjConfig carries prefix, wasmPath, injectPath, and the obfuscated
+      // scramjetPath key (renamed server-side to match the controller bundle's
+      // rewritten property access). Spread it through verbatim.
+      config: routes.sjConfig,
       scramjetConfig: {
         ...defaultConfig,
         flags: {
@@ -240,9 +238,11 @@ type ProxyRoutes = {
   };
   sjConfig: {
     prefix: string;
-    scramjetPath: string;
     wasmPath: string;
     injectPath: string;
+    // the scramjet core path is emitted under a per-seed obfuscated key that
+    // matches the controller bundle's rewritten `config.scramjetPath` access.
+    [obfuscatedKey: string]: string;
   };
 };
 

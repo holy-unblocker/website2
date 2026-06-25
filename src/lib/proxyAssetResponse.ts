@@ -9,6 +9,7 @@ import {
   proxyGlobalIdentifier,
   proxyUvConfigGlobal,
   rewriteProxyGlobals,
+  rewriteWasmGlobals,
 } from "@lib/proxyRoutes.js";
 
 const require = createRequire(import.meta.url);
@@ -195,6 +196,17 @@ async function vendorResponse(
       );
     }
     return new Response(source, {
+      headers: {
+        ...headersFor(filePath),
+        "cache-control": cacheControlFor(publicPath),
+      },
+    });
+  }
+
+  if (ext === ".wasm" && !isMainWebsite) {
+    const original = await readFile(filePath);
+    const rewritten = rewriteWasmGlobals(original, routes);
+    return new Response(rewritten, {
       headers: {
         ...headersFor(filePath),
         "cache-control": cacheControlFor(publicPath),
