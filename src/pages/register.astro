@@ -40,8 +40,6 @@ const loadingText = engine === "sj" ? "Scramjet is loading..." : "Ultraviolet is
     getScramjetPrefix,
   } from "@lib/register-sw";
 
-  console.log(location.href);
-
   document.addEventListener("DOMContentLoaded", async () => {
     const engine = document
       .querySelector<HTMLElement>("main[data-register-engine]")
@@ -64,19 +62,29 @@ const loadingText = engine === "sj" ? "Scramjet is loading..." : "Ultraviolet is
             `register-uv was served on a non-uv path: ${location.pathname}`
           );
 
-        console.log(
-          "Destination:",
-          __uv$config.decodeUrl!(location.pathname.slice(__uv$config.prefix!.length))
-        );
-
         await setupBareMux();
         await setupServiceWorker();
       }
 
-      console.log("SW registered");
+      await waitForController();
       setTimeout(() => location.reload(), 500);
     } catch (err) {
       reportCompatError(err, undefined, engine === "sj" ? "Scramjet" : "Ultraviolet");
     }
   });
+
+  function waitForController(timeout = 1e4): Promise<void> {
+    if (navigator.serviceWorker.controller) return Promise.resolve();
+    return new Promise<void>((resolve) => {
+      let settled = false;
+      const done = () => {
+        if (settled) return;
+        settled = true;
+        navigator.serviceWorker.removeEventListener("controllerchange", done);
+        resolve();
+      };
+      navigator.serviceWorker.addEventListener("controllerchange", done);
+      setTimeout(done, timeout);
+    });
+  }
 </script>

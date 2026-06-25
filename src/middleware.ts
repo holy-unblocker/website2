@@ -347,7 +347,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.setProxyEngine = (newProxyEngine) => {
     const validEngine =
       typeof newProxyEngine === "string" &&
-      ["uv", "scramjet"].includes(newProxyEngine);
+      ["uv", "sj"].includes(newProxyEngine);
 
     if (validEngine) {
       context.cookies.set("engine", newProxyEngine as string, {

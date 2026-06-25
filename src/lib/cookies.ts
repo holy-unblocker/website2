@@ -14,10 +14,21 @@ function getCookie(name: string) {
   }
 }
 
+function cookieDomainAttr() {
+  const host = location.hostname;
+  if (host === "localhost" || host === "127.0.0.1" || host === "[::1]")
+    return "";
+  return `; domain=.${host}`;
+}
+
 function setCookie(name: string, value: string) {
   // 400 days
   const maxAge = 60 * 24 * 400;
-  document.cookie = `${name}=${value}; max-age=${maxAge}; samesite=strict; path=/; domain=.${location.hostname}`;
+  document.cookie = `${name}=${value}; max-age=${maxAge}; samesite=strict; path=/${cookieDomainAttr()}`;
+}
+
+export function clearCookie(name: string) {
+  document.cookie = `${name}=; max-age=0; samesite=strict; path=/${cookieDomainAttr()}`;
 }
 
 export function setTheme(theme: string) {
@@ -104,8 +115,8 @@ export function setTor(enabled: boolean) {
   if (enabled) {
     // drop any custom bare/wisp server so we use this instance's routed ones,
     // and reset the runtime config to the instance defaults
-    document.cookie = `bareServer=; max-age=0; samesite=strict; path=/; domain=.${location.hostname}`;
-    document.cookie = `wispServer=; max-age=0; samesite=strict; path=/; domain=.${location.hostname}`;
+    clearCookie("bareServer");
+    clearCookie("wispServer");
     setSiteConfig("bare", config.defaultBare);
     setSiteConfig("wisp", config.defaultWisp);
   }

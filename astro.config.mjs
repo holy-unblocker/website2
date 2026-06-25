@@ -34,6 +34,9 @@ export default defineConfig({
   },
   site: "https://" + appConfig.mainWebsite,
   vite: {
+    ssr: {
+      external: ["mrrowisp"],
+    },
     build: {
       dynamicImportVarsOptions: {
         exclude: [
