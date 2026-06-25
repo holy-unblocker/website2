@@ -1,12 +1,40 @@
 import { parse } from "node-html-parser";
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 
-export interface AppCloak {
-  icon: string;
-  title: string;
-  url: string;
+// resolved cloak metadata is pre-fetched by scripts/fetch-cloaks.js into
+// ./cloak/builtins.json at the project root. cloak.js lives at src/lib/, so go
+// up two levels to reach the project root.
+const builtinsFile = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../cloak/builtins.json",
+);
+
+/** @type {import("./cloak").AppCloak[] | undefined} */
+let builtinsCache;
+
+/**
+ * Load the pre-fetched built-in cloaks from cloak/builtins.json. Cached after
+ * the first read. Returns an empty array if the cache file is missing (eg. the
+ * fetch-cloaks script hasn't been run yet) so callers can render gracefully.
+ * @returns {Promise<import("./cloak").AppCloak[]>}
+ */
+export async function getBuiltinCloaks() {
+  if (builtinsCache !== undefined) return builtinsCache;
+
+  try {
+    builtinsCache = JSON.parse(await readFile(builtinsFile, "utf8"));
+  } catch (err) {
+    console.error("Failed to load built-in cloaks:", err.message);
+    builtinsCache = [];
+  }
+
+  return builtinsCache;
 }
 
-export const randomCloaks: (string | AppCloak)[] = [
+/** @type {(string | import("./cloak").AppCloak)[]} */
+export const randomCloaks = [
   {
     icon: "https://ssl.gstatic.com/classroom/ic_product_classroom_32.png",
     title: "Classes",
@@ -55,7 +83,10 @@ export const randomCloaks: (string | AppCloak)[] = [
   "https://www.wolframalpha.com/",
 ];
 
-export async function getRandomCloak(): Promise<AppCloak | undefined> {
+/**
+ * @returns {Promise<import("./cloak").AppCloak | undefined>}
+ */
+export async function getRandomCloak() {
   let retries = 5;
 
   while (true) {
@@ -76,21 +107,18 @@ export async function getRandomCloak(): Promise<AppCloak | undefined> {
   }
 }
 
-export async function extractCloakData(address: string): Promise<AppCloak> {
-  if (address === "about:blank")
-    return {
-      title: "about:blank",
-      icon: "",
-      url: "about:blank",
-    };
+// parse already-fetched HTML into cloak data. `finalUrl` is the post-redirect
+// URL the HTML came from (used to resolve relative icon hrefs and as the cloak
+// url). shared by the live fetch path and the build-time cache generator.
+/**
+ * @param {string} html
+ * @param {string} finalUrl
+ * @returns {import("./cloak").AppCloak}
+ */
+export function parseCloakData(html, finalUrl) {
+  const root = parse(html);
 
-  const res = await fetch(address);
-
-  if (!res.ok) throw new Error(`Cloak address gave status code ${res.status}`);
-
-  const root = parse(await res.text());
-
-  const url = new URL(res.url);
+  const url = new URL(finalUrl);
 
   // try to find the title
   const t = root.querySelector("title");
@@ -109,5 +137,24 @@ export async function extractCloakData(address: string): Promise<AppCloak> {
       ? new URL(href, url).toString()
       : url.origin + "/favicon.ico";
 
-  return { icon, title, url: res.url };
+  return { icon, title, url: finalUrl };
+}
+
+/**
+ * @param {string} address
+ * @returns {Promise<import("./cloak").AppCloak>}
+ */
+export async function extractCloakData(address) {
+  if (address === "about:blank")
+    return {
+      title: "about:blank",
+      icon: "",
+      url: "about:blank",
+    };
+
+  const res = await fetch(address);
+
+  if (!res.ok) throw new Error(`Cloak address gave status code ${res.status}`);
+
+  return parseCloakData(await res.text(), res.url);
 }

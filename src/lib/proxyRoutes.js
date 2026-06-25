@@ -229,8 +229,12 @@ export function getProxyRouteMap(seed) {
     serviceWorker: routePath(normalizedSeed, "service-worker", ".js"),
     uvService: routePrefix(normalizedSeed, "uv-service"),
     scramService: routePrefix(normalizedSeed, "scram-service"),
-    registerUV: routePath(normalizedSeed, "register-uv", ".html"),
-    registerSJ: routePath(normalizedSeed, "register-scramjet", ".html"),
+    // register pages are rendered via an internal rewrite to the /register
+    // route with the engine in the query string. they intentionally do NOT use
+    // the /_astro/ asset base: that prefix is owned by vite's static handler in
+    // dev and would 404 before astro's page router runs.
+    registerUV: "/register?uv",
+    registerSJ: "/register?sj",
   };
 
   const assets = {

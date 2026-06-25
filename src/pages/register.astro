@@ -5,19 +5,17 @@ import UltravioletScripts from "@components/UltravioletScripts.astro";
 import "@fontsource/lato/index.css";
 import "@fontsource/lato/700.css";
 import CompatLayout from "@layouts/CompatLayout.astro";
-import { proxyAssetResponse } from "@lib/proxyAssetResponse";
 import "@styles/root.scss";
 import "@styles/theme.scss";
 
-const routes = Astro.locals.proxyRoutes;
-const pathname = Astro.url.pathname;
-
-const asset = await proxyAssetResponse(pathname, routes, Astro.locals.isMainWebsite);
-if (asset) return asset;
-
+// the engine is selected via the search param (?uv / ?sj). runtime.js rewrites
+// proxy-prefix URLs to /register?uv or /register?sj while keeping the browser
+// URL on the proxied service path (the client script reads location.pathname to
+// decode the destination after registration).
+const params = Astro.url.searchParams;
 let engine: "uv" | "sj" | null = null;
-if (pathname === routes.paths.registerUV) engine = "uv";
-else if (pathname === routes.paths.registerSJ) engine = "sj";
+if (params.has("uv")) engine = "uv";
+else if (params.has("sj")) engine = "sj";
 
 if (engine === null) return new Response(null, { status: 404 });
 
@@ -68,7 +66,7 @@ const loadingText = engine === "sj" ? "Scramjet is loading..." : "Ultraviolet is
 
         console.log(
           "Destination:",
-      __uv$config.decodeUrl!(location.pathname.slice(__uv$config.prefix!.length))
+          __uv$config.decodeUrl!(location.pathname.slice(__uv$config.prefix!.length))
         );
 
         await setupBareMux();

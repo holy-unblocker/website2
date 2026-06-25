@@ -4,6 +4,16 @@ import type * as ScramjetController from "@mercuryworkshop/scramjet-controller";
 import { getURLKeyBase64 } from "./cryptURL";
 import { getSiteConfig } from "./siteConfig";
 
+// unregisters all active service workers. used when toggling a setting that is
+// baked into the service worker (adblock, tor) so the change takes effect
+// immediately instead of lingering on the previously registered worker.
+export async function unregisterServiceWorker() {
+  if (!navigator.serviceWorker) return;
+  const regs = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(regs.map((reg) => reg.unregister()));
+  console.log("Service worker unregistered");
+}
+
 // registers the randomized service worker and sets up BareMux.
 export async function setupServiceWorker() {
   // add your network hostname here or whatever
@@ -199,7 +209,7 @@ type ProxyRoutes = {
     | "uvService"
     | "scramService"
     | "registerUV"
-    | "registerScramjet",
+    | "registerSJ",
     string
   >;
   assets: Record<

@@ -4,12 +4,14 @@ import themeStyles from "@styles/ThemeElements.module.scss";
 import styles from "@styles/Settings.module.scss";
 import pt from "@styles/PageTitle.module.scss";
 import Check from "@icons/check_24dp.svg?react";
-import { extractCloakData, getRandomCloak } from "@lib/cloak";
+import { extractCloakData, getRandomCloak, getBuiltinCloaks } from "@lib/cloak";
 import Banner from "@components/Banner.astro";
 import HolyText from "@components/HolyText.astro";
 
 let success: string | undefined;
 let error: string | undefined;
+
+const builtinCloaks = await getBuiltinCloaks();
 
 if (Astro.request.method === "POST")
   try {
@@ -93,6 +95,38 @@ if (Astro.request.method === "POST")
         </div>
       </form>
     </div>
+    {
+      builtinCloaks.length > 0 && (
+        <div class={styles.cloakGrid}>
+          {builtinCloaks.map((cloak) => (
+            <form method="post">
+              <input type="text" name="address" value={cloak.url} hidden />
+              <button
+                type="submit"
+                class={styles.cloakPill}
+                title={cloak.title}
+                data-cloak-pill
+                data-cloak-icon={cloak.icon}
+                data-cloak-title={cloak.title}
+                data-cloak-url={cloak.url}
+              >
+                {cloak.icon === "" ? (
+                  <span class={styles.cloakIcon} aria-hidden="true" />
+                ) : (
+                  <img
+                    class={styles.cloakIcon}
+                    src={"/api/cloakicon?" + encodeURIComponent(cloak.icon)}
+                    alt=""
+                    loading="lazy"
+                  />
+                )}
+                <span class={styles.cloakName}>{cloak.title}</span>
+              </button>
+            </form>
+          ))}
+        </div>
+      )
+    }
     <div class={styles.cardActions}>
       <form method="post">
         <input type="text" name="type" value="reset" hidden />
@@ -110,29 +144,33 @@ if (Astro.request.method === "POST")
   </section>
 </SettingsLayout>
 <script>
-  import { getCloak } from "@lib/cookies";
+  import { getCloak, setCloak } from "@lib/cookies";
+  import { createNotification } from "@lib/notifications";
 
   document.addEventListener("astro:page-load", () => {
     const input = document.querySelector<HTMLInputElement>("#tabcloak-value");
 
     if (input === null) return;
 
-    const cloak = getCloak();
     const icon = document.querySelector<HTMLLinkElement>(
       "link[rel='shortcut icon']"
     )!;
-    if (cloak === undefined) {
-      console.log("Reset cloak");
-      document.title = "Tab Cloak Settings";
-      icon.href = "/h.ico";
-    } else {
-      console.log("Found cloak", cloak);
-      document.title = cloak.title;
-      icon.href =
-        cloak.icon === ""
-          ? "data:,"
-          : "/api/cloakicon?" + encodeURIComponent(cloak.icon);
-    }
+
+    // reflect a cloak in the tab title and favicon preview
+    const applyPreview = (cloak: ReturnType<typeof getCloak>) => {
+      if (cloak === undefined) {
+        document.title = "Tab Cloak Settings";
+        icon.href = "/h.ico";
+      } else {
+        document.title = cloak.title;
+        icon.href =
+          cloak.icon === ""
+            ? "data:,"
+            : "/api/cloakicon?" + encodeURIComponent(cloak.icon);
+      }
+    };
+
+    applyPreview(getCloak());
 
     input.form!.addEventListener("submit", (event) => {
       let address = input.value;
@@ -148,10 +186,37 @@ if (Astro.request.method === "POST")
         new URL(address);
       } catch {
         event.preventDefault();
-        alert(
-          "Please enter a valid URL or partial URL of a website\n(eg. google.com, kahoot.it, www.msn.com https://youtube.com/)"
-        );
+        createNotification({
+          title: "Tab Cloak",
+          description:
+            "Please enter a valid URL or partial URL of a website (eg. google.com, kahoot.it, https://youtube.com/).",
+          type: "error",
+        });
       }
     });
+
+    // built-in cloak pills carry their resolved { icon, title, url } in data
+    // attributes so we can apply them instantly client-side (with a success
+    // notification) instead of a full POST round-trip. the form POST still
+    // works as the noscript fallback.
+    for (const pill of document.querySelectorAll<HTMLButtonElement>(
+      "[data-cloak-pill]"
+    )) {
+      pill.addEventListener("click", (event) => {
+        event.preventDefault();
+        const cloak = {
+          icon: pill.dataset.cloakIcon!,
+          title: pill.dataset.cloakTitle!,
+          url: pill.dataset.cloakUrl!,
+        };
+        setCloak(cloak);
+        applyPreview(cloak);
+        createNotification({
+          title: "Tab Cloak",
+          description: `Cloaked as ${cloak.title}.`,
+          type: "success",
+        });
+      });
+    }
   });
 </script>

@@ -2,7 +2,7 @@ import type { AppCloak } from "./cloak";
 import {
   setupBareMux,
   setupScramjet,
-  setupServiceWorker,
+  unregisterServiceWorker,
   getProxyEngine,
 } from "./register-sw";
 import { getSiteConfig, setSiteConfig } from "./siteConfig";
@@ -45,14 +45,14 @@ export function setAdblock(enabled: boolean) {
   setSiteConfig("adblock", enabled ? "1" : "0");
   setCookie("adblock", enabled ? "1" : "0");
   // The service worker bakes in the adblock flag from its script URL, so it
-  // must be re-registered for the change to take effect.
-  setupServiceWorker();
+  // must be unregistered immediately for the change to take effect.
+  unregisterServiceWorker();
 }
 
 export function setNoscript(enabled: boolean) {
   setSiteConfig("noscript", enabled ? "1" : "0");
   setCookie("noscript", enabled ? "1" : "0");
-  setupServiceWorker();
+  unregisterServiceWorker();
 }
 
 // used for dynamically applying the new tab cloak
@@ -65,6 +65,14 @@ export function getCloak() {
   ]) as any;
 
   return cloak;
+}
+
+// client-side equivalent of the server's setCloak (middleware.ts). encodes the
+// cloak the same way (URLSearchParams of { icon, title, url }) so getCloak and
+// the server agree on the format. lets the pill list apply a built-in cloak
+// instantly without a full page round-trip.
+export function setCloak(cloak: AppCloak) {
+  setCookie("cloak", new URLSearchParams({ ...cloak }).toString());
 }
 
 export function setProxyMode(proxyMode: string) {
@@ -101,4 +109,7 @@ export function setTor(enabled: boolean) {
     setSiteConfig("bare", config.defaultBare);
     setSiteConfig("wisp", config.defaultWisp);
   }
+  // tor routing is enforced by the service worker / transport, so unregister
+  // immediately on toggle so the change takes effect without a stale worker.
+  unregisterServiceWorker();
 }

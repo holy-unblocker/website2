@@ -194,7 +194,6 @@ if (Astro.request.method === "POST")
             class={themeStyles.thinPadRight}
             type="text"
             name="newBareUrl"
-            placeholder="https://holyunb.locker/api/bare/"
             id="newBareUrl"
             disabled={Astro.locals.tor}
           />
@@ -214,7 +213,6 @@ if (Astro.request.method === "POST")
             class={themeStyles.thinPadRight}
             type="text"
             name="newWispUrl"
-            placeholder="wss://holyunb.locker/api/wisp/"
             id="newWispUrl"
             disabled={Astro.locals.tor}
           />
@@ -257,6 +255,7 @@ if (Astro.request.method === "POST")
     setNoscript,
   } from "@lib/cookies";
   import { getBareUrl, getWispUrl } from "@lib/register-sw";
+  import { createNotification } from "@lib/notifications";
 
   document.addEventListener("astro:page-load", () => {
     const proxyMode = document.querySelector<HTMLInputElement>("#proxyMode")!;
@@ -272,46 +271,50 @@ if (Astro.request.method === "POST")
     const newBareUrl = document.getElementById(
       "newBareUrl",
     )! as HTMLInputElement;
-    newBareUrl.placeholder = getBareUrl();
+    newBareUrl.value = getBareUrl();
     newBareUrl.form!.addEventListener("submit", (event) => {
       event.preventDefault();
       // ignore edits while tor pins the bare server
       if (newBareUrl.disabled) return;
       if (newBareUrl.value === "") {
-        document.cookie = `bare=; expires=${new Date(0)}`;
+        document.cookie = `bareServer=; max-age=0; samesite=strict; path=/; domain=.${location.hostname}`;
+        createNotification({
+          title: "Bare Server",
+          description: "Reset to the default bare server.",
+          type: "success",
+        });
         location.reload();
         return;
       }
       try {
         new URL(newBareUrl.value);
       } catch (err) {
-        alert("Invalid bare url!");
+        createNotification({
+          title: "Bare Server",
+          description: "Invalid bare server URL.",
+          type: "error",
+        });
         return;
       }
       setBareServer(newBareUrl.value);
+      createNotification({
+        title: "Bare Server",
+        description: "Saved your bare server.",
+        type: "success",
+      });
     });
 
     const newWispUrl = document.getElementById(
       "newWispUrl",
     )! as HTMLInputElement;
-    newWispUrl.placeholder = getWispUrl();
-    // when tor is enabled, the bare/wisp servers are pinned to this instance (so
-    // traffic flows through our tor-routed servers), so show them and lock the
-    // fields. when disabled, unlock and clear so the placeholder default shows.
+    newWispUrl.value = getWispUrl();
     const tor = document.querySelector<HTMLInputElement>("#tor");
     const syncServerLock = () => {
       const torOn = tor?.value === "1";
       newBareUrl.disabled = torOn;
       newWispUrl.disabled = torOn;
-      if (torOn) {
-        newBareUrl.value = getBareUrl();
-        newWispUrl.value = getWispUrl();
-      } else {
-        newBareUrl.value = "";
-        newWispUrl.value = "";
-        newBareUrl.placeholder = getBareUrl();
-        newWispUrl.placeholder = getWispUrl();
-      }
+      newBareUrl.value = getBareUrl();
+      newWispUrl.value = getWispUrl();
     };
     syncServerLock();
     newWispUrl.form!.addEventListener("submit", (event) => {
@@ -319,17 +322,31 @@ if (Astro.request.method === "POST")
       // ignore edits while tor pins the wisp server
       if (newWispUrl.disabled) return;
       if (newWispUrl.value === "") {
-        document.cookie = `wisp=; expires=${new Date(0)}`;
+        document.cookie = `wispServer=; max-age=0; samesite=strict; path=/; domain=.${location.hostname}`;
+        createNotification({
+          title: "Wisp Server",
+          description: "Reset to the default wisp server.",
+          type: "success",
+        });
         location.reload();
         return;
       }
       try {
         new URL(newWispUrl.value);
       } catch (err) {
-        alert("Invalid wisp url!");
+        createNotification({
+          title: "Wisp Server",
+          description: "Invalid wisp server URL.",
+          type: "error",
+        });
         return;
       }
       setWispServer(newWispUrl.value);
+      createNotification({
+        title: "Wisp Server",
+        description: "Saved your wisp server.",
+        type: "success",
+      });
     });
 
     proxyMode.addEventListener("change", () => {

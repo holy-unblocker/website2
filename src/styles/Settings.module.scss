@@ -183,6 +183,70 @@ $settings-width: 560px;
   margin-right: auto;
 }
 
+// grid of built-in tab cloak pills (icon + name), styled after the theatre
+// admin .pruneToggle pill but with the cloak icon replacing the checkbox.
+.cloakGrid {
+  flex-direction: row !important;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: unset !important;
+  margin: 0 0 16px;
+  // justify-content: space-between;
+
+  > form {
+    margin: 0;
+    min-width: 0;
+  }
+}
+
+.cloakPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  line-height: 38px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  color: var(--text);
+  background: var(--background-accent);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+  font: inherit;
+  max-width: 200px;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+
+  &:hover {
+    background: var(--background-accent-deep-2);
+    border-color: var(--action);
+  }
+
+  &:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 0.15rem #0056ff3f;
+  }
+}
+
+.cloakIcon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  object-fit: contain;
+  background: var(--background);
+}
+
+.cloakName {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .ghost {
   max-width: $settings-width;
   margin-top: 4px;

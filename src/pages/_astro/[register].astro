@@ -15,6 +15,17 @@ import "@styles/theme.scss";
 const routes = Astro.locals.proxyRoutes;
 const pathname = Astro.url.pathname;
 
+console.log(
+  "[register-debug] _astro/[register] reached",
+  JSON.stringify({
+    pathname,
+    registerUV: routes.paths.registerUV,
+    registerSJ: routes.paths.registerSJ,
+    matchUV: pathname === routes.paths.registerUV,
+    matchSJ: pathname === routes.paths.registerSJ,
+  }),
+);
+
 const asset = await proxyAssetResponse(pathname, routes, Astro.locals.isMainWebsite);
 if (asset) return asset;
 
