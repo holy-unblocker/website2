@@ -109,6 +109,14 @@ export const appConfig = {
   //  database: "dbname",
   //},
 
+  // OPENAI-COMPATIBLE ENDPOINT CONFIG
+  openai: {
+    apiBase: "https://api.openai.com/v1/",
+    apiKey: "sk-key",
+    model: "gpt-5.5",
+    reasoning: "medium",
+  },
+
   /// STRIPE CONFIG
   // - ASSIGN A STRIPE CUSTOMER ID TO EACH USER
   // - CREATE INVOICES FOR SUBSCRIPTIONS

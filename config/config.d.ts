@@ -33,6 +33,12 @@ export interface AppConfig {
   supportEmail: string;
   mainWebsite: string;
   adsenseClient?: string;
+  openai: {
+    apiBase: string;
+    apiKey: string;
+    model: string;
+    reasoning: string;
+  };
   stripe: {
     secret: string;
     webhookEndpointSecret: string;
