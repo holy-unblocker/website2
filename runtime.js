@@ -20,10 +20,9 @@ import { access, copyFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import send from "@fastify/send";
 import parseUrl from "parseurl";
-import { Mrrowisp } from "mrrowisp";
 import { ProxyAgent } from "proxy-agent";
 import bare from "@tomphttp/bare-server-node";
-import { ActivityType, Client, PermissionsBitField } from "discord.js";
+import { Client, PermissionsBitField } from "discord.js";
 import chalk from "chalk";
 import compression from "compression";
 import {
@@ -32,6 +31,7 @@ import {
   rewriteProxyGlobals,
   torCookie,
 } from "./src/lib/proxyRoutes.js";
+import { createRequire } from "node:module";
 
 let startupTag = chalk.grey(chalk.bold("Holy Unblocker:"));
 
@@ -306,6 +306,9 @@ const wispServerLogging = false;
  * @param {string | undefined} proxy
  */
 async function createWisp(proxy) {
+  const require = createRequire(import.meta.url);
+  const { Mrrowisp } = require("mrrowisp");
+
   const server = new Mrrowisp({
     logLevel: wispServerLogging ? "debug" : "none",
     allowUDP: false,

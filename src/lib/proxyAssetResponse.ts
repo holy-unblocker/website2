@@ -22,7 +22,7 @@ const uvConfigTemplatePath = path.resolve(
 const staticRoots = [path.resolve(process.cwd(), "dist/client"), publicRoot];
 const ruffleRoot = path.resolve(require.resolve("@ruffle-rs/ruffle"), "..");
 
-const uvConfigTemplate = (async () => {
+const uvConfigTemplate: Promise<string> = (async () => {
   const source = await readFile(uvConfigTemplatePath, "utf-8");
   const { code } = await transform(source, {
     minify: true,
@@ -131,7 +131,7 @@ async function uvConfigSource(routes: App.Locals["proxyRoutes"]) {
   };
 
   const template = await uvConfigTemplate;
-  return template.replace(/%\{(\w+)\}/g, (match, key: string) => {
+  return template.replace(/%\{(\w+)\}/g, (match, key) => {
     const value = replacements[key];
     return value === undefined ? match : value;
   });

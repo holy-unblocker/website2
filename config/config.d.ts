@@ -37,7 +37,7 @@ export interface AppConfig {
     apiBase: string;
     apiKey: string;
     model: string;
-    reasoning: string;
+    reasoning?: string;
   };
   stripe: {
     secret: string;

@@ -252,7 +252,9 @@ hr {
   display: inline-flex;
   padding: 0 15px;
   height: 38px;
+}
 
+.prettySubmit {
   &:focus {
     outline: 0;
     box-shadow: 0 0 0 0.15rem #0056ff3f;
@@ -273,7 +275,8 @@ hr {
   display: contents;
 }
 
-.prettyfile.inline::file-selector-button .prettyinput.inline {
+.prettyfile.inline::file-selector-button,
+.prettyinput.inline {
   width: 100%;
   max-width: 300px;
   display: inline-block;
