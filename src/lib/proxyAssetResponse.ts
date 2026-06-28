@@ -166,7 +166,6 @@ function fileResponse(filePath: string, cacheControl: string) {
 async function vendorResponse(
   asset: NonNullable<ReturnType<typeof getProxyAsset>>,
   routes: App.Locals["proxyRoutes"],
-  isMainWebsite: boolean,
 ) {
   const { filePath, obfuscatedFilePath, publicPath } = asset;
   const ext = path.extname(filePath);
@@ -190,11 +189,9 @@ async function vendorResponse(
     } catch {}
 
     let source = await readFile(sourcePath, "utf-8");
-    if (!isMainWebsite) {
-      source = stripSourceMappingUrl(
-        withProxyTemplates(source, routes, publicPath),
-      );
-    }
+    source = stripSourceMappingUrl(
+      withProxyTemplates(source, routes, publicPath),
+    );
     return new Response(source, {
       headers: {
         ...headersFor(filePath),
@@ -203,7 +200,7 @@ async function vendorResponse(
     });
   }
 
-  if (ext === ".wasm" && !isMainWebsite) {
+  if (ext === ".wasm") {
     const original = await readFile(filePath);
     const rewritten = rewriteWasmGlobals(original, routes);
     return new Response(rewritten, {
@@ -230,9 +227,9 @@ export async function proxyAssetResponse(
 ) {
   if (pathname === routes.paths.serviceWorker) {
     const source = await readFile(serviceWorkerPath, "utf-8");
-    const responseSource = isMainWebsite
-      ? source
-      : stripSourceMappingUrl(withProxyTemplates(source, routes));
+    const responseSource = stripSourceMappingUrl(
+      withProxyTemplates(source, routes),
+    );
     return new Response(responseSource, {
       headers: {
         "content-type": "application/javascript; charset=utf-8",
@@ -255,7 +252,7 @@ export async function proxyAssetResponse(
         },
       });
     }
-    return vendorResponse(asset, routes, isMainWebsite);
+    return vendorResponse(asset, routes);
   }
 }
 
