@@ -3,6 +3,7 @@ import nodemailer from "nodemailer";
 import { appConfig } from "./config.js";
 import { Stripe } from "stripe";
 import Dockerode from "dockerode";
+import OpenAI from "openai";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,6 +20,7 @@ export const discordEnabled = accountsEnabled && "discord" in appConfig;
 export const discordListening =
   discordEnabled && "listenForJoins" in appConfig.discord;
 export const hcaptchaEnabled = accountsEnabled && "hcaptcha" in appConfig;
+export const openaiEnabled = "openai" in appConfig;
 
 // when theatre files are hosted locally, admins can upload/remove thumbnails
 export const theatreFilesEnabled = "filesPath" in appConfig.theatre;
@@ -57,6 +59,13 @@ async function initDB() {
 
 export const stripe = stripeEnabled
   ? new Stripe(appConfig.stripe.secret)
+  : undefined;
+
+export const openai = openaiEnabled
+  ? new OpenAI({
+      baseURL: appConfig.openai.apiBase,
+      apiKey: appConfig.openai.apiKey,
+    })
   : undefined;
 
 export const docker = accountsEnabled
