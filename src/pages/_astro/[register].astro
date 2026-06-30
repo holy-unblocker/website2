@@ -26,7 +26,7 @@ console.log(
   }),
 );
 
-const asset = await proxyAssetResponse(pathname, routes, Astro.locals.isMainWebsite);
+const asset = await proxyAssetResponse(pathname, routes);
 if (asset) return asset;
 
 let engine: "uv" | "sj" | null = null;

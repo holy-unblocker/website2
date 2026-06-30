@@ -223,7 +223,6 @@ async function vendorResponse(
 export async function proxyAssetResponse(
   pathname: string,
   routes: App.Locals["proxyRoutes"],
-  isMainWebsite: boolean,
 ) {
   if (pathname === routes.paths.serviceWorker) {
     const source = await readFile(serviceWorkerPath, "utf-8");

@@ -15,11 +15,7 @@ export const GET: APIRoute = async ({ locals, params, url }) => {
   const routes = locals.proxyRoutes;
   const pathname = `/${name}`;
 
-  const asset = await proxyAssetResponse(
-    pathname,
-    routes,
-    locals.isMainWebsite,
-  );
+  const asset = await proxyAssetResponse(pathname, routes);
   if (asset) return asset;
 
   if (url.pathname.startsWith(routes.paths.uvService)) return notFound();

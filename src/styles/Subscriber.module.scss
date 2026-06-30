@@ -443,20 +443,30 @@ main.pricing {
 
 .passwordField {
   .toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 44px;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
     > svg {
-      position: absolute;
-      top: 0;
-      right: 0;
-      margin: auto 0;
-      max-width: 20px;
-      height: 100%;
-      padding: 0 12px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      display: block;
+      pointer-events: none;
       fill: #333;
     }
+  }
+
+  input {
+    padding-right: 44px;
   }
 
   input[type="password"] ~ .toggle svg:nth-child(1) {
