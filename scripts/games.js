@@ -1,28 +1,3 @@
-// Scrape games from the cherri leak, dedup against the existing theatre table
-// using pg_trgm, tag each with GPT-5.5, and upsert the survivors into theatre.
-//
-// Data source (JSON catalogs of {name, img, url}):
-//   https://github.com/x8rr/cherri-v2-leak  ->  public/assets/json/<catalog>.json
-// The actual game files live in the gitlab archive (gitlab.com/x8r/cherrigames);
-// this script only imports metadata. store games get src rewritten from the
-// cherri /stores/ path to /api/games/..., so those rows need the archive files
-// hosted under that route to be playable. proxy games (apps / now.gg) are
-// immediately functional.
-//
-// USAGE (db + AI creds come from .env)
-//   node scripts/games.js --dry-run
-//   node scripts/games.js --limit=20            # small real run
-//   node scripts/games.js                        # full run
-//
-// FLAGS
-//   --dry-run              don't write to the db, just report the plan
-//   --limit=N              cap candidates (after fetch) for testing
-//   --catalogs=a,b         which catalogs (default: game stores)
-//   --batch=N              GPT tagging batch size (default 40)
-//   --sim-existing=0.95    >= this similarity to an existing game -> auto-skip
-//   --sim-gray=0.45        [gray, existing) -> ask GPT "same game?" before skip
-//   --no-gpt-dedup         treat gray-zone matches as new (skip the GPT check)
-
 import pg from "pg";
 import chalk from "chalk";
 import { appConfig } from "../config/config.js";
@@ -30,10 +5,6 @@ import { appConfig } from "../config/config.js";
 const RAW =
   "https://raw.githubusercontent.com/x8rr/cherri-v2-leak/main/public/assets/json";
 
-// catalog -> how to treat its entries.
-//   kind: "store"  -> self-hosted html game (type embed, needs archive files)
-//         "proxy"  -> external url played through the proxy (type proxy)
-//   appsOnly: entries are apps, not games -> category "app", skip GPT tagging
 const CATALOGS = {
   truffled: { kind: "store" },
   "gn-math": { kind: "store" },
@@ -43,7 +14,6 @@ const CATALOGS = {
 };
 const DEFAULT_CATALOGS = ["truffled", "gn-math", "ugs"];
 
-// category vocabulary — mirrors src/lib/gameCategories.ts (gameCategories ids).
 const CATEGORIES = [
   "action",
   "platformer",
@@ -56,8 +26,6 @@ const CATEGORIES = [
 ];
 const APP_CATEGORY = "app";
 const FALLBACK_CATEGORY = "action";
-
-// ---- args --------------------------------------------------------------
 
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => {
@@ -79,16 +47,11 @@ const CATALOG_NAMES = (
     : DEFAULT_CATALOGS
 ).map((s) => s.trim());
 
-// ---- clients -----------------------------------------------------------
-
 const db = new pg.Client(process.env.DATABASE_URL || appConfig.db);
 const MODEL = appConfig.openai.model;
 
-// ---- helpers -----------------------------------------------------------
-
 const log = (...a) => console.log(...a);
 
-// aggressive normalization used only for exact within-batch dedup.
 function norm(name) {
   return name
     .toLowerCase()
@@ -101,10 +64,8 @@ function newId() {
   return Math.random().toString(36).slice(2);
 }
 
-// derive theatre { type, src } from a cherri catalog entry.
 function classify(entry, catalog) {
   const url = entry.url || "";
-  // ngg entries: /pages/embed.html?link=<encoded url>&type=uv
   const embedLink = url.match(/[?&]link=([^&]+)/);
   if (embedLink) {
     return { type: "proxy", src: decodeURIComponent(embedLink[1]) };
@@ -115,7 +76,6 @@ function classify(entry, catalog) {
   if (CATALOGS[catalog]?.kind === "proxy") {
     return { type: "proxy", src: url };
   }
-  // /stores/... self-hosted html game, served under /api/games on our host
   return { type: "embed", src: url.replace(/^\/stores\//, "/api/games/") };
 }
 
@@ -127,7 +87,6 @@ async function fetchCatalog(name) {
   return items;
 }
 
-// pull the assistant text out of a Responses API payload.
 function responseText(resp) {
   if (typeof resp.output_text === "string" && resp.output_text) {
     return resp.output_text;
@@ -151,8 +110,6 @@ function parseJson(text) {
   return JSON.parse(cleaned);
 }
 
-// call the /v1/responses endpoint directly. we bypass the openai SDK because
-// chat.eli.gift's WAF blocks any request whose User-Agent contains "OpenAI".
 async function ask(instructions, input) {
   const res = await fetch(`${appConfig.openai.apiBase}/responses`, {
     method: "POST",
@@ -168,9 +125,6 @@ async function ask(instructions, input) {
   return responseText(await res.json());
 }
 
-// ---- dedup against the existing theatre table --------------------------
-
-// returns { match: string|null, sim: number } for the closest existing game.
 async function closestExisting(name) {
   const { rows } = await db.query(
     `SELECT name, similarity(name, $1) AS s
@@ -184,7 +138,6 @@ async function closestExisting(name) {
   return { match: rows[0].name, sim: parseFloat(rows[0].s) };
 }
 
-// GPT confirm for gray-zone pairs: [{i, a, b}] -> Set of i that are the same game.
 async function confirmSameGame(pairs) {
   const same = new Set();
   for (let off = 0; off < pairs.length; off += BATCH) {
@@ -206,9 +159,6 @@ async function confirmSameGame(pairs) {
   return same;
 }
 
-// ---- GPT category tagging ----------------------------------------------
-
-// tags a list of {i, name} -> Map<i, category>.
 async function tagCategories(items) {
   const out = new Map();
   for (let off = 0; off < items.length; off += BATCH) {
@@ -244,8 +194,6 @@ async function tagCategories(items) {
   return out;
 }
 
-// ---- main --------------------------------------------------------------
-
 async function main() {
   log(chalk.bold("cherri scraper"));
   log(
@@ -253,7 +201,6 @@ async function main() {
       `sim-existing=${SIM_EXISTING} sim-gray=${SIM_GRAY} gpt-dedup=${GPT_DEDUP}`,
   );
 
-  // 1. fetch + normalize -----------------------------------------------
   let raw = [];
   for (const name of CATALOG_NAMES) {
     if (!CATALOGS[name]) {
@@ -275,7 +222,6 @@ async function main() {
   }
   log(`  fetched ${chalk.cyan(raw.length)} total entries`);
 
-  // 2. within-batch exact-normalized dedup (kills the "two Vex 6" case) --
   const seen = new Map();
   let dupInBatch = 0;
   for (const g of raw) {
@@ -299,7 +245,6 @@ async function main() {
 
   await db.connect();
 
-  // 3. dedup against existing theatre rows via pg_trgm ------------------
   const fresh = [];
   const gray = [];
   let autoSkip = 0;
@@ -321,7 +266,6 @@ async function main() {
       `already present, ${chalk.blue(gray.length)} gray-zone`,
   );
 
-  // 4. resolve gray zone -----------------------------------------------
   if (gray.length) {
     if (GPT_DEDUP) {
       const pairs = gray.map((x, i) => ({ i, a: x.g.name, b: x.match }));
@@ -344,7 +288,6 @@ async function main() {
     return;
   }
 
-  // 5. tag categories with GPT-5.5 -------------------------------------
   const needTag = fresh
     .filter((g) => !g.appsOnly)
     .map((g, i) => ({ i, name: g.name, g }));
@@ -352,7 +295,6 @@ async function main() {
   for (const { i, g } of needTag) g.category = tags.get(i) || FALLBACK_CATEGORY;
   for (const g of fresh) if (g.appsOnly) g.category = APP_CATEGORY;
 
-  // 6. upsert into theatre ---------------------------------------------
   log(
     chalk.bold(`\nimporting ${fresh.length} games` + (DRY ? " (dry-run)" : "")),
   );
