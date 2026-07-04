@@ -44,7 +44,7 @@ async function initDB() {
 
   if (globalThis.hu_db) return globalThis.hu_db;
 
-  const cli = new pg.Client(appConfig.db);
+  const cli = new pg.Client(process.env.DATABASE_URL || appConfig.db);
 
   cli.connect().catch((err) => {
     console.log("failure connecting to db");

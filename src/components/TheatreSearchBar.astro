@@ -2,6 +2,15 @@
 import themeStyles from "@styles/ThemeElements.module.scss";
 import appDefs from "@icons/appDefs.svg?react";
 import styles from "@styles/ProxyOmnibox.module.scss";
+import { theatreAPI, theatreAPIMirror, dbEnabled } from "@lib/theatre";
+
+let placeholder = "Search by game name";
+try {
+  const { total } = await (dbEnabled ? theatreAPI : theatreAPIMirror).list({
+    limit: 1,
+  });
+  if (total > 0) placeholder = `Search ${total} games`;
+} catch {}
 ---
 
 <div class:list={[styles.omnibox, styles.theatreSearch]} id="theatreSearchBar">
@@ -11,7 +20,7 @@ import styles from "@styles/ProxyOmnibox.module.scss";
         type="text"
         class={themeStyles.thinPadRight}
         required
-        placeholder="Search by game name"
+        placeholder={placeholder}
       />
     </form>
     <button class={styles.clearButton} id="searchClear">
