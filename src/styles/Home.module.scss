@@ -151,15 +151,15 @@ html {
 .poweredBy {
   display: flex;
   align-items: center;
-  height: 30px;
+  height: 30px !important;
   color: var(--text-disabled);
   user-select: none;
   cursor: pointer;
 
   svg {
     margin-right: 1px;
-    width: 25px;
-    height: 25px;
+    width: 25px !important;
+    height: 25px !important;
   }
 }
 
