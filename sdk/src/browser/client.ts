@@ -339,13 +339,14 @@ export function installHU({
     ) {
       return;
     }
+    const { requestId, targetUrl, game } = data;
     if (
-      typeof data.requestId !== "string" ||
-      typeof data.targetUrl !== "string" ||
-      !data.game ||
-      typeof data.game !== "object" ||
-      typeof data.game.id !== "string" ||
-      typeof data.game.name !== "string"
+      typeof requestId !== "string" ||
+      typeof targetUrl !== "string" ||
+      !game ||
+      typeof game !== "object" ||
+      typeof game.id !== "string" ||
+      typeof game.name !== "string"
     ) {
       return;
     }
@@ -356,18 +357,17 @@ export function installHU({
     void Promise.resolve()
       .then(async () => {
         const url = await resolveProxyUrl({
-          targetUrl: data.targetUrl,
+          targetUrl,
           game: {
-            id: data.game.id,
-            name: data.game.name,
-            type:
-              typeof data.game.type === "string" ? data.game.type : undefined,
+            id: game.id,
+            name: game.name,
+            type: typeof game.type === "string" ? game.type : undefined,
           },
         });
         const response: HUProxyResponseMessage = {
           source: "hu:proxy-player",
           type: "resolve_proxy_url_result",
-          requestId: data.requestId,
+          requestId,
           url,
         };
         (source as WindowProxy).postMessage(response, location.origin);
@@ -377,7 +377,7 @@ export function installHU({
         const response: HUProxyResponseMessage = {
           source: "hu:proxy-player",
           type: "resolve_proxy_url_result",
-          requestId: data.requestId as string,
+          requestId,
           error: normalized.message,
           code: normalized.code,
         };
