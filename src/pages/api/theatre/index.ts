@@ -1,30 +1,16 @@
 import { theatreAPI } from "@lib/theatre";
 import { requireTheatreAdmin } from "@lib/admin";
-import type { ListAPIQuery, ListOptions } from "@lib/TheatreAPI";
+import { parseHUListQuery } from "@lib/huQuery";
 import type { APIRoute } from "astro";
 
-export const GET: APIRoute = async ({ url, locals }) => {
-  const q: ListOptions = {};
+export const GET: APIRoute = async (context) => {
+  const denied = requireTheatreAdmin(context);
+  if (denied) return denied;
 
-  const query = Object.fromEntries(url.searchParams) as ListAPIQuery;
-
-  if (typeof query.search === "string") q.search = query.search;
-  if (typeof query.order === "string") q.order = query.order;
-  if (typeof query.sort === "string") q.sort = query.sort;
-  if (typeof query.limit === "string")
-    if (isNaN((q.limit = parseInt(query.limit)))) delete q.limit;
-  if (typeof query.offset === "string")
-    if (isNaN((q.offset = parseInt(query.offset)))) delete q.offset;
-  if (typeof query.limitPerCategory === "string")
-    if (isNaN((q.limitPerCategory = parseInt(query.limitPerCategory))))
-      delete q.limitPerCategory;
-  if (typeof query.category === "string")
-    q.category = query.category.split(",");
-  if (typeof query.ids === "string") q.ids = query.ids.split(",");
-  if (query.includeHidden === "true" && locals.user?.admin)
-    q.includeHidden = true;
-
-  const data = await theatreAPI.list(q);
+  const { url, locals } = context;
+  const data = await theatreAPI.list(
+    parseHUListQuery(url.searchParams, locals.user?.admin === true),
+  );
 
   return new Response(JSON.stringify(data), {
     headers: {

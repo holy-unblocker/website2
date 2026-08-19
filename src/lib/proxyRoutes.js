@@ -7,11 +7,12 @@ import { bareModulePath } from "@mercuryworkshop/bare-as-module3";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { scramjetPath } from "@mercuryworkshop/scramjet/path";
 
-export const proxyRouteCookie = "re";
-export const proxyRouteCookieMaxAge = 60 * 60 * 24 * 400;
-
-export const torCookie = "t";
-export const torCookieMaxAge = 60 * 60 * 24 * 400;
+export {
+  proxyRouteCookie,
+  proxyRouteCookieMaxAge,
+  torCookie,
+  torCookieMaxAge,
+} from "./proxyRouteCookies.js";
 
 const require = createRequire(import.meta.url);
 let vendorAssetRegistry;
@@ -227,7 +228,7 @@ function file(files, publicPath) {
   return resolved;
 }
 
-export function getProxyRouteMap(seed) {
+export function getProxyRouteMap(seed, mount = "/cdn/") {
   const normalizedSeed = typeof seed === "string" && seed ? seed : "default";
   const { files, routeFiles } = vendorFileRoutes(normalizedSeed);
   const paths = {
@@ -266,6 +267,16 @@ export function getProxyRouteMap(seed) {
     routeFiles,
     paths,
     assets,
+    hu: {
+      queryPath: huPath(normalizedSeed, mount, "query"),
+      gamePath: huPath(normalizedSeed, mount, "game"),
+      playPath: huPath(normalizedSeed, mount, "play"),
+      playerPath: `${huPath(normalizedSeed, mount, "player")}.html`,
+      launchBase: "/hub/",
+      webretroPath: huPath(normalizedSeed, mount, "webretro"),
+      assetPrefix: `${huPath(normalizedSeed, mount, "asset")}/`,
+      imagePrefix: `${huPath(normalizedSeed, mount, "image")}/`,
+    },
     uvConfig: {
       prefix: paths.uvService,
       handler: assets.uvHandler,
@@ -350,11 +361,96 @@ export function rewriteWasmGlobals(buffer, routes) {
   return rewritten;
 }
 
+function huPath(seed, mount, label) {
+  const normalizedMount = mount.endsWith("/") ? mount : `${mount}/`;
+  return `${normalizedMount}${segment(seed, `hu:${label}:a`)}/${segment(seed, `hu:${label}:b`)}`;
+}
+
+function huToken(seed, label, value) {
+  const payload = Buffer.from(value, "utf8").toString("base64url");
+  const signature = crypto
+    .createHmac("sha256", seed)
+    .update(`hu:${label}:${value}`)
+    .digest("base64url")
+    .slice(0, 16);
+  return `${payload}.${signature}`;
+}
+
+function readHuToken(seed, label, token) {
+  if (typeof token !== "string") return;
+  const [payload, signature] = token.split(".");
+  if (!payload || !signature) return;
+
+  let value;
+  try {
+    value = Buffer.from(payload, "base64url").toString("utf8");
+  } catch {
+    return;
+  }
+
+  const expected = crypto
+    .createHmac("sha256", seed)
+    .update(`hu:${label}:${value}`)
+    .digest("base64url")
+    .slice(0, 16);
+
+  const left = Buffer.from(signature);
+  const right = Buffer.from(expected);
+  if (left.length !== right.length) return;
+  if (!crypto.timingSafeEqual(left, right)) return;
+
+  return value;
+}
+
+export function createHULaunchPath(routes, id) {
+  const base = routes.hu.launchBase ?? "/hub/";
+  return `${base}?v=${encodeURIComponent(huToken(routes.seed, "launch", id))}`;
+}
+
+export function readHULaunchId(routes, token) {
+  return readHuToken(routes.seed, "launch", token);
+}
+
+export function createHUAssetPath(routes, value) {
+  const tokenPath = `${routes.hu.assetPrefix}${huToken(routes.seed, "asset", value)}`;
+  return value.endsWith("/") ? `${tokenPath}/` : tokenPath;
+}
+
+export function readHUAssetValue(routes, pathname) {
+  if (!pathname.startsWith(routes.hu.assetPrefix)) return;
+  const remainder = pathname.slice(routes.hu.assetPrefix.length);
+  const [token, ...suffixParts] = remainder.split("/");
+  if (!token) return;
+  const value = readHuToken(routes.seed, "asset", token);
+  if (typeof value !== "string") return;
+  if (
+    suffixParts.length === 0 ||
+    (suffixParts.length === 1 && suffixParts[0] === "")
+  ) {
+    return value;
+  }
+  if (!value.endsWith("/")) return;
+  return value + suffixParts.join("/");
+}
+
+export function createHUImagePath(routes, id) {
+  return `${routes.hu.imagePrefix}${huToken(routes.seed, "image", id)}.webp`;
+}
+
+export function readHUImageId(routes, pathname) {
+  if (!pathname.startsWith(routes.hu.imagePrefix)) return;
+  const token = pathname
+    .slice(routes.hu.imagePrefix.length)
+    .replace(/\.webp$/, "");
+  return readHuToken(routes.seed, "image", token);
+}
+
 export function serializeProxyRoutes(routes) {
   return JSON.stringify({
     paths: routes.paths,
     assets: routes.assets,
     uvConfig: routes.uvConfig,
     sjConfig: routes.sjConfig,
+    hu: routes.hu,
   });
 }

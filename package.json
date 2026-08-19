@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node ./run-server.js",
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "build:sdk": "node ./sdk/build.mjs",
+    "build": "npm run build:sdk && astro check && astro build",
     "preview": "astro preview",
     "seed": "node ./dbSeed.js",
     "astro": "astro",

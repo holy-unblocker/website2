@@ -81,7 +81,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
       sameSite: "lax",
       path: "/",
       maxAge: proxyRouteCookieMaxAge,
-      secure: true,
+      // Secure cookies are dropped by the browser over plain HTTP, which
+      // breaks seed-derived asset URLs when developing on localhost.
+      secure: proto === "https:",
       httpOnly: true,
     });
   }

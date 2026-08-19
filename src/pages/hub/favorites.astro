@@ -12,10 +12,11 @@ import TheatreSearchBar from "@components/TheatreSearchBar.astro";
   </main>
 </MainLayout>
 <script>
-  import { getClientTheatreAPI, renderTheatreItem } from "@lib/renderTheatre";
+  import { getHU } from "@lib/hu";
+  import { renderTheatreItem } from "@lib/renderTheatre";
   import { getGlobalSettings } from "@lib/storage";
 
-  const theatreAPI = getClientTheatreAPI();
+  const hu = getHU();
   const globalSettings = getGlobalSettings();
 
   document.addEventListener("astro:page-load", () => {
@@ -36,8 +37,8 @@ import TheatreSearchBar from "@components/TheatreSearchBar.astro";
     for (let i = 0; i < favorites.length; i++)
       items.append(renderTheatreItem());
 
-    theatreAPI
-      .list({
+    hu
+      .query({
         ids: favorites,
       })
       .then((data) => {

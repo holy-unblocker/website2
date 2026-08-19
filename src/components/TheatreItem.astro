@@ -1,16 +1,23 @@
 ---
 import styles from "@styles/TheatreCategory.module.scss";
 import HolyText from "./HolyText.astro";
+import { createHUImagePath } from "@lib/proxyRoutes.js";
 
 interface Props {
   id: string;
   name: string;
+  imagePath?: string;
+  launchPath?: string;
 }
+
+const imagePath =
+  Astro.props.imagePath ?? createHUImagePath(Astro.locals.proxyRoutes, Astro.props.id);
+const launchPath = Astro.props.launchPath ?? "/hub/";
 ---
 
 <a
   class={styles.item}
-  href={`/hub/?v=${Astro.props.id}`}
+  href={launchPath}
   title={Astro.props.name}
   data-item
   data-load
@@ -21,7 +28,7 @@ interface Props {
       alt=""
       loading="lazy"
       onload="this.parentNode.parentNode.removeAttribute('data-load')"
-      src={`/cdn/thumbnails/${Astro.props.id}.webp`}
+      src={imagePath}
     />
   </div>
   <div class={styles.name}><HolyText text={Astro.props.name} /></div>

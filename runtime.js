@@ -22,7 +22,7 @@ import send from "@fastify/send";
 import parseUrl from "parseurl";
 import { ProxyAgent } from "proxy-agent";
 import bare from "@tomphttp/bare-server-node";
-import { Client, PermissionsBitField } from "discord.js";
+import { ActivityType, Client, PermissionsBitField } from "discord.js";
 import chalk from "chalk";
 import compression from "compression";
 import {
@@ -31,6 +31,7 @@ import {
   rewriteProxyGlobals,
   torCookie,
 } from "./src/lib/proxyRoutes.js";
+import { createHURouter } from "./src/lib/huRouter.js";
 import { createRequire } from "node:module";
 
 let startupTag = chalk.grey(chalk.bold("Holy Unblocker:"));
@@ -268,6 +269,7 @@ if (!("db" in appConfig))
   });
 
 const compress = compression();
+const huRouter = createHURouter({ mount: "/cdn/" });
 
 // when configured, route all locally-hosted proxy traffic through an upstream
 // proxy. ProxyAgent picks the right transport (http/https/socks) from the URL.
@@ -463,8 +465,10 @@ function installProxyResponseHook(req, res, routes) {
  * @param {import("http").IncomingMessage} req
  * @param {import("http").OutgoingMessage} res
  * @param {() => void} middleware
+ * @param {boolean} [internal] set when re-entering after an internal rewrite,
+ *   so the response hooks aren't installed twice and the HU router can't loop
  */
-export function handleReq(req, res, middleware) {
+export function handleReq(req, res, middleware, internal = false) {
   if (hostBare && bareServer.shouldRoute(req)) {
     pickByTor(req, bareServer, torBareServer).routeRequest(req, res);
     return;
@@ -475,10 +479,33 @@ export function handleReq(req, res, middleware) {
   // prod) serves identity-encoded JS the rewrite hook can buffer and patch.
   // we re-compress ourselves below via compress().
   delete req.headers["accept-encoding"];
-  installProxyResponseHook(req, res, proxyRoutes);
 
-  // hooks the res
-  compress(req, res, () => {});
+  if (!internal) {
+    installProxyResponseHook(req, res, proxyRoutes);
+
+    // hooks the res
+    compress(req, res, () => {});
+  }
+
+  if (!internal && huRouter.shouldRoute(req)) {
+    huRouter
+      .route(req, res, {
+        // internal HU paths (thumbnails, webretro, vendor assets) resolve to
+        // /cdn/ urls that are served by the theatre files/mirror logic below,
+        // not by astro. re-enter handleReq so that logic runs.
+        localHandler: (path) => {
+          req.url = path;
+          return handleReq(req, res, middleware, true);
+        },
+      })
+      .catch((err) => {
+        console.error("error when routing HU request", req.url);
+        console.error(err);
+        if (!res.headersSent) res.writeHead(502);
+        res.end();
+      });
+    return;
+  }
 
   const isCDN = req.url.startsWith("/cdn/");
 

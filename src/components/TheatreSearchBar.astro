@@ -2,17 +2,27 @@
 import themeStyles from "@styles/ThemeElements.module.scss";
 import appDefs from "@icons/appDefs.svg?react";
 import styles from "@styles/ProxyOmnibox.module.scss";
-import { theatreAPI, theatreAPIMirror, dbEnabled } from "@lib/theatre";
+import { createHUServerClient } from "@lib/hu";
+
+const hu = createHUServerClient({
+  endpoint: new URL("/v1/games/", Astro.locals.origin).toString(),
+  publicBase: "/cdn/",
+  cookie: Astro.request.headers.get("cookie"),
+  seed: Astro.locals.proxyRoutes.seed,
+});
 
 let placeholder = "Search by game name";
 try {
-  const { total } = await (dbEnabled ? theatreAPI : theatreAPIMirror).list({
+  const { total } = await hu.query({
     limit: 1,
   });
   if (total > 0) placeholder = `Search ${total} games`;
-} catch {}
+} catch (err) {
+  console.error(err);
+}
 ---
 
+<script is:inline src="/cdn/index.js"></script>
 <div class:list={[styles.omnibox, styles.theatreSearch]} id="theatreSearchBar">
   <div class={`${themeStyles.ThemeInputBar} ${styles.inputBar}`}>
     <form>
@@ -38,11 +48,11 @@ try {
 </div>
 <Fragment set:html={appDefs} />
 <script>
-  import { getClientTheatreAPI } from "@lib/renderTheatre";
+  import { getHU } from "@lib/hu";
   import { renderSearchResult } from "@lib/searchResult";
   import { navigate } from "astro:transitions/client";
 
-  const theatreAPI = getClientTheatreAPI();
+  const hu = getHU();
   const LIMIT = 8;
 
   function entryClick(this: HTMLDivElement) {
@@ -53,10 +63,14 @@ try {
     result: string,
     query: string,
     id: string | null,
-    categories: string[] | null
+    categories: string[] | null,
+    launchPath?: string
   ) {
     const e = renderSearchResult(result, query, categories);
-    const href = id === null ? `/hub/?q=${result}` : `/hub/?v=${id}`;
+    const href =
+      id === null
+        ? `/hub/?q=${result}`
+        : (launchPath ?? `/hub/?q=${encodeURIComponent(result)}`);
     e.setAttribute("data-href", href);
     e.addEventListener("mousedown", entryClick);
     e.addEventListener("touchstart", entryClick);
@@ -107,10 +121,7 @@ try {
         form.setAttribute("data-suggested", "");
       } else form.removeAttribute("data-suggested");
 
-      // if (query === lastQuery) return;
-      // lastQuery = query;
-
-      const listResults = await theatreAPI.list(
+      const listResults = await hu.query(
         {
           search: query,
           limit: LIMIT,
@@ -118,24 +129,14 @@ try {
         searchAbort.signal
       );
 
-      for (const res of listResults.entries) {
-        const cont = document.createElement("a");
-        cont.href = "/theatre/?v=" + res.id;
-      }
-
-      //.. get additional results?
-
-      // the input bar may have lost focus by the time this code is reached
       if (inputFocused) {
         for (const res of listResults.entries)
           suggest.append(
-            renderTheatreSearchResult(res.name, query, res.id, res.category)
+            renderTheatreSearchResult(res.name, query, res.id, res.category, res.launchPath)
           );
         form.setAttribute("data-suggested", "");
       }
     }
-
-    // let lastQuery: string | undefined;
 
     inputBar.addEventListener("focus", () => {
       setInputFocused(true);
@@ -169,8 +170,6 @@ try {
       }
     }
 
-    // up down arrows to navigate entries
-    // and redirect to game or 404 when entered is pressed
     inputBar.addEventListener("keydown", (event) => {
       switch (event.code) {
         case "Escape":
@@ -206,14 +205,12 @@ try {
 
     searchClear.addEventListener("click", (event) => {
       event.preventDefault();
-      console.trace("what the fuc,", event);
       inputBar.value = "";
       form.removeAttribute("data-text");
       setInputFocused(true);
       inputBar.focus();
     });
 
-    // allow clicking da icon
     const searchIcon = form.querySelector<HTMLButtonElement>("#searchIcon")!;
 
     searchIcon.addEventListener("click", (event) => {

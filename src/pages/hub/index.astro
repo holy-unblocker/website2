@@ -7,7 +7,8 @@ import { gameCategories, type Category } from "@lib/gameCategories";
 import styles from "@styles/TheatreCategory.module.scss";
 import ArrowForward from "@icons/arrow_forward_24dp.svg?react";
 import MainLayout from "@layouts/MainLayout.astro";
-import { dbEnabled, theatreAPI, theatreAPIMirror } from "@lib/theatre";
+import { createHUServerClient } from "@lib/hu";
+import { readHULaunchId } from "@lib/proxyRoutes.js";
 import type { ListData, TheatreEntryMin } from "@lib/TheatreAPI";
 import TheatreItem from "@components/TheatreItem.astro";
 import TheatreCategory from "@components/TheatreCategory.astro";
@@ -16,8 +17,12 @@ import Banner from "@components/Banner.astro";
 import TheatrePlayer from "@components/TheatrePlayer.astro";
 
 const entryLimit = 15;
-
-// const categoryQuery = categories.map((category) => category.id).join(",");
+const hu = createHUServerClient({
+  endpoint: new URL("/v1/games/", Astro.locals.origin).toString(),
+  publicBase: "/cdn/",
+  cookie: Astro.request.headers.get("cookie"),
+  seed: Astro.locals.proxyRoutes.seed,
+});
 
 const sortOptions = [
   { name: "Most Popular", value: "mostPopular" },
@@ -28,8 +33,9 @@ const sortOptions = [
 
 let error: string | undefined;
 let data: ListData | undefined;
-
 const v = Astro.url.searchParams.get("v");
+const launchId = v === null ? null : readHULaunchId(Astro.locals.proxyRoutes, v);
+const invalidLaunch = v !== null && !launchId;
 
 const q = Astro.url.searchParams.get("q");
 
@@ -62,14 +68,14 @@ switch (sort) {
 
 if (v === null)
   try {
-    data = await (dbEnabled ? theatreAPI : theatreAPIMirror).list({
+    data = await hu.query({
       sort: apiSort,
       order: apiOrder,
-      limitPerCategory: entryLimit,
-      search: q,
+      groupBy: q === null ? "category" : undefined,
+      limitPerGroup: q === null ? entryLimit : undefined,
+      q: q ?? undefined,
     });
   } catch (err) {
-    // refresh after 5 seconds
     error =
       "We were unable to process your request. Please try again later, or [Contact Us](/contact) if this continues to happen";
     Astro.response.headers.set("reload", "5");
@@ -81,24 +87,33 @@ const renderCategories: { category: Category; entries: TheatreEntryMin[] }[] =
   [];
 
 if (data !== undefined) {
-  if (q !== undefined) {
-    // do stuff with query here
+  if (q !== null) {
     if (data.entries.length === 0) {
       Astro.response.status = 404;
     }
   }
 
-  for (const category of gameCategories) {
-    const entries = data.entries.filter((e) =>
-      e.category.includes(category.id)
-    );
-
-    // hide empty categories
-    if (entries.length !== 0)
+  if (Array.isArray(data.groups)) {
+    for (const group of data.groups) {
+      const category = gameCategories.find((entry) => entry.id === group.key);
+      if (!category) continue;
       renderCategories.push({
         category,
-        entries,
+        entries: group.games,
       });
+    }
+  } else {
+    for (const category of gameCategories) {
+      const entries = data.entries.filter((e) =>
+        e.category.includes(category.id)
+      );
+
+      if (entries.length !== 0)
+        renderCategories.push({
+          category,
+          entries,
+        });
+    }
   }
 }
 ---
@@ -141,7 +156,7 @@ if (data !== undefined) {
                 </div>
                 <div class:list={[styles.items, styles.flex]}>
                   {entries.map((e) => (
-                    <TheatreItem name={e.name} id={e.id} />
+                    <TheatreItem name={e.name} id={e.id} imagePath={e.imagePath} launchPath={e.launchPath} />
                   ))}
                 </div>
               </section>
@@ -156,8 +171,14 @@ if (data !== undefined) {
         />
       )}
     </MainLayout>
+  ) : invalidLaunch ? (
+    <MainLayout title="Invalid game">
+      <main>
+        <p>Invalid game ID</p>
+      </main>
+    </MainLayout>
   ) : (
-    <TheatrePlayer id={v} />
+    <TheatrePlayer id={launchId!} />
   )
 }
 
@@ -175,4 +196,3 @@ if (data !== undefined) {
     });
   });
 </script>
-

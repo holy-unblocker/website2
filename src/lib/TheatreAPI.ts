@@ -43,51 +43,64 @@ export interface TheatreEntry {
   plays: number;
   src: string;
   hidden: boolean;
+  imagePath?: string;
+  launchPath?: string;
+  assetPath?: string;
+  playerPath?: string;
 }
 
 export interface TheatreEntryMin {
   name: string;
   id: string;
   category: string[];
+  type?: string;
+  controls?: Control[];
+  rank?: number;
   plays?: number;
   hidden?: boolean;
+  imagePath?: string;
+  launchPath?: string;
 }
 
 export interface ListData {
   total: number;
+  page?: number;
+  pages?: number;
   entries: TheatreEntryMin[];
-}
-
-export interface TheatreEntry {
-  type:
-    | "emulator.nes"
-    | "emulator.gba"
-    | "emulator.n64"
-    | "emulator.genesis"
-    | "flash"
-    | "embed"
-    | "proxy"
-    | string;
-  controls: Control[];
-  category: string[];
-  id: string;
-  name: string;
-  plays: number;
-  src: string;
-  hidden: boolean;
+  games?: TheatreEntryMin[];
+  groups?: Array<{
+    key: string;
+    label: string;
+    games: TheatreEntryMin[];
+    total: number;
+  }>;
 }
 
 export interface ListOptions {
+  q?: string | null;
   search?: string | null;
   /**
    * default is desc, unless 'search' is specified
    */
   order?: "desc" | "asc" | string | null;
-  sort?: "index" | "name" | "plays" | string | null;
+  sort?:
+    | "index"
+    | "name"
+    | "plays"
+    | "popular"
+    | "new"
+    | "relevance"
+    | "random"
+    | string
+    | null;
   limit?: number;
+  page?: number;
   offset?: number;
-  limitPerCategory?: number;
+  limitPerGroup?: number;
+  groupBy?: "category" | string | null;
+  seed?: string | null;
   category?: string[] | null;
+  type?: string[] | null;
   ids?: string[];
   /**
    * include hidden entries in the results (admin only). public listings omit
@@ -97,13 +110,18 @@ export interface ListOptions {
 }
 
 export interface ListAPIQuery {
+  q?: string;
   search?: string;
   order?: string;
   sort?: string;
   limit?: string;
+  page?: string;
   offset?: string;
-  limitPerCategory?: string;
+  limitPerGroup?: string;
+  groupBy?: string;
+  seed?: string;
   category?: string;
+  type?: string;
   ids?: string;
   includeHidden?: string;
 }

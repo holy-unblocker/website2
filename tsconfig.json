@@ -1,15 +1,14 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
-      "@layouts/*": ["src/layouts/*"],
-      "@lib/*": ["src/lib/*"],
-      "@icons/*": ["src/icons/*"],
-      "@styles/*": ["src/styles/*"],
-      "@components/*": ["src/components/*"],
-      "@config/*": ["config/*"]
+      "@layouts/*": ["./src/layouts/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@icons/*": ["./src/icons/*"],
+      "@styles/*": ["./src/styles/*"],
+      "@components/*": ["./src/components/*"],
+      "@config/*": ["./config/*"]
     }
   },
   "extends": "astro/tsconfigs/strict",
-  "exclude": ["dist", "public"]
+  "exclude": ["dist", "public", "sdk/dist"]
 }

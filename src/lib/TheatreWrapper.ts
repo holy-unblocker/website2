@@ -31,6 +31,8 @@ export function rowToMin(entry: m.TheatreModel): TheatreEntryMin {
     id: entry.id,
     name: entry.name,
     category: entry.category.split(","),
+    type: entry.type,
+    controls: JSON.parse(entry.controls),
     plays: entry.plays,
     hidden: !!entry.hidden,
   };
@@ -113,19 +115,21 @@ export default class TheatreWrapper {
     const vars = [];
     const selection = ["*", "count(*) OVER() AS total"];
 
-    if (typeof options.limitPerCategory === "number")
+    if (options.includeHidden !== true) conditions.push("NOT hidden");
+
+    if (typeof options.limitPerGroup === "number")
       conditions.push(
         `(SELECT COUNT(*) FROM theatre b WHERE string_to_array(b."category", ',') && string_to_array(a."category", ',') AND a."index" < b."index") < $${vars.push(
-          options.limitPerCategory,
+          options.limitPerGroup,
         )}`,
       );
 
     if (typeof options.ids === "object") {
-      // split the entry category into an array
-      // check if the input categories array has any elements in common with the entry category array
-      conditions.push(
-        `id = ANY(string_to_array($${vars.push(options.ids.join(","))}, ','))`,
-      );
+      conditions.push(`id = ANY($${vars.push(options.ids)})`);
+    }
+
+    if (typeof options.type === "object" && options.type !== null) {
+      conditions.push(`type = ANY($${vars.push(options.type)})`);
     }
 
     if (
@@ -163,6 +167,9 @@ export default class TheatreWrapper {
       case "plays":
         order.push("-plays", "name", "id");
         break;
+      case "random":
+        order.push("RANDOM()");
+        break;
     }
 
     if (typeof options.search === "string") {
@@ -175,11 +182,11 @@ export default class TheatreWrapper {
     if (order.length) {
       select[2] = [
         "ORDER BY",
-        (options.sort === "index"
+        (options.sort === "index" || options.sort === "random"
           ? order
           : options.order === "asc"
-            ? order.map((order) => `${order} DESC`)
-            : order
+            ? order
+            : order.map((order) => `${order} DESC`)
         ).join(","),
       ]
         .filter(Boolean)
@@ -187,7 +194,7 @@ export default class TheatreWrapper {
     }
 
     if (conditions.length) {
-      select[1] = `WHERE ${conditions.join("AND")}`;
+      select[1] = `WHERE ${conditions.join(" AND ")}`;
     }
 
     if (typeof options.limit === "number")
@@ -206,7 +213,7 @@ export default class TheatreWrapper {
       vars,
     );
 
-    const total = parseInt(rows[0]?.total);
+    const total = rows[0]?.total === undefined ? 0 : parseInt(rows[0].total);
 
     const entries = rows.map(rowToMin);
 

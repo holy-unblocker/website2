@@ -1,0 +1,33 @@
+{
+  "name": "@holyunblocker/sdk",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=19"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@titaniumnetwork-dev/ultraviolet": "^3.2.10",
+    "@mercuryworkshop/bare-as-module3": "^2.2.5",
+    "@mercuryworkshop/bare-mux": "^2.1.9",
+    "@mercuryworkshop/epoxy-transport": "^3.0.1",
+    "@mercuryworkshop/libcurl-transport": "^2.0.5",
+    "@mercuryworkshop/scramjet": "^2.0.67-alpha.2",
+    "@mercuryworkshop/scramjet-controller": "^0.0.14",
+    "@mercuryworkshop/scramjet-utils": "^0.0.3"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "node": "./dist/server/index.js",
+      "default": "./dist/server/index.js"
+    },
+    "./types": "./dist/types/index.d.ts",
+    "./constants": {
+      "types": "./dist/types/constants.d.ts",
+      "default": "./dist/shared/constants.js"
+    }
+  }
+}

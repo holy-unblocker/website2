@@ -2,8 +2,11 @@ import { theatreAPI } from "@lib/theatre";
 import { requireTheatreAdmin } from "@lib/admin";
 import type { APIRoute } from "astro";
 
-export const GET: APIRoute = async ({ params }) => {
-  const entry = await theatreAPI.show(params.id!);
+export const GET: APIRoute = async (context) => {
+  const denied = requireTheatreAdmin(context);
+  if (denied) return denied;
+
+  const entry = await theatreAPI.show(context.params.id!);
 
   if (!entry) return new Response(null, { status: 404 });
 

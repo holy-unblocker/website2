@@ -2,7 +2,7 @@
 import styles from "@styles/TheatrePlayer.module.scss";
 import MainLayout from "@layouts/MainLayout.astro";
 import type { TheatreEntry } from "@lib/TheatreAPI";
-import { dbEnabled, theatreAPI, theatreAPIMirror } from "@lib/theatre";
+import { createHUServerClient } from "@lib/hu";
 import ArrowDropDown from "@icons/arrow_drop_down_24dp.svg?react";
 import ArrowDropUp from "@icons/arrow_drop_up_24dp.svg?react";
 import ArrowLeft from "@icons/arrow_left_24dp.svg?react";
@@ -20,28 +20,28 @@ import TheatreSearchBar from "@components/TheatreSearchBar.astro";
 let mirrorError = false;
 
 interface Props {
-  id: string; // id of game
+  id: string;
 }
+
+const hu = createHUServerClient({
+  endpoint: new URL("/v1/games/", Astro.locals.origin).toString(),
+  publicBase: "/cdn/",
+  cookie: Astro.request.headers.get("cookie"),
+  seed: Astro.locals.proxyRoutes.seed,
+});
 
 let data: TheatreEntry | undefined;
 
-if (dbEnabled) {
-  data = await theatreAPI.show(Astro.props.id);
-} else
-  try {
-    data = await theatreAPIMirror.show(Astro.props.id);
-  } catch (err) {
-    mirrorError = true;
-  }
+try {
+  data = await hu.getGame(Astro.props.id);
+} catch {
+  mirrorError = true;
+}
 
-// we build the controls popup with raw HTML
 let controlsHTML = "";
 
-// FOR DESIGNING NEW HANDLERS FOR CODES:
-// https://www.toptal.com/developers/keycode
-
 const renderControlKey = (keyCode: string) => {
-  if (!/^[a-z ]*$/i.test(keyCode)) {
+  if (!/^[a-z]+$/i.test(keyCode)) {
     console.error("Invalid keyCode:", keyCode);
     return "";
   }
@@ -51,14 +51,19 @@ const renderControlKey = (keyCode: string) => {
   switch (keyCode) {
     case "ArrowUp":
       html = ArrowDropUp;
+      break;
     case "ArrowLeft":
       html = ArrowLeft;
-    case "ArrowUp":
+      break;
+    case "ArrowDown":
       html = ArrowDropDown;
-    case "ArrowUp":
+      break;
+    case "ArrowRight":
       html = ArrowRight;
+      break;
     default:
       html = keyCode;
+      break;
   }
 
   return `<div class="${styles.controlKey} ${styles["key" + keyCode]}">${html}</div>`;
@@ -74,13 +79,10 @@ if (data)
           visualsHTML += `<div class="${styles.move}">${["ArrowUp", "ArrowLeft", "ArrowDropDown", "ArrowRight"].map(renderControlKey).join("")}</div>`;
           break;
         case "wasd":
-          visualsHTML += `<div class=${styles.move}>${["W", "A", "S", "D"].map(renderControlKey)}</div>`;
+          visualsHTML += `<div class=${styles.move}>${["W", "A", "S", "D"].map(renderControlKey).join("")}</div>`;
           break;
         default:
-          // key might have an HTML injection
-          // because after all we are just using raw HTML
-          // so can we just check if it doesn't contain expected characters
-          if (/^[a-z ]*$/i.test(key)) {
+          if (!/^[a-z]+$/i.test(key)) {
             console.error("Invalid key code:", key);
           } else {
             visualsHTML += `<div class="${styles.controlKey} ${styles["key" + key]}">${key}</div>`;
@@ -90,27 +92,26 @@ if (data)
     }
 
     let labelHTML = "";
-    if (/^[a-z: ]/i.test(control.label)) {
+    if (!/^[a-z0-9: ]+$/i.test(control.label)) {
       console.error("Invalid label:", control.label);
     } else {
       labelHTML = `<span class=${styles.label}>${control.label}</span>`;
     }
 
     controlsHTML +=
-      `<div class="${styles.control}}">` +
+      `<div class="${styles.control}">` +
       `<div class=${styles.visuals}>${visualsHTML}</div>` +
       labelHTML +
       `</div>`;
   }
 
 if (mirrorError) {
-  // refresh after 5 seconds
   Astro.response.headers.set("reload", "5");
   Astro.response.status = 500;
 } else if (!data) Astro.response.status = 404;
 ---
 
-<MainLayout title={data ? data.name : undefined} noFooter>
+<MainLayout title={data ? data.name : undefined}>
   {
     mirrorError ? (
       <main>
@@ -200,7 +201,7 @@ if (mirrorError) {
   />
 </MainLayout>
 <script>
-  import TheatreAPI from "@lib/TheatreAPI";
+  import { getHU } from "@lib/hu";
   import { encryptURL } from "@lib/cryptURL";
   import { getGlobalSettings } from "@lib/storage";
   import {
@@ -210,17 +211,16 @@ if (mirrorError) {
     getProxyEngine,
   } from "@lib/register-sw";
 
+  const hu = getHU();
+
   function encodeUvUrl(src: string): string {
     return __uv$config.prefix + __uv$config.encodeUrl!(src);
   }
 
-  // called on page load and when fullscreen changes
-  // to fix clicks/keyboard input not going to the game
   const setIFrameFocused = (focused: boolean) => {
-    // these are declared bc astro lifecycle
     const playerFrame =
       document.querySelector<HTMLIFrameElement>("#playerFrame");
-    if (playerFrame === null) return; // theatre player not loaded
+    if (playerFrame === null) return;
     if (focused) {
       document.documentElement.scrollTo(0, 0);
       document.documentElement.setAttribute("data-player-focused", "");
@@ -262,11 +262,11 @@ if (mirrorError) {
 
     let url = data.src;
 
-    // if it starts with "./" then its pulling the file from our cdn
     if (url.startsWith("./")) {
-      // make it an absolute URL to our cdn
-      // absolute is needed for webretro
-      url = location.origin + "/cdn/" + url.slice(2);
+      if (typeof data.assetPath !== "string") {
+        throw new TypeError("Missing asset path for local game asset");
+      }
+      url = location.origin + data.assetPath;
     }
 
     window.addEventListener("keydown", (event) => {
@@ -280,7 +280,6 @@ if (mirrorError) {
 
     playerFrame.addEventListener("load", () => {
       playerFrame.contentWindow!.addEventListener("click", () => {
-        // handle closing
         setInputFocused(false);
       });
     });
@@ -311,8 +310,12 @@ if (mirrorError) {
       case "emulator.nes":
       case "emulator.n64":
       case "emulator.genesis":
+        if (typeof data.playerPath !== "string") {
+          throw new TypeError("Missing player path for emulator game");
+        }
         playerFrame.src =
-          "/cdn/html5/webretro/?" +
+          data.playerPath +
+          "?" +
           new URLSearchParams({
             rom: url,
             core: "autodetect",
@@ -322,7 +325,6 @@ if (mirrorError) {
         throw new TypeError(`Unrecognized theatre entry type: ${data.type}`);
     }
 
-    const api = new TheatreAPI("/api/theatre/");
     const globalSettings = getGlobalSettings();
 
     const seenGames = globalSettings.get("seenGames");
@@ -330,13 +332,12 @@ if (mirrorError) {
     if (!seenGames.includes(data.id)) {
       seenGames.push(data.id);
       globalSettings.set("seenGames", seenGames);
-      api.plays(data.id).catch((err) => {
+      hu.countPlay(data.id).catch((err) => {
         console.error("Couldn't count play");
         console.error(err);
       });
     }
 
-    // buttons/controls popup
     if (data.controls.length !== 0) {
       let controlsExpanded = false;
       const setControlsExpanded = (newVal: boolean) => {
@@ -345,7 +346,6 @@ if (mirrorError) {
           content.setAttribute("data-controls-expanded", "");
         else content.removeAttribute("data-controls-expanded");
       };
-      // make sure controls-expanded isn't leftover from a previous page load
       setControlsExpanded(false);
 
       const controlsPopup =
@@ -388,7 +388,6 @@ if (mirrorError) {
       document.querySelector<HTMLDivElement>("#favoriteButton")!;
     favoriteButton.addEventListener("click", () => {
       const favorites = globalSettings.get("favorites");
-      // if already favorited, remove from favorites
       const i = favorites.indexOf(data.id);
       if (i === -1) favorites.push(data.id);
       else favorites.splice(i, 1);

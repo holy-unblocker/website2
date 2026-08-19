@@ -114,6 +114,8 @@ Within the boundaries of your Astro enterprise, you'll unveil the succeeding una
 ```text
 /
 ├── public/
+├── sdk/
+│   └── src/
 ├── src/
 │   └── pages/
 │       └── index.astro
@@ -126,19 +128,37 @@ The `src/components/` section holds no particular status, yet we find it a condu
 
 All static facets, such as metamorphic representations, can be allocated in the `public/` regiment.
 
+## SDK
+
+The project now includes a server-only SDK package at [`./sdk/`](./sdk/) and browser bootstrap routing through `/cdn/index.js`.
+
+See [`./docs/sdk.md`](./docs/sdk.md) for:
+
+- server usage with `createHUServerClient()`
+- router mounting with `createHURouter()`
+- browser usage with `HU`
+- query examples
+- release and packaging checks
+
+Additional docs:
+
+- [`./docs/sdk-astro-example.md`](./docs/sdk-astro-example.md)
+- [`./docs/website2-migration.md`](./docs/website2-migration.md)
+
 ## <img src="docs/cmds.gif" alt="Commands" height="80px">
 
 Execute all commands from the root of the project, employing a terminal:
 
-| Directive                 | Implementation                                       |
-| :------------------------ | :--------------------------------------------------- |
-| `npm install`             | Installs dependencies                                |
-| `npm start`               | Starts Holy Unblocker                                |
-| `npm run dev`             | Initialize local dev server at `localhost:4321`      |
-| `npm run build`           | Construct productive site to `./dist/`               |
-| `npm run preview`         | Localize preview of your build                       |
-| `npm run astro ...`       | Apply CLI directives like `astro add`, `astro audit` |
-| `npm run astro -- --help` | Assistance for Astro CLI operations                  |
+| Directive                 | Implementation                                           |
+| :------------------------ | :------------------------------------------------------- |
+| `npm install`             | Installs dependencies                                    |
+| `npm start`               | Starts Holy Unblocker                                    |
+| `npm run dev`             | Initialize local dev server at `localhost:4321`          |
+| `npm run build`           | Construct productive site to `./dist/` and build the SDK |
+| `npm run build:sdk`       | Build the SDK package into `./sdk/dist/`                 |
+| `npm run preview`         | Localize preview of your build                           |
+| `npm run astro ...`       | Apply CLI directives like `astro add`, `astro audit`     |
+| `npm run astro -- --help` | Assistance for Astro CLI operations                      |
 
 ## <img src="docs/acc.gif" alt="Account System" height="80px">
 

@@ -1,13 +1,10 @@
 import styles from "@styles/TheatreCategory.module.scss";
-import TheatreAPI, { type TheatreEntryMin } from "@lib/TheatreAPI";
-import type TheatreWrapper from "@lib/TheatreWrapper";
-
-// this script is shared by the server to do SSR fetching
-// and on the client for rendering items
+import type { ListOptions, TheatreEntryMin } from "@lib/TheatreAPI";
+import type { HUClient } from "@lib/hu";
 
 export const maxResultsPerPage = 30;
 
-export const getClientTheatreAPI = () => new TheatreAPI("/api/theatre/");
+type TheatreListClient = Pick<HUClient, "query">;
 
 export function renderTheatreItem(item?: TheatreEntryMin) {
   const container = document.createElement(item === undefined ? "div" : "a");
@@ -20,11 +17,14 @@ export function renderTheatreItem(item?: TheatreEntryMin) {
   thumb.setAttribute("data-load", "");
 
   if (item !== undefined) {
-    (container as HTMLAnchorElement).href = "/hub/?v=" + item.id;
+    (container as HTMLAnchorElement).href = item.launchPath ?? "/hub/";
     container.setAttribute("data-astro-prefetch", "false");
     const img = document.createElement("img");
     img.addEventListener("load", () => thumb.removeAttribute("data-load"));
-    img.src = `/cdn/thumbnails/${item.id}.webp`;
+    if (typeof item.imagePath !== "string") {
+      throw new TypeError("Missing image path for theatre item");
+    }
+    img.src = item.imagePath;
     thumb.append(img);
   }
 
@@ -37,7 +37,7 @@ export function renderTheatreItem(item?: TheatreEntryMin) {
 }
 
 export async function fetchListData(
-  api: TheatreAPI | TheatreWrapper,
+  api: TheatreListClient,
   search: string | undefined | null,
   category: string[] | undefined | null,
   sort: string | undefined | null,
@@ -48,6 +48,7 @@ export async function fetchListData(
 
   switch (sort) {
     case "leastPopular":
+      apiSort = "plays";
       apiOrder = "asc";
       break;
     case "mostPopular":
@@ -70,12 +71,14 @@ export async function fetchListData(
       break;
   }
 
-  return await api.list({
+  const params: ListOptions = {
     category,
     sort: apiSort,
     order: apiOrder,
     offset: page * maxResultsPerPage,
     limit: maxResultsPerPage,
     search,
-  });
+  };
+
+  return await api.query(params);
 }
