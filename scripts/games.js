@@ -40,7 +40,11 @@ const SIM_EXISTING = args["sim-existing"]
   ? parseFloat(args["sim-existing"])
   : 0.95;
 const SIM_GRAY = args["sim-gray"] ? parseFloat(args["sim-gray"]) : 0.45;
-const GPT_DEDUP = !args["no-gpt-dedup"];
+const hasOpenAI =
+  typeof appConfig.openai?.apiKey === "string" &&
+  appConfig.openai.apiKey !== "sk-key" &&
+  !args["no-gpt"];
+const GPT_DEDUP = hasOpenAI && !args["no-gpt-dedup"];
 const CATALOG_NAMES = (
   typeof args.catalogs === "string"
     ? args.catalogs.split(",")
@@ -51,6 +55,21 @@ const db = new pg.Client(process.env.DATABASE_URL || appConfig.db);
 const MODEL = appConfig.openai.model;
 
 const log = (...a) => console.log(...a);
+
+function guessCategory(name) {
+  const lower = name.toLowerCase();
+  if (/shoot|gun|bullet|sniper|war|tank|strike/i.test(lower)) return "shooter";
+  if (/jump|run|parkour|dash|platform/i.test(lower)) return "platformer";
+  if (/puzzle|match|chess|sudoku|2048|quiz/i.test(lower)) return "puzzle";
+  if (
+    /soccer|football|basket|golf|tennis|race|kart|drift|drive|bike/i.test(lower)
+  )
+    return "sports";
+  if (/craft|build|sandbox|simulator|sim/i.test(lower)) return "sandbox";
+  if (/surviv|zombie|apocalypse|dead/i.test(lower)) return "survival";
+  if (/rpg|quest|sword|dungeon|magic|fantasy/i.test(lower)) return "rpg";
+  return FALLBACK_CATEGORY;
+}
 
 function norm(name) {
   return name
@@ -161,6 +180,12 @@ async function confirmSameGame(pairs) {
 
 async function tagCategories(items) {
   const out = new Map();
+  if (!hasOpenAI) {
+    for (const g of items) {
+      out.set(g.i, guessCategory(g.name));
+    }
+    return out;
+  }
   for (let off = 0; off < items.length; off += BATCH) {
     const chunk = items.slice(off, off + BATCH);
     const input =

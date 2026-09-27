@@ -153,44 +153,65 @@ export default class TheatreWrapper {
       );
     }
 
-    const order = [];
+    const hasSearch =
+      typeof options.search === "string" && options.search.trim().length > 0;
 
-    switch (options.sort) {
-      case "index":
-        // index is a SERIAL, so it doubles as insertion order ("recently
-        // added"). default to newest first; order: "asc" flips to oldest first.
-        order.push(options.order === "asc" ? '"index"' : '"index" DESC');
-        break;
-      case "name":
-        order.push("name", "id");
-        break;
-      case "plays":
-        order.push("-plays", "name", "id");
-        break;
-      case "random":
-        order.push("RANDOM()");
-        break;
+    const order: string[] = [];
+
+    if (hasSearch && (!options.sort || options.sort === "relevance")) {
+      order.push(
+        options.order === "asc"
+          ? "sml ASC, name ASC"
+          : "sml DESC, plays DESC, name ASC",
+      );
+    } else {
+      switch (options.sort) {
+        case "index":
+        case "new":
+          // index is a SERIAL, so it doubles as insertion order ("recently
+          // added"). default to newest first; order: "asc" flips to oldest first.
+          order.push(options.order === "asc" ? '"index" ASC' : '"index" DESC');
+          break;
+        case "name":
+          order.push(
+            options.order === "desc" ? "name DESC, id ASC" : "name ASC, id ASC",
+          );
+          break;
+        case "plays":
+        case "popular":
+          order.push(
+            options.order === "asc"
+              ? "plays ASC, id ASC"
+              : "plays DESC, id ASC",
+          );
+          break;
+        case "random":
+          order.push("RANDOM()");
+          break;
+        default:
+          if (hasSearch) {
+            order.push("sml DESC, plays DESC, name ASC");
+          } else {
+            order.push(
+              options.order === "asc"
+                ? "plays ASC, id ASC"
+                : "plays DESC, id ASC",
+            );
+          }
+          break;
+      }
     }
 
-    if (typeof options.search === "string") {
-      selection.push(
-        `similarity(name, $${vars.push(options.search.toUpperCase())}) as sml`,
-      );
-      order.push("sml DESC", "name");
+    if (hasSearch) {
+      const searchTerm = options.search!.trim();
+      const searchVar = vars.push(searchTerm.toUpperCase());
+      const ilikeVar = vars.push(`%${searchTerm}%`);
+      selection.push(`similarity(name, $${searchVar}) as sml`);
+      conditions.push(`(name ILIKE $${ilikeVar} OR name % $${searchVar})`);
     }
 
     if (order.length) {
-      select[2] = [
-        "ORDER BY",
-        (options.sort === "index" || options.sort === "random"
-          ? order
-          : options.order === "asc"
-            ? order
-            : order.map((order) => `${order} DESC`)
-        ).join(","),
-      ]
-        .filter(Boolean)
-        .join(" ");
+      select[2] = `ORDER BY ${order.join(", ")}`;
     }
 
     if (conditions.length) {
@@ -267,11 +288,11 @@ export default class TheatreWrapper {
   }
   async update(
     id: TheatreEntry["id"],
-    name: TheatreEntry["name"],
-    type: TheatreEntry["type"],
-    src: TheatreEntry["src"],
-    category: TheatreEntry["category"],
-    controls: TheatreEntry["controls"],
+    name?: TheatreEntry["name"],
+    type?: TheatreEntry["type"],
+    src?: TheatreEntry["src"],
+    category?: TheatreEntry["category"] | string,
+    controls?: TheatreEntry["controls"] | string,
     plays?: TheatreEntry["plays"],
     hidden?: TheatreEntry["hidden"],
   ) {
@@ -279,29 +300,48 @@ export default class TheatreWrapper {
 
     if (!entry) return false;
 
-    if (name === undefined) name = entry.name;
+    if (name !== undefined) entry.name = name;
 
-    if (type === undefined) type = entry.type;
+    if (type !== undefined) entry.type = type;
 
-    if (src === undefined) src = entry.src;
+    if (src !== undefined) entry.src = src;
 
-    if (category === undefined) category = entry.category;
+    if (category !== undefined) {
+      entry.category = Array.isArray(category)
+        ? category
+        : typeof category === "string"
+          ? category
+              .split(",")
+              .map((c) => c.trim())
+              .filter(Boolean)
+          : [];
+    }
 
-    if (controls === undefined) controls = entry.controls;
+    if (controls !== undefined) {
+      if (Array.isArray(controls)) {
+        entry.controls = controls;
+      } else if (typeof controls === "string") {
+        try {
+          entry.controls = JSON.parse(controls);
+        } catch {
+          entry.controls = [];
+        }
+      }
+    }
 
-    if (plays === undefined) plays = entry.plays;
+    if (plays !== undefined) entry.plays = plays;
 
-    if (hidden === undefined) hidden = entry.hidden;
+    if (hidden !== undefined) entry.hidden = hidden;
 
     entry = {
       id,
-      name,
-      type,
-      category,
-      src,
-      controls,
-      plays,
-      hidden,
+      name: entry.name,
+      type: entry.type,
+      category: entry.category,
+      src: entry.src,
+      controls: entry.controls,
+      plays: entry.plays,
+      hidden: entry.hidden,
     };
 
     validate(entry);
@@ -353,16 +393,36 @@ export default class TheatreWrapper {
    * Insert or update a single entry, preserving its id. Used by import.
    */
   async importOne(input: Partial<TheatreEntry>) {
+    const rawCategory = input.category;
+    const category: string[] = Array.isArray(rawCategory)
+      ? rawCategory.filter((c): c is string => typeof c === "string")
+      : typeof rawCategory === "string"
+        ? (rawCategory as string)
+            .split(",")
+            .map((c) => c.trim())
+            .filter(Boolean)
+        : [];
+
+    let controls: any[] = [];
+    if (Array.isArray(input.controls)) {
+      controls = input.controls;
+    } else if (typeof input.controls === "string") {
+      try {
+        const parsed = JSON.parse(input.controls);
+        if (Array.isArray(parsed)) controls = parsed;
+      } catch {}
+    }
+
     const entry: TheatreEntry = {
       id:
-        typeof input.id === "string"
-          ? input.id
+        typeof input.id === "string" && input.id.trim()
+          ? input.id.trim()
           : Math.random().toString(36).slice(2),
-      name: input.name as string,
-      type: input.type as string,
-      src: input.src as string,
-      category: Array.isArray(input.category) ? input.category : [],
-      controls: Array.isArray(input.controls) ? input.controls : [],
+      name: (input.name as string) || "",
+      type: (input.type as string) || "embed",
+      src: (input.src as string) || "",
+      category,
+      controls,
       plays:
         typeof input.plays === "number"
           ? Math.max(0, Math.trunc(input.plays))

@@ -27,6 +27,7 @@ This document tracks the first-consumer migration from legacy public theatre rea
 - `/cdn/index.js`
 - `globalThis.HU`
 - opaque `/cdn/` routes derived from the route-seed cookie
+- opaque API routes rewrite internally to `/v2/query`, `/v2/game`, `/v2/play`
 
 ## Legacy public reads removed
 

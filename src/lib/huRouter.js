@@ -63,6 +63,12 @@ function buildBootstrap(hu) {
     .replaceAll("__HU_TYPES__", browserTypes);
 }
 
+// exported for the astro /cdn/index.js endpoint, which serves the same
+// bootstrap in dev (the node runtime intercepts that path in production)
+export function buildHUBrowserBootstrap(hu) {
+  return buildBootstrap(hu);
+}
+
 function getRequestOrigin(req) {
   const hostHeader = req.headers?.host;
   const host = Array.isArray(hostHeader) ? hostHeader[0] : hostHeader;

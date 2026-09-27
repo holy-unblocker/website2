@@ -89,6 +89,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
   context.locals.proxyRoutes = getProxyRouteMap(proxyRouteSeed);
 
+  // The browser theatre client (served from /cdn/index.js) only ever sees
+  // these opaque, seed-derived routes. Rewrite them to the internal /v2/
+  // endpoints so neither /v1/ nor the /v2/ paths themselves are exposed to
+  // the client.
+  const huRoutes = context.locals.proxyRoutes.hu;
+  const huApiPathname = context.url.pathname;
+  if (huApiPathname === huRoutes.queryPath)
+    return context.rewrite(`/v2/query${context.url.search}`);
+  if (huApiPathname === huRoutes.gamePath) return context.rewrite("/v2/game");
+  if (huApiPathname === huRoutes.playPath) return context.rewrite("/v2/play");
+
   // context.locals.obfus = new HolyObfuscator(context.url.hostname, context.locals.isMainWebsite);
 
   context.locals.isMainWebsite =

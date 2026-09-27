@@ -10,6 +10,7 @@
     "preview": "astro preview",
     "seed": "node ./dbSeed.js",
     "astro": "astro",
+    "games": "node ./scripts/games.js",
     "thumbnails": "tsx ./scripts/thumbnails.ts",
     "fetch-adblock": "node ./scripts/fetch-adblock.js",
     "prepare": "husky"

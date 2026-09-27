@@ -487,7 +487,16 @@ export function handleReq(req, res, middleware, internal = false) {
     compress(req, res, () => {});
   }
 
-  if (!internal && huRouter.shouldRoute(req)) {
+  // the seed-derived browser API routes are backed locally by the astro /v2/
+  // endpoints (rewritten in src/middleware.ts), so let them fall through to
+  // the app instead of proxying them to the canonical theatre API
+  const huApiPathname = parseUrl(req).pathname;
+  const isLocalHuApi =
+    huApiPathname === proxyRoutes.hu.queryPath ||
+    huApiPathname === proxyRoutes.hu.gamePath ||
+    huApiPathname === proxyRoutes.hu.playPath;
+
+  if (!internal && !isLocalHuApi && huRouter.shouldRoute(req)) {
     huRouter
       .route(req, res, {
         // internal HU paths (thumbnails, webretro, vendor assets) resolve to
@@ -507,7 +516,9 @@ export function handleReq(req, res, middleware, internal = false) {
     return;
   }
 
-  const isCDN = req.url.startsWith("/cdn/");
+  // the opaque, seed-derived HU api paths are backed by astro's /v2/ endpoints
+  // (rewritten in src/middleware.ts) - never serve them as theatre files
+  const isCDN = !isLocalHuApi && req.url.startsWith("/cdn/");
 
   // THIS SHOULD ALWAYS BE SET ON THEATRE FILES AND /compat/
   // DO NOT DO NOT SET THIS ON /pro/ OR ACCOUNT DETAILS WILL BE LEAKED
@@ -568,7 +579,8 @@ export function handleReq(req, res, middleware, internal = false) {
   }
 
   // MIRRORS HTTP PROXDY
-  for (const mirror of appMirrors) {
+  // the local HU api paths skip the /cdn/ files mirror for the same reason
+  for (const mirror of isLocalHuApi ? [] : appMirrors) {
     if (!req.url.startsWith(mirror.prefix)) continue;
 
     const sendBody = !["HEAD", "GET"].includes(req.method);
