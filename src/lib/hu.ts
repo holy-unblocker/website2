@@ -14,37 +14,10 @@ export interface HUClient {
 
 export interface HUBrowserClient extends HUClient {
   countPlay(id: string): Promise<void>;
-  init(config?: {
-    container?: string | HTMLElement;
-    headless?: boolean;
-    theme?: "dark" | "light" | "auto";
-    columns?: number;
-    rows?: number;
-    gamesPerPage?: number;
-    showSearch?: boolean;
-    showCategories?: boolean;
-    showRandom?: boolean;
-    onReady?: () => void;
-    onGameStart?: (game: { id: string; name: string }) => void;
-    onGameEnd?: () => void;
-    onError?: (error: Error & { code?: string; status?: number }) => void;
-    base?: string;
-  }): Promise<void>;
-  getGameUrl(
+  getImageUrl(imageToken: string): string;
+  getGameUrl?(
     id: string,
   ): Promise<{ url: string; meta: { id: string; name: string } } | undefined>;
-  getImageUrl(imageToken: string): Promise<string>;
-  loadGame(id: string): Promise<void>;
-  endGame(): void;
-  destroy(): void;
-  on(
-    event: "ready" | "gameStart" | "gameEnd" | "error",
-    handler: (...args: any[]) => void,
-  ): void;
-  off(
-    event: "ready" | "gameStart" | "gameEnd" | "error",
-    handler: (...args: any[]) => void,
-  ): void;
 }
 
 export interface HUServerClientConfig {

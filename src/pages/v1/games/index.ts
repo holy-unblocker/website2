@@ -46,6 +46,8 @@ export const GET: APIRoute = async ({ url, locals }) => {
     return new Response(JSON.stringify({ groups }), {
       headers: {
         "content-type": "application/json",
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET, HEAD, OPTIONS",
       },
     });
   }
@@ -77,6 +79,8 @@ export const GET: APIRoute = async ({ url, locals }) => {
     {
       headers: {
         "content-type": "application/json",
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET, HEAD, OPTIONS",
       },
     },
   );

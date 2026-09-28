@@ -3,6 +3,18 @@ export interface Control {
   label: string;
 }
 
+export type GameLaunchType = "embed" | "flash" | "emulator" | "proxy" | "html5";
+
+export interface GameLaunchMetadata {
+  type: GameLaunchType;
+  subType?: string;
+  url: string;
+  romUrl?: string;
+  core?: string;
+  defaultPlayerUrl?: string;
+  requiresProxy?: boolean;
+}
+
 export interface TheatreEntry {
   type: string;
   controls: Control[];
@@ -16,13 +28,15 @@ export interface TheatreEntry {
   launchPath?: string;
   assetPath?: string;
   playerPath?: string;
+  launch?: GameLaunchMetadata;
 }
 
 export interface TheatreEntryMin {
   name: string;
   id: string;
-  category: string[];
+  category?: string[];
   type?: string;
+  src?: string;
   controls?: Control[];
   rank?: number;
   plays?: number;
@@ -30,6 +44,10 @@ export interface TheatreEntryMin {
   imagePath?: string;
   launchPath?: string;
 }
+
+export declare const CANONICAL_API_BASE: string;
+export declare const CANONICAL_CDN_BASE: string;
+export declare const CANONICAL_CATALOG_URL: string;
 
 export interface ListData {
   total: number;
@@ -71,63 +89,32 @@ export interface ListOptions {
   includeHidden?: boolean;
 }
 
-export interface HUProxyResolveRequest {
-  targetUrl: string;
-  game: {
-    id: string;
-    name: string;
-    type?: string;
-  };
+export interface HUClientConfig {
+  apiBase?: string;
+  cdnBase?: string;
+  endpoint?: string;
+  base?: string;
+  mode?: "direct" | "router";
+  fetch?: typeof globalThis.fetch;
+  headers?: Record<string, string>;
 }
 
-export interface HUProxyConfig {
-  resolveUrl(request: HUProxyResolveRequest): Promise<string> | string;
-}
-
-export interface HUClient {
+export interface HUCatalogClient {
   readonly categories: ReadonlyArray<{ id: string; name: string }>;
   readonly types: ReadonlyArray<string>;
   query(params?: ListOptions, signal?: AbortSignal): Promise<ListData>;
   getGames(params?: ListOptions, signal?: AbortSignal): Promise<ListData>;
   search(text?: string, signal?: AbortSignal): Promise<ListData>;
-  getGame(id: string): Promise<TheatreEntry | undefined>;
-}
-
-export interface HUBrowserClient extends HUClient {
-  init(config?: {
-    container?: string | HTMLElement;
-    headless?: boolean;
-    theme?: "dark" | "light" | "auto";
-    columns?: number;
-    rows?: number;
-    gamesPerPage?: number;
-    showSearch?: boolean;
-    showCategories?: boolean;
-    showRandom?: boolean;
-    onReady?: () => void;
-    onGameStart?: (game: { id: string; name: string }) => void;
-    onGameEnd?: () => void;
-    onError?: (error: Error & { code?: string; status?: number }) => void;
-    base?: string;
-    proxy?: HUProxyConfig;
-  }): Promise<void>;
-  getGameUrl(
-    id: string,
-  ): Promise<{ url: string; meta: { id: string; name: string } } | undefined>;
-  getImageUrl(imageToken: string): Promise<string>;
-  loadGame(id: string): Promise<void>;
-  endGame(): void;
-  destroy(): void;
-  on(
-    event: "ready" | "gameStart" | "gameEnd" | "error",
-    handler: (...args: any[]) => void,
-  ): void;
-  off(
-    event: "ready" | "gameStart" | "gameEnd" | "error",
-    handler: (...args: any[]) => void,
-  ): void;
+  getGame(id: string, signal?: AbortSignal): Promise<TheatreEntry | undefined>;
+  resolveLaunchMetadata(
+    game: TheatreEntry | TheatreEntryMin,
+  ): GameLaunchMetadata;
+  getImageUrl(idOrToken: string): string;
   countPlay(id: string): Promise<void>;
 }
+
+export type HUClient = HUCatalogClient;
+export type HUBrowserClient = HUCatalogClient;
 
 export interface HUServerClientConfig {
   publicBase: string;
@@ -160,11 +147,14 @@ export interface HURouterConfig {
   mount: string;
 }
 
+export declare function createHUClient(
+  config?: HUClientConfig,
+): HUCatalogClient;
 export declare function createHUServerClient(
   config: HUServerClientConfig,
-): HUClient;
+): HUCatalogClient;
 export declare function createHURouter(config: HURouterConfig): HURouter;
 
 declare global {
-  var HU: HUBrowserClient | undefined;
+  var HU: HUCatalogClient | undefined;
 }

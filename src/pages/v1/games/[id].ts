@@ -28,6 +28,8 @@ export const GET: APIRoute = async ({ params, locals }) => {
     {
       headers: {
         "content-type": "application/json",
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET, HEAD, OPTIONS",
       },
     },
   );

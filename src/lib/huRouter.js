@@ -76,119 +76,6 @@ function getRequestOrigin(req) {
   return `${isSecureRequest(req) ? "https" : "http"}://${host}`;
 }
 
-function buildIframePlayerPage(title, src) {
-  return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${title}</title>
-<style>
-html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-}
-iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-</style>
-</head>
-<body>
-<iframe src=${JSON.stringify(src)} allow="autoplay; fullscreen; pointer-lock; gamepad"></iframe>
-</body>
-</html>`;
-}
-
-function buildProxyPlayerPage(title, targetUrl, game) {
-  return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${title}</title>
-<style>
-html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  color: #fff;
-  font-family: system-ui, sans-serif;
-}
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  display: none;
-}
-#status {
-  max-width: 28rem;
-  text-align: center;
-  padding: 1.5rem;
-  line-height: 1.5;
-}
-</style>
-</head>
-<body>
-<div id="status">Preparing proxy…</div>
-<iframe id="proxyFrame" allow="autoplay; fullscreen; pointer-lock; gamepad"></iframe>
-<script>
-const requestId = Math.random().toString(36).slice(2) + Date.now().toString(36);
-const hostWindow = window.opener && !window.opener.closed ? window.opener : (window.parent !== window ? window.parent : null);
-const status = document.getElementById('status');
-const frame = document.getElementById('proxyFrame');
-const request = {
-  source: 'hu:proxy-player',
-  type: 'resolve_proxy_url',
-  requestId,
-  targetUrl: ${JSON.stringify(targetUrl)},
-  game: ${JSON.stringify(game)},
-};
-const fail = (message) => {
-  status.textContent = message;
-  status.style.display = 'block';
-  frame.style.display = 'none';
-};
-const showFrame = (url) => {
-  frame.src = url;
-  frame.style.display = 'block';
-  status.style.display = 'none';
-};
-window.addEventListener('message', (event) => {
-  if (event.origin !== location.origin) return;
-  const data = event.data;
-  if (!data || data.source !== 'hu:proxy-player' || data.type !== 'resolve_proxy_url_result' || data.requestId !== requestId) {
-    return;
-  }
-  clearTimeout(timeoutId);
-  if (typeof data.url === 'string' && data.url !== '') {
-    showFrame(data.url);
-    return;
-  }
-  fail(typeof data.error === 'string' ? data.error : 'Proxy resolver failed');
-});
-if (!hostWindow) {
-  fail('Proxy launches require an initialized HU page');
-} else {
-  hostWindow.postMessage(request, location.origin);
-}
-const timeoutId = window.setTimeout(() => {
-  fail('Timed out waiting for proxy resolver');
-}, 10000);
-</script>
-</body>
-</html>`;
-}
-
 function isSecureRequest(req) {
   const forwardedProto = req.headers?.["x-forwarded-proto"];
   const proto = Array.isArray(forwardedProto)
@@ -531,33 +418,23 @@ async function proxyTheatrePlayer(req, res, routes, requestUrl) {
     assetPath += "/";
   }
   const launchUrl = assetPath ? origin + assetPath : entry.src;
-  let page;
+  let targetLaunchUrl = launchUrl;
 
   if (typeof entry.type === "string" && entry.type.startsWith("emulator")) {
-    page = buildIframePlayerPage(
-      entry.name,
+    targetLaunchUrl =
       routes.hu.webretroPath +
-        "?" +
-        new URLSearchParams({
-          rom: launchUrl,
-          core: "autodetect",
-        }),
-    );
-  } else if (entry.type === "proxy") {
-    page = buildProxyPlayerPage(entry.name, launchUrl, {
-      id: entry.id,
-      name: entry.name,
-      type: entry.type,
-    });
-  } else {
-    page = buildIframePlayerPage(entry.name, launchUrl);
+      "?" +
+      new URLSearchParams({
+        rom: launchUrl,
+        core: "autodetect",
+      });
   }
 
-  res.writeHead(200, {
-    "content-type": "text/html; charset=utf-8",
+  res.writeHead(302, {
+    Location: targetLaunchUrl,
     "cache-control": "private, no-store",
   });
-  res.end(page);
+  res.end();
   return true;
 }
 
