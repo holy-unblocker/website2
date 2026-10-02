@@ -218,14 +218,14 @@ if (!initialSelectedId && !welcome) {
               <textarea class={styles.textarea} name="controls" id="controls" required></textarea>
             </label>
           </div>
-        </form>
-        <div class={styles.actions}>
+          <div class={styles.actions}>
             <button class={styles.dangerButton} type="button" id="deleteEntry"><span set:html={DeleteIcon} />Delete</button>
             <div class={styles.actionGroup}>
               <button class={styles.secondaryButton} type="button" id="resetForm"><span set:html={EditIcon} />Reset</button>
               <button class={styles.primaryButton} type="submit"><span set:html={CheckIcon} />Save</button>
             </div>
           </div>
+        </form>
       </section>
     </section>
   </main>
