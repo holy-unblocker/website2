@@ -229,10 +229,66 @@ export function theatreDevPlugin(
 
               if (stat && stat.isFile()) {
                 const ext = path.extname(finalPath).toLowerCase();
-                res.setHeader(
-                  "Content-Type",
-                  MIME_TYPES[ext] || "application/octet-stream",
-                );
+                const lowerPath = finalPath.toLowerCase();
+
+                if (lowerPath.endsWith(".br")) {
+                  res.setHeader("Content-Encoding", "br");
+                  if (lowerPath.endsWith(".js.br")) {
+                    res.setHeader(
+                      "Content-Type",
+                      "application/javascript; charset=utf-8",
+                    );
+                  } else if (lowerPath.endsWith(".wasm.br")) {
+                    res.setHeader("Content-Type", "application/wasm");
+                  } else if (
+                    lowerPath.endsWith(".symbols.json.br") ||
+                    lowerPath.endsWith(".json.br")
+                  ) {
+                    res.setHeader(
+                      "Content-Type",
+                      "application/json; charset=utf-8",
+                    );
+                  } else {
+                    res.setHeader("Content-Type", "application/octet-stream");
+                  }
+                } else if (
+                  lowerPath.endsWith(".gz") &&
+                  (lowerPath.endsWith(".js.gz") ||
+                    lowerPath.endsWith(".wasm.gz") ||
+                    lowerPath.endsWith(".data.gz") ||
+                    lowerPath.endsWith(".symbols.json.gz"))
+                ) {
+                  res.setHeader("Content-Encoding", "gzip");
+                  if (lowerPath.endsWith(".js.gz")) {
+                    res.setHeader(
+                      "Content-Type",
+                      "application/javascript; charset=utf-8",
+                    );
+                  } else if (lowerPath.endsWith(".wasm.gz")) {
+                    res.setHeader("Content-Type", "application/wasm");
+                  } else {
+                    res.setHeader("Content-Type", "application/octet-stream");
+                  }
+                } else if (lowerPath.endsWith(".unityweb")) {
+                  if (lowerPath.includes("wasm")) {
+                    res.setHeader("Content-Type", "application/wasm");
+                  } else if (
+                    lowerPath.includes("framework") ||
+                    lowerPath.endsWith(".js.unityweb")
+                  ) {
+                    res.setHeader(
+                      "Content-Type",
+                      "application/javascript; charset=utf-8",
+                    );
+                  } else {
+                    res.setHeader("Content-Type", "application/octet-stream");
+                  }
+                } else {
+                  res.setHeader(
+                    "Content-Type",
+                    MIME_TYPES[ext] || "application/octet-stream",
+                  );
+                }
                 res.setHeader("Access-Control-Allow-Origin", "*");
                 res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
                 res.setHeader("Accept-Ranges", "bytes");

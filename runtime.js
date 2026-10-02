@@ -544,25 +544,161 @@ export function handleReq(req, res, middleware, internal = false) {
     }
   }
 
+  // Helper to apply proper Content-Encoding and Content-Type for pre-compressed and Unity assets
+  function applyTheatreStaticHeaders(filePath, headers) {
+    const lower = filePath.toLowerCase();
+
+    // Brotli pre-compressed assets (.br)
+    if (lower.endsWith(".br")) {
+      headers["Content-Encoding"] = "br";
+      res.setHeader("Content-Encoding", "br");
+
+      if (lower.endsWith(".js.br")) {
+        headers["Content-Type"] = "application/javascript; charset=utf-8";
+        res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+      } else if (lower.endsWith(".wasm.br")) {
+        headers["Content-Type"] = "application/wasm";
+        res.setHeader("Content-Type", "application/wasm");
+      } else if (
+        lower.endsWith(".symbols.json.br") ||
+        lower.endsWith(".json.br")
+      ) {
+        headers["Content-Type"] = "application/json; charset=utf-8";
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+      } else if (lower.endsWith(".data.br")) {
+        headers["Content-Type"] = "application/octet-stream";
+        res.setHeader("Content-Type", "application/octet-stream");
+      } else if (lower.endsWith(".html.br") || lower.endsWith(".htm.br")) {
+        headers["Content-Type"] = "text/html; charset=utf-8";
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+      } else if (lower.endsWith(".css.br")) {
+        headers["Content-Type"] = "text/css; charset=utf-8";
+        res.setHeader("Content-Type", "text/css; charset=utf-8");
+      } else if (lower.endsWith(".svg.br")) {
+        headers["Content-Type"] = "image/svg+xml";
+        res.setHeader("Content-Type", "image/svg+xml");
+      } else {
+        headers["Content-Type"] = "application/octet-stream";
+        res.setHeader("Content-Type", "application/octet-stream");
+      }
+    }
+    // Gzip pre-compressed assets (.gz)
+    else if (lower.endsWith(".gz")) {
+      if (
+        lower.endsWith(".js.gz") ||
+        lower.endsWith(".wasm.gz") ||
+        lower.endsWith(".data.gz") ||
+        lower.endsWith(".symbols.json.gz") ||
+        lower.endsWith(".json.gz") ||
+        lower.endsWith(".html.gz") ||
+        lower.endsWith(".css.gz") ||
+        lower.endsWith(".svg.gz")
+      ) {
+        headers["Content-Encoding"] = "gzip";
+        res.setHeader("Content-Encoding", "gzip");
+
+        if (lower.endsWith(".js.gz")) {
+          headers["Content-Type"] = "application/javascript; charset=utf-8";
+          res.setHeader(
+            "Content-Type",
+            "application/javascript; charset=utf-8",
+          );
+        } else if (lower.endsWith(".wasm.gz")) {
+          headers["Content-Type"] = "application/wasm";
+          res.setHeader("Content-Type", "application/wasm");
+        } else if (
+          lower.endsWith(".symbols.json.gz") ||
+          lower.endsWith(".json.gz")
+        ) {
+          headers["Content-Type"] = "application/json; charset=utf-8";
+          res.setHeader("Content-Type", "application/json; charset=utf-8");
+        } else if (lower.endsWith(".data.gz")) {
+          headers["Content-Type"] = "application/octet-stream";
+          res.setHeader("Content-Type", "application/octet-stream");
+        } else if (lower.endsWith(".html.gz")) {
+          headers["Content-Type"] = "text/html; charset=utf-8";
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+        } else if (lower.endsWith(".css.gz")) {
+          headers["Content-Type"] = "text/css; charset=utf-8";
+          res.setHeader("Content-Type", "text/css; charset=utf-8");
+        } else if (lower.endsWith(".svg.gz")) {
+          headers["Content-Type"] = "image/svg+xml";
+          res.setHeader("Content-Type", "image/svg+xml");
+        }
+      }
+    }
+    // UnityWeb files (.unityweb)
+    else if (lower.endsWith(".unityweb")) {
+      if (lower.includes("wasm")) {
+        headers["Content-Type"] = "application/wasm";
+        res.setHeader("Content-Type", "application/wasm");
+      } else if (
+        lower.includes("framework") ||
+        lower.endsWith(".js.unityweb")
+      ) {
+        headers["Content-Type"] = "application/javascript; charset=utf-8";
+        res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+      } else {
+        headers["Content-Type"] = "application/octet-stream";
+        res.setHeader("Content-Type", "application/octet-stream");
+      }
+    }
+    // Standalone wasm
+    else if (lower.endsWith(".wasm")) {
+      headers["Content-Type"] = "application/wasm";
+      res.setHeader("Content-Type", "application/wasm");
+    }
+  }
+
   // docs: https://github.com/vercel/serve-handler
   if (isCDN && hasTheatreFiles) {
     // docs: https://www.npmjs.com/package/@fastify/send
     req.url = req.url.slice("/cdn".length);
-    send(req, parseUrl(req).pathname, {
-      root: cdnAbs,
-    }).then(({ statusCode, headers, stream }) => {
-      if (statusCode === 404) {
+    const parsedPathname = parseUrl(req).pathname;
+
+    const serveFile = (targetPath) =>
+      send(req, targetPath, { root: cdnAbs }).then(
+        ({ statusCode, headers, stream }) => {
+          if (statusCode === 200 || statusCode === 206) {
+            applyTheatreStaticHeaders(targetPath, headers);
+            if ("Location" in headers)
+              headers.Location = "/cdn" + headers.Location;
+            res.writeHead(statusCode, headers);
+            stream.pipe(res);
+            return true;
+          }
+          return false;
+        },
+      );
+
+    serveFile(parsedPathname)
+      .then(async (handled) => {
+        if (handled) return;
+
+        // If exact file not found, try pre-compressed variants if client accepts them
+        const accept = req.headers["accept-encoding"] || "";
+        if (
+          accept.includes("br") &&
+          (await serveFile(parsedPathname + ".br"))
+        ) {
+          return;
+        }
+        if (
+          accept.includes("gzip") &&
+          (await serveFile(parsedPathname + ".gz"))
+        ) {
+          return;
+        }
+
         // internal redirect to 404 page
         req.url = "/404";
         middleware(req, res);
-      } else {
-        // normalize the url
-        if ("Location" in headers) headers.Location = "/cdn" + headers.Location;
-        // write the head before piping so redirect status/headers aren't lost
-        res.writeHead(statusCode, headers);
-        stream.pipe(res);
-      }
-    });
+      })
+      .catch((err) => {
+        console.error("error serving CDN file", req.url, err);
+        if (!res.headersSent) res.writeHead(500);
+        res.end();
+      });
     return;
   }
 
@@ -654,8 +790,51 @@ export function handleReq(req, res, middleware, internal = false) {
       if (
         typeof ce === "string" &&
         ["gzip", "compress", "deflate", "br", "zstd"].includes(ce)
-      )
+      ) {
         res.setHeader("content-encoding", ce);
+      } else {
+        // Enforce content-encoding if mirror URL ends in .br or .gz but upstream lacked the header
+        const lowerUrl = mirrorURL.toLowerCase();
+        if (lowerUrl.endsWith(".br")) {
+          res.setHeader("content-encoding", "br");
+          if (!ct) {
+            if (lowerUrl.endsWith(".js.br"))
+              res.setHeader(
+                "content-type",
+                "application/javascript; charset=utf-8",
+              );
+            else if (lowerUrl.endsWith(".wasm.br"))
+              res.setHeader("content-type", "application/wasm");
+            else if (lowerUrl.endsWith(".data.br"))
+              res.setHeader("content-type", "application/octet-stream");
+            else if (
+              lowerUrl.endsWith(".symbols.json.br") ||
+              lowerUrl.endsWith(".json.br")
+            )
+              res.setHeader("content-type", "application/json; charset=utf-8");
+          }
+        } else if (lowerUrl.endsWith(".gz")) {
+          if (
+            lowerUrl.endsWith(".js.gz") ||
+            lowerUrl.endsWith(".wasm.gz") ||
+            lowerUrl.endsWith(".data.gz") ||
+            lowerUrl.endsWith(".symbols.json.gz")
+          ) {
+            res.setHeader("content-encoding", "gzip");
+            if (!ct) {
+              if (lowerUrl.endsWith(".js.gz"))
+                res.setHeader(
+                  "content-type",
+                  "application/javascript; charset=utf-8",
+                );
+              else if (lowerUrl.endsWith(".wasm.gz"))
+                res.setHeader("content-type", "application/wasm");
+              else if (lowerUrl.endsWith(".data.gz"))
+                res.setHeader("content-type", "application/octet-stream");
+            }
+          }
+        }
+      }
       res.writeHead(mirrorRes.statusCode);
       mirrorRes.pipe(res);
     });
