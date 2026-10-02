@@ -34,7 +34,7 @@ export interface TheatreEntry {
 export interface TheatreEntryMin {
   name: string;
   id: string;
-  category?: string[];
+  category: string[];
   type?: string;
   src?: string;
   controls?: Control[];
