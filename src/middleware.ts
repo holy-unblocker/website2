@@ -73,11 +73,20 @@ export const onRequest = defineMiddleware(async (context, next) => {
     : "https:";
   context.locals.origin = proto + "//" + context.url.host;
 
+  const validCookieDomain =
+    typeof context.url.hostname === "string" &&
+    context.url.hostname.includes(".") &&
+    !context.url.hostname.includes("_") &&
+    /^[a-z0-9.-]+$/i.test(context.url.hostname) &&
+    !/^\d+\.\d+\.\d+\.\d+$/.test(context.url.hostname)
+      ? context.url.hostname
+      : undefined;
+
   let proxyRouteSeed = context.cookies.get(proxyRouteCookie)?.value;
   if (!proxyRouteSeed) {
     proxyRouteSeed = createProxyRouteSeed();
     context.cookies.set(proxyRouteCookie, proxyRouteSeed, {
-      domain: context.url.hostname,
+      domain: validCookieDomain,
       sameSite: "lax",
       path: "/",
       maxAge: proxyRouteCookieMaxAge,
@@ -283,7 +292,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // indicate that the cloak was already randomly picked
   context.cookies.set("autoCloak", "1", {
-    domain: context.url.hostname,
+    domain: validCookieDomain,
     sameSite: "lax",
     path: "/",
     maxAge: maxAgeLimit,

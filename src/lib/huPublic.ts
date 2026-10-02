@@ -19,6 +19,7 @@ export function toPublicGameMin(entry: TheatreEntryMin, rank?: number) {
     category: entry.category[0],
     categories: entry.category,
     type: entry.type,
+    src: entry.src,
     controls: entry.controls,
     rank,
   };

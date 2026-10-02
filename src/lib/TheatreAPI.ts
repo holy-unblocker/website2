@@ -54,6 +54,7 @@ export interface TheatreEntryMin {
   id: string;
   category: string[];
   type?: string;
+  src?: string;
   controls?: Control[];
   rank?: number;
   plays?: number;

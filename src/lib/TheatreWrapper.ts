@@ -32,6 +32,7 @@ export function rowToMin(entry: m.TheatreModel): TheatreEntryMin {
     name: entry.name,
     category: entry.category.split(","),
     type: entry.type,
+    src: entry.src,
     controls: JSON.parse(entry.controls),
     plays: entry.plays,
     hidden: !!entry.hidden,
