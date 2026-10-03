@@ -268,6 +268,29 @@ if (!("db" in appConfig))
     url: appConfig.theatre.apiMirror,
   });
 
+/**
+ * Registry of games hosted on external origins and reverse-proxied through /cdn/
+ * Maps local CDN prefix -> upstream target URL.
+ * Automatically handles HTTP requests (GET, POST, HEAD, Range, etc.)
+ * and WebSocket upgrades (with full 101 Switching Protocols tunneling).
+ */
+export const proxiedGameRoutes = [
+  {
+    prefix: "/cdn/html5/fg",
+    target: "https://pages.eli.gift/fg/",
+  },
+  ...(appConfig.theatre?.proxiedGameRoutes || []),
+];
+
+export function findProxiedGameRoute(url) {
+  for (const route of proxiedGameRoutes) {
+    if (url === route.prefix || url.startsWith(route.prefix + "/")) {
+      return route;
+    }
+  }
+  return null;
+}
+
 const compress = compression();
 const huRouter = createHURouter({ mount: "/cdn/" });
 
@@ -650,6 +673,131 @@ export function handleReq(req, res, middleware, internal = false) {
     }
   }
 
+  // Reverse proxy for registered game routes (e.g. /cdn/html5/fg/* -> https://pages.eli.gift/fg/*)
+  const proxiedRoute = findProxiedGameRoute(req.url);
+  if (proxiedRoute) {
+    if (req.url === proxiedRoute.prefix) {
+      res.writeHead(301, { Location: proxiedRoute.prefix + "/" });
+      res.end();
+      return;
+    }
+
+    const subPath = req.url.slice(proxiedRoute.prefix.length + 1);
+    const targetUrl = new URL(subPath, proxiedRoute.target).toString();
+    const sendBody = !["HEAD", "GET"].includes(req.method);
+
+    const proxyHeaders = {};
+    for (const [key, val] of Object.entries(req.headers)) {
+      const lower = key.toLowerCase();
+      if (["connection", "keep-alive", "transfer-encoding"].includes(lower))
+        continue;
+      proxyHeaders[key] = val;
+    }
+    const parsedTarget = new URL(targetUrl);
+    proxyHeaders.host = parsedTarget.host;
+    if (proxyHeaders.origin) proxyHeaders.origin = parsedTarget.origin;
+    if (proxyHeaders.referer) proxyHeaders.referer = parsedTarget.href;
+
+    const client = parsedTarget.protocol === "https:" ? https : http;
+    const proxyReq = client.request(
+      targetUrl,
+      {
+        method: req.method,
+        headers: proxyHeaders,
+      },
+      (proxyRes) => {
+        const loc = proxyRes.headers["location"];
+        if (typeof loc === "string") {
+          let normalizedLoc = loc;
+          try {
+            const resolved = new URL(loc, targetUrl);
+            const base = new URL(proxiedRoute.target);
+            if (
+              resolved.origin === base.origin &&
+              resolved.pathname.startsWith(base.pathname)
+            ) {
+              normalizedLoc =
+                proxiedRoute.prefix +
+                "/" +
+                resolved.pathname.slice(base.pathname.length) +
+                resolved.search +
+                resolved.hash;
+            }
+          } catch {}
+          res.setHeader("location", normalizedLoc);
+        }
+
+        for (const [key, val] of Object.entries(proxyRes.headers)) {
+          const lower = key.toLowerCase();
+          if (["connection", "transfer-encoding", "location"].includes(lower))
+            continue;
+          res.setHeader(key, val);
+        }
+
+        // Apply pre-compressed asset headers fallback if upstream lacked Content-Encoding
+        const lowerUrl = targetUrl.toLowerCase().split("?")[0];
+        if (lowerUrl.endsWith(".br") && !res.getHeader("content-encoding")) {
+          res.setHeader("content-encoding", "br");
+          if (lowerUrl.endsWith(".js.br"))
+            res.setHeader(
+              "content-type",
+              "application/javascript; charset=utf-8",
+            );
+          else if (lowerUrl.endsWith(".wasm.br"))
+            res.setHeader("content-type", "application/wasm");
+          else if (lowerUrl.endsWith(".data.br"))
+            res.setHeader("content-type", "application/octet-stream");
+          else if (
+            lowerUrl.endsWith(".symbols.json.br") ||
+            lowerUrl.endsWith(".json.br")
+          )
+            res.setHeader("content-type", "application/json; charset=utf-8");
+        } else if (
+          lowerUrl.endsWith(".gz") &&
+          !res.getHeader("content-encoding")
+        ) {
+          if (
+            lowerUrl.endsWith(".js.gz") ||
+            lowerUrl.endsWith(".wasm.gz") ||
+            lowerUrl.endsWith(".data.gz") ||
+            lowerUrl.endsWith(".symbols.json.gz")
+          ) {
+            res.setHeader("content-encoding", "gzip");
+            if (lowerUrl.endsWith(".js.gz"))
+              res.setHeader(
+                "content-type",
+                "application/javascript; charset=utf-8",
+              );
+            else if (lowerUrl.endsWith(".wasm.gz"))
+              res.setHeader("content-type", "application/wasm");
+            else if (lowerUrl.endsWith(".data.gz"))
+              res.setHeader("content-type", "application/octet-stream");
+            else if (lowerUrl.endsWith(".symbols.json.gz"))
+              res.setHeader("content-type", "application/json; charset=utf-8");
+          }
+        }
+
+        res.setHeader("cross-origin-opener-policy", "same-origin");
+        res.setHeader("cross-origin-embedder-policy", "credentialless");
+        res.setHeader("cross-origin-resource-policy", "same-origin");
+        res.setHeader("access-control-allow-origin", "*");
+
+        res.writeHead(proxyRes.statusCode);
+        proxyRes.pipe(res);
+      },
+    );
+
+    proxyReq.on("error", (err) => {
+      console.error(`error proxying ${req.url} to`, targetUrl, err);
+      if (!res.headersSent) res.writeHead(502);
+      res.end();
+    });
+
+    if (sendBody) req.pipe(proxyReq);
+    else proxyReq.end();
+    return;
+  }
+
   // docs: https://github.com/vercel/serve-handler
   if (isCDN && hasTheatreFiles) {
     // docs: https://www.npmjs.com/package/@fastify/send
@@ -854,6 +1002,77 @@ export function handleReq(req, res, middleware, internal = false) {
 // the url / is reserved for astro dev server HMR
 
 export function handleUpgrade(req, socket, head) {
+  const proxiedRoute = findProxiedGameRoute(req.url);
+  if (proxiedRoute) {
+    const subPath = req.url.slice(proxiedRoute.prefix.length);
+    const targetUrl = new URL(
+      subPath.replace(/^\//, ""),
+      proxiedRoute.target,
+    ).toString();
+
+    const headers = { ...req.headers };
+    const parsedTarget = new URL(targetUrl);
+    headers.host = parsedTarget.host;
+    headers.origin = parsedTarget.origin;
+    headers.referer = parsedTarget.href;
+    headers.upgrade = "websocket";
+    headers.connection = "Upgrade";
+
+    const client = parsedTarget.protocol === "https:" ? https : http;
+    const proxyReq = client.request(targetUrl, {
+      method: "GET",
+      headers,
+    });
+
+    proxyReq.on("upgrade", (proxyRes, proxySocket, proxyHead) => {
+      socket.write(
+        `HTTP/1.1 101 Switching Protocols\r\n` +
+          Object.entries(proxyRes.headers)
+            .map(([k, v]) => `${k}: ${v}\r\n`)
+            .join("") +
+          `\r\n`,
+      );
+
+      if (proxyHead && proxyHead.length) {
+        socket.write(proxyHead);
+      }
+      if (head && head.length) {
+        proxySocket.write(head);
+      }
+
+      proxySocket.pipe(socket);
+      socket.pipe(proxySocket);
+
+      proxySocket.on("error", () => socket.destroy());
+      socket.on("error", () => proxySocket.destroy());
+    });
+
+    proxyReq.on("response", (proxyRes) => {
+      // If upstream rejects upgrade (e.g. 403, 400), pass response headers and body
+      socket.write(
+        `HTTP/1.1 ${proxyRes.statusCode} ${proxyRes.statusMessage || "Error"}\r\n` +
+          Object.entries(proxyRes.headers)
+            .map(([k, v]) => `${k}: ${v}\r\n`)
+            .join("") +
+          `\r\n`,
+      );
+      proxyRes.pipe(socket);
+      proxyRes.on("end", () => socket.destroy());
+    });
+
+    proxyReq.on("error", (err) => {
+      console.error(
+        `error proxying websocket upgrade for ${req.url} to`,
+        targetUrl,
+        err,
+      );
+      socket.destroy();
+    });
+
+    proxyReq.end();
+    return;
+  }
+
   if (hostBare && bareServer.shouldRoute(req)) {
     pickByTor(req, bareServer, torBareServer).routeUpgrade(req, socket, head);
     return;
