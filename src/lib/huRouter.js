@@ -15,6 +15,7 @@ import {
   readHUAssetValue,
   readHUImageId,
   readHULaunchId,
+  setEnginePaths,
 } from "./proxyRoutes.js";
 
 const CANONICAL_ORIGIN = "https://holyunb.locker";
@@ -488,7 +489,12 @@ function resolveInternalPath(url, routes) {
   return { type: "none" };
 }
 
-export function createHURouter({ mount }) {
+export function createHURouter({ mount, enginePaths }) {
+  // Optional host-injected engine dist paths ({ uv?, bareModule?, bareMux?,
+  // scramjet? }). When omitted, engine paths resolve lazily the first time an
+  // engine asset route is served; a host that never serves them needs no
+  // engine installed. Constructing the router touches no engine either way.
+  if (enginePaths) setEnginePaths(enginePaths);
   const normalizedMount = mount.endsWith("/") ? mount : `${mount}/`;
 
   return {

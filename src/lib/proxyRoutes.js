@@ -2,10 +2,6 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
-import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
-import { bareModulePath } from "@mercuryworkshop/bare-as-module3";
-import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
-import { scramjetPath } from "@mercuryworkshop/scramjet/path";
 
 export {
   proxyRouteCookie,
@@ -14,8 +10,54 @@ export {
   torCookieMaxAge,
 } from "./proxyRouteCookies.js";
 
+// This module is a data/router module. It must NEVER import the proxy engines
+// (Ultraviolet, scramjet, bare, bare-mux) at the top level: merely importing it
+// — or importing the SDK server/router that bundles it — must not load an
+// engine. The engine dist paths are needed only to serve engine assets under
+// the vendor routes, so they are resolved either from host-injected paths
+// (setEnginePaths) or lazily, the first time an engine asset route is actually
+// served, via this createRequire shim — never via esbuild's __require stub.
+// The shim is defined here, before any engine access.
 const require = createRequire(import.meta.url);
+
 let vendorAssetRegistry;
+let injectedEnginePaths = null;
+let cachedVendorRoots;
+
+/**
+ * Inject engine dist paths from the host so the engine packages are never
+ * required at all: { uv?, bareModule?, bareMux?, scramjet? } (each an absolute
+ * path to that engine's dist dir). Any path left out falls back to lazy
+ * package resolution. Resetting clears the memoized roots/registry.
+ */
+export function setEnginePaths(paths) {
+  injectedEnginePaths = paths && typeof paths === "object" ? paths : null;
+  cachedVendorRoots = undefined;
+  vendorAssetRegistry = undefined;
+}
+
+// Lazily read a named path export (e.g. `uvPath`) from an engine package via
+// the createRequire shim. Returns undefined when the engine is not installed,
+// so a host that never serves that engine's assets never needs it.
+function resolveEnginePath(specifier, named) {
+  try {
+    const mod = require(specifier);
+    const value = mod?.[named];
+    return typeof value === "string" ? value : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// Lazily resolve a package's dir via the createRequire shim; undefined if the
+// package is absent.
+function safeResolveDir(specifier) {
+  try {
+    return path.resolve(require.resolve(specifier), "..");
+  } catch {
+    return undefined;
+  }
+}
 const proxyAssetVersion = "2026-06-headers-v2";
 const astroAssetBase = "/_astro";
 const globalVariableNames = [
@@ -76,28 +118,59 @@ function packageDist(specifier) {
   throw new Error(`Unable to resolve dist dir for ${specifier}`);
 }
 
-export const vendorRoots = {
-  uv: uvPath,
-  baremux: baremuxPath,
-  baremod: bareModulePath,
-  epoxy: packageDist("@mercuryworkshop/epoxy-transport"),
-  libcurl: packageDist("@mercuryworkshop/libcurl-transport"),
-  scram: scramjetPath,
-  scramjet: [
-    path.resolve(require.resolve("@mercuryworkshop/scramjet-controller"), ".."),
-    path.resolve(require.resolve("@mercuryworkshop/scramjet-utils"), ".."),
-  ],
-};
+function safePackageDist(specifier) {
+  try {
+    return packageDist(specifier);
+  } catch {
+    return undefined;
+  }
+}
 
-export const vendorAssetSources = [
-  ["/uv/", vendorRoots.uv],
-  ["/baremux/", vendorRoots.baremux],
-  ["/baremod/", vendorRoots.baremod],
-  ["/epoxy/", vendorRoots.epoxy],
-  ["/libcurl/", vendorRoots.libcurl],
-  ["/scram/", vendorRoots.scram],
-  ["/scramjet/", vendorRoots.scramjet],
-];
+/**
+ * Engine dist roots, resolved lazily (and memoized) on first use. Host-injected
+ * paths (setEnginePaths) win over package resolution; any engine that is both
+ * uninjected and uninstalled resolves to undefined and is skipped by the asset
+ * registry. Because this never runs at import time, importing this module (or
+ * the SDK router) never touches an engine.
+ */
+export function getVendorRoots() {
+  if (cachedVendorRoots) return cachedVendorRoots;
+  const injected = injectedEnginePaths ?? {};
+  cachedVendorRoots = {
+    uv:
+      injected.uv ??
+      resolveEnginePath("@titaniumnetwork-dev/ultraviolet", "uvPath"),
+    baremux:
+      injected.bareMux ??
+      resolveEnginePath("@mercuryworkshop/bare-mux/node", "baremuxPath"),
+    baremod:
+      injected.bareModule ??
+      resolveEnginePath("@mercuryworkshop/bare-as-module3", "bareModulePath"),
+    epoxy: safePackageDist("@mercuryworkshop/epoxy-transport"),
+    libcurl: safePackageDist("@mercuryworkshop/libcurl-transport"),
+    scram:
+      injected.scramjet ??
+      resolveEnginePath("@mercuryworkshop/scramjet/path", "scramjetPath"),
+    scramjet: [
+      safeResolveDir("@mercuryworkshop/scramjet-controller"),
+      safeResolveDir("@mercuryworkshop/scramjet-utils"),
+    ].filter(Boolean),
+  };
+  return cachedVendorRoots;
+}
+
+export function getVendorAssetSources() {
+  const roots = getVendorRoots();
+  return [
+    ["/uv/", roots.uv],
+    ["/baremux/", roots.baremux],
+    ["/baremod/", roots.baremod],
+    ["/epoxy/", roots.epoxy],
+    ["/libcurl/", roots.libcurl],
+    ["/scram/", roots.scram],
+    ["/scramjet/", roots.scramjet],
+  ];
+}
 
 export function createProxyRouteSeed() {
   return crypto.randomBytes(24).toString("hex");
@@ -184,8 +257,8 @@ export function getVendorAssetRegistry() {
   if (vendorAssetRegistry) return vendorAssetRegistry;
 
   const assets = new Map();
-  for (const [publicBase, roots] of vendorAssetSources) {
-    const rootList = Array.isArray(roots) ? roots : [roots];
+  for (const [publicBase, roots] of getVendorAssetSources()) {
+    const rootList = (Array.isArray(roots) ? roots : [roots]).filter(Boolean);
     for (const root of rootList) {
       for (const relativePath of walkFiles(root)) {
         const publicPath = `${publicBase}${relativePath}`;
@@ -230,7 +303,6 @@ function file(files, publicPath) {
 
 export function getProxyRouteMap(seed, mount = "/cdn/") {
   const normalizedSeed = typeof seed === "string" && seed ? seed : "default";
-  const { files, routeFiles } = vendorFileRoutes(normalizedSeed);
   const paths = {
     serviceWorker: routePath(normalizedSeed, "service-worker", ".js"),
     uvService: routePrefix(normalizedSeed, "uv-service"),
@@ -243,56 +315,88 @@ export function getProxyRouteMap(seed, mount = "/cdn/") {
     registerSJ: "/register?sj",
   };
 
-  const assets = {
-    baremuxIndex: file(files, "/baremux/index.js"),
-    baremuxWorker: file(files, "/baremux/worker.js"),
-    baremodIndex: file(files, "/baremod/index.mjs"),
-    epoxyIndex: file(files, "/epoxy/index.mjs"),
-    libcurlIndex: file(files, "/libcurl/index.mjs"),
-    uvBundle: file(files, "/uv/uv.bundle.js"),
-    uvConfig: file(files, "/uv/uv.config.js"),
-    uvHandler: file(files, "/uv/uv.handler.js"),
-    uvClient: file(files, "/uv/uv.client.js"),
-    uvSw: file(files, "/uv/uv.sw.js"),
-    sj: file(files, "/scram/scramjet.js"),
-    sjWasm: file(files, "/scram/scramjet.wasm"),
-    sjControllerApi: file(files, "/scramjet/controller.api.js"),
-    sjControllerInject: file(files, "/scramjet/controller.inject.js"),
-    sjControllerSw: file(files, "/scramjet/controller.sw.js"),
+  const hu = {
+    queryPath: huPath(normalizedSeed, mount, "query"),
+    gamePath: huPath(normalizedSeed, mount, "game"),
+    playPath: huPath(normalizedSeed, mount, "play"),
+    playerPath: `${huPath(normalizedSeed, mount, "player")}.html`,
+    launchBase: "/hub/",
+    webretroPath: huPath(normalizedSeed, mount, "webretro"),
+    assetPrefix: `${huPath(normalizedSeed, mount, "asset")}/`,
+    imagePrefix: `${huPath(normalizedSeed, mount, "image")}/`,
   };
+
+  // The engine-dependent sections (files/routeFiles/assets/uvConfig/sjConfig)
+  // are resolved lazily and memoized, so merely building the route map — as
+  // shouldRoute() does on every request — never walks an engine's dist tree or
+  // loads an engine. They are computed only when a consumer actually reads one
+  // of them, i.e. when serving engine assets. The data API, opaque-token routes
+  // and upgrade matching read only `seed`, `paths` and `hu`, which are pure
+  // seed-derived values.
+  let fileRoutes;
+  let assetMap;
+  function ensureFileRoutes() {
+    if (!fileRoutes) fileRoutes = vendorFileRoutes(normalizedSeed);
+    return fileRoutes;
+  }
+  function ensureAssets() {
+    if (assetMap) return assetMap;
+    const { files } = ensureFileRoutes();
+    assetMap = {
+      baremuxIndex: file(files, "/baremux/index.js"),
+      baremuxWorker: file(files, "/baremux/worker.js"),
+      baremodIndex: file(files, "/baremod/index.mjs"),
+      epoxyIndex: file(files, "/epoxy/index.mjs"),
+      libcurlIndex: file(files, "/libcurl/index.mjs"),
+      uvBundle: file(files, "/uv/uv.bundle.js"),
+      uvConfig: file(files, "/uv/uv.config.js"),
+      uvHandler: file(files, "/uv/uv.handler.js"),
+      uvClient: file(files, "/uv/uv.client.js"),
+      uvSw: file(files, "/uv/uv.sw.js"),
+      sj: file(files, "/scram/scramjet.js"),
+      sjWasm: file(files, "/scram/scramjet.wasm"),
+      sjControllerApi: file(files, "/scramjet/controller.api.js"),
+      sjControllerInject: file(files, "/scramjet/controller.inject.js"),
+      sjControllerSw: file(files, "/scramjet/controller.sw.js"),
+    };
+    return assetMap;
+  }
 
   return {
     seed: normalizedSeed,
-    files,
-    routeFiles,
     paths,
-    assets,
-    hu: {
-      queryPath: huPath(normalizedSeed, mount, "query"),
-      gamePath: huPath(normalizedSeed, mount, "game"),
-      playPath: huPath(normalizedSeed, mount, "play"),
-      playerPath: `${huPath(normalizedSeed, mount, "player")}.html`,
-      launchBase: "/hub/",
-      webretroPath: huPath(normalizedSeed, mount, "webretro"),
-      assetPrefix: `${huPath(normalizedSeed, mount, "asset")}/`,
-      imagePrefix: `${huPath(normalizedSeed, mount, "image")}/`,
+    hu,
+    get files() {
+      return ensureFileRoutes().files;
     },
-    uvConfig: {
-      prefix: paths.uvService,
-      handler: assets.uvHandler,
-      bundle: assets.uvBundle,
-      config: assets.uvConfig,
-      client: assets.uvClient,
-      sw: assets.uvSw,
+    get routeFiles() {
+      return ensureFileRoutes().routeFiles;
     },
-    sjConfig: {
-      prefix: paths.scramService,
-      // The controller bundle reads `config.scramjetPath`, which is rewritten
-      // by rewriteProxyGlobals to the obfuscated identifier. Emit the value
-      // under that same obfuscated key so the controller can resolve it.
-      [globalIdentifier(normalizedSeed, "scramjetPath")]: assets.sj,
-      wasmPath: assets.sjWasm,
-      injectPath: assets.sjControllerInject,
+    get assets() {
+      return ensureAssets();
+    },
+    get uvConfig() {
+      const assets = ensureAssets();
+      return {
+        prefix: paths.uvService,
+        handler: assets.uvHandler,
+        bundle: assets.uvBundle,
+        config: assets.uvConfig,
+        client: assets.uvClient,
+        sw: assets.uvSw,
+      };
+    },
+    get sjConfig() {
+      const assets = ensureAssets();
+      return {
+        prefix: paths.scramService,
+        // The controller bundle reads `config.scramjetPath`, which is rewritten
+        // by rewriteProxyGlobals to the obfuscated identifier. Emit the value
+        // under that same obfuscated key so the controller can resolve it.
+        [globalIdentifier(normalizedSeed, "scramjetPath")]: assets.sj,
+        wasmPath: assets.sjWasm,
+        injectPath: assets.sjControllerInject,
+      };
     },
   };
 }

@@ -36,6 +36,19 @@ export interface HURouter {
   upgrade(req: HURouterRequest, socket: Duplex, head?: Uint8Array): boolean;
 }
 
+/**
+ * Absolute paths to each proxy engine's dist directory. Supplying a path here
+ * means the matching engine package is never required when serving its assets.
+ * Any field left out is resolved lazily (and only if an engine asset route is
+ * actually hit). Importing or constructing the router never touches an engine.
+ */
+export interface HUEnginePaths {
+  uv?: string;
+  bareModule?: string;
+  bareMux?: string;
+  scramjet?: string;
+}
+
 export interface HURouterConfig {
   mount: string;
   /**
@@ -44,6 +57,12 @@ export interface HURouterConfig {
    * pass [] to disable upgrade proxying.
    */
   proxiedGameRoutes?: readonly HUProxiedGameRoute[];
+  /**
+   * Optional engine dist paths. When absent, engine asset paths resolve lazily
+   * on first use, so the router — and its data API, opaque-token routes and
+   * WebSocket upgrade handling — works with no proxy engines installed.
+   */
+  enginePaths?: HUEnginePaths;
 }
 
 export declare const DEFAULT_PROXIED_GAME_ROUTES: readonly HUProxiedGameRoute[];

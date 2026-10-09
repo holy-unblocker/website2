@@ -15,6 +15,22 @@ await mkdir(resolve(dist, "browser"), { recursive: true });
 await mkdir(resolve(dist, "vite"), { recursive: true });
 await mkdir(resolve(dist, "types"), { recursive: true });
 
+// The proxy engines are never imported at the top level by the server/router
+// code (their dist paths are injected by the host or resolved lazily via a
+// createRequire shim at serve time). Marking them external is defense in depth:
+// even if a transitive import crept in, esbuild would leave it as a runtime
+// import rather than inlining UV's CJS lib and tripping its `require("node:…")`
+// through esbuild's __require stub. A consumer that never serves engine assets
+// then never needs these installed.
+const engineExternals = [
+  "@titaniumnetwork-dev/ultraviolet",
+  "@mercuryworkshop/bare-as-module3",
+  "@mercuryworkshop/bare-mux",
+  "@mercuryworkshop/bare-mux/node",
+  "@mercuryworkshop/scramjet",
+  "@mercuryworkshop/scramjet/path",
+];
+
 await build({
   entryPoints: [resolve(__dirname, "src/client/index.ts")],
   outfile: resolve(dist, "client/index.js"),
@@ -31,6 +47,7 @@ await build({
   format: "esm",
   platform: "node",
   target: "node19",
+  external: engineExternals,
 });
 
 await build({
@@ -40,6 +57,7 @@ await build({
   format: "esm",
   platform: "node",
   target: "node19",
+  external: engineExternals,
 });
 
 await build({
