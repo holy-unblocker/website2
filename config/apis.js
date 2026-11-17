@@ -36,25 +36,45 @@ export const theatreFilesPath = theatreFilesEnabled
 export const db = await initDB();
 
 /**
+ * A pool, not a single pg.Client: the database is remote (terp.db) since 2026-11-17, and a
+ * lone Client whose connection drops emits "error" with no listener, which kills the whole
+ * process. The pool discards a broken connection and opens a new one for the next query.
+ * There are no multi-statement transactions here, so queries need not share a connection.
  *
- * @returns {Promise<pg.Client>}
+ * @returns {Promise<pg.Pool>}
  */
 async function initDB() {
   if (!dbEnabled) return undefined;
 
   if (globalThis.hu_db) return globalThis.hu_db;
 
-  const cli = new pg.Client(process.env.DATABASE_URL || appConfig.db);
+  const source = process.env.DATABASE_URL || appConfig.db;
+  const pool = new pg.Pool({
+    ...(typeof source === "string" ? { connectionString: source } : source),
+    max: 10,
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 10_000,
+  });
 
-  cli.connect().catch((err) => {
+  pool.on("error", (err) => {
+    console.error(
+      "db: idle connection lost, the pool will reconnect:",
+      err.message,
+    );
+  });
+
+  // Fail at startup as before when the database is unreachable or the config is wrong.
+  try {
+    await pool.query("SELECT 1;");
+  } catch (err) {
     console.log("failure connecting to db");
     console.error(err);
     process.exit(1);
-  });
+  }
 
-  globalThis.hu_db = cli;
+  globalThis.hu_db = pool;
 
-  return cli;
+  return pool;
 }
 
 export const stripe = stripeEnabled

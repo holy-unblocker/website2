@@ -57,9 +57,9 @@ export const theatreFilesPath: string | undefined;
  */
 export const docker: Dockerode;
 /**
- * postgres connection
+ * postgres connection pool
  */
-export const db: pg.Client;
+export const db: pg.Pool;
 export const stripe: Stripe;
 export const mailer: nodemailer.Transporter;
 
