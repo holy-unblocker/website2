@@ -93,7 +93,7 @@ function withProxyTemplates(
   out = out.replaceAll("/scram/service/", routes.paths.scramService);
   out = out.replaceAll("/sw.js", routes.paths.serviceWorker);
 
-  const files = Object.entries(routes.files).sort(
+  const files = Object.entries(routes.files as Record<string, string>).sort(
     ([left], [right]) => right.length - left.length,
   );
   for (const [publicPath, hashedPath] of files) {

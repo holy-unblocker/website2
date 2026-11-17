@@ -1,4 +1,4 @@
-import type { Client } from "pg";
+import type { Client, Pool } from "pg";
 import type {
   ListData,
   ListOptions,
@@ -79,8 +79,8 @@ function validate(entry: TheatreEntry): entry is TheatreEntry {
 }
 
 export default class TheatreWrapper {
-  client: Client;
-  constructor(client: Client) {
+  client: Client | Pool;
+  constructor(client: Client | Pool) {
     this.client = client;
   }
   async indexID(index: number) {
