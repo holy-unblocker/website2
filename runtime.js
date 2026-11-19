@@ -815,6 +815,15 @@ export function handleReq(req, res, middleware, internal = false) {
             stream.pipe(res);
             return true;
           }
+          // A revalidation that matches (304) or a failed precondition (412): send's answer is
+          // the reply, with no body. Falling through would serve the 404 page in its place.
+          if (statusCode === 304 || statusCode === 412) {
+            applyTheatreStaticHeaders(targetPath, headers);
+            res.writeHead(statusCode, headers);
+            res.end();
+            stream.destroy?.();
+            return true;
+          }
           return false;
         },
       );
