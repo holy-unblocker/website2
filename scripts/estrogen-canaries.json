@@ -291,5 +291,26 @@
       "value": "baremod",
       "reason": "vendored bare module path segment (/baremod/)"
     }
-  ]
+  ],
+  "identifierWords": {
+    "reason": "estrogen's VM keeps the names a classic script declares globally and every global it reads in plain text. A name built from one of these words names the proxy even when it is no canary, as getUV or SJ_PREFIX did. The gate splits each identifier in served scripts and inline page scripts at case changes, digits, _ and $ and fails on any part in this list.",
+    "words": [
+      "uv",
+      "sj",
+      "scram",
+      "scramjet",
+      "ultraviolet",
+      "wisp",
+      "bare",
+      "epoxy",
+      "libcurl",
+      "baremux",
+      "baremod",
+      "mux",
+      "rewriterwasm",
+      "mercury",
+      "titanium",
+      "tomp"
+    ]
+  }
 }

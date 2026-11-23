@@ -3,7 +3,8 @@
 // Runs after scripts/estrogen-build.mjs, over the finished build:
 //
 // 1. `estrogen --check` over the served trees with the canary list. It reports
-//    any file estrogen would still change and any canary it can see.
+//    any file estrogen would still change and any canary it can see, in any
+//    case.
 // 2. A static scan of every file a visitor can be served: dist/client,
 //    public/, and the compiled worker and bootstrap in
 //    dist/server/estrogen-private. Every file type, binary included.
@@ -24,6 +25,12 @@
 // Each canary is searched in plain text (any case), URL-encoded and, when it is
 // long enough not to occur by chance, base64 at all three byte alignments.
 //
+// In every script, and every inline script of a page, each identifier is also
+// split into its words (getUV: get, uv) and fails on a word from
+// identifierWords. estrogen's VM
+// keeps a classic script's global names and the globals it reads in plain
+// text, and such a name can name the proxy without being a canary.
+//
 // Flags: --no-live skips step 3, so every static hit fails. --origin=URL scans
 // a server that is already running instead of starting one.
 import { spawn } from "node:child_process";
@@ -43,7 +50,10 @@ const option = (name) =>
 const verbose = Boolean(process.env.LEAK_GATE_VERBOSE);
 
 const listPath = new URL("./estrogen-canaries.json", import.meta.url);
-const { allow = [] } = JSON.parse(await readFile(listPath, "utf8"));
+const { allow = [], identifierWords } = JSON.parse(
+  await readFile(listPath, "utf8"),
+);
+const nameWords = new Set(identifierWords.words);
 const canaries = await loadCanaries();
 const {
   decodeRelay,
@@ -143,11 +153,52 @@ function insideBase64(text, start, end) {
   return right - left >= base64Run;
 }
 
+// The words of an identifier: getUV is get, uv; SJ_PREFIX is sj, prefix.
+function identifierParts(name) {
+  return name
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    .split(/[\s_$0-9]+/)
+    .filter(Boolean)
+    .map((part) => part.toLowerCase());
+}
+
+// Every identifier in a script, or in a page's inline scripts, with a word
+// from identifierWords as one of its parts. Markup outside <script> is left to
+// the canary scan: the cloak's ciphertext and the page routes (/uv, /sj) fill
+// it with chance and known parts. Runs of base64 (VM bytecode, inline data)
+// are skipped: their "identifiers" are chance.
+function nameHits(where, text, kind) {
+  const hits = new Map();
+  const code =
+    kind === "html"
+      ? [...text.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)]
+          .map((match) => match[1])
+          .join("\n")
+      : text;
+  const source = code.replace(
+    new RegExp(`${base64Char.source}{${base64Run},}`, "g"),
+    " ",
+  );
+  for (const [name] of source.matchAll(/[A-Za-z_$][\w$]*/g)) {
+    if (hits.has(name)) continue;
+    const part = identifierParts(name).find((word) => nameWords.has(word));
+    if (part) hits.set(name, part);
+  }
+  scannedNames += 1;
+  return [...hits].map(
+    ([name, part]) =>
+      `${where}: identifier "${name}" names the proxy ("${part}", identifierWords)`,
+  );
+}
+
 let scannedFiles = 0;
 let scannedBytes = 0;
+let scannedNames = 0;
 
-// Every canary in `buffer`, one message per canary and form.
-function scan(where, buffer) {
+// Every canary in `buffer`, one message per canary and form. With `kind`
+// ("js" or "html"), also every identifier that names the proxy.
+function scan(where, buffer, kind) {
   scannedFiles += 1;
   scannedBytes += buffer.length;
   const text = buffer.toString("latin1");
@@ -182,6 +233,7 @@ function scan(where, buffer) {
       index = haystack.indexOf(needle.needle, index + 1);
     }
   }
+  if (kind) hits.push(...nameHits(where, text, kind));
   return hits;
 }
 
@@ -204,7 +256,14 @@ async function estrogenCheck() {
   const output = await new Promise((resolve, reject) => {
     const child = spawn(
       existsSync(binary) ? binary : "estrogen",
-      ["--check", "-v", "--canary", canaryFile, ...dirs],
+      [
+        "--check",
+        "-v",
+        "--canary-ignore-case",
+        "--canary",
+        canaryFile,
+        ...dirs,
+      ],
       { stdio: ["ignore", "pipe", "pipe"] },
     );
     let out = "";
@@ -215,42 +274,24 @@ async function estrogenCheck() {
   });
   await rm(temp, { recursive: true, force: true });
 
-  const files = { skipped: 0, unchanged: [], other: [] };
-  const known = [];
+  // Every file must be one the build already protected ("skipped") or one
+  // with nothing to protect. Any file estrogen would still change, any canary
+  // it sees and any other line it prints fails the gate.
+  let skipped = 0;
   for (const line of output.out.split("\n")) {
     const match = /^\s+(\w+)\s+(\S+)(?:\s+\((.*)\))?$/.exec(line);
-    if (match) {
-      const [, status, file] = match;
-      if (status === "skipped") files.skipped += 1;
-      else if (status === "unchanged") files.unchanged.push(file);
-      else files.other.push(`${status} ${file}`);
-      continue;
-    }
-    if (line.trim()) known.push(line);
+    if (match?.[1] === "skipped") skipped += 1;
+    else if (match)
+      fail(
+        `estrogen --check: ${match[1]} ${match[2]} (not processed by the build)`,
+      );
+    else if (line.trim() && !/^estrogen: \d+ file\(s\):/.test(line))
+      fail(`estrogen --check: ${line}`);
   }
-  // estrogen 0.5.4 counts an image SVG with nothing to rewrite as
-  // "unprotected" and exits nonzero on it (fixed in 0.5.5, which reports it
-  // as skipped). Such a file holds no script and no text; step 2 scans it
-  // like every other file. Anything else unchanged, or any file estrogen
-  // would still rewrite, fails the gate.
-  for (const file of files.unchanged)
-    if (!file.endsWith(".svg"))
-      fail(`estrogen --check: ${file} is unprotected`);
-  for (const entry of files.other)
-    fail(`estrogen --check: ${entry} (not processed by the build)`);
-  const unexplained = known.filter(
-    (line) =>
-      !/^estrogen: \d+ file\(s\):/.test(line) &&
-      !new RegExp(
-        `^estrogen: ${files.unchanged.length} eligible file\\(s\\) (had nothing to rewrite|are unprotected)`,
-      ).test(line),
-  );
-  for (const line of unexplained) fail(`estrogen --check: ${line}`);
-  if (output.code !== 0 && !files.unchanged.length && !unexplained.length)
+  if (output.code !== 0)
     fail(`estrogen --check exited ${output.code}:\n${output.out}`);
   console.log(
-    `leak gate: estrogen --check exit ${output.code}, ${files.skipped} already protected or not script, ` +
-      `${files.unchanged.length} image SVG(s) with nothing to protect`,
+    `leak gate: estrogen --check exit ${output.code}, ${skipped} files already protected or not script`,
   );
 }
 
@@ -274,7 +315,11 @@ async function staticScan() {
       continue;
     }
     for await (const file of walk(dir)) {
-      const hits = scan(path.relative(root, file), await readFile(file));
+      const hits = scan(
+        path.relative(root, file),
+        await readFile(file),
+        /\.[cm]?js$/.test(file) ? "js" : /\.html?$/.test(file) && "html",
+      );
       if (!hits.length) continue;
       const relative = path.relative(dir, file).split(path.sep).join("/");
       staticHits.push({ url: url && `${url}${relative}`, hits });
@@ -418,7 +463,9 @@ async function scanResponse(label, response) {
   const body = Buffer.from(await response.arrayBuffer());
   for (const hit of scan(`${label} (headers)`, Buffer.from(headers.join("\n"))))
     fail(hit);
-  for (const hit of scan(label, body)) fail(hit);
+  const type = response.headers.get("content-type") ?? "";
+  const kind = /javascript/.test(type) ? "js" : /html/.test(type) && "html";
+  for (const hit of scan(label, body, kind)) fail(hit);
   return body;
 }
 
@@ -602,7 +649,8 @@ if (flag("no-live")) {
 const words = canaries.filter((canary) => canary.word).length;
 console.log(
   `leak gate: ${canaries.length} canaries (${words} whole-word), ${needles.length} encoded forms, ` +
-    `${scannedFiles} files and responses, ${(scannedBytes / 1e6).toFixed(1)} MB scanned`,
+    `${scannedFiles} files and responses, ${(scannedBytes / 1e6).toFixed(1)} MB scanned, ` +
+    `identifiers checked in ${scannedNames} scripts and pages`,
 );
 for (const note of notes) console.log(`leak gate: note: ${note}`);
 

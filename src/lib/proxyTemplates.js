@@ -106,6 +106,18 @@ export async function proxyVendorSource(asset, routes, contents) {
   const { filePath, publicPath } = asset;
   const ext = path.extname(filePath);
   if (path.basename(filePath) === "uv.config.js") return uvConfigSource(routes);
+  // Ultraviolet's stock worker. Nothing registers it, but it is served with the
+  // rest of the package. Its top-level `uv` and `handleRequest` would be
+  // globals, and estrogen's VM keeps a classic script's global names in plain
+  // text; inside a function they are locals the VM hides.
+  if (publicPath === "/uv/sw.js")
+    return stripSourceMappingUrl(
+      withProxyTemplates(
+        `(() => {\n${contents.toString("utf-8")}\n})();\n`,
+        routes,
+        publicPath,
+      ),
+    );
   if (publicPath === "/uv/uv.sw.js") {
     const source = patchUltravioletWorker(contents.toString("utf-8"));
     return withProxyTemplates(source, routes, publicPath);

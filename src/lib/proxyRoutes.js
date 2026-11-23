@@ -61,6 +61,8 @@ function safeResolveDir(specifier) {
 const proxyAssetVersion = "2026-06-headers-v2";
 const astroAssetBase = "/_astro";
 const globalVariableNames = [
+  // Whole, so no "$config" suffix survives the "__uv" rename below.
+  "__uv$config",
   "__uv",
   "$scramjetController",
   "$scramjet",
@@ -98,6 +100,8 @@ const globalVariableNames = [
   "__scramjet_controller_channel",
   /(?<![/_-])bare-mux(-path)?(?![/_-])/g,
   "scramjetTargetHostname",
+  // The global the Scramjet bundle reads its rewriter wasm from.
+  "REWRITERWASM",
   // Public ESM export names of the vendored transports. estrogen keeps a
   // module's export names, so they would ship in plain text; renaming them
   // here renames every importer too.
@@ -252,7 +256,7 @@ export function proxyGlobalIdentifier(routes, label) {
 }
 
 export function proxyUvConfigGlobal(routes) {
-  return `${proxyGlobalIdentifier(routes, "__uv")}$config`;
+  return proxyGlobalIdentifier(routes, "__uv$config");
 }
 
 function walkFiles(root, dir = "") {

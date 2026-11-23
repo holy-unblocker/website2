@@ -38,14 +38,16 @@ const server = path.join(root, "dist/server");
 const privateDir = "estrogen-private";
 const seed = process.env.HU_PROXY_SEED || createProxyRouteSeed();
 const routes = getProxyRouteMap(seed);
-// estrogen fails the build if any file it writes still holds a canary.
-// scripts/leak-gate.mjs then checks every served file, encodings included.
+// estrogen fails the build if any script chunk falls back from the bytecode
+// VM, and if any file it writes to dist/client still holds a canary, in any
+// case. scripts/leak-gate.mjs then checks every served file, the two in
+// dist/server/estrogen-private included, encodings included.
 const canaryDir = await mkdtemp(path.join(tmpdir(), "hu-estrogen-"));
 const canary = path.join(canaryDir, "canaries.json");
 await writeFile(canary, estrogenCanaryJson(await loadCanaries()));
 const common = {
   binaryPath: process.env.ESTROGEN_BIN || undefined,
-  canary,
+  requireVm: true,
   jobs: availableParallelism(),
   // dist/client is served as is; a manifest there would list the engine files.
   manifest: false,
@@ -113,6 +115,8 @@ const ruffle = {
 
 const clientReport = await obfuscate({
   ...common,
+  canary,
+  canaryIgnoreCase: true,
   dirs: client,
   moduleGlobs: ["_astro/*.js"],
   vendor: [...engines, ruffle],
@@ -121,6 +125,10 @@ const clientReport = await obfuscate({
 // 4. The server bundle, plus the two scripts it serves with this build's
 //    routes baked in. They sit in dist/server so only their routes reach them:
 //    the worker needs its scope header, and the bootstrap is per build.
+//    No canary list here: the VM keeps a module's top-level binding names
+//    (estrogen 0.5.5), and the SSR bundle, which no visitor is served, names
+//    its own components and helpers after the engines. The leak gate checks
+//    the two served files with estrogen --check and its own scan.
 const serverReport = await obfuscate({
   ...common,
   dirs: server,

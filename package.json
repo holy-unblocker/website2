@@ -40,7 +40,7 @@
     "@noble/ciphers": "^2.2.0",
     "@ruffle-rs/ruffle": "^0.3.0",
     "@smithy/util-base64": "^4.5.2",
-    "@sysce/estrogen": "0.5.4",
+    "@sysce/estrogen": "0.5.5",
     "@titaniumnetwork-dev/ultraviolet": "https://github.com/titaniumnetwork-dev/Ultraviolet/releases/download/v3.2.8/titaniumnetwork-dev-ultraviolet-headers.tgz",
     "@tomphttp/bare-server-node": "^2.0.6",
     "@types/dockerode": "^4.0.1",
