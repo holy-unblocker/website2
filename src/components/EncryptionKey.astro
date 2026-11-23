@@ -1,1 +1,4 @@
-<div id="eckey" style="display:none" set:text={Astro.locals.clientKey} />
+---
+import { cloakKeyMarkup } from "@sysce/estrogen/cloak/server";
+---
+<Fragment set:html={cloakKeyMarkup(Astro.locals.cloakSession)} />

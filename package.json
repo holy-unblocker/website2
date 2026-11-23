@@ -6,7 +6,10 @@
     "start": "node ./run-server.js",
     "dev": "astro dev",
     "build:sdk": "node ./sdk/build.mjs",
-    "build": "npm run build:sdk && astro check && astro build",
+    "build": "npm run build:sdk && astro check && astro build && npm run build:estrogen && npm run check:leaks",
+    "build:estrogen": "node ./scripts/estrogen-build.mjs",
+    "check:leaks": "node ./scripts/leak-gate.mjs",
+    "test:cloak-browser": "node ./scripts/smoke-cloak-browser.mjs",
     "preview": "astro preview",
     "seed": "node ./dbSeed.js",
     "astro": "astro",
@@ -36,6 +39,7 @@
     "@noble/ciphers": "^2.2.0",
     "@ruffle-rs/ruffle": "^0.3.0",
     "@smithy/util-base64": "^4.5.2",
+    "@sysce/estrogen": "0.5.4",
     "@titaniumnetwork-dev/ultraviolet": "https://github.com/titaniumnetwork-dev/Ultraviolet/releases/download/v3.2.8/titaniumnetwork-dev-ultraviolet-headers.tgz",
     "@tomphttp/bare-server-node": "^2.0.6",
     "@types/dockerode": "^4.0.1",
@@ -72,6 +76,7 @@
     "husky": "^9.1.7",
     "javascript-obfuscator": "^5.4.3",
     "lint-staged": "^17.0.8",
+    "playwright-core": "^1.65.1",
     "prettier": "^3.8.5",
     "tsx": "^4.23.1"
   }

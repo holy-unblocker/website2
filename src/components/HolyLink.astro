@@ -30,38 +30,8 @@ const { href, target, text, ...props } = Astro.props;
   )
 }
 <script>
-  import { holyDecrypt } from "@lib/holyDecrypt";
   import { navigate } from "astro:transitions/client";
+  import { setupSpanCloak } from "@sysce/estrogen/cloak/span";
 
-  const parseLinks = () => {
-    for (const s of document.querySelectorAll<HTMLSpanElement>(
-      "[data-eclink]"
-    )) {
-      const eclink = s.getAttribute("data-eclink")!;
-      s.removeAttribute("data-eclink");
-      const href = holyDecrypt(eclink);
-      const target = s.getAttribute("data-target");
-      s.removeAttribute("data-target");
-
-      s.addEventListener("mouseup", (event) => {
-        if (event.button === 1) {
-          event.preventDefault();
-          window.open(href, "_blank");
-        }
-      });
-
-      s.addEventListener("click", (event) => {
-        event.preventDefault();
-
-        if (event.ctrlKey) {
-          window.open(href, "_blank");
-        } else {
-          if (target !== null) window.open(href, target);
-          else navigate(href);
-        }
-      });
-    }
-  };
-  parseLinks();
-  document.addEventListener("astro:page-load", parseLinks);
+  setupSpanCloak(navigate);
 </script>

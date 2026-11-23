@@ -1,0 +1,224 @@
+{
+  "$comment": "Strings that must never appear in a served file. `canaries` match as substrings (case-insensitive) and are also passed to estrogen's own canary check. `words` are short or common tokens that only match as a whole word, so they cannot fire inside random VM bytecode. scripts/lib/leak-canaries.mjs adds the proxy globals from src/lib/proxyRoutes.js and every vendored engine path. scripts/leak-gate.mjs checks each one in plain, base64 and URL-encoded form.",
+  "canaries": [
+    {
+      "value": "ultraviolet",
+      "reason": "proxy engine name (@titaniumnetwork-dev/ultraviolet)"
+    },
+    {
+      "value": "scramjet",
+      "reason": "proxy engine name (@mercuryworkshop/scramjet)"
+    },
+    {
+      "value": "libcurl",
+      "reason": "transport name (@mercuryworkshop/libcurl-transport)"
+    },
+    {
+      "value": "baremux",
+      "reason": "transport multiplexer, vendored under /baremux/"
+    },
+    {
+      "value": "bare-mux",
+      "reason": "transport multiplexer package and its SharedWorker name"
+    },
+    {
+      "value": "bare-as-module",
+      "reason": "bare transport package (@mercuryworkshop/bare-as-module3)"
+    },
+    {
+      "value": "bareModule",
+      "reason": "bare transport path export (bareModulePath)"
+    },
+    {
+      "value": "bare-server",
+      "reason": "bare server package (@tomphttp/bare-server-node)"
+    },
+    {
+      "value": "epoxy-transport",
+      "reason": "transport package (@mercuryworkshop/epoxy-transport)"
+    },
+    {
+      "value": "epoxyIndex",
+      "reason": "route map key (proxyRoutes.js assets)"
+    },
+    { "value": "epoxyInfo", "reason": "epoxy transport ESM export name" },
+    {
+      "value": "libcurlIndex",
+      "reason": "route map key (proxyRoutes.js assets)"
+    },
+    {
+      "value": "baremuxIndex",
+      "reason": "route map key (proxyRoutes.js assets)"
+    },
+    {
+      "value": "baremuxWorker",
+      "reason": "route map key (proxyRoutes.js assets)"
+    },
+    {
+      "value": "baremodIndex",
+      "reason": "route map key (proxyRoutes.js assets)"
+    },
+    {
+      "value": "BareClient",
+      "reason": "bare-mux and bare-as-module3 ESM export name"
+    },
+    { "value": "BareResponse", "reason": "Scramjet ESM export name" },
+    { "value": "BareWebSocket", "reason": "bare-mux ESM export name" },
+    { "value": "BareMuxConnection", "reason": "bare-mux ESM export name" },
+    { "value": "LibcurlClient", "reason": "libcurl transport ESM export name" },
+    {
+      "value": "mrrowisp",
+      "reason": "wisp server package (run-server.js, runtime.js)"
+    },
+    {
+      "value": "mercuryworkshop",
+      "reason": "engine and transport package scope"
+    },
+    {
+      "value": "mercurywork.shop",
+      "reason": "public wisp backend (config.example.js separateWispServer)"
+    },
+    { "value": "titaniumnetwork", "reason": "Ultraviolet package scope" },
+    { "value": "tomphttp", "reason": "bare server package scope" },
+    {
+      "value": "__uv$config",
+      "reason": "Ultraviolet config global (sw.js, uv.config.js)"
+    },
+    {
+      "value": "uvConfig",
+      "reason": "route map key (proxyRoutes.js uvConfig)"
+    },
+    {
+      "value": "sjConfig",
+      "reason": "route map key (proxyRoutes.js sjConfig)"
+    },
+    { "value": "uvBundle", "reason": "route map key (proxyRoutes.js assets)" },
+    { "value": "uvHandler", "reason": "route map key (proxyRoutes.js assets)" },
+    { "value": "uvClient", "reason": "route map key (proxyRoutes.js assets)" },
+    { "value": "uvService", "reason": "route map key (proxyRoutes.js paths)" },
+    {
+      "value": "scramService",
+      "reason": "route map key (proxyRoutes.js paths)"
+    },
+    {
+      "value": "sjControllerApi",
+      "reason": "route map key (proxyRoutes.js assets)"
+    },
+    {
+      "value": "sjControllerInject",
+      "reason": "route map key (proxyRoutes.js assets)"
+    },
+    {
+      "value": "sjControllerSw",
+      "reason": "route map key (proxyRoutes.js assets)"
+    },
+    { "value": "registerUV", "reason": "route map key (proxyRoutes.js paths)" },
+    { "value": "registerSJ", "reason": "route map key (proxyRoutes.js paths)" },
+    {
+      "value": "uv-service",
+      "reason": "route seed label for the UV service prefix"
+    },
+    {
+      "value": "scram-service",
+      "reason": "route seed label for the Scramjet service prefix"
+    },
+    {
+      "value": "/scram/service/",
+      "reason": "canonical Scramjet service prefix (sw.js, proxyTemplates.js)"
+    },
+    {
+      "value": "2026-06-headers-v2",
+      "reason": "vendor route hash version (proxyRoutes.js proxyAssetVersion)"
+    },
+    {
+      "value": "UV_CONFIG_GLOBAL",
+      "reason": "uv.config.js template placeholder"
+    },
+    { "value": "UV_PREFIX", "reason": "uv.config.js template placeholder" },
+    {
+      "value": "aes_key2",
+      "reason": "localStorage key of the UV URL codec (uv.config.js)"
+    },
+    {
+      "value": "/api/wisp/",
+      "reason": "local wisp endpoint (runtime.js, middleware.ts)"
+    },
+    {
+      "value": "/api/bare/",
+      "reason": "local bare endpoint (runtime.js, middleware.ts)"
+    },
+    {
+      "value": "%{ws}//%{host}",
+      "reason": "default wisp URL template (middleware.ts)"
+    },
+    {
+      "value": "%{protocol}//%{host}",
+      "reason": "default bare URL template (middleware.ts)"
+    },
+    { "value": "separateWispServer", "reason": "config key (config.js)" },
+    { "value": "separateBareServer", "reason": "config key (config.js)" },
+    {
+      "value": "defaultWispServer",
+      "reason": "server config key (middleware.ts)"
+    },
+    {
+      "value": "defaultBareServer",
+      "reason": "server config key (middleware.ts)"
+    },
+    {
+      "value": "defaultWisp",
+      "reason": "site config key (UltravioletScripts.astro)"
+    },
+    {
+      "value": "defaultBare",
+      "reason": "site config key (UltravioletScripts.astro)"
+    },
+    {
+      "value": "wispServer",
+      "reason": "cookie and setting name (cookies.ts, middleware.ts)"
+    },
+    {
+      "value": "bareServer",
+      "reason": "cookie and setting name (cookies.ts, middleware.ts)"
+    },
+    { "value": "newWispUrl", "reason": "former /settings/uv form field name" },
+    { "value": "newBareUrl", "reason": "former /settings/uv form field name" },
+    {
+      "value": "proxyTransport",
+      "reason": "setting name (cookies.ts, env.d.ts)"
+    },
+    {
+      "value": "UVServiceWorker",
+      "reason": "Ultraviolet service worker class (sw.js)"
+    },
+    {
+      "value": "proxy-build.json",
+      "reason": "estrogen build manifest with the route seed (dist/server)"
+    },
+    {
+      "value": "estrogen-private",
+      "reason": "private dir of the compiled worker and bootstrap (dist/server)"
+    },
+    {
+      "value": "HU_PROXY_BUILD",
+      "reason": "server env names of the proxy build"
+    }
+  ],
+  "allow": [
+    {
+      "path": "assets/txt/blacklist.txt",
+      "words": true,
+      "line": "^[a-z0-9.-]+$",
+      "reason": "third-party DNS adblock list (scripts/fetch-adblock.js): a whole-word hit on a line that is only an ad domain, such as err.wisp.cat, is a blocked host, not the proxy"
+    }
+  ],
+  "words": [
+    { "value": "wisp", "reason": "transport protocol name" },
+    { "value": "bare", "reason": "transport protocol name" },
+    { "value": "epoxy", "reason": "transport name" },
+    {
+      "value": "baremod",
+      "reason": "vendored bare module path segment (/baremod/)"
+    }
+  ]
+}

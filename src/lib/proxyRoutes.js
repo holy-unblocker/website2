@@ -98,7 +98,23 @@ const globalVariableNames = [
   "__scramjet_controller_channel",
   /(?<![/_-])bare-mux(-path)?(?![/_-])/g,
   "scramjetTargetHostname",
+  // Public ESM export names of the vendored transports. estrogen keeps a
+  // module's export names, so they would ship in plain text; renaming them
+  // here renames every importer too.
+  "BareMuxConnection",
+  "BareWebSocket",
+  "BareResponse",
+  "BareClient",
+  "LibcurlClient",
+  "epoxyInfo",
 ];
+// The canonical proxy names, for the build's leak gate (scripts/lib/leak-canaries.mjs).
+export function proxyGlobalNames() {
+  return globalVariableNames.map((name) =>
+    name instanceof RegExp ? name.source : name,
+  );
+}
+
 export const obfuscatedVendorRoot = path.resolve(
   process.cwd(),
   "dist/client/_proxy-vendor",
@@ -295,6 +311,34 @@ function vendorFileRoutes(seed) {
   return { files, routeFiles };
 }
 
+// A production build (scripts/estrogen-build.mjs) compiles every engine file
+// once, with one route seed baked in: the hashed vendor paths, the service
+// prefixes and the renamed globals are inside the VM bytecode and cannot be
+// templated per request. run-server.js points HU_PROXY_BUILD_FILE at that
+// build's manifest, and from then on every route map uses the build's seed and
+// its vendored file list, whatever the visitor's cookie says. The dev server
+// never sets it and keeps per-visitor routes.
+let proxyBuild;
+
+export function getProxyBuild() {
+  if (proxyBuild !== undefined) return proxyBuild;
+  const manifestPath = process.env.HU_PROXY_BUILD_FILE;
+  if (!manifestPath) return (proxyBuild = null);
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  const dir = path.dirname(manifestPath);
+  const routeFiles = {};
+  for (const [publicPath, hashedPath] of Object.entries(manifest.files))
+    routeFiles[hashedPath] = publicPath;
+  proxyBuild = {
+    seed: manifest.seed,
+    files: manifest.files,
+    routeFiles,
+    serviceWorker: path.resolve(dir, manifest.serviceWorker),
+    bootstrap: path.resolve(dir, manifest.bootstrap),
+  };
+  return proxyBuild;
+}
+
 function file(files, publicPath) {
   const resolved = files[publicPath];
   if (!resolved) throw new Error(`Missing proxy vendor asset: ${publicPath}`);
@@ -302,7 +346,12 @@ function file(files, publicPath) {
 }
 
 export function getProxyRouteMap(seed, mount = "/cdn/") {
-  const normalizedSeed = typeof seed === "string" && seed ? seed : "default";
+  const build = getProxyBuild();
+  const normalizedSeed = build
+    ? build.seed
+    : typeof seed === "string" && seed
+      ? seed
+      : "default";
   const paths = {
     serviceWorker: routePath(normalizedSeed, "service-worker", ".js"),
     uvService: routePrefix(normalizedSeed, "uv-service"),
@@ -336,7 +385,10 @@ export function getProxyRouteMap(seed, mount = "/cdn/") {
   let fileRoutes;
   let assetMap;
   function ensureFileRoutes() {
-    if (!fileRoutes) fileRoutes = vendorFileRoutes(normalizedSeed);
+    if (!fileRoutes)
+      fileRoutes = build
+        ? { files: build.files, routeFiles: build.routeFiles }
+        : vendorFileRoutes(normalizedSeed);
     return fileRoutes;
   }
   function ensureAssets() {
@@ -402,6 +454,9 @@ export function getProxyRouteMap(seed, mount = "/cdn/") {
 }
 
 export function getProxyAsset(routes, pathname) {
+  // A build serves its compiled engine files from dist/client like any other
+  // static asset; there is nothing to template.
+  if (getProxyBuild()) return;
   const publicPath = routes.routeFiles[pathname];
   if (!publicPath) return;
   return getVendorAssetRegistry().get(publicPath);
@@ -438,6 +493,12 @@ const wasmEmbeddedGlobals = [
   "$scramitize",
   "$scramerr",
   "scramtag",
+  // A rewriter option key. The JS side's config already uses the renamed key
+  // (globalVariableNames), so the wasm has to match it.
+  "scramitize",
+  // The rest of `scramjet.codec.encode` in an error message. Renamed like the
+  // JS side's \bscramjet\b (proxyTemplates.js), so it never ships in clear.
+  "scramjet",
 ];
 
 export function rewriteWasmGlobals(buffer, routes) {

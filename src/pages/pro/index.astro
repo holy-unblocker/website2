@@ -6,6 +6,7 @@ import MainLayout from "@layouts/MainLayout.astro";
 import themeStyles from "@styles/ThemeElements.module.scss";
 import InputPassword from "@components/InputPassword.astro";
 import Banner from "@components/Banner.astro";
+import HolyText from "@components/HolyText.astro";
 import { db } from "@config/apis";
 import { m, createSession, validateCaptcha } from "@lib/util";
 import { verify } from "@lib/hash";
@@ -86,9 +87,9 @@ const bai = Astro.url.searchParams.has("bai");
         </p>
         <h3>Do I have to sign up?</h3>
         <p>
-          We welcome anyone to purchase a subscription from Holy Unblocker, and
-          we greatly benefit from your support, but you don't have to purchase a
-          subscription in order to access Ultraviolet or the rest of the site.
+          <HolyText
+            text="We welcome anyone to purchase a subscription from Holy Unblocker, and we greatly benefit from your support, but you don't have to purchase a subscription in order to access Ultraviolet or the rest of the site."
+          />
         </p>
         <h3>What are the perks?</h3>
         <p>You can check out our pricing page to learn more:</p>

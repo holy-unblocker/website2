@@ -30,6 +30,7 @@ namespace App {
 
     // unique encryption key
     clientKey: string;
+    cloakSession: import("@sysce/estrogen/cloak/server").EncryptionSession;
     encryptText: (data: string) => Promise<string>;
 
     // obfus: import("@lib/Obfuscator").default;

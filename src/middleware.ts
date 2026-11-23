@@ -10,7 +10,7 @@ import { defineMiddleware } from "astro:middleware";
 import engines from "@lib/searchEngines";
 import { getRandomCloak, type AppCloak } from "@lib/cloak";
 import { appConfig } from "@config/config";
-import crypto from "node:crypto";
+import { createRequestCloak } from "@sysce/estrogen/cloak/server";
 import {
   createProxyRouteSeed,
   getProxyRouteMap,
@@ -51,22 +51,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
       301,
     );
 
-  const clientKey = crypto.randomBytes(32);
-  const iv = crypto.randomBytes(16);
-
-  context.locals.clientKey = Buffer.concat([iv, clientKey]).toString("base64");
-
-  const encryptText = async (text: string) => {
-    const cipher = crypto.createCipheriv("aes-256-cbc", clientKey, iv);
-    const encrypted = Buffer.concat([
-      cipher.update(text, "utf8"),
-      cipher.final(),
-    ]);
-    const ivAndCiphertext = encrypted.toString("base64");
-    return ivAndCiphertext;
-  };
-
-  context.locals.encryptText = encryptText;
+  const requestCloak = createRequestCloak();
+  context.locals.clientKey = requestCloak.clientKey;
+  context.locals.cloakSession = requestCloak.session;
+  context.locals.encryptText = requestCloak.encryptText;
 
   const proto = ["localhost", "127.0.0.1"].includes(context.url.hostname)
     ? "http:"

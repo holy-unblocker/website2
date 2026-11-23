@@ -9,6 +9,7 @@ import {
   createHUImagePath,
   createHULaunchPath,
   createProxyRouteSeed,
+  getProxyBuild,
   getProxyRouteMap,
   proxyRouteCookie,
   proxyRouteCookieMaxAge,
@@ -57,7 +58,13 @@ function readBrowserBootstrapSource() {
   throw new Error("Unable to locate built HU browser bootstrap");
 }
 
+let builtBootstrapSource;
+
 function buildBootstrap(hu) {
+  // A build compiled the bootstrap once with its routes baked in.
+  const build = getProxyBuild();
+  if (build)
+    return (builtBootstrapSource ??= fs.readFileSync(build.bootstrap, "utf8"));
   return readBrowserBootstrapSource()
     .replaceAll("__HU_ROUTES__", JSON.stringify(hu))
     .replaceAll("__HU_CATEGORIES__", browserCategories)

@@ -26,16 +26,16 @@ if (Astro.request.method === "POST")
             error = "Please enter a valid proxyMode!";
         }
         break;
-      case "bareServer":
+      case "relayA":
         {
-          const bareServer = data.get("newBareUrl")?.toString();
+          const bareServer = data.get("relayUrlA")?.toString();
           if (!Astro.locals.setBareServer(bareServer))
             error = "Please enter a valid bare server URL!";
         }
         break;
-      case "wispServer":
+      case "relayB":
         {
-          const wispServer = data.get("newWispUrl")?.toString();
+          const wispServer = data.get("relayUrlB")?.toString();
           if (!Astro.locals.setWispServer(wispServer))
             error = "Please enter a valid wisp server URL!";
         }
@@ -110,8 +110,8 @@ if (Astro.request.method === "POST")
       <form method="post" class={styles.row}>
         <p><HolyText text="Transport" /></p>
         <ThemeSelect
-          name="proxyTransport"
-          id="proxyTransport"
+          name="routeVia"
+          id="routeVia"
           class={styles.themeSelect}
           options={[
             { name: "Epoxy", value: "epoxy" },
@@ -188,13 +188,13 @@ if (Astro.request.method === "POST")
       <form method="post" class:list={[styles.row, styles.rowStacked]}>
         <!-- noscript support -->
         <p><HolyText text="Bare Server" /></p>
-        <input type="text" name="type" value="bareServer" hidden />
+        <input type="text" name="type" value="relayA" hidden />
         <div class:list={[themeStyles.ThemeInputBar, styles.inputBar, styles.control]}>
           <input
             class={themeStyles.thinPadRight}
             type="text"
-            name="newBareUrl"
-            id="newBareUrl"
+            name="relayUrlA"
+            id="relayUrlA"
             disabled={Astro.locals.tor}
           />
           <button
@@ -207,13 +207,13 @@ if (Astro.request.method === "POST")
       <form method="post" class:list={[styles.row, styles.rowStacked]}>
         <!-- noscript support -->
         <p><HolyText text="Wisp Server" /></p>
-        <input type="text" name="type" value="wispServer" hidden />
+        <input type="text" name="type" value="relayB" hidden />
         <div class:list={[themeStyles.ThemeInputBar, styles.inputBar, styles.control]}>
           <input
             class={themeStyles.thinPadRight}
             type="text"
-            name="newWispUrl"
-            id="newWispUrl"
+            name="relayUrlB"
+            id="relayUrlB"
             disabled={Astro.locals.tor}
           />
           <button
@@ -263,14 +263,14 @@ if (Astro.request.method === "POST")
     if (proxyMode === null) return;
 
     const proxyTransport =
-      document.querySelector<HTMLInputElement>("#proxyTransport")!;
+      document.querySelector<HTMLInputElement>("#routeVia")!;
 
     proxyTransport.addEventListener("change", () => {
       setProxyTransport(proxyTransport.value);
     });
 
     const newBareUrl = document.getElementById(
-      "newBareUrl",
+      "relayUrlA",
     )! as HTMLInputElement;
     newBareUrl.value = getBareUrl();
     newBareUrl.form!.addEventListener("submit", (event) => {
@@ -306,7 +306,7 @@ if (Astro.request.method === "POST")
     });
 
     const newWispUrl = document.getElementById(
-      "newWispUrl",
+      "relayUrlB",
     )! as HTMLInputElement;
     newWispUrl.value = getWispUrl();
     const tor = document.querySelector<HTMLInputElement>("#tor");

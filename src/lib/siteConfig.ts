@@ -1,4 +1,4 @@
-import { holyDecrypt } from "@lib/holyDecrypt";
+import { holyDecryptJson } from "@sysce/estrogen/cloak";
 import styles from "@styles/UVScripts.module.scss";
 
 export type SiteConfig = {
@@ -26,9 +26,9 @@ export function getSiteConfig(): SiteConfig {
   if (cachedConfig && text === cachedText) return cachedConfig;
 
   cachedText = text;
-  cachedConfig = JSON.parse(
-    holyDecrypt(decodeURIComponent(text)),
-  ) as SiteConfig;
+  const config = holyDecryptJson<SiteConfig>(decodeURIComponent(text));
+  if (!config) throw new Error("Invalid encrypted config data.");
+  cachedConfig = config;
   return cachedConfig;
 }
 

@@ -1,5 +1,6 @@
 // HOLY UNBLOCKER FRONTEND!!
 import http from "node:http";
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
@@ -41,6 +42,15 @@ console.log(
 );
 console.log(block("███████████████████████████"));
 console.log(chalk.italic(`Logs start ${new Date().toTimeString()}`));
+
+// `npm run build` compiles the proxy engines with estrogen and records the
+// route seed they were built for. Serve every visitor that build's routes.
+// HU_PROXY_BUILD=0 falls back to per-visitor routes and runtime templating.
+const proxyBuildFile = fileURLToPath(
+  new URL("./dist/server/proxy-build.json", import.meta.url),
+);
+if (process.env.HU_PROXY_BUILD !== "0" && existsSync(proxyBuildFile))
+  process.env.HU_PROXY_BUILD_FILE = proxyBuildFile;
 
 // we have to dynamically import it because it's dynamically created when `npm run build` is ran
 const { handleReq, handleUpgrade } = await import("./runtime.js");
@@ -101,6 +111,10 @@ try {
 }
 
 console.log(yes, chalk.red.bold("Loaded Astro"));
+console.log(
+  st[+Boolean(process.env.HU_PROXY_BUILD_FILE)],
+  chalk.bold("Proxy engines compiled by estrogen"),
+);
 
 if (!("configName" in appConfig)) {
   console.log("Missing 'configName', invalid config");
@@ -246,14 +260,17 @@ server.on("upgrade", handleUpgrade);
 
 server.on("listening", () => {
   console.log(
-    chalk.italic(
-      `Frontend listening on http://${appConfig.host}:${appConfig.port}/`,
-    ),
+    chalk.italic(`Frontend listening on http://${listenHost}:${listenPort}/`),
   );
   console.log(yes, chalk.bold("Holy Unblocker is running"));
 });
 
+// HU_LISTEN_PORT and HU_LISTEN_HOST override the config, so the build's leak
+// gate (scripts/leak-gate.mjs) can start this build on a spare port.
+const listenPort = Number(process.env.HU_LISTEN_PORT) || appConfig.port;
+const listenHost = process.env.HU_LISTEN_HOST || appConfig.host;
+
 server.listen({
-  port: appConfig.port,
-  host: appConfig.host,
+  port: listenPort,
+  host: listenHost,
 });

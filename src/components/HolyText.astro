@@ -2,6 +2,7 @@
 type Props = astroHTML.JSX.IntrinsicElements["div"] & {
   text: string;
 };
+import { makeDashPlaceholder } from "@sysce/estrogen/cloak";
 
 const { text, ...props } = Astro.props;
 ---
@@ -13,27 +14,12 @@ const { text, ...props } = Astro.props;
     <span
       {...props}
       data-ectext={await Astro.locals.encryptText(text)}
-      set:text={text.split("").map((e) => (e === " " ? e : "-"))}
+      set:text={makeDashPlaceholder(text)}
     />
   )
 }
 <script>
-  import { holyDecrypt } from "@lib/holyDecrypt";
+  import { setupSpanCloak } from "@sysce/estrogen/cloak/span";
 
-  const parseText = () => {
-    if (navigator.webdriver) return;
-
-    for (const t of document.querySelectorAll<HTMLSpanElement>(
-      "[data-ectext]"
-    )) {
-      const ectext = t.getAttribute("data-ectext")!;
-      t.removeAttribute("data-ectext");
-      const text = holyDecrypt(ectext);
-      const root = t.attachShadow({ mode: "closed" });
-      root.append(text);
-    }
-  };
-
-  parseText();
-  document.addEventListener("astro:page-load", parseText);
+  setupSpanCloak();
 </script>

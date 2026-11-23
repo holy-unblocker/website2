@@ -10,8 +10,8 @@ import { viteStaticCopy } from "vite-plugin-static-copy";
 // LOAD RUNTIME FIRST
 // RUNTIME WILL COPY THE EXAMPLE CONFIG IF IT DOESNT EXIST
 
-// we add these hooks to the astro dev server
-const { handleReq, handleUpgrade } = await import("./runtime.js");
+// The runtime starts network services when imported. Only load it when Astro
+// creates the dev server, not while generating a production build.
 
 // only needed for dev server host & port
 const { appConfig } = await import("./config/config.js");
@@ -87,7 +87,8 @@ export default defineConfig({
     {
       name: "Holy Unblocker dev server",
       hooks: {
-        "astro:server:setup": (opts) => {
+        "astro:server:setup": async (opts) => {
+          const { handleReq, handleUpgrade } = await import("./runtime.js");
           const { httpServer } = opts.server;
           const astroMiddleware = httpServer._events.request;
           httpServer._events.request = (req, res) => {

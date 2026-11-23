@@ -3,33 +3,18 @@ import { access, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { Readable } from "node:stream";
-import { transform } from "esbuild";
+import { getProxyAsset, getProxyBuild } from "@lib/proxyRoutes.js";
 import {
-  getProxyAsset,
-  proxyGlobalIdentifier,
-  proxyUvConfigGlobal,
-  rewriteProxyGlobals,
-  rewriteWasmGlobals,
-} from "@lib/proxyRoutes.js";
+  proxyVendorSource,
+  stripSourceMappingUrl,
+  withProxyTemplates,
+} from "@lib/proxyTemplates.js";
 
 const require = createRequire(import.meta.url);
 const publicRoot = path.resolve(process.cwd(), "public");
 const serviceWorkerPath = path.resolve(process.cwd(), "src/lib/sw.js");
-const uvConfigTemplatePath = path.resolve(
-  process.cwd(),
-  "src/lib/uv.config.js",
-);
 const staticRoots = [path.resolve(process.cwd(), "dist/client"), publicRoot];
 const ruffleRoot = path.resolve(require.resolve("@ruffle-rs/ruffle"), "..");
-
-const uvConfigTemplate: Promise<string> = (async () => {
-  const source = await readFile(uvConfigTemplatePath, "utf-8");
-  const { code } = await transform(source, {
-    minify: true,
-    format: "iife",
-  });
-  return code;
-})();
 
 const contentTypes: Record<string, string> = {
   ".js": "application/javascript; charset=utf-8",
@@ -58,83 +43,6 @@ function cacheControlFor(publicPath: string) {
   if (publicPath.startsWith("/scramjet/controller."))
     return "private, no-cache";
   return "private, max-age=31536000, immutable";
-}
-
-function replaceStringLiteral(source: string, from: string, to: string) {
-  let out = source;
-  for (const quote of ["'", '"', "`"]) {
-    out = out.replaceAll(`${quote}${from}${quote}`, `${quote}${to}${quote}`);
-  }
-  return out;
-}
-
-function stripSourceMappingUrl(source: string) {
-  return source.replace(/[\r\n]*\/\/[#@]\s*sourceMappingURL=.*/g, "");
-}
-
-function patchUltravioletWorker(source: string) {
-  // Normalize bare-mux rawHeaders (array or numeric-keyed object) into a plain object.
-  const patched = source.replace(
-    "for(let t in o.rawHeaders)this.headers[t.toLowerCase()]=o.rawHeaders[t]",
-    "for(let t in o.rawHeaders){let e=o.rawHeaders[t];if(Array.isArray(e))this.headers[String(e[0]).toLowerCase()]=e[1];else if(/^\\d+$/.test(t)){let o=String(e),r=o.indexOf(',');r>0&&(this.headers[o.slice(0,r).toLowerCase()]=o.slice(r+1))}else this.headers[t.toLowerCase()]=e}",
-  );
-  if (patched === source) {
-    throw new Error("Unable to patch Ultraviolet worker raw headers.");
-  }
-  return patched;
-}
-
-function withProxyTemplates(
-  source: string,
-  routes: App.Locals["proxyRoutes"],
-  currentPublicPath?: string,
-) {
-  let out = rewriteProxyGlobals(source, routes);
-  out = out.replaceAll("/scram/service/", routes.paths.scramService);
-  out = out.replaceAll("/sw.js", routes.paths.serviceWorker);
-
-  const files = Object.entries(routes.files as Record<string, string>).sort(
-    ([left], [right]) => right.length - left.length,
-  );
-  for (const [publicPath, hashedPath] of files) {
-    out = out.replaceAll(publicPath, hashedPath);
-  }
-
-  if (currentPublicPath) {
-    const currentDir = path.posix.dirname(currentPublicPath);
-    for (const [publicPath, hashedPath] of files) {
-      if (publicPath === currentPublicPath) continue;
-      const relative = path.posix.relative(currentDir, publicPath);
-      if (!relative || relative.startsWith("..")) continue;
-      out = replaceStringLiteral(out, relative, hashedPath);
-      out = replaceStringLiteral(out, `./${relative}`, hashedPath);
-    }
-  }
-
-  out = out.replaceAll(
-    /\bscramjet\b/g,
-    proxyGlobalIdentifier(routes, "scramjet"),
-  );
-
-  return out;
-}
-
-async function uvConfigSource(routes: App.Locals["proxyRoutes"]) {
-  const replacements: Record<string, string> = {
-    UV_CONFIG_GLOBAL: proxyUvConfigGlobal(routes),
-    UV_PREFIX: routes.uvConfig.prefix,
-    UV_HANDLER: routes.uvConfig.handler,
-    UV_BUNDLE: routes.uvConfig.bundle,
-    UV_CONFIG: routes.uvConfig.config,
-    UV_CLIENT: routes.uvConfig.client,
-    UV_SW: routes.uvConfig.sw,
-  };
-
-  const template = await uvConfigTemplate;
-  return template.replace(/%\{(\w+)\}/g, (match, key) => {
-    const value = replacements[key];
-    return value === undefined ? match : value;
-  });
 }
 
 async function existingVendorFile(
@@ -168,56 +76,30 @@ async function vendorResponse(
   routes: App.Locals["proxyRoutes"],
 ) {
   const { filePath, obfuscatedFilePath, publicPath } = asset;
+  const headers = {
+    ...headersFor(filePath),
+    "cache-control": cacheControlFor(publicPath),
+  };
   const ext = path.extname(filePath);
-  const basename = path.basename(filePath);
-  const shouldTemplate = ext === ".js" || ext === ".mjs" || ext === ".cjs";
-
-  if (basename === "uv.config.js") {
-    return new Response(await uvConfigSource(routes), {
-      headers: {
-        ...headersFor(filePath),
-        "cache-control": cacheControlFor(publicPath),
-      },
-    });
-  }
-
-  if (shouldTemplate) {
-    let sourcePath = filePath;
+  let sourcePath = filePath;
+  if (
+    (ext === ".js" || ext === ".mjs" || ext === ".cjs") &&
+    publicPath !== "/uv/uv.sw.js"
+  ) {
     try {
       await access(obfuscatedFilePath);
       sourcePath = obfuscatedFilePath;
     } catch {}
-
-    let source = await readFile(sourcePath, "utf-8");
-    source = stripSourceMappingUrl(
-      withProxyTemplates(source, routes, publicPath),
-    );
-    return new Response(source, {
-      headers: {
-        ...headersFor(filePath),
-        "cache-control": cacheControlFor(publicPath),
-      },
-    });
   }
-
-  if (ext === ".wasm") {
-    const original = await readFile(filePath);
-    const rewritten = rewriteWasmGlobals(original, routes);
-    return new Response(rewritten, {
-      headers: {
-        ...headersFor(filePath),
-        "cache-control": cacheControlFor(publicPath),
-      },
-    });
-  }
+  const served = await proxyVendorSource(
+    asset,
+    routes,
+    await readFile(sourcePath),
+  );
+  if (served !== undefined) return new Response(served, { headers });
 
   const stream = Readable.toWeb(createReadStream(filePath)) as ReadableStream;
-  return new Response(stream, {
-    headers: {
-      ...headersFor(filePath),
-      "cache-control": cacheControlFor(publicPath),
-    },
-  });
+  return new Response(stream, { headers });
 }
 
 export async function proxyAssetResponse(
@@ -225,10 +107,17 @@ export async function proxyAssetResponse(
   routes: App.Locals["proxyRoutes"],
 ) {
   if (pathname === routes.paths.serviceWorker) {
-    const source = await readFile(serviceWorkerPath, "utf-8");
-    const responseSource = stripSourceMappingUrl(
-      withProxyTemplates(source, routes),
-    );
+    // A build compiled the worker once with its routes; it lives outside
+    // dist/client so it is only ever served here, with the scope header.
+    const build = getProxyBuild();
+    const responseSource = build
+      ? await readFile(build.serviceWorker, "utf-8")
+      : stripSourceMappingUrl(
+          withProxyTemplates(
+            await readFile(serviceWorkerPath, "utf-8"),
+            routes,
+          ),
+        );
     return new Response(responseSource, {
       headers: {
         "content-type": "application/javascript; charset=utf-8",
@@ -239,24 +128,13 @@ export async function proxyAssetResponse(
   }
 
   const asset = getProxyAsset(routes, pathname);
-  if (asset) {
-    if (pathname === routes.assets.uvSw) {
-      let source = await readFile(asset.filePath, "utf-8");
-      source = patchUltravioletWorker(source);
-      source = withProxyTemplates(source, routes, asset.publicPath);
-      return new Response(source, {
-        headers: {
-          ...headersFor(asset.filePath),
-          "cache-control": cacheControlFor(asset.publicPath),
-        },
-      });
-    }
-    return vendorResponse(asset, routes);
-  }
+  if (asset) return vendorResponse(asset, routes);
 }
 
 export async function staticAssetResponse(pathname: string) {
-  if (pathname.startsWith("/ruffle/")) {
+  // A build vendors Ruffle into dist/client/ruffle through estrogen, so only
+  // the dev server reads it from node_modules.
+  if (pathname.startsWith("/ruffle/") && !getProxyBuild()) {
     const filePath = await existingVendorFile(
       ruffleRoot,
       decodeURIComponent(pathname.slice("/ruffle/".length)),

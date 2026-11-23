@@ -26,6 +26,7 @@ import { ActivityType, Client, PermissionsBitField } from "discord.js";
 import chalk from "chalk";
 import compression from "compression";
 import {
+  getProxyBuild,
   getProxyRouteMap,
   proxyRouteCookie,
   rewriteProxyGlobals,
@@ -440,7 +441,10 @@ function installProxyResponseHook(req, res, routes) {
     }
 
     const outgoingHeaders = res.getHeaders();
-    buffering = shouldRewriteJavascript(outgoingHeaders);
+    // A build renamed the globals in every first-party script before estrogen
+    // compiled it, and the names now sit in VM bytecode, so only the dev server
+    // renames them per response.
+    buffering = !getProxyBuild() && shouldRewriteJavascript(outgoingHeaders);
     if (shouldSpoofHtmlStatus(req, outgoingHeaders, normalized.statusCode)) {
       normalized.statusCode = 200;
       normalized.statusMessage = "OK";
