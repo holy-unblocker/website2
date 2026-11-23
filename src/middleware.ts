@@ -18,6 +18,18 @@ import {
   proxyRouteCookieMaxAge,
   torCookie,
 } from "@lib/proxyRoutes.js";
+import {
+  decodeEngine,
+  decodeRelay,
+  decodeTransport,
+  encodeEngine,
+  encodeRelay,
+  encodeTransport,
+  engineCookie,
+  legacyRelayCookies,
+  relayCookies,
+  transportCookie,
+} from "@lib/proxyCookies.js";
 
 // 400 days in seconds
 const maxAgeLimit = 60 * 60 * 24 * 400;
@@ -103,7 +115,24 @@ export const onRequest = defineMiddleware(async (context, next) => {
     !("mainWebsite" in appConfig) ||
     context.url.hostname === appConfig.mainWebsite;
 
-  // saves the wispServer or delete it
+  // A relay saved before the cookie rename (proxyCookies.js): adopt its value
+  // and expire the old cookie. The client clears its own copy too.
+  const savedRelay = (kind: "bare" | "wisp") => {
+    const current = decodeRelay(context.cookies.get(relayCookies[kind])?.value);
+    const legacyName = legacyRelayCookies[kind];
+    const legacy = context.cookies.get(legacyName)?.value;
+    if (legacy !== undefined)
+      context.cookies.set(legacyName, "", {
+        domain: context.url.hostname,
+        sameSite: "lax",
+        path: "/",
+        expires: new Date(0),
+        secure: true,
+      });
+    return current ?? (legacy || undefined);
+  };
+
+  // saves the bare server or delete it
   context.locals.setBareServer = (newBareServer) => {
     let validBareServer = typeof newBareServer === "string";
 
@@ -113,19 +142,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
       } catch (err) {}
 
     if (validBareServer) {
-      context.cookies.set("bareServer", newBareServer as string, {
-        domain: context.url.hostname,
-        sameSite: "lax",
-        path: "/",
-        maxAge: maxAgeLimit,
-        secure: true,
-      });
+      context.cookies.set(
+        relayCookies.bare,
+        encodeRelay(newBareServer as string),
+        {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          maxAge: maxAgeLimit,
+          secure: true,
+        },
+      );
       context.locals.bareServer = newBareServer as string;
       return true;
     } else {
       // clear the cookie
-      if (context.cookies.has("bareServer"))
-        context.cookies.set("bareServer", "", {
+      if (context.cookies.has(relayCookies.bare))
+        context.cookies.set(relayCookies.bare, "", {
           domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
@@ -136,9 +169,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
       return false;
     }
   };
-  context.locals.setBareServer(context.cookies.get("bareServer")?.value);
+  context.locals.setBareServer(savedRelay("bare"));
 
-  // saves the wispServer or delete it
+  // saves the wisp server or delete it
   context.locals.setWispServer = (newWispServer) => {
     let validWispServer = typeof newWispServer === "string";
 
@@ -148,19 +181,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
       } catch (err) {}
 
     if (validWispServer) {
-      context.cookies.set("wispServer", newWispServer as string, {
-        domain: context.url.hostname,
-        sameSite: "lax",
-        path: "/",
-        maxAge: maxAgeLimit,
-        secure: true,
-      });
+      context.cookies.set(
+        relayCookies.wisp,
+        encodeRelay(newWispServer as string),
+        {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          maxAge: maxAgeLimit,
+          secure: true,
+        },
+      );
       context.locals.wispServer = newWispServer as string;
       return true;
     } else {
       // clear the cookie
-      if (context.cookies.has("wispServer"))
-        context.cookies.set("wispServer", "", {
+      if (context.cookies.has(relayCookies.wisp))
+        context.cookies.set(relayCookies.wisp, "", {
           domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
@@ -171,7 +208,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       return false;
     }
   };
-  context.locals.setWispServer(context.cookies.get("wispServer")?.value);
+  context.locals.setWispServer(savedRelay("wisp"));
 
   // expose the instance defaults so the client can reset to them (eg when
   // toggling tor off without a full page reload)
@@ -327,19 +364,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
       ["epoxy", "bare"].includes(newProxyTransport);
 
     if (validTransport) {
-      context.cookies.set("trans", newProxyTransport as string, {
-        domain: context.url.hostname,
-        sameSite: "lax",
-        path: "/",
-        maxAge: maxAgeLimit,
-        secure: true,
-      });
+      context.cookies.set(
+        transportCookie,
+        encodeTransport(newProxyTransport as string),
+        {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          maxAge: maxAgeLimit,
+          secure: true,
+        },
+      );
       context.locals.proxyTransport = newProxyTransport as string;
       return true;
     } else {
       // clear the cookie
-      if (context.cookies.has("trans"))
-        context.cookies.set("trans", "", {
+      if (context.cookies.has(transportCookie))
+        context.cookies.set(transportCookie, "", {
           domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
@@ -351,7 +392,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   };
 
-  context.locals.setProxyTransport(context.cookies.get("trans")?.value);
+  context.locals.setProxyTransport(
+    decodeTransport(context.cookies.get(transportCookie)?.value),
+  );
 
   // saves the proxy engine or delete it
   context.locals.setProxyEngine = (newProxyEngine) => {
@@ -360,19 +403,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
       ["uv", "sj"].includes(newProxyEngine);
 
     if (validEngine) {
-      context.cookies.set("engine", newProxyEngine as string, {
-        domain: context.url.hostname,
-        sameSite: "lax",
-        path: "/",
-        maxAge: maxAgeLimit,
-        secure: true,
-      });
+      context.cookies.set(
+        engineCookie,
+        encodeEngine(newProxyEngine as string),
+        {
+          domain: context.url.hostname,
+          sameSite: "lax",
+          path: "/",
+          maxAge: maxAgeLimit,
+          secure: true,
+        },
+      );
       context.locals.proxyEngine = newProxyEngine as string;
       return true;
     } else {
       // clear the cookie
-      if (context.cookies.has("engine"))
-        context.cookies.set("engine", "", {
+      if (context.cookies.has(engineCookie))
+        context.cookies.set(engineCookie, "", {
           domain: context.url.hostname,
           sameSite: "lax",
           path: "/",
@@ -384,7 +431,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   };
 
-  context.locals.setProxyEngine(context.cookies.get("engine")?.value);
+  context.locals.setProxyEngine(
+    decodeEngine(context.cookies.get(engineCookie)?.value),
+  );
 
   // saves the adblock preference or clears it (defaults to off)
   context.locals.setAdblock = (newAdblock) => {

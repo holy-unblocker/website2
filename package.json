@@ -10,6 +10,7 @@
     "build:estrogen": "node ./scripts/estrogen-build.mjs",
     "check:leaks": "node ./scripts/leak-gate.mjs",
     "test:cloak-browser": "node ./scripts/smoke-cloak-browser.mjs",
+    "test:settings-browser": "node ./scripts/smoke-settings-browser.mjs",
     "preview": "astro preview",
     "seed": "node ./dbSeed.js",
     "astro": "astro",

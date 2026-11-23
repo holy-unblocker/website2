@@ -6,6 +6,15 @@ import {
   getProxyEngine,
 } from "./register-sw";
 import { getSiteConfig, setSiteConfig } from "./siteConfig";
+import {
+  encodeEngine,
+  encodeRelay,
+  encodeTransport,
+  engineCookie,
+  legacyRelayCookies,
+  relayCookies,
+  transportCookie,
+} from "./proxyCookies.js";
 
 function getCookie(name: string) {
   for (const cookie of document.cookie.split("; ")) {
@@ -31,6 +40,41 @@ export function clearCookie(name: string) {
   document.cookie = `${name}=; max-age=0; samesite=strict; path=/${cookieDomainAttr()}`;
 }
 
+// The server URI-encodes a cookie value; the client wrote it raw.
+function cookieText(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+// Forget a saved bare or wisp server, under its current and its old name.
+export function clearRelayCookie(kind: "bare" | "wisp") {
+  clearCookie(relayCookies[kind]);
+  clearCookie(legacyRelayCookies[kind]);
+}
+
+// Settings saved before the cookie rename (proxyCookies.js) used names and
+// values that named the proxy. The server adopts them on the next request;
+// this drops the browser's own copy, which may be host-only where the
+// server's expiry cannot reach it.
+export function migrateProxyCookies() {
+  for (const kind of ["bare", "wisp"] as const) {
+    const legacy = getCookie(legacyRelayCookies[kind]);
+    if (legacy === undefined) continue;
+    if (legacy && getCookie(relayCookies[kind]) === undefined)
+      setCookie(relayCookies[kind], encodeRelay(cookieText(legacy)));
+    clearCookie(legacyRelayCookies[kind]);
+  }
+  const transport = getCookie(transportCookie);
+  if (transport === "epoxy" || transport === "bare")
+    setCookie(transportCookie, encodeTransport(transport)!);
+  const engine = getCookie(engineCookie);
+  if (engine === "uv" || engine === "sj")
+    setCookie(engineCookie, encodeEngine(engine)!);
+}
+
 export function setTheme(theme: string) {
   setCookie("theme", theme);
   document.documentElement.setAttribute("data-theme", theme);
@@ -42,14 +86,16 @@ export function setSearchEngine(searchEngine: number) {
 
 export function setProxyTransport(proxyTransport: string) {
   setSiteConfig("transport", proxyTransport);
-  setCookie("trans", proxyTransport);
+  const code = encodeTransport(proxyTransport);
+  if (code) setCookie(transportCookie, code);
   if (getProxyEngine() === "sj") setupScramjet();
   else setupBareMux();
 }
 
 export function setProxyEngine(proxyEngine: string) {
   setSiteConfig("engine", proxyEngine);
-  setCookie("engine", proxyEngine);
+  const code = encodeEngine(proxyEngine);
+  if (code) setCookie(engineCookie, code);
 }
 
 export function setAdblock(enabled: boolean) {
@@ -96,12 +142,12 @@ export function setRuntimeCloak(slug: string) {
 
 export function setBareServer(bareServer: string) {
   setSiteConfig("bare", bareServer);
-  setCookie("bareServer", bareServer);
+  setCookie(relayCookies.bare, encodeRelay(bareServer));
 }
 
 export function setWispServer(wispServer: string) {
   setSiteConfig("wisp", wispServer);
-  setCookie("wispServer", wispServer);
+  setCookie(relayCookies.wisp, encodeRelay(wispServer));
 }
 
 // toggle routing the proxy through tor. the server hosts a second bare/wisp
@@ -115,8 +161,8 @@ export function setTor(enabled: boolean) {
   if (enabled) {
     // drop any custom bare/wisp server so we use this instance's routed ones,
     // and reset the runtime config to the instance defaults
-    clearCookie("bareServer");
-    clearCookie("wispServer");
+    clearRelayCookie("bare");
+    clearRelayCookie("wisp");
     setSiteConfig("bare", config.defaultBare);
     setSiteConfig("wisp", config.defaultWisp);
   }

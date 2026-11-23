@@ -41,7 +41,10 @@
       "value": "epoxyIndex",
       "reason": "route map key (proxyRoutes.js assets)"
     },
-    { "value": "epoxyInfo", "reason": "epoxy transport ESM export name" },
+    {
+      "value": "epoxyInfo",
+      "reason": "epoxy transport ESM export name"
+    },
     {
       "value": "libcurlIndex",
       "reason": "route map key (proxyRoutes.js assets)"
@@ -62,10 +65,22 @@
       "value": "BareClient",
       "reason": "bare-mux and bare-as-module3 ESM export name"
     },
-    { "value": "BareResponse", "reason": "Scramjet ESM export name" },
-    { "value": "BareWebSocket", "reason": "bare-mux ESM export name" },
-    { "value": "BareMuxConnection", "reason": "bare-mux ESM export name" },
-    { "value": "LibcurlClient", "reason": "libcurl transport ESM export name" },
+    {
+      "value": "BareResponse",
+      "reason": "Scramjet ESM export name"
+    },
+    {
+      "value": "BareWebSocket",
+      "reason": "bare-mux ESM export name"
+    },
+    {
+      "value": "BareMuxConnection",
+      "reason": "bare-mux ESM export name"
+    },
+    {
+      "value": "LibcurlClient",
+      "reason": "libcurl transport ESM export name"
+    },
     {
       "value": "mrrowisp",
       "reason": "wisp server package (run-server.js, runtime.js)"
@@ -78,8 +93,14 @@
       "value": "mercurywork.shop",
       "reason": "public wisp backend (config.example.js separateWispServer)"
     },
-    { "value": "titaniumnetwork", "reason": "Ultraviolet package scope" },
-    { "value": "tomphttp", "reason": "bare server package scope" },
+    {
+      "value": "titaniumnetwork",
+      "reason": "Ultraviolet package scope"
+    },
+    {
+      "value": "tomphttp",
+      "reason": "bare server package scope"
+    },
     {
       "value": "__uv$config",
       "reason": "Ultraviolet config global (sw.js, uv.config.js)"
@@ -92,10 +113,22 @@
       "value": "sjConfig",
       "reason": "route map key (proxyRoutes.js sjConfig)"
     },
-    { "value": "uvBundle", "reason": "route map key (proxyRoutes.js assets)" },
-    { "value": "uvHandler", "reason": "route map key (proxyRoutes.js assets)" },
-    { "value": "uvClient", "reason": "route map key (proxyRoutes.js assets)" },
-    { "value": "uvService", "reason": "route map key (proxyRoutes.js paths)" },
+    {
+      "value": "uvBundle",
+      "reason": "route map key (proxyRoutes.js assets)"
+    },
+    {
+      "value": "uvHandler",
+      "reason": "route map key (proxyRoutes.js assets)"
+    },
+    {
+      "value": "uvClient",
+      "reason": "route map key (proxyRoutes.js assets)"
+    },
+    {
+      "value": "uvService",
+      "reason": "route map key (proxyRoutes.js paths)"
+    },
     {
       "value": "scramService",
       "reason": "route map key (proxyRoutes.js paths)"
@@ -112,8 +145,14 @@
       "value": "sjControllerSw",
       "reason": "route map key (proxyRoutes.js assets)"
     },
-    { "value": "registerUV", "reason": "route map key (proxyRoutes.js paths)" },
-    { "value": "registerSJ", "reason": "route map key (proxyRoutes.js paths)" },
+    {
+      "value": "registerUV",
+      "reason": "route map key (proxyRoutes.js paths)"
+    },
+    {
+      "value": "registerSJ",
+      "reason": "route map key (proxyRoutes.js paths)"
+    },
     {
       "value": "uv-service",
       "reason": "route seed label for the UV service prefix"
@@ -134,7 +173,10 @@
       "value": "UV_CONFIG_GLOBAL",
       "reason": "uv.config.js template placeholder"
     },
-    { "value": "UV_PREFIX", "reason": "uv.config.js template placeholder" },
+    {
+      "value": "UV_PREFIX",
+      "reason": "uv.config.js template placeholder"
+    },
     {
       "value": "aes_key2",
       "reason": "localStorage key of the UV URL codec (uv.config.js)"
@@ -155,8 +197,14 @@
       "value": "%{protocol}//%{host}",
       "reason": "default bare URL template (middleware.ts)"
     },
-    { "value": "separateWispServer", "reason": "config key (config.js)" },
-    { "value": "separateBareServer", "reason": "config key (config.js)" },
+    {
+      "value": "separateWispServer",
+      "reason": "config key (config.js)"
+    },
+    {
+      "value": "separateBareServer",
+      "reason": "config key (config.js)"
+    },
     {
       "value": "defaultWispServer",
       "reason": "server config key (middleware.ts)"
@@ -175,14 +223,28 @@
     },
     {
       "value": "wispServer",
-      "reason": "cookie and setting name (cookies.ts, middleware.ts)"
+      "reason": "setting name, and its cookie before proxyCookies.js"
     },
     {
       "value": "bareServer",
-      "reason": "cookie and setting name (cookies.ts, middleware.ts)"
+      "reason": "setting name, and its cookie before proxyCookies.js"
     },
-    { "value": "newWispUrl", "reason": "former /settings/uv form field name" },
-    { "value": "newBareUrl", "reason": "former /settings/uv form field name" },
+    {
+      "value": "newWispUrl",
+      "reason": "former /settings/uv form field name"
+    },
+    {
+      "value": "newBareUrl",
+      "reason": "former /settings/uv form field name"
+    },
+    {
+      "value": "engine=uv",
+      "reason": "engine cookie before proxyCookies.js"
+    },
+    {
+      "value": "engine=sj",
+      "reason": "engine cookie before proxyCookies.js"
+    },
     {
       "value": "proxyTransport",
       "reason": "setting name (cookies.ts, env.d.ts)"
@@ -213,9 +275,18 @@
     }
   ],
   "words": [
-    { "value": "wisp", "reason": "transport protocol name" },
-    { "value": "bare", "reason": "transport protocol name" },
-    { "value": "epoxy", "reason": "transport name" },
+    {
+      "value": "wisp",
+      "reason": "transport protocol name"
+    },
+    {
+      "value": "bare",
+      "reason": "transport protocol name"
+    },
+    {
+      "value": "epoxy",
+      "reason": "transport name"
+    },
     {
       "value": "baremod",
       "reason": "vendored bare module path segment (/baremod/)"

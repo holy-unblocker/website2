@@ -255,7 +255,9 @@ const { cloak } = Astro.locals;
       {!Astro.props.noFooter && <Footer transition:persist />}
     </div>
     <script>
-      import { setTheme } from "@lib/cookies";
+      import { migrateProxyCookies, setTheme } from "@lib/cookies";
+
+      migrateProxyCookies();
 
       // set the initial theme to the user's preference
       if (!document.cookie.includes("theme=")) {
