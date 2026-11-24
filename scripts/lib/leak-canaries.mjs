@@ -56,12 +56,13 @@ export async function loadCanaries() {
   return [...canaries.values()];
 }
 
-// The JSON estrogen reads: substring canaries only, since its check has no
-// notion of a word.
+// The JSON estrogen reads. A word canary is not a substring scan: estrogen
+// redraws a generated identifier whose parts equal it, and leaves bytecode
+// alone. Omitting the flag keeps the old substring scan.
 export function estrogenCanaryJson(canaries) {
   return JSON.stringify({
-    canaries: canaries
-      .filter((canary) => !canary.word)
-      .map(({ value, reason }) => ({ value, reason })),
+    canaries: canaries.map(({ value, reason, word }) =>
+      word ? { value, reason, word: true } : { value, reason },
+    ),
   });
 }
