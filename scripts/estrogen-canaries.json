@@ -272,6 +272,12 @@
       "words": true,
       "line": "^[a-z0-9.-]+$",
       "reason": "third-party DNS adblock list (scripts/fetch-adblock.js): a whole-word hit on a line that is only an ad domain, such as err.wisp.cat, is a blocked host, not the proxy"
+    },
+    {
+      "path": "/assets/blacklist.txt",
+      "words": true,
+      "line": "^[a-z0-9.-]+$",
+      "reason": "the same hagezi list where scripts/fetch-adblock.js writes it now (public/assets/blacklist.txt, gitignored, copied to dist/client/assets/blacklist.txt and fetched by src/lib/sw.js). Ad domains such as err.wisp.cat, bare.id and bare-character.com hit the word canaries wisp and bare. A line that is only a domain is a blocked host; any other hit in the file still fails"
     }
   ],
   "words": [

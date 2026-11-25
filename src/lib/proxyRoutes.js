@@ -214,7 +214,7 @@ function routePrefix(seed, label, ext = ".js") {
   return `${astroAssetBase}/${segment(seed, label)}${ext}/`;
 }
 
-function globalIdentifier(seed, label) {
+function drawIdentifier(seed, label) {
   const length = label.length;
   const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const bytes = crypto
@@ -247,6 +247,52 @@ function globalIdentifier(seed, label) {
   }
 
   return identifier;
+}
+
+// The words scripts/leak-gate.mjs fails on when one is a part of a served
+// identifier (identifierWords in scripts/estrogen-canaries.json; keep the two
+// lists the same). A random mixed-case name splits at case changes too: the
+// BareWebSocket rename KpcKiRmfgPUvS has the part "uv" and failed a build on
+// 2026-11-25, and about 29% of seeds drew at least one such name.
+const leakWords = new Set([
+  "uv",
+  "sj",
+  "scram",
+  "scramjet",
+  "ultraviolet",
+  "wisp",
+  "bare",
+  "epoxy",
+  "libcurl",
+  "baremux",
+  "baremod",
+  "mux",
+  "rewriterwasm",
+  "mercury",
+  "titanium",
+  "tomp",
+]);
+
+// Same split as identifierParts in scripts/leak-gate.mjs.
+function nameParts(name) {
+  return name
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    .split(/[\s_$0-9]+/)
+    .filter(Boolean)
+    .map((part) => part.toLowerCase());
+}
+
+// The first draw is kept when it is clean, so seeds that built before keep
+// their names; a name with a leak-gate word is drawn again.
+function globalIdentifier(seed, label) {
+  for (let attempt = 0; ; attempt += 1) {
+    const name = drawIdentifier(
+      seed,
+      attempt === 0 ? label : `${label}:redraw:${attempt}`,
+    );
+    if (!nameParts(name).some((part) => leakWords.has(part))) return name;
+  }
 }
 
 export function proxyGlobalIdentifier(routes, label) {

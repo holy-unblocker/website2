@@ -10,5 +10,5 @@
     }
   },
   "extends": "astro/tsconfigs/strict",
-  "exclude": ["dist", "public", "sdk/dist"]
+  "exclude": ["dist", "dist.*", "public", "sdk/dist"]
 }

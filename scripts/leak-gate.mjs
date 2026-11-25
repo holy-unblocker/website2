@@ -153,6 +153,46 @@ function insideBase64(text, start, end) {
   return right - left >= base64Run;
 }
 
+// The text website2 encrypts per request is random AES-CBC base64: HolyText's
+// data-ectext, HolyLink's data-eclink, ThemeSelect's data-ts and the
+// URL-encoded siteConfig blob from UltravioletScripts.astro. A short canary
+// turns up in it by chance, too short for the base64 run above: on holy on
+// 2026-11-25 /hub/?v= pages failed on data-ectext="nkBr+LB/Uv/JmEAgnqWiTw=="
+// ("/Uv/") and on "%2FUV%2F" in the siteConfig blob. A hit is excused only
+// inside one of those values, and only when the value decodes to whole 16-byte
+// cipher blocks, so plaintext that lands there is still scanned. Script text
+// never takes this exemption.
+const cipherValues =
+  /\sdata-(?:ectext|eclink|ts)="([^"]*)"|<div class="_siteConfig_\w+">([^<]*)<\/div>/dg;
+const cipherBase64 =
+  /^(?:[A-Za-z0-9+/]{4})+(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+function isCipherBlocks(value) {
+  return (
+    cipherBase64.test(value) && Buffer.from(value, "base64").length % 16 === 0
+  );
+}
+function cipherRanges(text) {
+  const scripts = [
+    ...text.matchAll(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi),
+  ].map((match) => [match.index, match.index + match[0].length]);
+  const ranges = [];
+  for (const match of text.matchAll(cipherValues)) {
+    if (scripts.some(([from, to]) => match.index >= from && match.index < to))
+      continue;
+    const group = match[1] === undefined ? 2 : 1;
+    let value = match[group];
+    if (group === 2)
+      try {
+        value = decodeURIComponent(value);
+      } catch {
+        continue;
+      }
+    if (isCipherBlocks(value)) ranges.push(match.indices[group]);
+  }
+  return ranges;
+}
+let cipherExcused = 0;
+
 // The words of an identifier: getUV is get, uv; SJ_PREFIX is sj, prefix.
 function identifierParts(name) {
   return name
@@ -224,6 +264,9 @@ function scan(where, buffer, kind) {
   const text = buffer.toString("latin1");
   const lower = text.toLowerCase();
   const hits = [];
+  const ciphers = kind === "html" ? cipherRanges(text) : [];
+  const inCipher = (start, end) =>
+    ciphers.some(([from, to]) => start >= from && end <= to);
   for (const needle of needles) {
     const haystack = needle.caseless ? lower : text;
     let index = haystack.indexOf(needle.needle);
@@ -245,6 +288,15 @@ function scan(where, buffer, kind) {
         const context = text
           .slice(Math.max(0, index - 40), end + 40)
           .replace(/[^\x20-\x7e]/g, ".");
+        if (inCipher(index, end)) {
+          cipherExcused += 1;
+          if (verbose)
+            console.log(
+              `leak gate: ciphertext, excused: ${where}: "${needle.canary.value}" (${needle.form}) at ${index}: ${context}`,
+            );
+          index = haystack.indexOf(needle.needle, index + 1);
+          continue;
+        }
         hits.push(
           `${where}: "${needle.canary.value}" (${needle.form}, ${needle.canary.reason}) at ${index}: ${context}`,
         );
@@ -670,7 +722,8 @@ const words = canaries.filter((canary) => canary.word).length;
 console.log(
   `leak gate: ${canaries.length} canaries (${words} whole-word), ${needles.length} encoded forms, ` +
     `${scannedFiles} files and responses, ${(scannedBytes / 1e6).toFixed(1)} MB scanned, ` +
-    `identifiers checked in ${scannedNames} scripts and pages`,
+    `identifiers checked in ${scannedNames} scripts and pages, ` +
+    `${cipherExcused} chance hits in per-request ciphertext excused`,
 );
 for (const note of notes) console.log(`leak gate: note: ${note}`);
 
