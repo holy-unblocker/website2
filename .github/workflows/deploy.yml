@@ -1,0 +1,99 @@
+# Build every push to master, then deploy it to holy (CT 205, 172.16.5.79, through divide).
+#
+# The build job is a check only: it builds with config/config.example.js, because the production
+# config/config.js exists only on holy. The deploy builds again on holy with the real config.
+#
+# HOLY_DEPLOY_KEY is an SSH key in holy's root authorized_keys, pinned to
+# `/usr/local/sbin/website2-deploy-gate` (source: deploy/holy-deploy-gate.sh, installed by hand, CI
+# never updates it). The gate drops to the app user holy and accepts only `deploy <sha>`: it fetches that
+# commit from GitHub, runs npm ci and the build in /home/holy/website2-stage, swaps dist, sdk/dist and
+# node_modules into /home/holy/website2, restarts pm2 `holy`, health-checks :8080 and
+# https://holyunb.locker/ and rolls back on failure. It refuses to deploy if the live checkout has
+# commits or edits to tracked files that are not on GitHub.
+
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch: {}
+
+# Never cancel a running deploy: killing the ssh session mid-swap would leave holy half moved.
+concurrency:
+  group: holy-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  # holy has no public address: CI reaches it through divide, where the same key has a
+  # forwarding-only line (permitopen 172.16.5.79:22, no shell).
+  HOLY_HOST: 172.16.5.79
+  HOLY_HOST_KEY: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbqh97Q0M7Q4NwmTS7DV4NZZ1uhEvKjcc06gCluSCJq
+  JUMP_HOST: 91.199.82.174
+  JUMP_HOST_KEY: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM71k9bEMvZK8FPmBiwlLvfoELeFOqeRUHvmYZnHns1M
+  SITE_URL: https://holyunb.locker/
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # holy runs Node 24 (/usr/bin/node v24.22.3).
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Use the example config
+        run: cp config/config.example.js config/config.js
+
+      - run: npm ci --no-audit --no-fund
+
+      # build:sdk, astro check, astro build, estrogen and the leak gate.
+      - run: npm run build
+
+      - run: test -f dist/server/entry.mjs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure SSH
+        env:
+          HOLY_DEPLOY_KEY: ${{ secrets.HOLY_DEPLOY_KEY }}
+        run: |
+          if [[ -z "$HOLY_DEPLOY_KEY" ]]; then
+            echo "::error::HOLY_DEPLOY_KEY secret is not set"
+            exit 1
+          fi
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$HOLY_DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          {
+            echo "$HOLY_HOST $HOLY_HOST_KEY"
+            echo "$JUMP_HOST $JUMP_HOST_KEY"
+          } > ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host holy
+            HostName $HOLY_HOST
+            User root
+            ProxyJump root@$JUMP_HOST
+          Host *
+            IdentityFile ~/.ssh/id_ed25519
+            IdentitiesOnly yes
+            BatchMode yes
+            StrictHostKeyChecking yes
+            ServerAliveInterval 30
+          EOF
+
+      - name: Deploy ${{ github.sha }} to holy
+        run: ssh holy deploy "$GITHUB_SHA"
+
+      # The gate already health-checks :8080 and the site from holy; this checks it from outside.
+      - name: Verify site responds
+        run: |
+          curl -fsS -m 20 -o /dev/null -w 'site %{http_code}\n' "$SITE_URL?ci=$GITHUB_RUN_ID"
+          curl -fsS -m 60 -o /dev/null -w 'blacklist.txt %{http_code} %{size_download} bytes\n' "${SITE_URL}assets/blacklist.txt"
