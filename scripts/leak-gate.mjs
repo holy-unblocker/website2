@@ -25,7 +25,7 @@
 // Each canary is searched in plain text (any case), URL-encoded and, when it is
 // long enough not to occur by chance, base64 at all three byte alignments.
 //
-// In every script, and every inline script of a page, each identifier is also
+// In every script, and every inline script a page runs, each identifier is also
 // split into its words (getUV: get, uv) and fails on a word from
 // identifierWords. estrogen's VM
 // keeps a classic script's global names and the globals it reads in plain
@@ -168,12 +168,32 @@ function identifierParts(name) {
 // the canary scan: the cloak's ciphertext and the page routes (/uv, /sj) fill
 // it with chance and known parts. Runs of base64 (VM bytecode, inline data)
 // are skipped: their "identifiers" are chance.
+//
+// Only scripts a browser runs are read. A data block such as the theatre
+// player's <script type="application/json" id="gameData"> holds game ids
+// (aglioj15uv splits into aglioj, uv) and huToken() HMACs (F1SjQ1 has sj),
+// which are chance words, not names the VM kept. The canary scan still reads
+// the block's text.
+function runsAsScript(attributes) {
+  const type = /\stype\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i.exec(
+    attributes,
+  );
+  if (!type) return true;
+  const value = (type[1] ?? type[2] ?? type[3]).trim().toLowerCase();
+  return (
+    value === "" ||
+    value === "module" ||
+    /^(?:text|application)\/(?:x-)?(?:java|ecma)script$/.test(value)
+  );
+}
+
 function nameHits(where, text, kind) {
   const hits = new Map();
   const code =
     kind === "html"
-      ? [...text.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)]
-          .map((match) => match[1])
+      ? [...text.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)]
+          .filter((match) => runsAsScript(match[1]))
+          .map((match) => match[2])
           .join("\n")
       : text;
   const source = code.replace(
