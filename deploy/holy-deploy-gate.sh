@@ -33,6 +33,8 @@ if [[ $(id -un) != "$APP_USER" ]]; then
 fi
 
 export HOME=/home/holy
+# runuser keeps root's cwd (/root, mode 700): find and npm fail when they cannot return to it.
+cd "$HOME"
 LIVE=/home/holy/website2
 STAGE=/home/holy/website2-stage
 BACKUPS=/home/holy/website2-dist-backups
@@ -180,8 +182,9 @@ deploy() {
 	fi
 	# Keep origin/master in the live checkout current so `git status` there reads right.
 	git -C "$LIVE" fetch -q origin || true
-	prune_backups
 	log "deployed $sha"
+	# Housekeeping after a good deploy: a failed prune must not turn it into a failed run.
+	prune_backups || log "pruning $BACKUPS failed"
 }
 
 case "${cmd[0]:-}" in
